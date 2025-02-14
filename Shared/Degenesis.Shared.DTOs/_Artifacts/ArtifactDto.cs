@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Degenesis.Shared.DTOs.Artifacts;
+﻿namespace Degenesis.Shared.DTOs._Artifacts;
 
 public class ArtifactDto : ArtifactCreateDto
 {

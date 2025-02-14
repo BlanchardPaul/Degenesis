@@ -1,4 +1,4 @@
-﻿namespace Degenesis.Shared.DTOs.Artifacts;
+﻿namespace Degenesis.Shared.DTOs._Artifacts;
 
 public class ArtifactCreateDto
 {

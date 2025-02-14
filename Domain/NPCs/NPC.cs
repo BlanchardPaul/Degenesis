@@ -1,4 +1,4 @@
-﻿using Domain.Artifacts;
+﻿using Domain._Artifacts;
 using Domain.Burns;
 using Domain.Equipments;
 using Domain.Protections;

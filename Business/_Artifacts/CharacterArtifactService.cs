@@ -1,8 +1,8 @@
 ﻿using DataAccessLayer;
-using Domain.Artifacts;
+using Domain._Artifacts;
 using Microsoft.EntityFrameworkCore;
 
-namespace Business.Artifacts;
+namespace Business._Artifacts;
 public interface ICharacterArtifactService
 {
     Task<CharacterArtifact?> GetByIdAsync(Guid id);

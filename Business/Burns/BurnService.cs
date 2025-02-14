@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs.Burns;
-using Domain.Artifacts;
+using Domain._Artifacts;
 using Domain.Burns;
 using Microsoft.EntityFrameworkCore;
 

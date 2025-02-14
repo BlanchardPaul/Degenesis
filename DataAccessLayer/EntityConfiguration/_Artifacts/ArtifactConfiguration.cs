@@ -1,8 +1,8 @@
-﻿using Domain.Artifacts;
+﻿using Domain._Artifacts;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccessLayer.EntityConfiguration.Artifacts;
+namespace DataAccessLayer.EntityConfiguration._Artifacts;
 internal class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
 {
     public void Configure(EntityTypeBuilder<Artifact> builder)

@@ -1,4 +1,4 @@
-﻿using API.Endpoints.Artifacts;
+﻿using API.Endpoints._Artifacts;
 using API.Endpoints.Burns;
 using API.Endpoints.Characters;
 using API.Endpoints.Equipments;

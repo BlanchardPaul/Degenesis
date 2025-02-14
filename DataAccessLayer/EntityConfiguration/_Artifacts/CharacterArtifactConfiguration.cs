@@ -1,13 +1,8 @@
-﻿using Domain.Artifacts;
+﻿using Domain._Artifacts;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DataAccessLayer.EntityConfiguration.Artifacts;
+namespace DataAccessLayer.EntityConfiguration._Artifacts;
 internal class CharacterArtifactConfiguration : IEntityTypeConfiguration<CharacterArtifact>
 {
     public void Configure(EntityTypeBuilder<CharacterArtifact> builder)

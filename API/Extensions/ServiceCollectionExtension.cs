@@ -1,5 +1,5 @@
 ﻿using Business;
-using Business.Artifacts;
+using Business._Artifacts;
 using Business.Burns;
 using Business.Characters;
 using Business.Equipments;

@@ -1,8 +1,8 @@
-﻿using Business.Artifacts;
-using Degenesis.Shared.DTOs.Artifacts;
-using Domain.Artifacts;
+﻿using Business._Artifacts;
+using Degenesis.Shared.DTOs._Artifacts;
+using Domain._Artifacts;
 
-namespace API.Endpoints.Artifacts;
+namespace API.Endpoints._Artifacts;
 
 public static class ArtifactEndpoints
 {

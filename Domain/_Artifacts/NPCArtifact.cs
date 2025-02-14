@@ -1,6 +1,6 @@
 ﻿using Domain.NPCs;
 
-namespace Domain.Artifacts;
+namespace Domain._Artifacts;
 
 public class NPCArtifact
 {

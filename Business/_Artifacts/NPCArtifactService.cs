@@ -1,13 +1,9 @@
 ﻿using DataAccessLayer;
-using Domain.Artifacts;
+using Domain._Artifacts;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Business.Artifacts;
+
+namespace Business._Artifacts;
 public interface INPCArtifactService
 {
     Task<NPCArtifact?> GetByIdAsync(Guid id);

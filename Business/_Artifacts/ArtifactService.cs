@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
-using Degenesis.Shared.DTOs.Artifacts;
-using Domain.Artifacts;
-using Humanizer;
+using Degenesis.Shared.DTOs._Artifacts;
+using Domain._Artifacts;
 using Microsoft.EntityFrameworkCore;
 
-namespace Business.Artifacts;
+namespace Business._Artifacts;
 public interface IArtifactService
 {
     Task<IEnumerable<Artifact>> GetAllAsync();

@@ -1,6 +1,6 @@
-﻿using Degenesis.Shared.DTOs.Artifacts;
+﻿using Degenesis.Shared.DTOs._Artifacts;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Artifacts;
+namespace Degenesis.UI.Blazor.Components.Pages._Artifacts;
 
 public partial class ArtifactList
 {

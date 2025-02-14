@@ -1,4 +1,4 @@
-﻿namespace Domain.Artifacts;
+﻿namespace Domain._Artifacts;
 
 public class Artifact
 {

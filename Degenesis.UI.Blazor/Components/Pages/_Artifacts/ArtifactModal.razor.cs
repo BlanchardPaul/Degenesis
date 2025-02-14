@@ -1,7 +1,7 @@
-﻿using Degenesis.Shared.DTOs.Artifacts;
+﻿using Degenesis.Shared.DTOs._Artifacts;
 using Microsoft.AspNetCore.Components;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Artifacts;
+namespace Degenesis.UI.Blazor.Components.Pages._Artifacts;
 
 public partial class ArtifactModal
 {

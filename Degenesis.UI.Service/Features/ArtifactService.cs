@@ -1,4 +1,4 @@
-﻿using Degenesis.Shared.DTOs.Artifacts;
+﻿using Degenesis.Shared.DTOs._Artifacts;
 using System.Net.Http.Json;
 
 namespace Degenesis.UI.Service.Features;

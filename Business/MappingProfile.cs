@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Degenesis.Shared.DTOs.Artifacts;
+using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.Shared.DTOs.Burns;
-using Domain.Artifacts;
+using Domain._Artifacts;
 using Domain.Burns;
 
 namespace Business;

@@ -1,7 +1,7 @@
-﻿using Business.Artifacts;
-using Domain.Artifacts;
+﻿using Business._Artifacts;
+using Domain._Artifacts;
 
-namespace API.Endpoints.Artifacts;
+namespace API.Endpoints._Artifacts;
 
 public static class NPCArtifactEndpoints
 {
