@@ -1,0 +1,31 @@
+﻿using Domain.Characters;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore;
+
+namespace DataAccessLayer.EntityConfiguration.Characters;
+internal class SkillConfiguration : IEntityTypeConfiguration<Skill>
+{
+    public void Configure(EntityTypeBuilder<Skill> builder)
+    {
+        builder.ToTable("Skills");
+
+        builder.HasKey(s => s.Id);
+
+        builder.Property(s => s.Id)
+            .IsRequired()
+            .ValueGeneratedOnAdd();
+
+        builder.Property(s => s.Name)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(s => s.Description)
+            .IsRequired()
+            .HasMaxLength(1000);
+
+        builder.HasOne(s => s.Attribute)
+            .WithMany()
+            .HasForeignKey(s => s.AttributeId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}

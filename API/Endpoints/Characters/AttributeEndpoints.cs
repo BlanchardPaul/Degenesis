@@ -1,0 +1,42 @@
+﻿using Business.Characters;
+using Domain.Characters;
+
+namespace API.Endpoints.Characters;
+
+public static class AttributeEndpoints
+{
+    public static void MapAttributeEndpoints(this IEndpointRouteBuilder app)
+    {
+        var group = app.MapGroup("/attributes").WithTags("Attributes");
+
+        group.MapGet("/{id:guid}", async (Guid id, IAttributeService service) =>
+        {
+            var attribute = await service.GetAttributeByIdAsync(id);
+            return attribute is not null ? Results.Ok(attribute) : Results.NotFound();
+        });
+
+        group.MapGet("/", async (IAttributeService service) =>
+        {
+            var attributes = await service.GetAllAttributesAsync();
+            return Results.Ok(attributes);
+        });
+
+        group.MapPost("/", async (CAttribute attribute, IAttributeService service) =>
+        {
+            var created = await service.CreateAttributeAsync(attribute);
+            return Results.Created($"/attributes/{created.Id}", created);
+        });
+
+        group.MapPut("/{id:guid}", async (Guid id, CAttribute attribute, IAttributeService service) =>
+        {
+            var success = await service.UpdateAttributeAsync(id, attribute);
+            return success ? Results.NoContent() : Results.NotFound();
+        });
+
+        group.MapDelete("/{id:guid}", async (Guid id, IAttributeService service) =>
+        {
+            var success = await service.DeleteAttributeAsync(id);
+            return success ? Results.NoContent() : Results.NotFound();
+        });
+    }
+}

@@ -1,0 +1,55 @@
+﻿@page "/artifacts"
+@using Degenesis.Shared.DTOs
+@using Degenesis.UI.Service.Features
+@inject ArtifactService ArtifactService
+
+<h3>Artifacts</h3>
+
+<button class="btn btn-primary" @onclick="ShowCreateDialog">Create New Artifact</button>
+
+@if (artifacts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Energy Storage</th>
+                <th>Actions</th>
+                <th>Magazine</th>
+                <th>Encumbrance</th>
+                <th>Activation</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var artifact in artifacts)
+            {
+                <tr>
+                    <td>@artifact.Name</td>
+                    <td>@artifact.Description</td>
+                    <td>@artifact.EnergyStorage</td>
+                    <td>@artifact.Magazine</td>
+                    <td>@artifact.Encumbrance</td>
+                    <td>@artifact.Activation</td>
+                    <td>@artifact.Value</td>
+                    <td>
+                        <button class="btn btn-info" @onclick="() => ShowEditDialog(artifact.Id)">Edit</button>
+                        <button class="btn btn-danger" @onclick="() => DeleteArtifact(artifact.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<ArtifactModal Title="@modalTitle"
+               Artifact="@currentArtifact"
+               IsVisible="@isModalVisible"
+               IsVisibleChanged="@(value => isModalVisible = value)"
+               OnSave="SaveArtifact"
+               OnCancel="CloseModal" />
