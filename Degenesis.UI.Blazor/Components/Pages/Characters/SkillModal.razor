@@ -1,0 +1,19 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Skill.Name" Required="true" />
+
+        <MudTextField Label="Description" @bind-Value="Skill.Description" Required="true" />
+
+        <MudSelect Label="Attribute" @bind-Value="Skill.CAttributeId" Required="true" Placeholder="Sélectionner une valeur">
+            @foreach (var cattribute in Attributes)
+            {
+                <MudSelectItem Value="@cattribute.Id">@cattribute.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveSkill" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

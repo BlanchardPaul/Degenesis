@@ -1,21 +1,26 @@
 ﻿using Degenesis.Shared.DTOs._Artifacts;
+using Degenesis.UI.Service.Features;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using System.ComponentModel.DataAnnotations;
 
 namespace Degenesis.UI.Blazor.Components.Pages._Artifacts;
 
 public partial class ArtifactModal
 {
-    [Parameter] public string Title { get; set; } = "Modal";
+    [Inject] private ArtifactService ArtifactService { get; set; } = default!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
     [Parameter] public ArtifactDto Artifact { get; set; } = new();
-    [Parameter] public EventCallback OnSave { get; set; }
-    [Parameter] public EventCallback OnCancel { get; set; }
-    [Parameter] public bool IsVisible { get; set; }
 
-    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
-
-    private async Task Close()
+    private async Task SaveArtifact()
     {
-        await IsVisibleChanged.InvokeAsync(false);
-        await OnCancel.InvokeAsync();
+        if (Artifact.Id == Guid.Empty)
+            await ArtifactService.CreateArtifactAsync(Artifact);
+        else
+            await ArtifactService.UpdateArtifactAsync(Artifact);
+
+        MudDialog.Close(DialogResult.Ok(true));
     }
+
+    private void Cancel() => MudDialog.Cancel();
 }

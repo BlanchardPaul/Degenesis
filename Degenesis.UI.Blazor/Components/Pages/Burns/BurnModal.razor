@@ -1,37 +1,15 @@
-﻿@if (IsVisible)
-{
-    <div class="modal-background">
-        <div class="modal">
-            <div class="modal-header">
-                <h4>@Title</h4>
-                <button class="close-btn" @onclick="Close">×</button>
-            </div>
-            <div class="modal-body">
-                <label for="burnName">Name</label>
-                <input @bind="Burn.Name" id="burnName" placeholder="Name" class="form-control mb-2" />
-
-                <label for="burnDescription">Description</label>
-                <input @bind="Burn.Description" id="burnDescription" placeholder="Description" class="form-control mb-2" />
-
-                <label for="burnChakra">Chakra</label>
-                <input @bind="Burn.Chakra" id="burnChakra" placeholder="Chakra" class="form-control mb-2" />
-
-                <label for="burnEarthChakra">Earth Chakra</label>
-                <input @bind="Burn.EarthChakra" id="burnEarthChakra" placeholder="Earth Chakra" class="form-control mb-2" />
-
-                <label for="burnEffect">Effect</label>
-                <input @bind="Burn.Effect" id="burnEffect" placeholder="Effect" class="form-control mb-2" />
-
-                <label for="burnWeakCost">Weak Cost</label>
-                <input @bind="Burn.WeakCost" id="burnWeakCost" placeholder="Weak Cost" type="number" class="form-control mb-2" />
-
-                <label for="burnPotentCost">Potent Cost</label>
-                <input @bind="Burn.PotentCost" id="burnPotentCost" placeholder="Potent Cost" type="number" class="form-control mb-2" />
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" @onclick="() => OnSave.InvokeAsync()">Save</button>
-                <button class="btn btn-secondary" @onclick="Close">Cancel</button>
-            </div>
-        </div>
-    </div>
-}
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Burn.Name" />
+        <MudTextField Label="Description" @bind-Value="Burn.Description" />
+        <MudTextField Label="Chakra" @bind-Value="Burn.Chakra" />
+        <MudTextField Label="Earth Chakra" @bind-Value="Burn.EarthChakra" />
+        <MudTextField Label="Effect" @bind-Value="Burn.Effect" />
+        <MudNumericField Label="Weak Cost" @bind-Value="Burn.WeakCost" />
+        <MudNumericField Label="Potent Cost" @bind-Value="Burn.PotentCost" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="SaveBurn" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

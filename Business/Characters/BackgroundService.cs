@@ -1,6 +1,9 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Characters;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Business.Characters;
 
@@ -8,17 +11,19 @@ public interface IBackgroundService
 {
     Task<Background?> GetBackgroundByIdAsync(Guid id);
     Task<IEnumerable<Background>> GetAllBackgroundsAsync();
-    Task<Background> CreateBackgroundAsync(Background background);
-    Task<bool> UpdateBackgroundAsync(Guid id, Background background);
+    Task<Background> CreateBackgroundAsync(BackgroundCreateDto background);
+    Task<bool> UpdateBackgroundAsync(Background background);
     Task<bool> DeleteBackgroundAsync(Guid id);
 }
 public class BackgroundService : IBackgroundService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public BackgroundService(ApplicationDbContext context)
+    public BackgroundService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<Background?> GetBackgroundByIdAsync(Guid id)
@@ -32,20 +37,21 @@ public class BackgroundService : IBackgroundService
         return await _context.Backgrounds.ToListAsync();
     }
 
-    public async Task<Background> CreateBackgroundAsync(Background background)
+    public async Task<Background> CreateBackgroundAsync(BackgroundCreateDto backgroundCreate)
     {
+        var background = _mapper.Map<Background>(backgroundCreate);
         _context.Backgrounds.Add(background);
         await _context.SaveChangesAsync();
         return background;
     }
 
-    public async Task<bool> UpdateBackgroundAsync(Guid id, Background background)
+    public async Task<bool> UpdateBackgroundAsync(Background background)
     {
-        var existingBackground = await _context.Backgrounds.FindAsync(id);
-        if (existingBackground == null)
-            return false;
+        var existing = await _context.Backgrounds.FindAsync(background.Id);
+        if (existing == null) return false;
 
-        _context.Entry(existingBackground).CurrentValues.SetValues(background);
+        _mapper.Map(background, existing);
+
         await _context.SaveChangesAsync();
         return true;
     }

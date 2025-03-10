@@ -1,12 +1,16 @@
 using Degenesis.UI.Blazor.Components;
 using Degenesis.UI.Blazor.Extensions;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMudServices();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddApplicationServices();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

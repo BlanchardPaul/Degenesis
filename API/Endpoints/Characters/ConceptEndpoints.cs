@@ -1,4 +1,5 @@
 ﻿using Business.Characters;
+using Degenesis.Shared.DTOs.Characters;
 using Domain.Characters;
 
 namespace API.Endpoints.Characters;
@@ -21,15 +22,15 @@ public static class ConceptEndpoints
             return concept is not null ? Results.Ok(concept) : Results.NotFound();
         });
 
-        group.MapPost("/", async (Concept concept, IConceptService service) =>
+        group.MapPost("/", async (ConceptCreateDto concept, IConceptService service) =>
         {
             var created = await service.CreateConceptAsync(concept);
             return Results.Created($"/concepts/{created.Id}", created);
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, Concept concept, IConceptService service) =>
+        group.MapPut("/", async (ConceptDto concept, IConceptService service) =>
         {
-            var success = await service.UpdateConceptAsync(id, concept);
+            var success = await service.UpdateConceptAsync(concept);
             return success ? Results.NoContent() : Results.NotFound();
         });
 

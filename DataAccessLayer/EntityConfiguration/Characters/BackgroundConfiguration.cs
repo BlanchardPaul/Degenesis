@@ -12,7 +12,6 @@ internal class BackgroundConfiguration : IEntityTypeConfiguration<Background>
         builder.HasKey(b => b.Id);
 
         builder.Property(b => b.Id)
-            .ValueGeneratedNever()
             .HasDefaultValueSql("NEWID()");
 
         builder.Property(b => b.Name)

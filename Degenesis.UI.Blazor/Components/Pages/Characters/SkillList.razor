@@ -1,0 +1,34 @@
+﻿@page "/skills"
+@using Degenesis.Shared.DTOs.Characters
+@using Degenesis.UI.Service.Features.Characters
+@inject SkillService SkillService
+@inject AttributeService AttributeService
+
+<h3>Skills</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Skill</MudButton>
+
+@if (skills == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@skills" Hover="true" LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Attribute</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Attribute">@context.CAttribute.Name</MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteSkill(context.Id)">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

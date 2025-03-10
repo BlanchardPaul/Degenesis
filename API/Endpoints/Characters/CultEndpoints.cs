@@ -1,5 +1,5 @@
 ﻿using Business.Characters;
-using Domain.Characters;
+using Degenesis.Shared.DTOs.Characters;
 
 namespace API.Endpoints.Characters;
 
@@ -21,15 +21,15 @@ public static class CultEndpoints
             return cult is not null ? Results.Ok(cult) : Results.NotFound();
         });
 
-        group.MapPost("/", async (Cult cult, ICultService service) =>
+        group.MapPost("/", async (CultCreateDto cult, ICultService service) =>
         {
             var createdCult = await service.CreateCultAsync(cult);
             return Results.Created($"/cults/{createdCult.Id}", createdCult);
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, Cult cult, ICultService service) =>
+        group.MapPut("/", async (CultDto cult, ICultService service) =>
         {
-            var success = await service.UpdateCultAsync(id, cult);
+            var success = await service.UpdateCultAsync(cult);
             return success ? Results.NoContent() : Results.NotFound();
         });
 

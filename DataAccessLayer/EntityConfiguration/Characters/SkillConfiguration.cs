@@ -23,9 +23,12 @@ internal class SkillConfiguration : IEntityTypeConfiguration<Skill>
             .IsRequired()
             .HasMaxLength(1000);
 
-        builder.HasOne(s => s.Attribute)
-            .WithMany()
-            .HasForeignKey(s => s.AttributeId)
+        builder.Property(s => s.CAttributeId)
+            .IsRequired();
+
+        builder.HasOne(s => s.CAttribute)
+            .WithMany(a => a.Skills)
+            .HasForeignKey(s => s.CAttributeId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

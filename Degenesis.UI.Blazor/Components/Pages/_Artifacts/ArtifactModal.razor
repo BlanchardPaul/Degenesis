@@ -1,37 +1,15 @@
-﻿@if (IsVisible)
-{
-    <div class="modal-background">
-        <div class="modal">
-            <div class="modal-header">
-                <h4>@Title</h4>
-                <button class="close-btn" @onclick="Close">×</button>
-            </div>
-            <div class="modal-body">
-                <label for="artifactName">Name</label>
-                <input @bind="Artifact.Name" id="artifactName" placeholder="Name" class="form-control mb-2" />
-
-                <label for="artifactDescription">Description</label>
-                <input @bind="Artifact.Description" id="artifactDescription" placeholder="Description" class="form-control mb-2" />
-
-                <label for="artifactEnergyStorage">Energy Storage</label>
-                <input @bind="Artifact.EnergyStorage" id="artifactEnergyStorage" placeholder="Energy Storage" class="form-control mb-2" />
-
-                <label for="artifactMagazine">Magazine</label>
-                <input @bind="Artifact.Magazine" id="artifactMagazine" placeholder="Magazine" type="number" class="form-control mb-2" />
-
-                <label for="artifactEncumbrance">Encumbrance</label>
-                <input @bind="Artifact.Encumbrance" id="artifactEncumbrance" placeholder="Encumbrance" type="number" class="form-control mb-2" />
-
-                <label for="artifactActivation">Activation</label>
-                <input @bind="Artifact.Activation" id="artifactActivation" placeholder="Activation" type="number" class="form-control mb-2" />
-
-                <label for="artifactValue">Value</label>
-                <input @bind="Artifact.Value" id="artifactValue" placeholder="Value" type="number" class="form-control mb-2" />
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" @onclick="() => OnSave.InvokeAsync()">Save</button>
-                <button class="btn btn-secondary" @onclick="Close">Cancel</button>
-            </div>
-        </div>
-    </div>
-}
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Artifact.Name" />
+        <MudTextField Label="Description" @bind-Value="Artifact.Description" />
+        <MudNumericField Label="Energy Storage" @bind-Value="Artifact.EnergyStorage" />
+        <MudNumericField Label="Magazine" @bind-Value="Artifact.Magazine" />
+        <MudNumericField Label="Encumbrance" @bind-Value="Artifact.Encumbrance" />
+        <MudTextField Label="Activation" @bind-Value="Artifact.Activation" />
+        <MudNumericField Label="Value" @bind-Value="Artifact.Value" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="SaveArtifact" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

@@ -1,0 +1,32 @@
+﻿@page "/attributes"
+@using Degenesis.Shared.DTOs.Characters
+@using Degenesis.UI.Service.Features.Characters
+@inject AttributeService AttributeService
+
+<h3>Attributes</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Attribute</MudButton>
+
+@if (attributes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@attributes" Hover="true" LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Abbreviation</MudTh>
+            <MudTh>Description</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Abbreviation">@context.Abbreviation</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteAttribute(context.Id)">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

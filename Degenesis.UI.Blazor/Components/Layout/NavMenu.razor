@@ -1,23 +1,11 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Degenesis.UI.Blazor</a>
-    </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="artifacts">
-                Artifacts
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="burns">
-                Burns
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
+﻿<MudNavMenu>
+    <MudNavLink Href="/artifacts">Artifacts</MudNavLink>
+    <MudNavLink Href="/burns">Burns</MudNavLink>
+    <MudNavGroup Title="Characters" Icon="@Icons.Material.Filled.Menu" Expanded="false">
+        <MudNavLink Href="/attributes">Attributes</MudNavLink>
+        <MudNavLink Href="/backgrounds">Backgrounds</MudNavLink>
+        <MudNavLink Href="/concepts">Concepts</MudNavLink>
+        <MudNavLink Href="/cults">Cults</MudNavLink>
+        <MudNavLink Href="/skills">Skills</MudNavLink>
+    </MudNavGroup>
+</MudNavMenu>

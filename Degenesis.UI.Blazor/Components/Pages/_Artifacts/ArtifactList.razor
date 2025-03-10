@@ -4,8 +4,7 @@
 @inject ArtifactService ArtifactService
 
 <h3>Artifacts</h3>
-
-<button class="btn btn-primary" @onclick="ShowCreateDialog">Create New Artifact</button>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Artifact</MudButton>
 
 @if (artifacts == null)
 {
@@ -13,43 +12,28 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Energy Storage</th>
-                <th>Actions</th>
-                <th>Magazine</th>
-                <th>Encumbrance</th>
-                <th>Activation</th>
-                <th>Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var artifact in artifacts)
-            {
-                <tr>
-                    <td>@artifact.Name</td>
-                    <td>@artifact.Description</td>
-                    <td>@artifact.EnergyStorage</td>
-                    <td>@artifact.Magazine</td>
-                    <td>@artifact.Encumbrance</td>
-                    <td>@artifact.Activation</td>
-                    <td>@artifact.Value</td>
-                    <td>
-                        <button class="btn btn-info" @onclick="() => ShowEditDialog(artifact.Id)">Edit</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteArtifact(artifact.Id)">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <MudTable Items="@artifacts" Hover="true" LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Energy Storage</MudTh>
+            <MudTh>Magazine</MudTh>
+            <MudTh>Encumbrance</MudTh>
+            <MudTh>Activation</MudTh>
+            <MudTh>Value</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Energy Storage">@context.EnergyStorage</MudTd>
+            <MudTd DataLabel="Magazine">@context.Magazine</MudTd>
+            <MudTd DataLabel="Encumbrance">@context.Encumbrance</MudTd>
+            <MudTd DataLabel="Activation">@context.Activation</MudTd>
+            <MudTd DataLabel="Value">@context.Value</MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteArtifact(context.Id)">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
 }
-
-<ArtifactModal Title="@modalTitle"
-               Artifact="@currentArtifact"
-               IsVisible="@isModalVisible"
-               IsVisibleChanged="@(value => isModalVisible = value)"
-               OnSave="SaveArtifact"
-               OnCancel="CloseModal" />

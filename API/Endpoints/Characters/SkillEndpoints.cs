@@ -1,4 +1,5 @@
 ﻿using Business.Characters;
+using Degenesis.Shared.DTOs.Characters;
 using Domain.Characters;
 
 namespace API.Endpoints.Characters;
@@ -25,16 +26,16 @@ public static class SkillEndpoints
             return Results.Ok(skill);
         });
 
-        group.MapPost("/", async (Skill skill, ISkillService service) =>
+        group.MapPost("/", async (SkillCreateDto skill, ISkillService service) =>
         {
             var createdSkill = await service.CreateSkillAsync(skill);
             return Results.Created($"/skills/{createdSkill.Id}", createdSkill);
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, Skill skill, ISkillService service) =>
+        group.MapPut("/", async (Skill skill, ISkillService service) =>
         {
-            var updatedSkill = await service.UpdateSkillAsync(id, skill);
-            if (updatedSkill == null)
+            var updatedSkill = await service.UpdateSkillAsync(skill);
+            if (!updatedSkill)
             {
                 return Results.NotFound();
             }

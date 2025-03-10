@@ -4,8 +4,7 @@
 @inject BurnService BurnService
 
 <h3>Burns</h3>
-
-<button class="btn btn-primary" @onclick="ShowCreateDialog">Create New Burn</button>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Burn</MudButton>
 
 @if (burns == null)
 {
@@ -13,44 +12,28 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Chakra</th>
-                <th>Earth Chakra</th>
-                <th>Effect</th>
-                <th>Weak Cost</th>
-                <th>Potent Cost</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var burn in burns)
-            {
-                <tr>
-                    <td>@burn.Name</td>
-                    <td>@burn.Description</td>
-                    <td>@burn.Chakra</td>
-                    <td>@burn.EarthChakra</td>
-                    <td>@burn.Effect</td>
-                    <td>@burn.WeakCost</td>
-                    <td>@burn.PotentCost</td>
-                    <td>
-                        <button class="btn btn-info" @onclick="() => ShowEditDialog(burn.Id)">Edit</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteBurn(burn.Id)">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <MudTable Items="@burns" Hover="true" LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Chakra</MudTh>
+            <MudTh>Earth Chakra</MudTh>
+            <MudTh>Effect</MudTh>
+            <MudTh>Weak Cost</MudTh>
+            <MudTh>Potent Cost</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Chakra">@context.Chakra</MudTd>
+            <MudTd DataLabel="Earth Chakra">@context.EarthChakra</MudTd>
+            <MudTd DataLabel="Effect">@context.Effect</MudTd>
+            <MudTd DataLabel="Weak Cost">@context.WeakCost</MudTd>
+            <MudTd DataLabel="Potent Cost">@context.PotentCost</MudTd>
+            <MudTd>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteBurn(context.Id)">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
 }
-
-<!-- Modal réutilisable -->
-<BurnModal Title="@modalTitle"
-          Burn="@currentBurn"
-          IsVisible="@isModalVisible"
-          IsVisibleChanged="@(value => isModalVisible = value)"
-          OnSave="SaveBurn"
-          OnCancel="CloseModal" />

@@ -1,72 +1,59 @@
 ﻿using Degenesis.Shared.DTOs.Burns;
+using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Burns;
 
 public partial class BurnList
 {
+    [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<BurnDto>? burns;
-    private BurnDto currentBurn = new();
-    private bool isModalVisible = false;
-    private string modalTitle = "Create Burn";
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadBurns();
+    }
+
+    private async Task LoadBurns()
+    {
         burns = await BurnService.GetBurnsAsync();
     }
 
-    private void ShowCreateDialog()
+    private async Task ShowCreateDialog()
     {
-        Console.WriteLine("ShowCreateDialog appelé");
-        modalTitle = "Create Burn";
-        currentBurn = new BurnDto();
-        isModalVisible = true;
-    }
+        var parameters = new DialogParameters { { "Burn", new BurnDto() } };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
 
-    private void ShowEditDialog(Guid burnId)
-    {
-        Console.WriteLine("ShowEditDialog appelé");
-        var burn = burns?.FirstOrDefault(b => b.Id == burnId);
-        if (burn != null)
+        var dialog = await DialogService.ShowAsync<BurnModal>("Create Burn", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
         {
-            modalTitle = "Edit Burn";
-            currentBurn = new BurnDto
-            {
-                Id = burn.Id,
-                Name = burn.Name,
-                Description = burn.Description,
-                Chakra = burn.Chakra,
-                EarthChakra = burn.EarthChakra,
-                Effect = burn.Effect,
-                WeakCost = burn.WeakCost,
-                PotentCost = burn.PotentCost
-            };
-            isModalVisible = true;
+            await LoadBurns();
         }
     }
 
-    private async Task SaveBurn()
+    private async Task ShowEditDialog(Guid burnId)
     {
-        if (currentBurn.Id == Guid.Empty)
-            await BurnService.CreateBurnAsync(currentBurn);
-        else
-            await BurnService.UpdateBurnAsync(currentBurn);
+        var burn = burns?.FirstOrDefault(a => a.Id == burnId);
+        if (burn != null)
+        {
+            var parameters = new DialogParameters { { "Burn", burn } };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
 
-        burns = await BurnService.GetBurnsAsync();
-        await CloseModal();
+            var dialog = await DialogService.ShowAsync<BurnModal>("Edit Burn", parameters, options);
+            var result = await dialog.Result;
+
+            if (result is not null && !result.Canceled)
+            {
+                await LoadBurns();
+            }
+        }
     }
 
     private async Task DeleteBurn(Guid burnId)
     {
         await BurnService.DeleteBurnAsync(burnId);
         burns = await BurnService.GetBurnsAsync();
-    }
-
-    private async Task CloseModal()
-    {
-        Console.WriteLine("Fermeture modale");
-        await InvokeAsync(() =>
-        {
-            isModalVisible = false;
-        });
     }
 }

@@ -1,0 +1,10 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Background.Name" />
+        <MudTextField Label="Description" @bind-Value="Background.Description" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="SaveBackground" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

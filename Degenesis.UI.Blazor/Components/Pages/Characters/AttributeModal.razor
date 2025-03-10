@@ -1,0 +1,11 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Attribute.Name" />
+        <MudTextField Label="Abbreviation" @bind-Value="Attribute.Abbreviation" />
+        <MudTextField Label="Description" @bind-Value="Attribute.Description" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="SaveAttribute" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

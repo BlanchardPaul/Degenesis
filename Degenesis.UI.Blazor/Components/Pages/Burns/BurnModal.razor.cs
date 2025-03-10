@@ -1,21 +1,25 @@
 ﻿using Degenesis.Shared.DTOs.Burns;
+using Degenesis.UI.Service.Features;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Burns;
 
 public partial class BurnModal
 {
-    [Parameter] public string Title { get; set; } = "Modal";
+    [Inject] private BurnService BurnService { get; set; } = default!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
     [Parameter] public BurnDto Burn { get; set; } = new();
-    [Parameter] public EventCallback OnSave { get; set; }
-    [Parameter] public EventCallback OnCancel { get; set; }
-    [Parameter] public bool IsVisible { get; set; }
 
-    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
-
-    private async Task Close()
+    private async Task SaveBurn()
     {
-        await IsVisibleChanged.InvokeAsync(false);
-        await OnCancel.InvokeAsync();
+        if (Burn.Id == Guid.Empty)
+            await BurnService.CreateBurnAsync(Burn);
+        else
+            await BurnService.UpdateBurnAsync(Burn);
+
+        MudDialog.Close(DialogResult.Ok(true));
     }
+
+    private void Cancel() => MudDialog.Cancel();
 }

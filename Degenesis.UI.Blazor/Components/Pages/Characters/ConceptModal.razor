@@ -1,0 +1,29 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Concept.Name" Required="true" />
+
+        <MudTextField Label="Description" @bind-Value="Concept.Description" Required="true" />
+
+        <MudSelect T="Guid" Label="Bonus Attribute" @bind-Value="Concept.BonusAttributeId">
+            @foreach (var cattribute in Attributes)
+            {
+                <MudSelectItem T="Guid" Value="@cattribute.Id">@cattribute.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="Guid" Label="Bonus Skills" MultiSelection="true"
+                   SelectedValues="SelectedBonusSkillIds"
+                   SelectedValuesChanged="OnBonusSkillsChanged"
+                   ToStringFunc="@(id => Skills.FirstOrDefault(s => s.Id == id)?.Name ?? "Unknown")">
+            @foreach (var skill in Skills)
+            {
+                <MudSelectItem T="Guid" Value="@skill.Id">@skill.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveConcept" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

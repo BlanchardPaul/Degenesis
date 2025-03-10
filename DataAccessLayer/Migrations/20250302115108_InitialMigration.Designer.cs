@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250204174941_InitialMigration")]
+    [Migration("20250302115108_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -83,90 +83,6 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("CultureId");
 
                     b.ToTable("CultureSkill");
-                });
-
-            modelBuilder.Entity("Domain.Artifacts.Artifact", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Activation")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("Encumbrance")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EnergyStorage")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("Magazine")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Artifacts", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Artifacts.CharacterArtifact", b =>
-                {
-                    b.Property<Guid>("CharacterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ArtifactId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ChargeInMagazine")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CharacterId", "ArtifactId");
-
-                    b.HasIndex("ArtifactId");
-
-                    b.ToTable("CharacterArtifacts", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Artifacts.NPCArtifact", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<Guid>("ArtifactId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ChargeInMagazine")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("NPCId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArtifactId");
-
-                    b.HasIndex("NPCId");
-
-                    b.ToTable("NPCArtifacts", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Burns.Burn", b =>
@@ -250,6 +166,7 @@ namespace DataAccessLayer.Migrations
             modelBuilder.Entity("Domain.Characters.Background", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
@@ -641,10 +558,7 @@ namespace DataAccessLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AttributeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CAttributeId")
+                    b.Property<Guid>("CAttributeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
@@ -658,8 +572,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AttributeId");
 
                     b.HasIndex("CAttributeId");
 
@@ -1311,6 +1223,90 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("WeaponTypes", (string)null);
                 });
 
+            modelBuilder.Entity("Domain._Artifacts.Artifact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Activation")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Encumbrance")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EnergyStorage")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Magazine")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Artifacts", (string)null);
+                });
+
+            modelBuilder.Entity("Domain._Artifacts.CharacterArtifact", b =>
+                {
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ArtifactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ChargeInMagazine")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CharacterId", "ArtifactId");
+
+                    b.HasIndex("ArtifactId");
+
+                    b.ToTable("CharacterArtifacts", (string)null);
+                });
+
+            modelBuilder.Entity("Domain._Artifacts.NPCArtifact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<Guid>("ArtifactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ChargeInMagazine")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("NPCId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtifactId");
+
+                    b.HasIndex("NPCId");
+
+                    b.ToTable("NPCArtifacts", (string)null);
+                });
+
             modelBuilder.Entity("ProtectionProtectionQuality", b =>
                 {
                     b.Property<Guid>("ProtectionId")
@@ -1399,44 +1395,6 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("CultureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Artifacts.CharacterArtifact", b =>
-                {
-                    b.HasOne("Domain.Artifacts.Artifact", "Artifact")
-                        .WithMany()
-                        .HasForeignKey("ArtifactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Characters.Character", "Character")
-                        .WithMany("CharacterArtifacts")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Artifact");
-
-                    b.Navigation("Character");
-                });
-
-            modelBuilder.Entity("Domain.Artifacts.NPCArtifact", b =>
-                {
-                    b.HasOne("Domain.Artifacts.Artifact", "Artifact")
-                        .WithMany()
-                        .HasForeignKey("ArtifactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.NPCs.NPC", "NPC")
-                        .WithMany("NPCArtifacts")
-                        .HasForeignKey("NPCId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Artifact");
-
-                    b.Navigation("NPC");
                 });
 
             modelBuilder.Entity("Domain.Burns.CharacterBurn", b =>
@@ -1658,17 +1616,13 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("Domain.Characters.Skill", b =>
                 {
-                    b.HasOne("Domain.Characters.CAttribute", "Attribute")
-                        .WithMany()
-                        .HasForeignKey("AttributeId")
+                    b.HasOne("Domain.Characters.CAttribute", "CAttribute")
+                        .WithMany("Skills")
+                        .HasForeignKey("CAttributeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Characters.CAttribute", null)
-                        .WithMany("Skills")
-                        .HasForeignKey("CAttributeId");
-
-                    b.Navigation("Attribute");
+                    b.Navigation("CAttribute");
                 });
 
             modelBuilder.Entity("Domain.Equipments.CharacterEquipment", b =>
@@ -1898,6 +1852,44 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Attribute");
 
                     b.Navigation("WeaponType");
+                });
+
+            modelBuilder.Entity("Domain._Artifacts.CharacterArtifact", b =>
+                {
+                    b.HasOne("Domain._Artifacts.Artifact", "Artifact")
+                        .WithMany()
+                        .HasForeignKey("ArtifactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Characters.Character", "Character")
+                        .WithMany("CharacterArtifacts")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Artifact");
+
+                    b.Navigation("Character");
+                });
+
+            modelBuilder.Entity("Domain._Artifacts.NPCArtifact", b =>
+                {
+                    b.HasOne("Domain._Artifacts.Artifact", "Artifact")
+                        .WithMany()
+                        .HasForeignKey("ArtifactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.NPCs.NPC", "NPC")
+                        .WithMany("NPCArtifacts")
+                        .HasForeignKey("NPCId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Artifact");
+
+                    b.Navigation("NPC");
                 });
 
             modelBuilder.Entity("ProtectionProtectionQuality", b =>

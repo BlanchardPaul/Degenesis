@@ -1,4 +1,7 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Characters;
+using Domain.Burns;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,18 +10,20 @@ public interface IAttributeService
 {
     Task<CAttribute?> GetAttributeByIdAsync(Guid id);
     Task<IEnumerable<CAttribute>> GetAllAttributesAsync();
-    Task<CAttribute> CreateAttributeAsync(CAttribute attribute);
-    Task<bool> UpdateAttributeAsync(Guid id, CAttribute attribute);
+    Task<CAttribute> CreateAttributeAsync(AttributeCreateDto attributeCreate);
+    Task<bool> UpdateAttributeAsync(CAttribute attribute);
     Task<bool> DeleteAttributeAsync(Guid id);
 }
 
 public class AttributeService : IAttributeService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public AttributeService(ApplicationDbContext context)
+    public AttributeService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     public async Task<CAttribute?> GetAttributeByIdAsync(Guid id)
@@ -33,20 +38,21 @@ public class AttributeService : IAttributeService
         return await _context.Attributes.ToListAsync();
     }
 
-    public async Task<CAttribute> CreateAttributeAsync(CAttribute attribute)
+    public async Task<CAttribute> CreateAttributeAsync(AttributeCreateDto attributeCreate)
     {
+        var attribute = _mapper.Map<CAttribute>(attributeCreate);
         _context.Attributes.Add(attribute);
         await _context.SaveChangesAsync();
         return attribute;
     }
 
-    public async Task<bool> UpdateAttributeAsync(Guid id, CAttribute attribute)
+    public async Task<bool> UpdateAttributeAsync(CAttribute attribute)
     {
-        var existingAttribute = await _context.Attributes.FindAsync(id);
-        if (existingAttribute == null)
-            return false;
+        var existing = await _context.Attributes.FindAsync(attribute.Id);
+        if (existing == null) return false;
 
-        _context.Entry(existingAttribute).CurrentValues.SetValues(attribute);
+        _mapper.Map(attribute, existing);
+
         await _context.SaveChangesAsync();
         return true;
     }

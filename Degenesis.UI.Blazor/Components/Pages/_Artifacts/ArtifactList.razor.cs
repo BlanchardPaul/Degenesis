@@ -1,69 +1,59 @@
 ﻿using Degenesis.Shared.DTOs._Artifacts;
+using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages._Artifacts;
 
 public partial class ArtifactList
 {
+    [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<ArtifactDto>? artifacts;
-    private ArtifactDto currentArtifact = new();
-    private bool isModalVisible = false;
-    private string modalTitle = "Create Artifact";
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadArtifacts();
+    }
+    private async Task LoadArtifacts()
+    {
         artifacts = await ArtifactService.GetArtifactsAsync();
     }
 
-    private void ShowCreateDialog()
+    private async Task ShowCreateDialog()
     {
-        Console.WriteLine("ShowCreateDialog appelé");
-        modalTitle = "Create Artifact";
-        currentArtifact = new ArtifactDto();
-        isModalVisible = true;
-    }
+        var parameters = new DialogParameters { { "Artifact", new ArtifactDto() } };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
 
-    private void ShowEditDialog(Guid artifactId)
-    {
-        Console.WriteLine("ShowEditDialog appelé");
-        var artifact = artifacts?.FirstOrDefault(a => a.Id == artifactId);
-        if (artifact != null)
+        var dialog = await DialogService.ShowAsync<ArtifactModal>("Create Artifact", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
         {
-            modalTitle = "Edit Artifact";
-            currentArtifact = new ArtifactDto
-            {
-                Id = artifact.Id,
-                Name = artifact.Name,
-                Description = artifact.Description,
-                EnergyStorage = artifact.EnergyStorage
-            };
-            isModalVisible = true;
+            await LoadArtifacts();
         }
     }
 
-    private async Task SaveArtifact()
+    private async Task ShowEditDialog(Guid artifactId)
     {
-        if (currentArtifact.Id == Guid.Empty)
-            await ArtifactService.CreateArtifactAsync(currentArtifact);
-        else
-            await ArtifactService.UpdateArtifactAsync(currentArtifact);
+        var artifact = artifacts?.FirstOrDefault(a => a.Id == artifactId);
+        if (artifact != null)
+        {
+            var parameters = new DialogParameters { { "Artifact", artifact } };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
 
-        artifacts = await ArtifactService.GetArtifactsAsync();
-        await CloseModal();
+            var dialog = await DialogService.ShowAsync<ArtifactModal>("Edit Artifact", parameters, options);
+            var result = await dialog.Result;
+
+            if (result is not null && !result.Canceled)
+            {
+                await LoadArtifacts();
+            }
+        }
     }
 
     private async Task DeleteArtifact(Guid artifactId)
     {
         await ArtifactService.DeleteArtifactAsync(artifactId);
         artifacts = await ArtifactService.GetArtifactsAsync();
-    }
-
-    private async Task CloseModal()
-    {
-        Console.WriteLine("Fermeture modale");
-        await InvokeAsync(() =>
-        {
-            isModalVisible = false;
-        });
     }
 }
 

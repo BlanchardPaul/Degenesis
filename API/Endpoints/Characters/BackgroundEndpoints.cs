@@ -1,4 +1,5 @@
 ﻿using Business.Characters;
+using Degenesis.Shared.DTOs.Characters;
 using Domain.Characters;
 
 namespace API.Endpoints.Characters;
@@ -24,16 +25,16 @@ public static class BackgroundEndpoints
         });
 
         // POST /backgrounds
-        group.MapPost("/", async (Background background, IBackgroundService service) =>
+        group.MapPost("/", async (BackgroundCreateDto background, IBackgroundService service) =>
         {
             var created = await service.CreateBackgroundAsync(background);
             return Results.Created($"/backgrounds/{created.Id}", created);
         });
 
         // PUT /backgrounds/{id}
-        group.MapPut("/{id:guid}", async (Guid id, Background background, IBackgroundService service) =>
+        group.MapPut("/", async (Background background, IBackgroundService service) =>
         {
-            var success = await service.UpdateBackgroundAsync(id, background);
+            var success = await service.UpdateBackgroundAsync(background);
             return success ? Results.NoContent() : Results.NotFound();
         });
 
