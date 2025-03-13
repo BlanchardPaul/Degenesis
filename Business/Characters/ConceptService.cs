@@ -49,7 +49,6 @@ public class ConceptService : IConceptService
                     Id = s.Id,
                     Name = s.Name,
                     Description = s.Description,
-                    CAttributeId = s.CAttributeId,
                     CAttribute = new AttributeDto
                     {
                         Id = s.CAttribute.Id,
@@ -84,7 +83,6 @@ public class ConceptService : IConceptService
                     Id = s.Id,
                     Name = s.Name,
                     Description = s.Description,
-                    CAttributeId = s.CAttributeId,
                     CAttribute = new AttributeDto
                     {
                         Id = s.CAttribute.Id,

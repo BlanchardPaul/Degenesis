@@ -20,6 +20,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Service.Features.Characters.BackgroundService>();
         services.AddScoped<ConceptService>();
         services.AddScoped<CultService>();
+        services.AddScoped<CultureService>();
+        services.AddScoped<PotentialService>();
+        services.AddScoped<RankService>();
+        services.AddScoped<RankPrerequisiteService>();
         services.AddScoped<SkillService>();
         return services;
     }

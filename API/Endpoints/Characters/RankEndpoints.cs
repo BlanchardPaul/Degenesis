@@ -1,5 +1,5 @@
 ﻿using Business.Characters;
-using Domain.Characters;
+using Degenesis.Shared.DTOs.Characters;
 
 namespace API.Endpoints.Characters;
 
@@ -25,20 +25,18 @@ public static class RankEndpoints
             return Results.Ok(rank);
         });
 
-        group.MapPost("/", async (Rank rank, IRankService service) =>
+        group.MapPost("/", async (RankCreateDto rank, IRankService service) =>
         {
             var createdRank = await service.CreateRankAsync(rank);
-            return Results.Created($"/ranks/{createdRank.Id}", createdRank);
+            return createdRank is not null
+               ? Results.Created($"/ranks/{createdRank.Id}", createdRank)
+               : Results.BadRequest();
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, Rank rank, IRankService service) =>
+        group.MapPut("/", async (RankDto rank, IRankService service) =>
         {
-            var updatedRank = await service.UpdateRankAsync(id, rank);
-            if (updatedRank == null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(updatedRank);
+            var success = await service.UpdateRankAsync(rank);
+            return success ? Results.NoContent() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IRankService service) =>

@@ -1,0 +1,33 @@
+﻿@page "/cultures"
+@using Degenesis.UI.Service.Features.Characters
+@inject AttributeService AttributeService
+@inject CultureService CultureService
+@inject CultService CultService
+@inject SkillService SkillService
+@inject IDialogService DialogService
+
+<h3>Cultures</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Culture</MudButton>
+
+<MudTable Items="@cultures" Hover="true">
+    <HeaderContent>
+        <MudTh>Name</MudTh>
+        <MudTh>Description</MudTh>
+        <MudTh>Available Cults</MudTh>
+        <MudTh>Bonus Attributes</MudTh>
+        <MudTh>Bonus Skills</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.Description</MudTd>
+        <MudTd>@string.Join(", ", context.AvailableCults.Select(c => c.Name))</MudTd>
+        <MudTd>@string.Join(", ", context.BonusAttributes.Select(a => a.Name))</MudTd>
+        <MudTd>@string.Join(", ", context.BonusSkills.Select(s => s.Name))</MudTd>
+        <MudTd>
+            <MudButton Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+            <MudButton Color="Color.Error" OnClick="() => DeleteCulture(context.Id)">Delete</MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>

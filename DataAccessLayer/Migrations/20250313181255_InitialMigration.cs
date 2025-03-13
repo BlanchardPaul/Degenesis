@@ -255,7 +255,7 @@ namespace DataAccessLayer.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Preriquisite = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Prerequisite = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -732,10 +732,10 @@ namespace DataAccessLayer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AttributeRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SkillRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SumRequired = table.Column<int>(type: "int", nullable: false)
+                    SumRequired = table.Column<int>(type: "int", nullable: false),
+                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -750,8 +750,7 @@ namespace DataAccessLayer.Migrations
                         name: "FK_RankPrerequisites_Ranks_RankId",
                         column: x => x.RankId,
                         principalTable: "Ranks",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_RankPrerequisites_Skills_SkillRequiredId",
                         column: x => x.SkillRequiredId,

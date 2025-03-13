@@ -1,0 +1,21 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Potential.Name" Required="true" />
+        <MudTextField Label="Description" @bind-Value="Potential.Description" Required="true" />
+        <MudTextField Label="Prerequisite" @bind-Value="Potential.Prerequisite" Required="true" />
+
+        <MudSelect T="Guid?" Label="Cult (Optional)" @bind-Value="Potential.CultId">
+            <MudSelectItem T="Guid?" Value="null">(None)</MudSelectItem>
+            @foreach (var cult in Cults)
+            {
+                <MudSelectItem T="Guid?" Value="@cult.Id">@cult.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SavePotential" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

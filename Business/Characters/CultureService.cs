@@ -1,55 +1,81 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Characters;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
 
-namespace Business.Characters;
 public interface ICultureService
 {
-    Task<IEnumerable<Culture>> GetAllCulturesAsync();
-    Task<Culture?> GetCultureByIdAsync(Guid id);  // Retour nullable
-    Task<Culture?> CreateCultureAsync(Culture culture); // Retour nullable
-    Task<bool> UpdateCultureAsync(Guid id, Culture culture);
+    Task<IEnumerable<CultureDto>> GetAllCulturesAsync();
+    Task<CultureDto?> GetCultureByIdAsync(Guid id);
+    Task<CultureDto?> CreateCultureAsync(CultureCreateDto cultureCreate);
+    Task<bool> UpdateCultureAsync(CultureDto culture);
     Task<bool> DeleteCultureAsync(Guid id);
 }
 
 public class CultureService : ICultureService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public CultureService(ApplicationDbContext context)
+    public CultureService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<IEnumerable<Culture>> GetAllCulturesAsync()
+    public async Task<IEnumerable<CultureDto>> GetAllCulturesAsync()
     {
-        return await _context.Cultures.ToListAsync();
+        var cultures = await _context.Cultures
+            .Include(c => c.AvailableCults)
+            .Include(c => c.BonusAttributes)
+            .Include(c => c.BonusSkills)
+            .ToListAsync();
+        return _mapper.Map<IEnumerable<CultureDto>>(cultures);
     }
 
-    public async Task<Culture?> GetCultureByIdAsync(Guid id)
+    public async Task<CultureDto?> GetCultureByIdAsync(Guid id)
     {
-        return await _context.Cultures.FindAsync(id);
+        var culture = await _context.Cultures
+            .Include(c => c.AvailableCults)
+            .Include(c => c.BonusAttributes)
+            .Include(c => c.BonusSkills)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        return culture is null ? null : _mapper.Map<CultureDto>(culture);
     }
 
-    public async Task<Culture?> CreateCultureAsync(Culture culture)
+    public async Task<CultureDto?> CreateCultureAsync(CultureCreateDto cultureCreate)
     {
+        var culture = _mapper.Map<Culture>(cultureCreate);
+
+        // Attacher les Cults existants
+        culture.AvailableCults = await _context.Cults.Where(c => cultureCreate.AvailableCults.Select(x => x.Id).Contains(c.Id)).ToListAsync();
+        culture.BonusAttributes = await _context.Attributes.Where(a => cultureCreate.BonusAttributes.Select(x => x.Id).Contains(a.Id)).ToListAsync();
+        culture.BonusSkills = await _context.Skills.Where(s => cultureCreate.BonusSkills.Select(x => x.Id).Contains(s.Id)).ToListAsync();
+
         _context.Cultures.Add(culture);
         await _context.SaveChangesAsync();
-        return culture;
+        return _mapper.Map<CultureDto>(culture);
     }
 
-    public async Task<bool> UpdateCultureAsync(Guid id, Culture culture)
+    public async Task<bool> UpdateCultureAsync(CultureDto cultureDto)
     {
-        var existingCulture = await _context.Cultures.FindAsync(id);
+        var existingCulture = await _context.Cultures
+            .Include(c => c.AvailableCults)
+            .Include(c => c.BonusAttributes)
+            .Include(c => c.BonusSkills)
+            .FirstOrDefaultAsync(c => c.Id == cultureDto.Id);
+
         if (existingCulture == null)
-        {
             return false;
-        }
 
-        existingCulture.Name = culture.Name;
-        existingCulture.Description = culture.Description;
+        _mapper.Map(cultureDto, existingCulture);
 
-        _context.Cultures.Update(existingCulture);
+        existingCulture.AvailableCults = await _context.Cults.Where(c => cultureDto.AvailableCults.Select(x => x.Id).Contains(c.Id)).ToListAsync();
+        existingCulture.BonusAttributes = await _context.Attributes.Where(a => cultureDto.BonusAttributes.Select(x => x.Id).Contains(a.Id)).ToListAsync();
+        existingCulture.BonusSkills = await _context.Skills.Where(s => cultureDto.BonusSkills.Select(x => x.Id).Contains(s.Id)).ToListAsync();
+
         await _context.SaveChangesAsync();
         return true;
     }
@@ -58,9 +84,7 @@ public class CultureService : ICultureService
     {
         var culture = await _context.Cultures.FindAsync(id);
         if (culture == null)
-        {
-            return false; 
-        }
+            return false;
 
         _context.Cultures.Remove(culture);
         await _context.SaveChangesAsync();

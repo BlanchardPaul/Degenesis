@@ -41,7 +41,6 @@ public class CultService : ICultService
                     Id = s.Id,
                     Name = s.Name,
                     Description = s.Description,
-                    CAttributeId = s.CAttributeId,
                     CAttribute = new AttributeDto
                     {
                         Id = s.CAttribute.Id,
@@ -67,7 +66,6 @@ public class CultService : ICultService
                     Id = s.Id,
                     Name = s.Name,
                     Description = s.Description,
-                    CAttributeId = s.CAttributeId,
                     CAttribute = new AttributeDto
                     {
                         Id = s.CAttribute.Id,

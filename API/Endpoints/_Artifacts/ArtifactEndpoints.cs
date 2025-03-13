@@ -24,7 +24,7 @@ public static class ArtifactEndpoints
         group.MapPost("/", async (ArtifactCreateDto artifact, IArtifactService service) =>
         {
             var created = await service.CreateAsync(artifact);
-            return Results.Created($"/artifacts/{created.Id}", created);
+            return Results.Created();
         });
 
         group.MapPut("/", async (Artifact artifact, IArtifactService service) =>

@@ -18,11 +18,6 @@ internal class RankPrerequisitesConfiguration : IEntityTypeConfiguration<RankPre
         builder.Property(rp => rp.SumRequired)
             .IsRequired();
 
-        builder.HasOne(rp => rp.Rank)
-            .WithMany(r => r.Prerequisites)
-            .HasForeignKey(rp => rp.RankId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasOne(rp => rp.AttributeRequired)
             .WithMany()
             .HasForeignKey(rp => rp.AttributeRequiredId)

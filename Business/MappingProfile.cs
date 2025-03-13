@@ -37,6 +37,41 @@ public class MappingProfile : Profile
         CreateMap<Cult, CultDto>();
         CreateMap<CultDto, Cult>();
 
+        CreateMap<CultureCreateDto, Culture>()
+          .ForMember(dest => dest.AvailableCults, opt => opt.Ignore())
+          .ForMember(dest => dest.BonusAttributes, opt => opt.Ignore())
+          .ForMember(dest => dest.BonusSkills, opt => opt.Ignore());
+        CreateMap<CultureDto, Culture>();
+        CreateMap<Culture, CultureDto>()
+            .ForMember(dest => dest.AvailableCults, opt => opt.MapFrom(src => src.AvailableCults))
+            .ForMember(dest => dest.BonusAttributes, opt => opt.MapFrom(src => src.BonusAttributes))
+            .ForMember(dest => dest.BonusSkills, opt => opt.MapFrom(src => src.BonusSkills));
+        CreateMap<Cult, CultDto>();
+        CreateMap<CultDto, Cult>();
+
+        CreateMap<PotentialCreateDto, Potential>()
+            .ForMember(dest => dest.Cult, opt => opt.Ignore()); // Ignorer Cult car il sera chargé séparément
+        CreateMap<PotentialDto, Potential>();
+        CreateMap<Potential, PotentialDto>()
+            .ForMember(dest => dest.Cult, opt => opt.MapFrom(src => src.Cult));
+
+        CreateMap<RankCreateDto, Rank>()
+           .ForMember(dest => dest.Prerequisites, opt => opt.Ignore())
+           .ForMember(dest => dest.Cult, opt => opt.Ignore());
+        CreateMap<RankDto, Rank>();
+        CreateMap<Rank, RankDto>()
+            .ForMember(dest => dest.Prerequisites, opt => opt.MapFrom(src => src.Prerequisites))
+            .ForMember(dest => dest.Cult, opt => opt.MapFrom(src => src.Cult));
+
+        CreateMap<RankPrerequisiteCreateDto, RankPrerequisite>()
+            .ForMember(dest => dest.AttributeRequired, opt => opt.Ignore())
+            .ForMember(dest => dest.SkillRequired, opt => opt.Ignore());
+        CreateMap<RankPrerequisiteDto, RankPrerequisite>();
+        CreateMap<RankPrerequisite, RankPrerequisiteDto>()
+            .ForMember(dest => dest.AttributeRequired, opt => opt.MapFrom(src => src.AttributeRequired))
+            .ForMember(dest => dest.SkillRequired, opt => opt.MapFrom(src => src.SkillRequired));
+
+
         CreateMap<SkillCreateDto, Skill>();
         CreateMap<Skill, Skill>();
         CreateMap<Skill, SkillDto>();

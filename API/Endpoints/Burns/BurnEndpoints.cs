@@ -19,7 +19,7 @@ public static class BurnEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IBurnService service) =>
         {
             var burn = await service.GetByIdAsync(id);
-            if (burn == null)
+            if (burn is null)
             {
                 return Results.NotFound();
             }
@@ -29,7 +29,7 @@ public static class BurnEndpoints
         group.MapPost("/", async (BurnCreateDto burn, IBurnService service) =>
         {
             var createdBurn = await service.CreateAsync(burn);
-            return Results.Created($"/burns/{createdBurn.Id}", createdBurn);
+            return Results.Created();
         });
 
         group.MapPut("/", async (Burn burn, IBurnService service) =>

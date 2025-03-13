@@ -2,25 +2,24 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Characters
+namespace Degenesis.UI.Blazor.Components.Pages.Characters;
+
+public partial class BackgroundModal
 {
-    public partial class BackgroundModal
+    [Inject] private Degenesis.UI.Service.Features.Characters.BackgroundService BackgroundService { get; set; } = default!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public BackgroundDto Background { get; set; } = new();
+
+    private async Task SaveBackground()
     {
-        [Inject] private Degenesis.UI.Service.Features.Characters.BackgroundService BackgroundService { get; set; } = default!;
-        [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
-        [Parameter] public BackgroundDto Background { get; set; } = new();
+        if (Background.Id == Guid.Empty)
+            await BackgroundService.CreateBackgroundAsync(Background);
+        else
+            await BackgroundService.UpdateBackgroundAsync(Background);
 
-        private async Task SaveBackground()
-        {
-            if (Background.Id == Guid.Empty)
-                await BackgroundService.CreateBackgroundAsync(Background);
-            else
-                await BackgroundService.UpdateBackgroundAsync(Background);
-
-            MudDialog.Close(DialogResult.Ok(true));
-        }
-
-        private void Cancel() => MudDialog.Cancel();
-
+        MudDialog.Close(DialogResult.Ok(true));
     }
+
+    private void Cancel() => MudDialog.Cancel();
+
 }

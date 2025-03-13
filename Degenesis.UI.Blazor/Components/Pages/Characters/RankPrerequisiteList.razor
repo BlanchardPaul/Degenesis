@@ -1,0 +1,35 @@
+﻿@page "/rankprerequisites"
+@using Degenesis.UI.Service.Features.Characters
+@inject RankPrerequisiteService RankPrerequisiteService
+@inject AttributeService AttributeService
+@inject SkillService SkillService
+@inject IDialogService DialogService
+
+<h3>Rank Prerequisites</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank Prerequisite</MudButton>
+
+@if (rankPrerequisites == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@rankPrerequisites" Hover="true">
+        <HeaderContent>
+            <MudTh>Attribute Required</MudTh>
+            <MudTh>Skill Required</MudTh>
+            <MudTh>Sum</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.AttributeRequired?.Name</MudTd>
+            <MudTd>@context.SkillRequired?.Name</MudTd>
+            <MudTh>@context.SumRequired</MudTh>
+            <MudTd>
+                <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => DeleteRankPrerequisite(context.Id)" Color="Color.Error">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

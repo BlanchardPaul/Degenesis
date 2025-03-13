@@ -2,10 +2,6 @@
 public class RankPrerequisite
 {
     public Guid Id { get; set; }
-
-    public Guid RankId { get; set; }
-    public Rank Rank { get; set; } = new();
-
     public Guid AttributeRequiredId { get; set; }
     public CAttribute AttributeRequired { get; set; } = new();
 

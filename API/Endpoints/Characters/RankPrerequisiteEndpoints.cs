@@ -1,5 +1,5 @@
 ﻿using Business.Characters;
-using Domain.Characters;
+using Degenesis.Shared.DTOs.Characters;
 
 namespace API.Endpoints.Characters;
 
@@ -25,20 +25,18 @@ public static class RankPrerequisiteEndpoints
             return Results.Ok(rankPrerequisite);
         });
 
-        group.MapPost("/", async (RankPrerequisite rankPrerequisite, IRankPrerequisiteService service) =>
+        group.MapPost("/", async (RankPrerequisiteCreateDto rankPrerequisite, IRankPrerequisiteService service) =>
         {
             var createdRankPrerequisite = await service.CreateRankPrerequisiteAsync(rankPrerequisite);
-            return Results.Created($"/rank-prerequisites/{createdRankPrerequisite.Id}", createdRankPrerequisite);
+            return createdRankPrerequisite is not null
+               ? Results.Created($"/rank-prerequisites/{createdRankPrerequisite.Id}", createdRankPrerequisite)
+               : Results.BadRequest();
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, RankPrerequisite rankPrerequisite, IRankPrerequisiteService service) =>
+        group.MapPut("/", async (RankPrerequisiteDto rankPrerequisite, IRankPrerequisiteService service) =>
         {
-            var updatedRankPrerequisite = await service.UpdateRankPrerequisiteAsync(id, rankPrerequisite);
-            if (updatedRankPrerequisite == null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(updatedRankPrerequisite);
+            var success = await service.UpdateRankPrerequisiteAsync(rankPrerequisite);
+            return success ? Results.NoContent() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IRankPrerequisiteService service) =>

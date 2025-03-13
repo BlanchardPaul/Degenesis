@@ -1,0 +1,27 @@
+﻿<MudDialog>
+    <DialogContent>
+
+        <MudSelect T="Guid" Label="Attribute Required" @bind-Value="RankPrerequisite.AttributeRequiredId">
+            @foreach (var attr in Attributes)
+            {
+                <MudSelectItem T="Guid" Value="@attr.Id">@attr.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="Guid?" Label="Skill Required (Optional)" @bind-Value="RankPrerequisite.SkillRequiredId">
+            <MudSelectItem T="Guid?" Value="null">(None)</MudSelectItem>
+            @foreach (var skill in Skills)
+            {
+                <MudSelectItem T="Guid?" Value="@skill.Id">@skill.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudNumericField Label="Sum Required" @bind-Value="RankPrerequisite.SumRequired" Required="true" />
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveRankPrerequisite" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

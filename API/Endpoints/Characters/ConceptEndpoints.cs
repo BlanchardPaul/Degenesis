@@ -25,7 +25,9 @@ public static class ConceptEndpoints
         group.MapPost("/", async (ConceptCreateDto concept, IConceptService service) =>
         {
             var created = await service.CreateConceptAsync(concept);
-            return Results.Created($"/concepts/{created.Id}", created);
+            return created is not null
+               ? Results.Created($"/concepts/{created.Id}", created)
+               : Results.BadRequest();
         });
 
         group.MapPut("/", async (ConceptDto concept, IConceptService service) =>

@@ -26,6 +26,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapCharacterSkillEndpoints();
         endpoints.MapConceptEndpoints();
         endpoints.MapCultEndpoints();
+        endpoints.MapCultureEndpoints();
         endpoints.MapPotentialEndpoints();
         endpoints.MapRankEndpoints();
         endpoints.MapRankPrerequisiteEndpoints();

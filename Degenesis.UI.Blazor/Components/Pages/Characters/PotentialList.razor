@@ -1,0 +1,36 @@
+﻿@page "/potentials"
+@using Degenesis.UI.Service.Features.Characters
+@inject CultService CultService
+@inject PotentialService PotentialService
+@inject IDialogService DialogService
+
+<h3>Potentials</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Potential</MudButton>
+
+@if (potentials == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@potentials" Hover="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Prerequisite</MudTh>
+            <MudTh>Cult</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Description</MudTd>
+            <MudTd>@context.Prerequisite</MudTd>
+            <MudTd>@(context.Cult != null ? context.Cult.Name : "None")</MudTd>
+            <MudTd>
+                <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => DeletePotential(context.Id)" Color="Color.Error">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

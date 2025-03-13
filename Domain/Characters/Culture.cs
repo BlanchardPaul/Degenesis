@@ -7,7 +7,7 @@ public class Culture
 
     public string Description { get; set; } = string.Empty;
 
-    // Available Cults int the Culture
+    // Available Cults in the Culture
     public List<Cult> AvailableCults { get; set; } = [];
 
     // Attributes wich can get a +1

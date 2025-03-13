@@ -1,4 +1,5 @@
 ﻿using Business.Characters;
+using Degenesis.Shared.DTOs.Characters;
 using Domain.Characters;
 
 namespace API.Endpoints.Characters;
@@ -20,7 +21,7 @@ public static class CultureEndpoints
             return culture is not null ? Results.Ok(culture) : Results.NotFound();
         });
 
-        group.MapPost("/", async (Culture culture, ICultureService cultureService) =>
+        group.MapPost("/", async (CultureCreateDto culture, ICultureService cultureService) =>
         {
             var createdCulture = await cultureService.CreateCultureAsync(culture);
             return createdCulture is not null
@@ -28,9 +29,9 @@ public static class CultureEndpoints
                 : Results.BadRequest();
         });
 
-        group.MapPut("/{id}", async (Guid id, Culture culture, ICultureService cultureService) =>
+        group.MapPut("/", async (CultureDto culture, ICultureService cultureService) =>
         {
-            var success = await cultureService.UpdateCultureAsync(id, culture);
+            var success = await cultureService.UpdateCultureAsync(culture);
             return success ? Results.NoContent() : Results.NotFound();
         });
 

@@ -24,7 +24,9 @@ public static class CultEndpoints
         group.MapPost("/", async (CultCreateDto cult, ICultService service) =>
         {
             var createdCult = await service.CreateCultAsync(cult);
-            return Results.Created($"/cults/{createdCult.Id}", createdCult);
+            return createdCult is not null
+               ? Results.Created($"/cults/{createdCult.Id}", createdCult)
+               : Results.BadRequest();
         });
 
         group.MapPut("/", async (CultDto cult, ICultService service) =>

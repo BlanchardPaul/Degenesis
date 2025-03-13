@@ -474,7 +474,7 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Preriquisite")
+                    b.Property<string>("Prerequisite")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -529,7 +529,7 @@ namespace DataAccessLayer.Migrations
                     b.Property<Guid>("AttributeRequiredId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("RankId")
+                    b.Property<Guid?>("RankId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("SkillRequiredId")
@@ -1593,11 +1593,9 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Characters.Rank", "Rank")
+                    b.HasOne("Domain.Characters.Rank", null)
                         .WithMany("Prerequisites")
-                        .HasForeignKey("RankId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("RankId");
 
                     b.HasOne("Domain.Characters.Skill", "SkillRequired")
                         .WithMany()
@@ -1605,8 +1603,6 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("AttributeRequired");
-
-                    b.Navigation("Rank");
 
                     b.Navigation("SkillRequired");
                 });
