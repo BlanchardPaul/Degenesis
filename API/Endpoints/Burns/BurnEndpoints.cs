@@ -1,6 +1,7 @@
 ﻿using Business.Burns;
 using Degenesis.Shared.DTOs.Burns;
 using Domain.Burns;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace API.Endpoints.Burns;
 
@@ -29,7 +30,7 @@ public static class BurnEndpoints
         group.MapPost("/", async (BurnCreateDto burn, IBurnService service) =>
         {
             var createdBurn = await service.CreateAsync(burn);
-            return Results.Created();
+            return Results.Created($"/burns/{createdBurn.Id}", createdBurn);
         });
 
         group.MapPut("/", async (Burn burn, IBurnService service) =>
