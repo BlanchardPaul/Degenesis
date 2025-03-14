@@ -1,5 +1,6 @@
 ﻿using Degenesis.UI.Service.Features;
 using Degenesis.UI.Service.Features.Characters;
+using Degenesis.UI.Service.Features.Equipments;
 
 namespace Degenesis.UI.Blazor.Extensions;
 
@@ -21,6 +22,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ConceptService>();
         services.AddScoped<CultService>();
         services.AddScoped<CultureService>();
+        services.AddScoped<EquipmentService>();
+        services.AddScoped<EquipmentTypeService>();
         services.AddScoped<PotentialService>();
         services.AddScoped<RankService>();
         services.AddScoped<RankPrerequisiteService>();

@@ -2,9 +2,11 @@
 using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters;
+using Degenesis.Shared.DTOs.Equipments;
 using Domain._Artifacts;
 using Domain.Burns;
 using Domain.Characters;
+using Domain.Equipments;
 
 namespace Business;
 public class MappingProfile : Profile
@@ -48,6 +50,16 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.BonusSkills, opt => opt.MapFrom(src => src.BonusSkills));
         CreateMap<Cult, CultDto>();
         CreateMap<CultDto, Cult>();
+
+        CreateMap<EquipmentCreateDto, Equipment>()
+         .ForMember(dest => dest.EquipmentType, opt => opt.Ignore());
+        CreateMap<EquipmentDto, Equipment>();
+        CreateMap<Equipment, EquipmentDto>()
+            .ForMember(dest => dest.EquipmentType, opt => opt.MapFrom(src => src.EquipmentType));
+
+        CreateMap<EquipmentTypeCreateDto, EquipmentType>();
+        CreateMap<EquipmentTypeDto, EquipmentType>();
+        CreateMap<EquipmentType, EquipmentTypeDto>();
 
         CreateMap<PotentialCreateDto, Potential>()
             .ForMember(dest => dest.Cult, opt => opt.Ignore()); // Ignorer Cult car il sera chargé séparément

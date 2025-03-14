@@ -1,71 +1,79 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Equipments;
 using Domain.Equipments;
 using Microsoft.EntityFrameworkCore;
 
-namespace Business.Equipments;
-public interface IEquipmentService
+namespace Business.Equipments; public interface IEquipmentService
 {
-    Task<List<Equipment>> GetAllEquipmentsAsync();
-    Task<Equipment?> GetEquipmentByIdAsync(Guid id);
-    Task<Equipment> CreateEquipmentAsync(Equipment equipment);
-    Task<Equipment?> UpdateEquipmentAsync(Guid id, Equipment equipment);
+    Task<IEnumerable<EquipmentDto>> GetAllEquipmentsAsync();
+    Task<EquipmentDto?> GetEquipmentByIdAsync(Guid id);
+    Task<EquipmentDto?> CreateEquipmentAsync(EquipmentCreateDto equipmentCreate);
+    Task<bool> UpdateEquipmentAsync(EquipmentDto equipment);
     Task<bool> DeleteEquipmentAsync(Guid id);
 }
+
 public class EquipmentService : IEquipmentService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public EquipmentService(ApplicationDbContext context)
+    public EquipmentService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<List<Equipment>> GetAllEquipmentsAsync()
+    public async Task<IEnumerable<EquipmentDto>> GetAllEquipmentsAsync()
     {
-        return await _context.Equipments
+        var equipments = await _context.Equipments
             .Include(e => e.EquipmentType)
             .ToListAsync();
+        return _mapper.Map<IEnumerable<EquipmentDto>>(equipments);
     }
 
-    public async Task<Equipment?> GetEquipmentByIdAsync(Guid id)
+    public async Task<EquipmentDto?> GetEquipmentByIdAsync(Guid id)
     {
-        return await _context.Equipments
+        var equipment = await _context.Equipments
             .Include(e => e.EquipmentType)
             .FirstOrDefaultAsync(e => e.Id == id);
+
+        return equipment is null ? null : _mapper.Map<EquipmentDto>(equipment);
     }
 
-    public async Task<Equipment> CreateEquipmentAsync(Equipment equipment)
+    public async Task<EquipmentDto?> CreateEquipmentAsync(EquipmentCreateDto equipmentCreate)
     {
+        var equipment = _mapper.Map<Equipment>(equipmentCreate);
+        equipment.EquipmentType = await _context.EquipmentTypes.FindAsync(equipmentCreate.EquipmentTypeId);
+
         _context.Equipments.Add(equipment);
         await _context.SaveChangesAsync();
-        return equipment;
+        return _mapper.Map<EquipmentDto>(equipment);
     }
 
-    public async Task<Equipment?> UpdateEquipmentAsync(Guid id, Equipment equipment)
+    public async Task<bool> UpdateEquipmentAsync(EquipmentDto equipmentDto)
     {
-        var existingEquipment = await _context.Equipments.FindAsync(id);
+        var existingEquipment = await _context.Equipments
+            .Include(e => e.EquipmentType)
+            .FirstOrDefaultAsync(e => e.Id == equipmentDto.Id);
 
         if (existingEquipment == null)
-        {
-            return null;
-        }
+            return false;
 
-        existingEquipment = equipment;
+        _mapper.Map(equipmentDto, existingEquipment);
+        existingEquipment.EquipmentType = await _context.EquipmentTypes.FindAsync(equipmentDto.EquipmentType.Id);
 
         await _context.SaveChangesAsync();
-        return existingEquipment;
+        return true;
     }
 
     public async Task<bool> DeleteEquipmentAsync(Guid id)
     {
-        var existingEquipment = await _context.Equipments.FindAsync(id);
-
-        if (existingEquipment == null)
-        {
+        var equipment = await _context.Equipments.FindAsync(id);
+        if (equipment == null)
             return false;
-        }
 
-        _context.Equipments.Remove(existingEquipment);
+        _context.Equipments.Remove(equipment);
         await _context.SaveChangesAsync();
         return true;
     }

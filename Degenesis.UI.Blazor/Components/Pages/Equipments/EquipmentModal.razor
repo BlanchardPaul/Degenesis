@@ -1,0 +1,27 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Equipment.Name" Required="true" />
+        <MudTextField Label="Description" @bind-Value="Equipment.Description" Required="true" />
+        <MudTextField Label="Capacity" @bind-Value="Equipment.Capacity" />
+        <MudTextField Label="Effect" @bind-Value="Equipment.Effect" />
+        <MudNumericField Label="Encumbrance" @bind-Value="Equipment.Encumbrance" />
+        <MudNumericField Label="Tech Level" @bind-Value="Equipment.TechLevel" />
+        <MudNumericField Label="Slots" @bind-Value="Equipment.Slots" />
+        <MudNumericField Label="Value" @bind-Value="Equipment.Value" />
+        <MudTextField Label="Resources" @bind-Value="Equipment.Resources" />
+        <MudTextField Label="Energy Storage" @bind-Value="Equipment.EnergyStorage" />
+
+        <MudSelect T="Guid" Label="Equipment Type" @bind-Value="Equipment.EquipmentTypeId">
+            @foreach (var type in EquipmentTypes)
+            {
+                <MudSelectItem T="Guid" Value="@type.Id">@type.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveEquipment" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

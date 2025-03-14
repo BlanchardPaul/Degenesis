@@ -1,0 +1,34 @@
+﻿@page "/equipments"
+@using Degenesis.UI.Service.Features.Equipments
+@inject EquipmentService EquipmentService
+@inject EquipmentTypeService EquipmentTypeService
+@inject IDialogService DialogService
+
+<h3>Equipments</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Equipment</MudButton>
+
+@if (equipments == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@equipments" Hover="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Equipment Type</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Description</MudTd>
+            <MudTd>@context.EquipmentType.Name</MudTd>
+            <MudTd>
+                <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => DeleteEquipment(context.Id)" Color="Color.Error">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
