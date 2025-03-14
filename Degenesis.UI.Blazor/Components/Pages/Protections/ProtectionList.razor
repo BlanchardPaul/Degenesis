@@ -1,0 +1,34 @@
+﻿@page "/protections"
+@using Degenesis.UI.Service.Features.Protections
+@inject ProtectionService ProtectionService
+@inject ProtectionQualityService ProtectionQualityService
+@inject IDialogService DialogService
+
+<h3>Protections</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Protection</MudButton>
+
+@if (protections == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@protections" Hover="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Armor</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Description</MudTd>
+            <MudTd>@(context.Armor.HasValue ? context.Armor.Value.ToString() : "None")</MudTd>
+            <MudTd>
+                <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => DeleteProtection(context.Id)" Color="Color.Error">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

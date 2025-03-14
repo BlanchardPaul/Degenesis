@@ -1,67 +1,69 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Protections;
 using Domain.Protections;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Protections;
 public interface IProtectionQualityService
 {
-    Task<List<ProtectionQuality>> GetAllProtectionQualitiesAsync();
-    Task<ProtectionQuality?> GetProtectionQualityByIdAsync(Guid id);
-    Task<ProtectionQuality> CreateProtectionQualityAsync(ProtectionQuality protectionQuality);
-    Task<ProtectionQuality?> UpdateProtectionQualityAsync(Guid id, ProtectionQuality protectionQuality);
+    Task<IEnumerable<ProtectionQualityDto>> GetAllProtectionQualitiesAsync();
+    Task<ProtectionQualityDto?> GetProtectionQualityByIdAsync(Guid id);
+    Task<ProtectionQualityDto?> CreateProtectionQualityAsync(ProtectionQualityCreateDto protectionQualityCreate);
+    Task<bool> UpdateProtectionQualityAsync(ProtectionQualityDto protectionQuality);
     Task<bool> DeleteProtectionQualityAsync(Guid id);
 }
+
 public class ProtectionQualityService : IProtectionQualityService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public ProtectionQualityService(ApplicationDbContext context)
+    public ProtectionQualityService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<List<ProtectionQuality>> GetAllProtectionQualitiesAsync()
+    public async Task<IEnumerable<ProtectionQualityDto>> GetAllProtectionQualitiesAsync()
     {
-        return await _context.ProtectionQualities.ToListAsync();
+        var qualities = await _context.ProtectionQualities.ToListAsync();
+        return _mapper.Map<IEnumerable<ProtectionQualityDto>>(qualities);
     }
 
-    public async Task<ProtectionQuality?> GetProtectionQualityByIdAsync(Guid id)
+    public async Task<ProtectionQualityDto?> GetProtectionQualityByIdAsync(Guid id)
     {
-        return await _context.ProtectionQualities.FindAsync(id);
+        var quality = await _context.ProtectionQualities.FindAsync(id);
+        return quality is null ? null : _mapper.Map<ProtectionQualityDto>(quality);
     }
 
-    public async Task<ProtectionQuality> CreateProtectionQualityAsync(ProtectionQuality protectionQuality)
+    public async Task<ProtectionQualityDto?> CreateProtectionQualityAsync(ProtectionQualityCreateDto protectionQualityCreate)
     {
-        _context.ProtectionQualities.Add(protectionQuality);
+        var quality = _mapper.Map<ProtectionQuality>(protectionQualityCreate);
+        _context.ProtectionQualities.Add(quality);
         await _context.SaveChangesAsync();
-        return protectionQuality;
+        return _mapper.Map<ProtectionQualityDto>(quality);
     }
 
-    public async Task<ProtectionQuality?> UpdateProtectionQualityAsync(Guid id, ProtectionQuality protectionQuality)
+    public async Task<bool> UpdateProtectionQualityAsync(ProtectionQualityDto protectionQualityDto)
     {
-        var existingProtectionQuality = await _context.ProtectionQualities.FindAsync(id);
+        var existingQuality = await _context.ProtectionQualities.FindAsync(protectionQualityDto.Id);
 
-        if (existingProtectionQuality == null)
-        {
-            return null;
-        }
+        if (existingQuality == null)
+            return false;
 
-        existingProtectionQuality = protectionQuality;
-
+        _mapper.Map(protectionQualityDto, existingQuality);
         await _context.SaveChangesAsync();
-        return existingProtectionQuality;
+        return true;
     }
 
     public async Task<bool> DeleteProtectionQualityAsync(Guid id)
     {
-        var existingProtectionQuality = await _context.ProtectionQualities.FindAsync(id);
-
-        if (existingProtectionQuality == null)
-        {
+        var quality = await _context.ProtectionQualities.FindAsync(id);
+        if (quality == null)
             return false;
-        }
 
-        _context.ProtectionQualities.Remove(existingProtectionQuality);
+        _context.ProtectionQualities.Remove(quality);
         await _context.SaveChangesAsync();
         return true;
     }

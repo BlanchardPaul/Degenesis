@@ -1,5 +1,5 @@
 ﻿using Business.Protections;
-using Domain.Protections;
+using Degenesis.Shared.DTOs.Protections;
 
 namespace API.Endpoints.Protections;
 
@@ -25,20 +25,16 @@ public static class ProtectionQualityEndpoints
             return Results.Ok(protectionQuality);
         });
 
-        group.MapPost("/", async (ProtectionQuality protectionQuality, IProtectionQualityService service) =>
+        group.MapPost("/", async (ProtectionQualityCreateDto protectionQuality, IProtectionQualityService service) =>
         {
             var createdProtectionQuality = await service.CreateProtectionQualityAsync(protectionQuality);
             return Results.Created($"/protection-qualities/{createdProtectionQuality.Id}", createdProtectionQuality);
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, ProtectionQuality protectionQuality, IProtectionQualityService service) =>
+        group.MapPut("/", async (ProtectionQualityDto protectionQuality, IProtectionQualityService service) =>
         {
-            var updatedProtectionQuality = await service.UpdateProtectionQualityAsync(id, protectionQuality);
-            if (updatedProtectionQuality == null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(updatedProtectionQuality);
+            var updatedProtectionQuality = await service.UpdateProtectionQualityAsync(protectionQuality);
+            return updatedProtectionQuality ? Results.NoContent() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IProtectionQualityService service) =>

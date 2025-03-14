@@ -1,0 +1,31 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Protection.Name" Required="true" />
+        <MudTextField Label="Description" @bind-Value="Protection.Description" Required="true" />
+        <MudNumericField Label="Armor" @bind-Value="Protection.Armor" />
+        <MudNumericField Label="Stockage" @bind-Value="Protection.Stockage" />
+        <MudNumericField Label="Slots" @bind-Value="Protection.Slots" />
+        <MudNumericField Label="Connectors" @bind-Value="Protection.Connectors" />
+        <MudTextField Label="Consuption" @bind-Value="Protection.Consuption" />
+        <MudTextField Label="Defense" @bind-Value="Protection.Defense" />
+        <MudTextField Label="Attack" @bind-Value="Protection.Attack" />
+        <MudNumericField Label="Encumbrance" @bind-Value="Protection.Encumbrance" />
+        <MudNumericField Label="TechLevel" @bind-Value="Protection.TechLevel" />
+        <MudNumericField Label="Value" @bind-Value="Protection.Value" />
+        <MudTextField Label="Resources" @bind-Value="Protection.Resources" />
+        <MudSelect T="Guid" Label="Qualities" MultiSelection="true" SelectedValues="SelectedQualityIds" SelectedValuesChanged="OnQualitiesChanged"
+                   ToStringFunc="@(id => ProtectionQualities.FirstOrDefault(s => s.Id == id)?.Name ?? "Unknown")">
+            @foreach (var quality in ProtectionQualities)
+            {
+                <MudSelectItem T="Guid" Value="@quality.Id">@quality.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveProtection" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

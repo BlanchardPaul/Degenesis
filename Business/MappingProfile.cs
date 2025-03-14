@@ -3,10 +3,12 @@ using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters;
 using Degenesis.Shared.DTOs.Equipments;
+using Degenesis.Shared.DTOs.Protections;
 using Domain._Artifacts;
 using Domain.Burns;
 using Domain.Characters;
 using Domain.Equipments;
+using Domain.Protections;
 
 namespace Business;
 public class MappingProfile : Profile
@@ -66,6 +68,17 @@ public class MappingProfile : Profile
         CreateMap<PotentialDto, Potential>();
         CreateMap<Potential, PotentialDto>()
             .ForMember(dest => dest.Cult, opt => opt.MapFrom(src => src.Cult));
+
+        CreateMap<ProtectionCreateDto, Protection>()
+          .ForMember(dest => dest.Qualities, opt => opt.Ignore()); 
+        CreateMap<ProtectionDto, Protection>();
+        CreateMap<Protection, ProtectionDto>()
+            .ForMember(dest => dest.Qualities, opt => opt.MapFrom(src => src.Qualities));
+
+
+        CreateMap<ProtectionQualityCreateDto, ProtectionQuality>();
+        CreateMap<ProtectionQualityDto, ProtectionQuality>();
+        CreateMap<ProtectionQuality, ProtectionQualityDto>();
 
         CreateMap<RankCreateDto, Rank>()
            .ForMember(dest => dest.Prerequisites, opt => opt.Ignore())

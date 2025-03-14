@@ -1,67 +1,84 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Protections;
 using Domain.Protections;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Protections;
 public interface IProtectionService
 {
-    Task<List<Protection>> GetAllProtectionsAsync();
-    Task<Protection?> GetProtectionByIdAsync(Guid id);
-    Task<Protection> CreateProtectionAsync(Protection protection);
-    Task<Protection?> UpdateProtectionAsync(Guid id, Protection protection);
+    Task<IEnumerable<ProtectionDto>> GetAllProtectionsAsync();
+    Task<ProtectionDto?> GetProtectionByIdAsync(Guid id);
+    Task<ProtectionDto?> CreateProtectionAsync(ProtectionCreateDto protectionCreate);
+    Task<bool> UpdateProtectionAsync(ProtectionDto protection);
     Task<bool> DeleteProtectionAsync(Guid id);
 }
+
 public class ProtectionService : IProtectionService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public ProtectionService(ApplicationDbContext context)
+    public ProtectionService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<List<Protection>> GetAllProtectionsAsync()
+    public async Task<IEnumerable<ProtectionDto>> GetAllProtectionsAsync()
     {
-        return await _context.Protections.ToListAsync();
+        var protections = await _context.Protections
+            .Include(p => p.Qualities)
+            .ToListAsync();
+        return _mapper.Map<IEnumerable<ProtectionDto>>(protections);
     }
 
-    public async Task<Protection?> GetProtectionByIdAsync(Guid id)
+    public async Task<ProtectionDto?> GetProtectionByIdAsync(Guid id)
     {
-        return await _context.Protections.FindAsync(id);
+        var protection = await _context.Protections
+            .Include(p => p.Qualities)
+            .FirstOrDefaultAsync(p => p.Id == id);
+
+        return protection is null ? null : _mapper.Map<ProtectionDto>(protection);
     }
 
-    public async Task<Protection> CreateProtectionAsync(Protection protection)
+    public async Task<ProtectionDto?> CreateProtectionAsync(ProtectionCreateDto protectionCreate)
     {
+        var protection = _mapper.Map<Protection>(protectionCreate);
+        protection.Qualities = await _context.ProtectionQualities
+            .Where(q => protectionCreate.QualityIds.Contains(q.Id))
+            .ToListAsync();
+
         _context.Protections.Add(protection);
         await _context.SaveChangesAsync();
-        return protection;
+        return _mapper.Map<ProtectionDto>(protection);
     }
 
-    public async Task<Protection?> UpdateProtectionAsync(Guid id, Protection protection)
+    public async Task<bool> UpdateProtectionAsync(ProtectionDto protectionDto)
     {
-        var existingProtection = await _context.Protections.FindAsync(id);
+        var existingProtection = await _context.Protections
+            .Include(p => p.Qualities)
+            .FirstOrDefaultAsync(p => p.Id == protectionDto.Id);
 
         if (existingProtection == null)
-        {
-            return null;
-        }
+            return false;
 
-        existingProtection = protection;
+        _mapper.Map(protectionDto, existingProtection);
+        existingProtection.Qualities = await _context.ProtectionQualities
+            .Where(q => protectionDto.Qualities.Select(qd => qd.Id).Contains(q.Id))
+            .ToListAsync();
 
         await _context.SaveChangesAsync();
-        return existingProtection;
+        return true;
     }
 
     public async Task<bool> DeleteProtectionAsync(Guid id)
     {
-        var existingProtection = await _context.Protections.FindAsync(id);
-
-        if (existingProtection == null)
-        {
+        var protection = await _context.Protections.FindAsync(id);
+        if (protection == null)
             return false;
-        }
 
-        _context.Protections.Remove(existingProtection);
+        _context.Protections.Remove(protection);
         await _context.SaveChangesAsync();
         return true;
     }
