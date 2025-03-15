@@ -1,0 +1,27 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Vehicle.Name" Required="true" />
+        <MudTextField Label="Description" @bind-Value="Vehicle.Description" Required="true" />
+        <MudNumericField Label="Max Speed" @bind-Value="Vehicle.MaxSpeed" />
+        <MudNumericField Label="Acceleration" @bind-Value="Vehicle.Acceleration" />
+        <MudNumericField Label="Brake" @bind-Value="Vehicle.Brake" />
+        <MudNumericField Label="Armor" @bind-Value="Vehicle.Armor" />
+        <MudNumericField Label="BodyFlesh" @bind-Value="Vehicle.BodyFlesh" />
+        <MudNumericField Label="StructureTrauma" @bind-Value="Vehicle.StructureTrauma" />
+        <MudNumericField Label="TechLevel" @bind-Value="Vehicle.TechLevel" />
+        <MudNumericField Label="Slots" @bind-Value="Vehicle.Slots" />
+        <MudNumericField Label="Value" @bind-Value="Vehicle.Value" />
+        <MudTextField Label="Resources" @bind-Value="Vehicle.Resources" />
+        <MudSelect T="Guid" Label="Vehicle Type" @bind-Value="Vehicle.VehicleTypeId">
+            @foreach (var type in VehicleTypes)
+            {
+                <MudSelectItem T="Guid" Value="@type.Id">@type.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveVehicle" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

@@ -4,11 +4,13 @@ using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters;
 using Degenesis.Shared.DTOs.Equipments;
 using Degenesis.Shared.DTOs.Protections;
+using Degenesis.Shared.DTOs.Vehicles;
 using Domain._Artifacts;
 using Domain.Burns;
 using Domain.Characters;
 using Domain.Equipments;
 using Domain.Protections;
+using Domain.Vehicles;
 
 namespace Business;
 public class MappingProfile : Profile
@@ -96,11 +98,19 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.AttributeRequired, opt => opt.MapFrom(src => src.AttributeRequired))
             .ForMember(dest => dest.SkillRequired, opt => opt.MapFrom(src => src.SkillRequired));
 
-
         CreateMap<SkillCreateDto, Skill>();
         CreateMap<Skill, Skill>();
         CreateMap<Skill, SkillDto>();
         CreateMap<SkillDto, Skill>();
 
+        CreateMap<VehicleCreateDto, Vehicle>()
+        .ForMember(dest => dest.VehicleType, opt => opt.Ignore());
+        CreateMap<VehicleDto, Vehicle>();
+        CreateMap<Vehicle, VehicleDto>()
+            .ForMember(dest => dest.VehicleType, opt => opt.MapFrom(src => src.VehicleType));
+
+        CreateMap<VehicleTypeCreateDto, VehicleType>();
+        CreateMap<VehicleTypeDto, VehicleType>();
+        CreateMap<VehicleType, VehicleTypeDto>();
     }
 }

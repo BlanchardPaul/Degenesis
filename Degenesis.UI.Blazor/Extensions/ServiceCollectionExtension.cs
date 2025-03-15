@@ -1,7 +1,9 @@
-﻿using Degenesis.UI.Service.Features;
+﻿using Degenesis.Shared.DTOs.Vehicles;
+using Degenesis.UI.Service.Features;
 using Degenesis.UI.Service.Features.Characters;
 using Degenesis.UI.Service.Features.Equipments;
 using Degenesis.UI.Service.Features.Protections;
+using Degenesis.UI.Service.Features.Vehicles;
 
 namespace Degenesis.UI.Blazor.Extensions;
 
@@ -31,6 +33,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<RankService>();
         services.AddScoped<RankPrerequisiteService>();
         services.AddScoped<SkillService>();
+        services.AddScoped<VehicleService>();
+        services.AddScoped<VehicleTypeService>();
         return services;
     }
 }

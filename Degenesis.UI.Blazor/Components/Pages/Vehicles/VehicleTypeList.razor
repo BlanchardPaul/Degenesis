@@ -1,19 +1,19 @@
-﻿@page "/equipment-types"
-@using Degenesis.UI.Service.Features.Equipments
-@inject EquipmentTypeService EquipmentTypeService
+﻿@page "/vehicle-types"
+@using Degenesis.UI.Service.Features.Vehicles
+@inject VehicleTypeService VehicleTypeService
 @inject IDialogService DialogService
 
-<h3>Equipment Types</h3>
+<h3>Vehicle Types</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Equipment Type</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Vehicle Type</MudButton>
 
-@if (equipmentTypes == null)
+@if (vehicleTypes == null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <MudTable Items="@equipmentTypes" Hover="true">
+    <MudTable Items="@vehicleTypes" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Description</MudTh>
@@ -24,7 +24,7 @@ else
             <MudTd>@context.Description</MudTd>
             <MudTd>
                 <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
-                <MudButton OnClick="() => DeleteEquipmentType(context.Id)" Color="Color.Error">Delete</MudButton>
+                <MudButton OnClick="() => DeleteVehicleType(context.Id)" Color="Color.Error">Delete</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>

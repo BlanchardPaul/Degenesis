@@ -1,0 +1,38 @@
+﻿@page "/vehicles"
+@using Degenesis.UI.Service.Features.Vehicles
+@inject VehicleService VehicleService
+@inject VehicleTypeService VehicleTypeService
+@inject IDialogService DialogService
+
+<h3>Vehicles</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Vehicle</MudButton>
+
+@if (vehicles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@vehicles" Hover="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Type</MudTh>
+            <MudTh>Speed</MudTh>
+            <MudTh>Armor</MudTh>
+            <MudTh>Value</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.VehicleType.Name</MudTd>
+            <MudTd>@context.MaxSpeed</MudTd>
+            <MudTd>@context.Armor</MudTd>
+            <MudTd>@context.Value</MudTd>
+            <MudTd>
+                <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => DeleteVehicle(context.Id)" Color="Color.Error">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

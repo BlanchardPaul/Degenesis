@@ -1,4 +1,5 @@
 ﻿using Business.Vehicles;
+using Degenesis.Shared.DTOs.Vehicles;
 using Domain.Vehicles;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,16 +23,16 @@ public static class VehicleTypeEndpoints
             return vehicleType is not null ? Results.Ok(vehicleType) : Results.NotFound();
         });
 
-        group.MapPost("/", async ([FromBody] VehicleType vehicleType, IVehicleTypeService service) =>
+        group.MapPost("/", async (VehicleTypeCreateDto vehicleType, IVehicleTypeService service) =>
         {
             var createdVehicleType = await service.CreateVehicleTypeAsync(vehicleType);
             return Results.Created($"/vehicle-types/{createdVehicleType.Id}", createdVehicleType);
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, [FromBody] VehicleType vehicleType, IVehicleTypeService service) =>
+        group.MapPut("/", async (VehicleTypeDto vehicleType, IVehicleTypeService service) =>
         {
-            var updatedVehicleType = await service.UpdateVehicleTypeAsync(id, vehicleType);
-            return updatedVehicleType is not null ? Results.Ok(updatedVehicleType) : Results.NotFound();
+            var updatedVehicleType = await service.UpdateVehicleTypeAsync(vehicleType);
+            return updatedVehicleType ? Results.NoContent() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IVehicleTypeService service) =>

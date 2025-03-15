@@ -1,67 +1,80 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Vehicles;
 using Domain.Vehicles;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Vehicles;
 public interface IVehicleService
 {
-    Task<List<Vehicle>> GetAllVehiclesAsync();
-    Task<Vehicle?> GetVehicleByIdAsync(Guid id);
-    Task<Vehicle> CreateVehicleAsync(Vehicle vehicle);
-    Task<Vehicle?> UpdateVehicleAsync(Guid id, Vehicle vehicle);
+    Task<IEnumerable<VehicleDto>> GetAllVehiclesAsync();
+    Task<VehicleDto?> GetVehicleByIdAsync(Guid id);
+    Task<VehicleDto?> CreateVehicleAsync(VehicleCreateDto vehicleCreate);
+    Task<bool> UpdateVehicleAsync(VehicleDto vehicle);
     Task<bool> DeleteVehicleAsync(Guid id);
 }
+
 public class VehicleService : IVehicleService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public VehicleService(ApplicationDbContext context)
+    public VehicleService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<List<Vehicle>> GetAllVehiclesAsync()
+    public async Task<IEnumerable<VehicleDto>> GetAllVehiclesAsync()
     {
-        return await _context.Vehicles.ToListAsync();
+        var vehicles = await _context.Vehicles
+            .Include(v => v.VehicleType)
+            .ToListAsync();
+        return _mapper.Map<IEnumerable<VehicleDto>>(vehicles);
     }
 
-    public async Task<Vehicle?> GetVehicleByIdAsync(Guid id)
+    public async Task<VehicleDto?> GetVehicleByIdAsync(Guid id)
     {
-        return await _context.Vehicles.FindAsync(id);
+        var vehicle = await _context.Vehicles
+            .Include(v => v.VehicleType)
+            .FirstOrDefaultAsync(v => v.Id == id);
+
+        return vehicle is null ? null : _mapper.Map<VehicleDto>(vehicle);
     }
 
-    public async Task<Vehicle> CreateVehicleAsync(Vehicle vehicle)
+    public async Task<VehicleDto?> CreateVehicleAsync(VehicleCreateDto vehicleCreate)
     {
+        var vehicle = _mapper.Map<Vehicle>(vehicleCreate);
+        vehicle.VehicleType = await _context.VehicleTypes.FindAsync(vehicleCreate.VehicleTypeId);
+
         _context.Vehicles.Add(vehicle);
         await _context.SaveChangesAsync();
-        return vehicle;
+        return _mapper.Map<VehicleDto>(vehicle);
     }
 
-    public async Task<Vehicle?> UpdateVehicleAsync(Guid id, Vehicle vehicle)
+    public async Task<bool> UpdateVehicleAsync(VehicleDto vehicleDto)
     {
-        var existingVehicle = await _context.Vehicles.FindAsync(id);
+        var existingVehicle = await _context.Vehicles
+            .Include(v => v.VehicleType)
+            .FirstOrDefaultAsync(v => v.Id == vehicleDto.Id);
 
         if (existingVehicle == null)
-        {
-            return null;
-        }
+            return false;
 
-        existingVehicle = vehicle;
+        _mapper.Map(vehicleDto, existingVehicle);
+        existingVehicle.VehicleType = await _context.VehicleTypes.FindAsync(vehicleDto.VehicleType.Id);
 
         await _context.SaveChangesAsync();
-        return existingVehicle;
+        return true;
     }
 
     public async Task<bool> DeleteVehicleAsync(Guid id)
     {
-        var existingVehicle = await _context.Vehicles.FindAsync(id);
-
-        if (existingVehicle == null)
-        {
+        var vehicle = await _context.Vehicles.FindAsync(id);
+        if (vehicle == null)
             return false;
-        }
 
-        _context.Vehicles.Remove(existingVehicle);
+        _context.Vehicles.Remove(vehicle);
         await _context.SaveChangesAsync();
         return true;
     }

@@ -1,4 +1,5 @@
 ﻿using Business.Vehicles;
+using Degenesis.Shared.DTOs.Vehicles;
 using Domain.Vehicles;
 
 namespace API.Endpoints.Vehicles;
@@ -25,20 +26,16 @@ public static class VehicleEndpoints
             return Results.Ok(vehicle);
         });
 
-        group.MapPost("/", async (Vehicle vehicle, IVehicleService service) =>
+        group.MapPost("/", async (VehicleCreateDto vehicle, IVehicleService service) =>
         {
             var createdVehicle = await service.CreateVehicleAsync(vehicle);
             return Results.Created($"/vehicles/{createdVehicle.Id}", createdVehicle);
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, Vehicle vehicle, IVehicleService service) =>
+        group.MapPut("/", async (VehicleDto vehicle, IVehicleService service) =>
         {
-            var updatedVehicle = await service.UpdateVehicleAsync(id, vehicle);
-            if (updatedVehicle == null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(updatedVehicle);
+            var updatedVehicle = await service.UpdateVehicleAsync(vehicle);
+            return updatedVehicle ? Results.NoContent() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IVehicleService service) =>
