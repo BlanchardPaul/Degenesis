@@ -4,9 +4,9 @@ using Degenesis.UI.Service.Features.Characters;
 using Degenesis.UI.Service.Features.Equipments;
 using Degenesis.UI.Service.Features.Protections;
 using Degenesis.UI.Service.Features.Vehicles;
+using Degenesis.UI.Service.Features.Weapons;
 
 namespace Degenesis.UI.Blazor.Extensions;
-
 
 public static class ServiceCollectionExtensions
 {
@@ -35,6 +35,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<SkillService>();
         services.AddScoped<VehicleService>();
         services.AddScoped<VehicleTypeService>();
+        services.AddScoped<WeaponService>();
+        services.AddScoped<WeaponQualityService>();
+        services.AddScoped<WeaponTypeService>();
         return services;
     }
 }

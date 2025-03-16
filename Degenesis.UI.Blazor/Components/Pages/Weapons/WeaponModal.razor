@@ -1,0 +1,50 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Weapon.Name" Required="true" />
+        <MudTextField Label="Description" @bind-Value="Weapon.Description" Required="true" />
+        <MudTextField Label="Caliber" @bind-Value="Weapon.Caliber" />
+        <MudTextField Label="Handling" @bind-Value="Weapon.Handling" />
+        <MudTextField Label="Distance" @bind-Value="Weapon.Distance" />
+        <MudNumericField Label="Damage" @bind-Value="Weapon.Damage" />
+        <MudNumericField Label="Magazine" @bind-Value="Weapon.Magazine" />
+        <MudNumericField Label="Encumbrance" @bind-Value="Weapon.Encumbrance" />
+        <MudNumericField Label="Tech Level" @bind-Value="Weapon.TechLevel" />
+        <MudNumericField Label="Slots" @bind-Value="Weapon.Slots" />
+        <MudNumericField Label="Value" @bind-Value="Weapon.Value" />
+        <MudTextField Label="Resources" @bind-Value="Weapon.Resources" />
+
+        <MudSelect T="Guid" Label="Weapon Type" @bind-Value="Weapon.WeaponTypeId">
+            @foreach (var type in WeaponTypes)
+            {
+                <MudSelectItem T="Guid" Value="@type.Id">@type.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="Guid?" Label="Attribute" @bind-Value="Weapon.AttributeId">
+            <MudSelectItem T="Guid?" Value="null">None</MudSelectItem>
+            @foreach (var cattribute in Attributes)
+            {
+                <MudSelectItem T="Guid?" Value="@cattribute.Id">@cattribute.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudNumericField T="float?" Label="Character attribute modifier"
+                         @bind-Value="Weapon.CharacterAttributeModifier"
+                         Format="0.##" />
+
+        <MudSelect T="Guid" Label="Qualities" MultiSelection="true"
+                   SelectedValues="SelectedQualityIds" SelectedValuesChanged="OnQualitiesChanged"
+                   ToStringFunc="@(id => WeaponQualities.FirstOrDefault(q => q.Id == id)?.Name ?? "Unknown")">
+            @foreach (var quality in WeaponQualities)
+            {
+                <MudSelectItem T="Guid" Value="@quality.Id">@quality.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveWeapon" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

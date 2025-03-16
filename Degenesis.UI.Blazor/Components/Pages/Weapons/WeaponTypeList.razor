@@ -1,0 +1,31 @@
+﻿@page "/weapon-types"
+@using Degenesis.UI.Service.Features.Weapons
+@inject WeaponTypeService WeaponTypeService
+@inject IDialogService DialogService
+
+<h3>Weapon Types</h3>
+
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Weapon Type</MudButton>
+
+@if (weaponTypes == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@weaponTypes" Hover="true">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Description</MudTd>
+            <MudTd>
+                <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => DeleteWeaponType(context.Id)" Color="Color.Error">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

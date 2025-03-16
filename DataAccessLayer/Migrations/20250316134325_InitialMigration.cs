@@ -534,7 +534,7 @@ namespace DataAccessLayer.Migrations
                     Distance = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Damage = table.Column<int>(type: "int", nullable: true),
                     AttributeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CharacterAttibuteModifier = table.Column<float>(type: "real", nullable: true),
+                    CharacterAttributeModifier = table.Column<float>(type: "real", nullable: true),
                     Magazine = table.Column<int>(type: "int", nullable: false),
                     Encumbrance = table.Column<int>(type: "int", nullable: false),
                     TechLevel = table.Column<int>(type: "int", nullable: false),

@@ -1119,7 +1119,7 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<float?>("CharacterAttibuteModifier")
+                    b.Property<float?>("CharacterAttributeModifier")
                         .HasColumnType("real");
 
                     b.Property<int?>("Damage")

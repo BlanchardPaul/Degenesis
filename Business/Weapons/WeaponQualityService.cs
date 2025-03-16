@@ -1,60 +1,69 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Weapons;
 using Domain.Weapons;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Weapons;
 public interface IWeaponQualityService
 {
-    Task<WeaponQuality?> GetWeaponQualityByIdAsync(Guid id);
-    Task<IEnumerable<WeaponQuality>> GetAllWeaponQualitiesAsync();
-    Task CreateWeaponQualityAsync(WeaponQuality weaponQuality);
-    Task UpdateWeaponQualityAsync(Guid id, WeaponQuality weaponQuality);
-    Task DeleteWeaponQualityAsync(Guid id);
+    Task<IEnumerable<WeaponQualityDto>> GetAllWeaponQualitiesAsync();
+    Task<WeaponQualityDto?> GetWeaponQualityByIdAsync(Guid id);
+    Task<WeaponQualityDto?> CreateWeaponQualityAsync(WeaponQualityCreateDto weaponQualityCreate);
+    Task<bool> UpdateWeaponQualityAsync(WeaponQualityDto weaponQuality);
+    Task<bool> DeleteWeaponQualityAsync(Guid id);
 }
 
 public class WeaponQualityService : IWeaponQualityService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public WeaponQualityService(ApplicationDbContext context)
+    public WeaponQualityService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<WeaponQuality?> GetWeaponQualityByIdAsync(Guid id)
+    public async Task<IEnumerable<WeaponQualityDto>> GetAllWeaponQualitiesAsync()
     {
-        return await _context.WeaponQualities
-            .FirstOrDefaultAsync(wq => wq.Id == id);
+        var weaponQualities = await _context.WeaponQualities.ToListAsync();
+        return _mapper.Map<IEnumerable<WeaponQualityDto>>(weaponQualities);
     }
 
-    public async Task<IEnumerable<WeaponQuality>> GetAllWeaponQualitiesAsync()
-    {
-        return await _context.WeaponQualities.ToListAsync();
-    }
-
-    public async Task CreateWeaponQualityAsync(WeaponQuality weaponQuality)
-    {
-        _context.WeaponQualities.Add(weaponQuality);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateWeaponQualityAsync(Guid id, WeaponQuality weaponQuality)
-    {
-        var existingWeaponQuality = await _context.WeaponQualities.FirstOrDefaultAsync(wq => wq.Id == id);
-        if (existingWeaponQuality is not null)
-        {
-            existingWeaponQuality = weaponQuality; // Direct assignment as per your instructions
-            await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task DeleteWeaponQualityAsync(Guid id)
+    public async Task<WeaponQualityDto?> GetWeaponQualityByIdAsync(Guid id)
     {
         var weaponQuality = await _context.WeaponQualities.FindAsync(id);
-        if (weaponQuality is not null)
-        {
-            _context.WeaponQualities.Remove(weaponQuality);
-            await _context.SaveChangesAsync();
-        }
+        return weaponQuality is null ? null : _mapper.Map<WeaponQualityDto>(weaponQuality);
+    }
+
+    public async Task<WeaponQualityDto?> CreateWeaponQualityAsync(WeaponQualityCreateDto weaponQualityCreate)
+    {
+        var weaponQuality = _mapper.Map<WeaponQuality>(weaponQualityCreate);
+        _context.WeaponQualities.Add(weaponQuality);
+        await _context.SaveChangesAsync();
+        return _mapper.Map<WeaponQualityDto>(weaponQuality);
+    }
+
+    public async Task<bool> UpdateWeaponQualityAsync(WeaponQualityDto weaponQualityDto)
+    {
+        var existingWeaponQuality = await _context.WeaponQualities.FindAsync(weaponQualityDto.Id);
+        if (existingWeaponQuality == null)
+            return false;
+
+        _mapper.Map(weaponQualityDto, existingWeaponQuality);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteWeaponQualityAsync(Guid id)
+    {
+        var weaponQuality = await _context.WeaponQualities.FindAsync(id);
+        if (weaponQuality == null)
+            return false;
+
+        _context.WeaponQualities.Remove(weaponQuality);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

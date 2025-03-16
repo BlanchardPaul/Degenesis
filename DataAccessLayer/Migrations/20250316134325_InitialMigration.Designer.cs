@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250313181255_InitialMigration")]
+    [Migration("20250316134325_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -1122,7 +1122,7 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<float?>("CharacterAttibuteModifier")
+                    b.Property<float?>("CharacterAttributeModifier")
                         .HasColumnType("real");
 
                     b.Property<int?>("Damage")

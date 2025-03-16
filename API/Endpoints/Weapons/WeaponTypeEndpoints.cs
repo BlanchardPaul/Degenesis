@@ -1,4 +1,5 @@
 ﻿using Business.Weapons;
+using Degenesis.Shared.DTOs.Weapons;
 using Domain.Weapons;
 
 namespace API.Endpoints.Weapons;
@@ -7,7 +8,7 @@ public static class WeaponTypeEndpoints
 {
     public static void MapWeaponTypeEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/weaponTypes").WithTags("WeaponTypes");
+        var group = app.MapGroup("/weapon-types").WithTags("WeaponTypes");
 
         group.MapGet("/{id}", async (IWeaponTypeService service, Guid id) =>
         {
@@ -21,16 +22,16 @@ public static class WeaponTypeEndpoints
             return Results.Ok(weaponTypes);
         });
 
-        group.MapPost("/", async (IWeaponTypeService service, WeaponType weaponType) =>
+        group.MapPost("/", async (IWeaponTypeService service, WeaponTypeCreateDto weaponType) =>
         {
-            await service.CreateWeaponTypeAsync(weaponType);
-            return Results.Created($"/weaponTypes/{weaponType.Id}", weaponType);
+            var weaponTypeCreated = await service.CreateWeaponTypeAsync(weaponType);
+            return Results.Created($"/weapon-types/{weaponTypeCreated.Id}", weaponTypeCreated);
         });
 
-        group.MapPut("/{id}", async (IWeaponTypeService service, Guid id, WeaponType weaponType) =>
+        group.MapPut("/", async (IWeaponTypeService service, WeaponTypeDto weaponType) =>
         {
-            await service.UpdateWeaponTypeAsync(id, weaponType);
-            return Results.NoContent();
+            var updatedWeaponType = await service.UpdateWeaponTypeAsync(weaponType);
+            return updatedWeaponType ? Results.NoContent() : Results.NotFound();
         });
 
         group.MapDelete("/{id}", async (IWeaponTypeService service, Guid id) =>

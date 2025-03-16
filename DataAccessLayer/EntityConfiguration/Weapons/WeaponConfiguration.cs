@@ -44,7 +44,7 @@ internal class WeaponConfiguration : IEntityTypeConfiguration<Weapon>
             .IsRequired(false)
             .HasForeignKey(w => w.AttributeId);
 
-        builder.Property(w => w.CharacterAttibuteModifier);
+        builder.Property(w => w.CharacterAttributeModifier);
         builder.Property(w => w.Magazine);
         builder.Property(w => w.Encumbrance);
         builder.Property(w => w.TechLevel);

@@ -1,60 +1,69 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Weapons;
 using Domain.Weapons;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Weapons;
 public interface IWeaponTypeService
 {
-    Task<WeaponType?> GetWeaponTypeByIdAsync(Guid id);
-    Task<IEnumerable<WeaponType>> GetAllWeaponTypesAsync();
-    Task CreateWeaponTypeAsync(WeaponType weaponType);
-    Task UpdateWeaponTypeAsync(Guid id, WeaponType weaponType);
-    Task DeleteWeaponTypeAsync(Guid id);
+    Task<IEnumerable<WeaponTypeDto>> GetAllWeaponTypesAsync();
+    Task<WeaponTypeDto?> GetWeaponTypeByIdAsync(Guid id);
+    Task<WeaponTypeDto?> CreateWeaponTypeAsync(WeaponTypeCreateDto weaponTypeCreate);
+    Task<bool> UpdateWeaponTypeAsync(WeaponTypeDto weaponType);
+    Task<bool> DeleteWeaponTypeAsync(Guid id);
 }
 
 public class WeaponTypeService : IWeaponTypeService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public WeaponTypeService(ApplicationDbContext context)
+    public WeaponTypeService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<WeaponType?> GetWeaponTypeByIdAsync(Guid id)
+    public async Task<IEnumerable<WeaponTypeDto>> GetAllWeaponTypesAsync()
     {
-        return await _context.WeaponTypes
-            .FirstOrDefaultAsync(wt => wt.Id == id);
+        var weaponTypes = await _context.WeaponTypes.ToListAsync();
+        return _mapper.Map<IEnumerable<WeaponTypeDto>>(weaponTypes);
     }
 
-    public async Task<IEnumerable<WeaponType>> GetAllWeaponTypesAsync()
-    {
-        return await _context.WeaponTypes.ToListAsync();
-    }
-
-    public async Task CreateWeaponTypeAsync(WeaponType weaponType)
-    {
-        _context.WeaponTypes.Add(weaponType);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateWeaponTypeAsync(Guid id, WeaponType weaponType)
-    {
-        var existingWeaponType = await _context.WeaponTypes.FirstOrDefaultAsync(wt => wt.Id == id);
-        if (existingWeaponType is not null)
-        {
-            existingWeaponType = weaponType; // Direct assignment as per your instructions
-            await _context.SaveChangesAsync();
-        }
-    }
-
-    public async Task DeleteWeaponTypeAsync(Guid id)
+    public async Task<WeaponTypeDto?> GetWeaponTypeByIdAsync(Guid id)
     {
         var weaponType = await _context.WeaponTypes.FindAsync(id);
-        if (weaponType is not null)
-        {
-            _context.WeaponTypes.Remove(weaponType);
-            await _context.SaveChangesAsync();
-        }
+        return weaponType is null ? null : _mapper.Map<WeaponTypeDto>(weaponType);
+    }
+
+    public async Task<WeaponTypeDto?> CreateWeaponTypeAsync(WeaponTypeCreateDto weaponTypeCreate)
+    {
+        var weaponType = _mapper.Map<WeaponType>(weaponTypeCreate);
+        _context.WeaponTypes.Add(weaponType);
+        await _context.SaveChangesAsync();
+        return _mapper.Map<WeaponTypeDto>(weaponType);
+    }
+
+    public async Task<bool> UpdateWeaponTypeAsync(WeaponTypeDto weaponTypeDto)
+    {
+        var existingWeaponType = await _context.WeaponTypes.FindAsync(weaponTypeDto.Id);
+        if (existingWeaponType == null)
+            return false;
+
+        _mapper.Map(weaponTypeDto, existingWeaponType);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteWeaponTypeAsync(Guid id)
+    {
+        var weaponType = await _context.WeaponTypes.FindAsync(id);
+        if (weaponType == null)
+            return false;
+
+        _context.WeaponTypes.Remove(weaponType);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

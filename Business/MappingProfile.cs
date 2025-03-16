@@ -5,12 +5,14 @@ using Degenesis.Shared.DTOs.Characters;
 using Degenesis.Shared.DTOs.Equipments;
 using Degenesis.Shared.DTOs.Protections;
 using Degenesis.Shared.DTOs.Vehicles;
+using Degenesis.Shared.DTOs.Weapons;
 using Domain._Artifacts;
 using Domain.Burns;
 using Domain.Characters;
 using Domain.Equipments;
 using Domain.Protections;
 using Domain.Vehicles;
+using Domain.Weapons;
 
 namespace Business;
 public class MappingProfile : Profile
@@ -112,5 +114,20 @@ public class MappingProfile : Profile
         CreateMap<VehicleTypeCreateDto, VehicleType>();
         CreateMap<VehicleTypeDto, VehicleType>();
         CreateMap<VehicleType, VehicleTypeDto>();
+
+        CreateMap<WeaponCreateDto, Weapon>();
+        CreateMap<WeaponDto, Weapon>();
+        CreateMap<Weapon, WeaponDto>()
+            .ForMember(dest => dest.WeaponType, opt => opt.MapFrom(src => src.WeaponType))
+            .ForMember(dest => dest.Attribute, opt => opt.MapFrom(src => src.Attribute))
+            .ForMember(dest => dest.Qualities, opt => opt.MapFrom(src => src.Qualities));
+
+        CreateMap<WeaponQualityCreateDto, WeaponQuality>();
+        CreateMap<WeaponQualityDto, WeaponQuality>();
+        CreateMap<WeaponQuality, WeaponQualityDto>();
+
+        CreateMap<WeaponTypeCreateDto, WeaponType>();
+        CreateMap<WeaponTypeDto, WeaponType>();
+        CreateMap<WeaponType, WeaponTypeDto>();
     }
 }
