@@ -26,6 +26,8 @@ public static class VehicleTypeEndpoints
         group.MapPost("/", async (VehicleTypeCreateDto vehicleType, IVehicleTypeService service) =>
         {
             var createdVehicleType = await service.CreateVehicleTypeAsync(vehicleType);
+            if (createdVehicleType is null)
+                return Results.BadRequest();
             return Results.Created($"/vehicle-types/{createdVehicleType.Id}", createdVehicleType);
         });
 

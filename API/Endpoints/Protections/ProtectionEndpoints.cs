@@ -29,6 +29,8 @@ public static class ProtectionEndpoints
         group.MapPost("/", async (ProtectionCreateDto protection, IProtectionService service) =>
         {
             var createdProtection = await service.CreateProtectionAsync(protection);
+            if (createdProtection is null)
+                return Results.BadRequest();
             return Results.Created($"/protections/{createdProtection.Id}", createdProtection);
         });
 

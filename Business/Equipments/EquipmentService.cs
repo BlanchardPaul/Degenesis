@@ -44,7 +44,7 @@ public class EquipmentService : IEquipmentService
     public async Task<EquipmentDto?> CreateEquipmentAsync(EquipmentCreateDto equipmentCreate)
     {
         var equipment = _mapper.Map<Equipment>(equipmentCreate);
-        equipment.EquipmentType = await _context.EquipmentTypes.FindAsync(equipmentCreate.EquipmentTypeId);
+        equipment.EquipmentType = await _context.EquipmentTypes.FirstAsync(et => et.Id == equipmentCreate.EquipmentTypeId);
 
         _context.Equipments.Add(equipment);
         await _context.SaveChangesAsync();
@@ -57,11 +57,11 @@ public class EquipmentService : IEquipmentService
             .Include(e => e.EquipmentType)
             .FirstOrDefaultAsync(e => e.Id == equipmentDto.Id);
 
-        if (existingEquipment == null)
+        if (existingEquipment is null || equipmentDto.EquipmentType is null)
             return false;
 
         _mapper.Map(equipmentDto, existingEquipment);
-        existingEquipment.EquipmentType = await _context.EquipmentTypes.FindAsync(equipmentDto.EquipmentType.Id);
+        existingEquipment.EquipmentType = await _context.EquipmentTypes.FirstAsync(et => et.Id == equipmentDto.EquipmentType.Id);
 
         await _context.SaveChangesAsync();
         return true;

@@ -57,7 +57,7 @@ public class RankService : IRankService
             .Where(rp => rankCreate.Prerequisites.Select(p => p.Id).Contains(rp.Id))
             .ToListAsync();
 
-        rank.Cult = await _context.Cults.FindAsync(rankCreate.CultId);
+        rank.Cult = await _context.Cults.FirstAsync(c => c.Id == rankCreate.CultId);
 
         _context.Ranks.Add(rank);
         await _context.SaveChangesAsync();
@@ -71,7 +71,7 @@ public class RankService : IRankService
             .Include(r => r.Cult)
             .FirstOrDefaultAsync(r => r.Id == rankDto.Id);
 
-        if (existingRank == null)
+        if (existingRank is null || rankDto.Cult is null)
             return false;
 
         _mapper.Map(rankDto, existingRank);
@@ -80,7 +80,7 @@ public class RankService : IRankService
             .Where(rp => rankDto.Prerequisites.Select(p => p.Id).Contains(rp.Id))
             .ToListAsync();
 
-        existingRank.Cult = await _context.Cults.FindAsync(rankDto.Cult.Id);
+        existingRank.Cult = await _context.Cults.FirstAsync(c => c.Id == rankDto.Cult.Id);
 
         await _context.SaveChangesAsync();
         return true;

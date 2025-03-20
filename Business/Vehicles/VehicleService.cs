@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs.Equipments;
 using Degenesis.Shared.DTOs.Vehicles;
 using Domain.Vehicles;
 using Microsoft.EntityFrameworkCore;
@@ -45,7 +46,7 @@ public class VehicleService : IVehicleService
     public async Task<VehicleDto?> CreateVehicleAsync(VehicleCreateDto vehicleCreate)
     {
         var vehicle = _mapper.Map<Vehicle>(vehicleCreate);
-        vehicle.VehicleType = await _context.VehicleTypes.FindAsync(vehicleCreate.VehicleTypeId);
+        vehicle.VehicleType = await _context.VehicleTypes.FirstAsync(vt => vt.Id == vehicleCreate.VehicleTypeId);
 
         _context.Vehicles.Add(vehicle);
         await _context.SaveChangesAsync();
@@ -58,11 +59,11 @@ public class VehicleService : IVehicleService
             .Include(v => v.VehicleType)
             .FirstOrDefaultAsync(v => v.Id == vehicleDto.Id);
 
-        if (existingVehicle == null)
+        if (existingVehicle is null || vehicleDto.VehicleType is null)
             return false;
 
         _mapper.Map(vehicleDto, existingVehicle);
-        existingVehicle.VehicleType = await _context.VehicleTypes.FindAsync(vehicleDto.VehicleType.Id);
+        existingVehicle.VehicleType = await _context.VehicleTypes.FirstAsync(vt => vt.Id == vehicleDto.VehicleType.Id);
 
         await _context.SaveChangesAsync();
         return true;

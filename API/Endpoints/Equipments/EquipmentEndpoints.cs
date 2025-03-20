@@ -29,6 +29,8 @@ public static class EquipmentEndpoints
         group.MapPost("/", async (EquipmentCreateDto equipment, IEquipmentService service) =>
         {
             var createdEquipment = await service.CreateEquipmentAsync(equipment);
+            if(createdEquipment is null)
+                return Results.BadRequest();
             return Results.Created($"/equipments/{createdEquipment.Id}", createdEquipment);
         });
 

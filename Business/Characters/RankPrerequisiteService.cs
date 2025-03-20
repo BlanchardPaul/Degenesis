@@ -80,7 +80,7 @@ public class RankPrerequisiteService : IRankPrerequisiteService
 
         _mapper.Map(rankPrerequisiteDto, existingRankPrerequisite);
 
-        existingRankPrerequisite.AttributeRequired = await _context.Attributes.FindAsync(rankPrerequisiteDto.AttributeRequired.Id);
+        existingRankPrerequisite.AttributeRequired = await _context.Attributes.FirstAsync(a => a.Id == rankPrerequisiteDto.AttributeRequired.Id);
 
         if(rankPrerequisiteDto.SkillRequired is not null)
             existingRankPrerequisite.SkillRequired = await _context.Skills.FindAsync(rankPrerequisiteDto.SkillRequired.Id);

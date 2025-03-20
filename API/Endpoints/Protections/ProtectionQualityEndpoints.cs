@@ -28,6 +28,8 @@ public static class ProtectionQualityEndpoints
         group.MapPost("/", async (ProtectionQualityCreateDto protectionQuality, IProtectionQualityService service) =>
         {
             var createdProtectionQuality = await service.CreateProtectionQualityAsync(protectionQuality);
+            if (createdProtectionQuality is null)
+                return Results.BadRequest();
             return Results.Created($"/protection-qualities/{createdProtectionQuality.Id}", createdProtectionQuality);
         });
 

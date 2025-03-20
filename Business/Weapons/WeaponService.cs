@@ -50,7 +50,7 @@ public class WeaponService : IWeaponService
     public async Task<WeaponDto?> CreateWeaponAsync(WeaponCreateDto weaponCreate)
     {
         var weapon = _mapper.Map<Weapon>(weaponCreate);
-        weapon.WeaponType = await _context.WeaponTypes.FindAsync(weaponCreate.WeaponTypeId);
+        weapon.WeaponType = await _context.WeaponTypes.FirstAsync(wt => wt.Id == weaponCreate.WeaponTypeId);
         weapon.Attribute = weaponCreate.AttributeId.HasValue
             ? await _context.Attributes.FindAsync(weaponCreate.AttributeId.Value)
             : null;
@@ -72,11 +72,11 @@ public class WeaponService : IWeaponService
             .Include(w => w.Qualities)
             .FirstOrDefaultAsync(w => w.Id == weaponDto.Id);
 
-        if (existingWeapon == null)
+        if (existingWeapon is null || weaponDto.WeaponType is null)
             return false;
 
         _mapper.Map(weaponDto, existingWeapon);
-        existingWeapon.WeaponType = await _context.WeaponTypes.FindAsync(weaponDto.WeaponType.Id);
+        existingWeapon.WeaponType = await _context.WeaponTypes.FirstAsync(wt => wt.Id == weaponDto.WeaponType.Id);
         existingWeapon.Attribute = weaponDto.Attribute?.Id != null
             ? await _context.Attributes.FindAsync(weaponDto.Attribute.Id)
             : null;
