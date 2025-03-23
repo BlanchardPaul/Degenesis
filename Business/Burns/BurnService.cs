@@ -47,7 +47,7 @@ public class BurnService : IBurnService
     public async Task<bool> UpdateAsync(Burn burn)
     {
         var existing = await _context.Burns.FindAsync(burn.Id);
-        if (existing == null) return false;
+        if (existing is null) return false;
 
         _mapper.Map(burn, existing);
 
@@ -58,7 +58,7 @@ public class BurnService : IBurnService
     public async Task<bool> DeleteAsync(Guid id)
     {
         var existingBurn = await _context.Burns.FindAsync(id);
-        if (existingBurn == null)
+        if (existingBurn is null)
         {
             return false;
         }

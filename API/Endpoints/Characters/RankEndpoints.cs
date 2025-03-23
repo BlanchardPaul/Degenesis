@@ -18,7 +18,7 @@ public static class RankEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IRankService service) =>
         {
             var rank = await service.GetRankByIdAsync(id);
-            if (rank == null)
+            if (rank is null)
             {
                 return Results.NotFound();
             }

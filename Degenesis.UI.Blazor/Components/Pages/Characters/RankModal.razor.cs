@@ -50,7 +50,7 @@ public partial class RankModal
     private string GetPrerequisiteLabel(Guid id)
     {
         var prerequisite = RankPrerequisites.FirstOrDefault(rp => rp.Id == id);
-        if (prerequisite == null) return "Unknown Prerequisite";
+        if (prerequisite is null) return "Unknown Prerequisite";
 
         string skillPart = prerequisite.SkillRequired != null ? $" + {prerequisite.SkillRequired.Name}" : "";
         return $"{prerequisite.AttributeRequired.Name}{skillPart} = {prerequisite.SumRequired}";

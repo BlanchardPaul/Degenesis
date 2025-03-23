@@ -49,7 +49,7 @@ public class EquipmentTypeService : IEquipmentTypeService
     {
         var existingEquipmentType = await _context.EquipmentTypes.FindAsync(equipmentTypeDto.Id);
 
-        if (existingEquipmentType == null)
+        if (existingEquipmentType is null)
             return false;
 
         _mapper.Map(equipmentTypeDto, existingEquipmentType);
@@ -60,7 +60,7 @@ public class EquipmentTypeService : IEquipmentTypeService
     public async Task<bool> DeleteEquipmentTypeAsync(Guid id)
     {
         var existingEquipmentType = await _context.EquipmentTypes.FindAsync(id);
-        if (existingEquipmentType == null)
+        if (existingEquipmentType is null)
             return false;
 
         _context.EquipmentTypes.Remove(existingEquipmentType);

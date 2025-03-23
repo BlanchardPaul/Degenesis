@@ -44,7 +44,7 @@ public class NPCPotentialService : INPCPotentialService
         var existingNPCPotential = await _context.NPCPotentials
             .FirstOrDefaultAsync(np => np.NPCId == npcId && np.PotentialId == potentialId);
 
-        if (existingNPCPotential == null) return null;
+        if (existingNPCPotential is null) return null;
 
         _context.Entry(existingNPCPotential).CurrentValues.SetValues(npcPotential);
         await _context.SaveChangesAsync();
@@ -56,7 +56,7 @@ public class NPCPotentialService : INPCPotentialService
         var npcPotential = await _context.NPCPotentials
             .FirstOrDefaultAsync(np => np.NPCId == npcId && np.PotentialId == potentialId);
 
-        if (npcPotential == null) return false;
+        if (npcPotential is null) return false;
 
         _context.NPCPotentials.Remove(npcPotential);
         await _context.SaveChangesAsync();

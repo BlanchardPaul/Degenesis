@@ -18,7 +18,7 @@ public static class CharacterEquipmentEndpoints
         group.MapGet("/{characterId:guid}/{equipmentId:guid}", async (Guid characterId, Guid equipmentId, ICharacterEquipmentService service) =>
         {
             var characterEquipment = await service.GetCharacterEquipmentByIdAsync(characterId, equipmentId);
-            if (characterEquipment == null)
+            if (characterEquipment is null)
             {
                 return Results.NotFound();
             }
@@ -34,7 +34,7 @@ public static class CharacterEquipmentEndpoints
         group.MapPut("/{characterId:guid}/{equipmentId:guid}", async (Guid characterId, Guid equipmentId, CharacterEquipment characterEquipment, ICharacterEquipmentService service) =>
         {
             var updatedCharacterEquipment = await service.UpdateCharacterEquipmentAsync(characterId, equipmentId, characterEquipment);
-            if (updatedCharacterEquipment == null)
+            if (updatedCharacterEquipment is null)
             {
                 return Results.NotFound();
             }

@@ -1,8 +1,8 @@
-﻿using Degenesis.Shared.DTOs.Vehicles;
-using Degenesis.UI.Service.Features;
+﻿using Degenesis.UI.Service.Features;
 using Degenesis.UI.Service.Features.Characters;
 using Degenesis.UI.Service.Features.Equipments;
 using Degenesis.UI.Service.Features.Protections;
+using Degenesis.UI.Service.Features.Users;
 using Degenesis.UI.Service.Features.Vehicles;
 using Degenesis.UI.Service.Features.Weapons;
 
@@ -19,7 +19,6 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<ArtifactService>();
         services.AddScoped<BurnService>();
-
         services.AddScoped<AttributeService>();
         services.AddScoped<Service.Features.Characters.BackgroundService>();
         services.AddScoped<ConceptService>();
@@ -38,6 +37,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<WeaponService>();
         services.AddScoped<WeaponQualityService>();
         services.AddScoped<WeaponTypeService>();
+
+        services.AddScoped<UserService>();
         return services;
     }
 }

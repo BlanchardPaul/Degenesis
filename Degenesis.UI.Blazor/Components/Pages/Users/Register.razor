@@ -1,0 +1,19 @@
+﻿@page "/register"
+@using Degenesis.Shared.DTOs.Users
+@using Degenesis.UI.Service.Features.Users
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+
+<h3>Register</h3>
+
+<EditForm Model="@registerModel" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+
+    <MudTextField @bind-Value="registerModel.UserName" Label="Username" For="@(() => registerModel.UserName)" Required="true" />
+    <MudTextField @bind-Value="registerModel.Email" Label="Email" For="@(() => registerModel.Email)" Required="true" />
+    <MudTextField @bind-Value="registerModel.Password" Label="Password" For="@(() => registerModel.Password)" Required="true" InputType="InputType.Password" />
+    <MudTextField @bind-Value="registerModel.ConfirmPassword" Label="Confirm Password" For="@(() => registerModel.ConfirmPassword)" Required="true" InputType="InputType.Password" />
+
+    <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Register</MudButton>
+    <MudButton OnClick="Cancel" Color="Color.Error">Cancel</MudButton>
+</EditForm>

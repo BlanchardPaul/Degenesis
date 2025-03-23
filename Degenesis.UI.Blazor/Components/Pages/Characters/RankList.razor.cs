@@ -73,7 +73,7 @@ public partial class RankList
 
     private static string GetPrerequisiteLabel(RankPrerequisiteDto prerequisite)
     {
-        if (prerequisite == null) return "Unknown Prerequisite";
+        if (prerequisite is null) return "Unknown Prerequisite";
 
         string skillPart = prerequisite.SkillRequired != null ? $" + {prerequisite.SkillRequired.Name}" : "";
         return $"{prerequisite.AttributeRequired.Name}{skillPart} = {prerequisite.SumRequired}";

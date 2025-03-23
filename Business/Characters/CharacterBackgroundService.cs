@@ -53,7 +53,7 @@ public class CharacterBackgroundService : ICharacterBackgroundService
         var existingCharacterBackground = await _context.CharacterBackgrounds
             .FirstOrDefaultAsync(cb => cb.CharacterId == characterId && cb.BackgroundId == backgroundId);
 
-        if (existingCharacterBackground == null)
+        if (existingCharacterBackground is null)
             return false;
 
         _context.Entry(existingCharacterBackground).CurrentValues.SetValues(characterBackground);
@@ -66,7 +66,7 @@ public class CharacterBackgroundService : ICharacterBackgroundService
         var characterBackground = await _context.CharacterBackgrounds
             .FirstOrDefaultAsync(cb => cb.CharacterId == characterId && cb.BackgroundId == backgroundId);
 
-        if (characterBackground == null)
+        if (characterBackground is null)
             return false;
 
         _context.CharacterBackgrounds.Remove(characterBackground);

@@ -4,12 +4,13 @@
 @inject AttributeService AttributeService
 @inject SkillService SkillService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Rank Prerequisites</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank Prerequisite</MudButton>
 
-@if (rankPrerequisites == null)
+@if (rankPrerequisites is null)
 {
     <p><em>Loading...</em></p>
 }

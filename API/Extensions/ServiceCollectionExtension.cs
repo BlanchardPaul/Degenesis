@@ -5,6 +5,7 @@ using Business.Characters;
 using Business.Equipments;
 using Business.NPCs;
 using Business.Protections;
+using Business.Users;
 using Business.Vehicles;
 using Business.Weapons;
 
@@ -63,6 +64,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<INPCAttributeService, NPCAttributeService>();
         services.AddScoped<INPCPotentialService, NPCPotentialService>();
         services.AddScoped<INPCSkillService, NPCSkillService>();
+
+        services.AddScoped<IUserService, UserService>();
         return services;
     }
 }

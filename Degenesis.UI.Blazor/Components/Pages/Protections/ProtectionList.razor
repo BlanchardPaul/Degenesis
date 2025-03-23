@@ -3,12 +3,13 @@
 @inject ProtectionService ProtectionService
 @inject ProtectionQualityService ProtectionQualityService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Protections</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Protection</MudButton>
 
-@if (protections == null)
+@if (protections is null)
 {
     <p><em>Loading...</em></p>
 }

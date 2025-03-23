@@ -54,7 +54,7 @@ public class CharacterAttributeService : ICharacterAttributeService
         var existingCharacterAttribute = await _context.CharacterAttributes
             .FirstOrDefaultAsync(ca => ca.CharacterId == characterId && ca.AttributeId == attributeId);
 
-        if (existingCharacterAttribute == null)
+        if (existingCharacterAttribute is null)
             return false;
 
         _context.Entry(existingCharacterAttribute).CurrentValues.SetValues(characterAttribute);
@@ -67,7 +67,7 @@ public class CharacterAttributeService : ICharacterAttributeService
         var characterAttribute = await _context.CharacterAttributes
             .FirstOrDefaultAsync(ca => ca.CharacterId == characterId && ca.AttributeId == attributeId);
 
-        if (characterAttribute == null)
+        if (characterAttribute is null)
             return false;
 
         _context.CharacterAttributes.Remove(characterAttribute);

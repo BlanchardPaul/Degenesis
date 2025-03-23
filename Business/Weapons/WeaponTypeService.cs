@@ -48,7 +48,7 @@ public class WeaponTypeService : IWeaponTypeService
     public async Task<bool> UpdateWeaponTypeAsync(WeaponTypeDto weaponTypeDto)
     {
         var existingWeaponType = await _context.WeaponTypes.FindAsync(weaponTypeDto.Id);
-        if (existingWeaponType == null)
+        if (existingWeaponType is null)
             return false;
 
         _mapper.Map(weaponTypeDto, existingWeaponType);
@@ -59,7 +59,7 @@ public class WeaponTypeService : IWeaponTypeService
     public async Task<bool> DeleteWeaponTypeAsync(Guid id)
     {
         var weaponType = await _context.WeaponTypes.FindAsync(id);
-        if (weaponType == null)
+        if (weaponType is null)
             return false;
 
         _context.WeaponTypes.Remove(weaponType);

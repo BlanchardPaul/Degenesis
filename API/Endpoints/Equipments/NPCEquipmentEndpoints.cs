@@ -18,7 +18,7 @@ public static class NPCEquipmentEndpoints
         group.MapGet("/{id:guid}", async (Guid id, INPCEquipmentService service) =>
         {
             var npcEquipment = await service.GetNPCEquipmentByIdAsync(id);
-            if (npcEquipment == null)
+            if (npcEquipment is null)
             {
                 return Results.NotFound();
             }
@@ -34,7 +34,7 @@ public static class NPCEquipmentEndpoints
         group.MapPut("/{id:guid}", async (Guid id, NPCEquipment npcEquipment, INPCEquipmentService service) =>
         {
             var updatedNPCEquipment = await service.UpdateNPCEquipmentAsync(id, npcEquipment);
-            if (updatedNPCEquipment == null)
+            if (updatedNPCEquipment is null)
             {
                 return Results.NotFound();
             }

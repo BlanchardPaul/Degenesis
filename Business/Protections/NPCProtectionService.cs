@@ -42,7 +42,7 @@ public class NPCProtectionService : INPCProtectionService
     {
         var existingNPCProtection = await _context.NPCProtections.FindAsync(id);
 
-        if (existingNPCProtection == null)
+        if (existingNPCProtection is null)
         {
             return null;
         }
@@ -57,7 +57,7 @@ public class NPCProtectionService : INPCProtectionService
     {
         var existingNPCProtection = await _context.NPCProtections.FindAsync(id);
 
-        if (existingNPCProtection == null)
+        if (existingNPCProtection is null)
         {
             return false;
         }

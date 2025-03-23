@@ -4,6 +4,7 @@ using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters;
 using Degenesis.Shared.DTOs.Equipments;
 using Degenesis.Shared.DTOs.Protections;
+using Degenesis.Shared.DTOs.Users;
 using Degenesis.Shared.DTOs.Vehicles;
 using Degenesis.Shared.DTOs.Weapons;
 using Domain._Artifacts;
@@ -11,6 +12,7 @@ using Domain.Burns;
 using Domain.Characters;
 using Domain.Equipments;
 using Domain.Protections;
+using Domain.Users;
 using Domain.Vehicles;
 using Domain.Weapons;
 
@@ -129,5 +131,7 @@ public class MappingProfile : Profile
         CreateMap<WeaponTypeCreateDto, WeaponType>();
         CreateMap<WeaponTypeDto, WeaponType>();
         CreateMap<WeaponType, WeaponTypeDto>();
+
+        CreateMap<UserCreateDto, ApplicationUser>();
     }
 }

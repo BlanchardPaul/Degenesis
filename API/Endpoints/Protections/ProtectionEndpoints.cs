@@ -19,7 +19,7 @@ public static class ProtectionEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IProtectionService service) =>
         {
             var protection = await service.GetProtectionByIdAsync(id);
-            if (protection == null)
+            if (protection is null)
             {
                 return Results.NotFound();
             }

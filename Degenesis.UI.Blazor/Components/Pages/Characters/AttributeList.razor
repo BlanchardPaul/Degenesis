@@ -2,12 +2,13 @@
 @using Degenesis.Shared.DTOs.Characters
 @using Degenesis.UI.Service.Features.Characters
 @inject AttributeService AttributeService
+@layout Layout.DashBoardLayout
 
 <h3>Attributes</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Attribute</MudButton>
 
-@if (attributes == null)
+@if (attributes is null)
 {
     <p><em>Loading...</em></p>
 }

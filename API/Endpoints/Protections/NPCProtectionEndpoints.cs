@@ -18,7 +18,7 @@ public static class NPCProtectionEndpoints
         group.MapGet("/{id:guid}", async (Guid id, INPCProtectionService service) =>
         {
             var npcProtection = await service.GetNPCProtectionByIdAsync(id);
-            if (npcProtection == null)
+            if (npcProtection is null)
             {
                 return Results.NotFound();
             }
@@ -34,7 +34,7 @@ public static class NPCProtectionEndpoints
         group.MapPut("/{id:guid}", async (Guid id, NPCProtection npcProtection, INPCProtectionService service) =>
         {
             var updatedNPCProtection = await service.UpdateNPCProtectionAsync(id, npcProtection);
-            if (updatedNPCProtection == null)
+            if (updatedNPCProtection is null)
             {
                 return Results.NotFound();
             }

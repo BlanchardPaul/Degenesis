@@ -5,12 +5,13 @@
 @inject SkillService SkillService
 @inject AttributeService AttributeService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Concepts</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Concept</MudButton>
 
-@if (concepts == null)
+@if (concepts is null)
 {
     <p><em>Loading...</em></p>
 }

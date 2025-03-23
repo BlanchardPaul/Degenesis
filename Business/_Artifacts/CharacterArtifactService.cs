@@ -46,7 +46,7 @@ public class CharacterArtifactService : ICharacterArtifactService
     public async Task<bool> UpdateAsync(Guid id, CharacterArtifact characterArtifact)
     {
         var existing = await _context.CharacterArtifacts.FindAsync(id);
-        if (existing == null) return false;
+        if (existing is null) return false;
 
         existing = characterArtifact;
 
@@ -57,7 +57,7 @@ public class CharacterArtifactService : ICharacterArtifactService
     public async Task<bool> DeleteAsync(Guid id)
     {
         var characterArtifact = await _context.CharacterArtifacts.FindAsync(id);
-        if (characterArtifact == null) return false;
+        if (characterArtifact is null) return false;
 
         _context.CharacterArtifacts.Remove(characterArtifact);
         await _context.SaveChangesAsync();

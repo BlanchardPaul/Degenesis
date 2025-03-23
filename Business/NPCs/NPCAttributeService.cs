@@ -44,7 +44,7 @@ public class NPCAttributeService : INPCAttributeService
         var existingNPCAttribute = await _context.NPCAttributes
             .FirstOrDefaultAsync(na => na.NPCId == npcId && na.AttributeId == attributeId);
 
-        if (existingNPCAttribute == null) return null;
+        if (existingNPCAttribute is null) return null;
 
         _context.Entry(existingNPCAttribute).CurrentValues.SetValues(npcAttribute);
         await _context.SaveChangesAsync();
@@ -56,7 +56,7 @@ public class NPCAttributeService : INPCAttributeService
         var npcAttribute = await _context.NPCAttributes
             .FirstOrDefaultAsync(na => na.NPCId == npcId && na.AttributeId == attributeId);
 
-        if (npcAttribute == null) return false;
+        if (npcAttribute is null) return false;
 
         _context.NPCAttributes.Remove(npcAttribute);
         await _context.SaveChangesAsync();

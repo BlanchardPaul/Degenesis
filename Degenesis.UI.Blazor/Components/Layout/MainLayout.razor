@@ -1,21 +1,33 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
-<MudThemeProvider IsDarkMode="true"/>
+<MudThemeProvider IsDarkMode="true" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">Degenesis</MudText>
+        <MudButton OnClick="NavigateToHome" Size="Size.Large">Degenesis</MudButton>
+        <MudSpacer />
+        <MudButton OnClick="NavigateToDashboard" Color="Color.Primary">Dashboard</MudButton>
     </MudAppBar>
-    <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu />
-    </MudDrawer>
     <MudMainContent Class="mt-16 pa-4">
         @Body
     </MudMainContent>
 </MudLayout>
+
+@code {
+
+    private void NavigateToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void NavigateToDashboard()
+    {
+        NavigationManager.NavigateTo("/dashboard");
+    }
+}
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

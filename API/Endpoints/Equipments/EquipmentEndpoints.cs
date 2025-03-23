@@ -19,7 +19,7 @@ public static class EquipmentEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IEquipmentService service) =>
         {
             var equipment = await service.GetEquipmentByIdAsync(id);
-            if (equipment == null)
+            if (equipment is null)
             {
                 return Results.NotFound();
             }

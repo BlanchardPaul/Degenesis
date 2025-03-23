@@ -48,7 +48,7 @@ public class WeaponQualityService : IWeaponQualityService
     public async Task<bool> UpdateWeaponQualityAsync(WeaponQualityDto weaponQualityDto)
     {
         var existingWeaponQuality = await _context.WeaponQualities.FindAsync(weaponQualityDto.Id);
-        if (existingWeaponQuality == null)
+        if (existingWeaponQuality is null)
             return false;
 
         _mapper.Map(weaponQualityDto, existingWeaponQuality);
@@ -59,7 +59,7 @@ public class WeaponQualityService : IWeaponQualityService
     public async Task<bool> DeleteWeaponQualityAsync(Guid id)
     {
         var weaponQuality = await _context.WeaponQualities.FindAsync(id);
-        if (weaponQuality == null)
+        if (weaponQuality is null)
             return false;
 
         _context.WeaponQualities.Remove(weaponQuality);

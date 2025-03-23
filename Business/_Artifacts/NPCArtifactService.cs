@@ -47,7 +47,7 @@ public class NPCArtifactService : INPCArtifactService
     public async Task<bool> UpdateAsync(Guid id, NPCArtifact npcArtifact)
     {
         var existing = await _context.NPCArtifacts.FindAsync(id);
-        if (existing == null) return false;
+        if (existing is null) return false;
 
         existing.NPCId = npcArtifact.NPCId;
         existing.ArtifactId = npcArtifact.ArtifactId;
@@ -60,7 +60,7 @@ public class NPCArtifactService : INPCArtifactService
     public async Task<bool> DeleteAsync(Guid id)
     {
         var existing = await _context.NPCArtifacts.FindAsync(id);
-        if (existing == null) return false;
+        if (existing is null) return false;
 
         _context.NPCArtifacts.Remove(existing);
         await _context.SaveChangesAsync();

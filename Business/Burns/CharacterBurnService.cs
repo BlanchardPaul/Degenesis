@@ -48,7 +48,7 @@ public class CharacterBurnService : ICharacterBurnService
         var existingCharacterBurn = await _context.CharacterBurns
             .FirstOrDefaultAsync(cb => cb.CharacterId == characterId && cb.BurnId == burnId);
 
-        if (existingCharacterBurn == null)
+        if (existingCharacterBurn is null)
         {
             return null;
         }
@@ -64,7 +64,7 @@ public class CharacterBurnService : ICharacterBurnService
         var existingCharacterBurn = await _context.CharacterBurns
             .FirstOrDefaultAsync(cb => cb.CharacterId == characterId && cb.BurnId == burnId);
 
-        if (existingCharacterBurn == null)
+        if (existingCharacterBurn is null)
         {
             return false;
         }

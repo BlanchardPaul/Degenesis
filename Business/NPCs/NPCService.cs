@@ -41,7 +41,7 @@ public class NPCService : INPCService
     public async Task<NPC?> UpdateNPCAsync(Guid id, NPC npc)
     {
         var existingNPC = await _context.NPCs.FindAsync(id);
-        if (existingNPC == null) return null;
+        if (existingNPC is null) return null;
 
         _context.Entry(existingNPC).CurrentValues.SetValues(npc);
         await _context.SaveChangesAsync();
@@ -51,7 +51,7 @@ public class NPCService : INPCService
     public async Task<bool> DeleteNPCAsync(Guid id)
     {
         var npc = await _context.NPCs.FindAsync(id);
-        if (npc == null) return false;
+        if (npc is null) return false;
 
         _context.NPCs.Remove(npc);
         await _context.SaveChangesAsync();

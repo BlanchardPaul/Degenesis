@@ -18,7 +18,7 @@ public static class NPCBurnEndpoints
         group.MapGet("/{npcId:guid}/{burnId:guid}", async (Guid npcId, Guid burnId, INPCBurnService service) =>
         {
             var npcBurn = await service.GetNPCBurnByIdAsync(npcId, burnId);
-            if (npcBurn == null)
+            if (npcBurn is null)
             {
                 return Results.NotFound();
             }
@@ -34,7 +34,7 @@ public static class NPCBurnEndpoints
         group.MapPut("/{npcId:guid}/{burnId:guid}", async (Guid npcId, Guid burnId, NPCBurn npcBurn, INPCBurnService service) =>
         {
             var updatedNPCBurn = await service.UpdateNPCBurnAsync(npcId, burnId, npcBurn);
-            if (updatedNPCBurn == null)
+            if (updatedNPCBurn is null)
             {
                 return Results.NotFound();
             }

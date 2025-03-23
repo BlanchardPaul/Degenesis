@@ -3,12 +3,13 @@
 @using Degenesis.UI.Service.Features.Characters
 @inject CultService CultService
 @inject SkillService SkillService
+@layout Layout.DashBoardLayout
 
 <h3>Cults</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Cult</MudButton>
 
-@if (cults == null)
+@if (cults is null)
 {
     <p><em>Loading...</em></p>
 }

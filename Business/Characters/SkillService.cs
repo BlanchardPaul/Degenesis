@@ -61,7 +61,7 @@ public class SkillService : ISkillService
     public async Task<bool> UpdateSkillAsync(Skill skill)
     {
         var existing = await _context.Skills.FindAsync(skill.Id);
-        if (existing == null) return false;
+        if (existing is null) return false;
 
         _mapper.Map(skill, existing);
 
@@ -72,7 +72,7 @@ public class SkillService : ISkillService
     public async Task<bool> DeleteSkillAsync(Guid id)
     {
         var existingSkill = await _context.Skills.FindAsync(id);
-        if (existingSkill == null)
+        if (existingSkill is null)
         {
             return false;
         }

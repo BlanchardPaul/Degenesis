@@ -2,12 +2,13 @@
 @using Degenesis.UI.Service.Features.Protections
 @inject ProtectionQualityService ProtectionQualityService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Protection Qualities</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Protection Quality</MudButton>
 
-@if (protectionQualities == null)
+@if (protectionQualities is null)
 {
     <p><em>Loading...</em></p>
 }

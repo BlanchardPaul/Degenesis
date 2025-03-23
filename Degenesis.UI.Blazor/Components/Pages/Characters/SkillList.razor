@@ -3,12 +3,13 @@
 @using Degenesis.UI.Service.Features.Characters
 @inject SkillService SkillService
 @inject AttributeService AttributeService
+@layout Layout.DashBoardLayout
 
 <h3>Skills</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Skill</MudButton>
 
-@if (skills == null)
+@if (skills is null)
 {
     <p><em>Loading...</em></p>
 }

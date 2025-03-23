@@ -4,12 +4,13 @@
 @inject RankService RankService
 @inject RankPrerequisiteService RankPrerequisiteService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Ranks</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank</MudButton>
 
-@if (ranks == null)
+@if (ranks is null)
 {
     <p><em>Loading...</em></p>
 }

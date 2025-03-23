@@ -49,7 +49,7 @@ public class ProtectionQualityService : IProtectionQualityService
     {
         var existingQuality = await _context.ProtectionQualities.FindAsync(protectionQualityDto.Id);
 
-        if (existingQuality == null)
+        if (existingQuality is null)
             return false;
 
         _mapper.Map(protectionQualityDto, existingQuality);
@@ -60,7 +60,7 @@ public class ProtectionQualityService : IProtectionQualityService
     public async Task<bool> DeleteProtectionQualityAsync(Guid id)
     {
         var quality = await _context.ProtectionQualities.FindAsync(id);
-        if (quality == null)
+        if (quality is null)
             return false;
 
         _context.ProtectionQualities.Remove(quality);

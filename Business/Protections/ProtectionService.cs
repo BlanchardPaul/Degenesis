@@ -60,7 +60,7 @@ public class ProtectionService : IProtectionService
             .Include(p => p.Qualities)
             .FirstOrDefaultAsync(p => p.Id == protectionDto.Id);
 
-        if (existingProtection == null)
+        if (existingProtection is null)
             return false;
 
         _mapper.Map(protectionDto, existingProtection);
@@ -75,7 +75,7 @@ public class ProtectionService : IProtectionService
     public async Task<bool> DeleteProtectionAsync(Guid id)
     {
         var protection = await _context.Protections.FindAsync(id);
-        if (protection == null)
+        if (protection is null)
             return false;
 
         _context.Protections.Remove(protection);

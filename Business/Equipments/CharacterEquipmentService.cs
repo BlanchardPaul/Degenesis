@@ -48,7 +48,7 @@ public class CharacterEquipmentService : ICharacterEquipmentService
         var existingCharacterEquipment = await _context.CharacterEquipments
             .FirstOrDefaultAsync(ce => ce.CharacterId == characterId && ce.EquipmentId == equipmentId);
 
-        if (existingCharacterEquipment == null)
+        if (existingCharacterEquipment is null)
         {
             return null;
         }
@@ -64,7 +64,7 @@ public class CharacterEquipmentService : ICharacterEquipmentService
         var existingCharacterEquipment = await _context.CharacterEquipments
             .FirstOrDefaultAsync(ce => ce.CharacterId == characterId && ce.EquipmentId == equipmentId);
 
-        if (existingCharacterEquipment == null)
+        if (existingCharacterEquipment is null)
         {
             return false;
         }

@@ -2,11 +2,12 @@
 @using Degenesis.Shared.DTOs
 @using Degenesis.UI.Service.Features
 @inject ArtifactService ArtifactService
+@layout Layout.DashBoardLayout
 
 <h3>Artifacts</h3>
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Artifact</MudButton>
 
-@if (artifacts == null)
+@if (artifacts is null)
 {
     <p><em>Loading...</em></p>
 }

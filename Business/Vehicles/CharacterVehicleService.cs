@@ -41,7 +41,7 @@ public class CharacterVehicleService : ICharacterVehicleService
     {
         var existingCharacterVehicle = await _context.CharacterVehicles.FindAsync(id);
 
-        if (existingCharacterVehicle == null)
+        if (existingCharacterVehicle is null)
         {
             return null;
         }
@@ -56,7 +56,7 @@ public class CharacterVehicleService : ICharacterVehicleService
     {
         var existingCharacterVehicle = await _context.CharacterVehicles.FindAsync(id);
 
-        if (existingCharacterVehicle == null)
+        if (existingCharacterVehicle is null)
         {
             return false;
         }

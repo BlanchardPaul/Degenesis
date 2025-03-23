@@ -18,7 +18,7 @@ public static class ProtectionQualityEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IProtectionQualityService service) =>
         {
             var protectionQuality = await service.GetProtectionQualityByIdAsync(id);
-            if (protectionQuality == null)
+            if (protectionQuality is null)
             {
                 return Results.NotFound();
             }

@@ -44,7 +44,7 @@ public class NPCSkillService : INPCSkillService
         var existingNPCSkill = await _context.NPCSkills
             .FirstOrDefaultAsync(ns => ns.NPCId == npcId && ns.SkillId == skillId);
 
-        if (existingNPCSkill == null) return null;
+        if (existingNPCSkill is null) return null;
 
         _context.Entry(existingNPCSkill).CurrentValues.SetValues(npcSkill);
         await _context.SaveChangesAsync();
@@ -56,7 +56,7 @@ public class NPCSkillService : INPCSkillService
         var npcSkill = await _context.NPCSkills
             .FirstOrDefaultAsync(ns => ns.NPCId == npcId && ns.SkillId == skillId);
 
-        if (npcSkill == null) return false;
+        if (npcSkill is null) return false;
 
         _context.NPCSkills.Remove(npcSkill);
         await _context.SaveChangesAsync();

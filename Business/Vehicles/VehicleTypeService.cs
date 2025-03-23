@@ -48,7 +48,7 @@ public class VehicleTypeService : IVehicleTypeService
     public async Task<bool> UpdateVehicleTypeAsync(VehicleTypeDto vehicleTypeDto)
     {
         var existingVehicleType = await _context.VehicleTypes.FindAsync(vehicleTypeDto.Id);
-        if (existingVehicleType == null)
+        if (existingVehicleType is null)
             return false;
 
         _mapper.Map(vehicleTypeDto, existingVehicleType);
@@ -59,7 +59,7 @@ public class VehicleTypeService : IVehicleTypeService
     public async Task<bool> DeleteVehicleTypeAsync(Guid id)
     {
         var vehicleType = await _context.VehicleTypes.FindAsync(id);
-        if (vehicleType == null)
+        if (vehicleType is null)
             return false;
 
         _context.VehicleTypes.Remove(vehicleType);

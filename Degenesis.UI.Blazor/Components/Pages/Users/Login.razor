@@ -1,0 +1,23 @@
+﻿@page "/login"
+@using Degenesis.UI.Service.Features.Users
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ISnackbar Snackbar
+@attribute [AllowAnonymous]
+@layout Layout.DefaultLayout
+
+<h3>Login</h3>
+
+<EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+
+    <MudTextField @bind-Value="loginModel.UserName" For="@(() => loginModel.UserName)" Label="Username" />
+    <MudTextField @bind-Value="loginModel.Password" For="@(() => loginModel.Password)" Label="Password" InputType="InputType.Password" />
+
+    <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Login</MudButton>
+</EditForm>

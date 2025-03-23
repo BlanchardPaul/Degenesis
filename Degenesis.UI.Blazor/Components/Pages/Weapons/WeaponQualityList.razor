@@ -2,12 +2,13 @@
 @using Degenesis.UI.Service.Features.Weapons
 @inject WeaponQualityService WeaponQualityService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Weapon Qualities</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Weapon Quality</MudButton>
 
-@if (weaponQualities == null)
+@if (weaponQualities is null)
 {
     <p><em>Loading...</em></p>
 }

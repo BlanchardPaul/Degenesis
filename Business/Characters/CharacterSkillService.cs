@@ -53,7 +53,7 @@ public class CharacterSkillService : ICharacterSkillService
         var existingCharacterSkill = await _context.CharacterSkills
             .FirstOrDefaultAsync(cs => cs.CharacterId == characterId && cs.SkillId == skillId);
 
-        if (existingCharacterSkill == null)
+        if (existingCharacterSkill is null)
             return false;
 
         _context.Entry(existingCharacterSkill).CurrentValues.SetValues(characterSkill);
@@ -66,7 +66,7 @@ public class CharacterSkillService : ICharacterSkillService
         var characterSkill = await _context.CharacterSkills
             .FirstOrDefaultAsync(cs => cs.CharacterId == characterId && cs.SkillId == skillId);
 
-        if (characterSkill == null)
+        if (characterSkill is null)
             return false;
 
         _context.CharacterSkills.Remove(characterSkill);

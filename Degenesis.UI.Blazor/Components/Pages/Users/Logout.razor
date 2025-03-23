@@ -1,0 +1,17 @@
+﻿@page "/logout"
+@using Microsoft.AspNetCore.Components.Authorization
+@using Degenesis.UI.Blazor.Extensions
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject NavigationManager NavigationManager
+@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ProtectedLocalStorage.DeleteAsync("authToken");
+        var authStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+        await authStateProvider.SetToken(null);
+        NavigationManager.NavigateTo("/login");
+    }
+}

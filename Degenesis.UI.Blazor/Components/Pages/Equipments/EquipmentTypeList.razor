@@ -2,12 +2,13 @@
 @using Degenesis.UI.Service.Features.Equipments
 @inject EquipmentTypeService EquipmentTypeService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Equipment Types</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Equipment Type</MudButton>
 
-@if (equipmentTypes == null)
+@if (equipmentTypes is null)
 {
     <p><em>Loading...</em></p>
 }

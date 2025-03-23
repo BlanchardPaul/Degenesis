@@ -72,7 +72,7 @@ public class VehicleService : IVehicleService
     public async Task<bool> DeleteVehicleAsync(Guid id)
     {
         var vehicle = await _context.Vehicles.FindAsync(id);
-        if (vehicle == null)
+        if (vehicle is null)
             return false;
 
         _context.Vehicles.Remove(vehicle);

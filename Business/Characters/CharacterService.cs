@@ -46,7 +46,7 @@ public class CharacterService : ICharacterService
     public async Task<bool> UpdateCharacterAsync(Guid id, Character character)
     {
         var existingCharacter = await _context.Characters.FindAsync(id);
-        if (existingCharacter == null)
+        if (existingCharacter is null)
             return false;
 
         _context.Entry(existingCharacter).CurrentValues.SetValues(character);
@@ -57,7 +57,7 @@ public class CharacterService : ICharacterService
     public async Task<bool> DeleteCharacterAsync(Guid id)
     {
         var character = await _context.Characters.FindAsync(id);
-        if (character == null)
+        if (character is null)
             return false;
 
         _context.Characters.Remove(character);

@@ -6,12 +6,13 @@
 @inject WeaponQualityService WeaponQualityService
 @inject AttributeService AttributeService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Weapons</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Weapon</MudButton>
 
-@if (weapons == null)
+@if (weapons is null)
 {
     <p><em>Loading...</em></p>
 }

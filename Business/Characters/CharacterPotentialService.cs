@@ -53,7 +53,7 @@ public class CharacterPotentialService : ICharacterPotentialService
         var existingCharacterPotential = await _context.CharacterPotentials
             .FirstOrDefaultAsync(cp => cp.CharacterId == characterId && cp.PotentialId == potentialId);
 
-        if (existingCharacterPotential == null)
+        if (existingCharacterPotential is null)
             return false;
 
         _context.Entry(existingCharacterPotential).CurrentValues.SetValues(characterPotential);
@@ -66,7 +66,7 @@ public class CharacterPotentialService : ICharacterPotentialService
         var characterPotential = await _context.CharacterPotentials
             .FirstOrDefaultAsync(cp => cp.CharacterId == characterId && cp.PotentialId == potentialId);
 
-        if (characterPotential == null)
+        if (characterPotential is null)
             return false;
 
         _context.CharacterPotentials.Remove(characterPotential);

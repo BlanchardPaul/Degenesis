@@ -18,7 +18,7 @@ public static class RankPrerequisiteEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IRankPrerequisiteService service) =>
         {
             var rankPrerequisite = await service.GetRankPrerequisiteByIdAsync(id);
-            if (rankPrerequisite == null)
+            if (rankPrerequisite is null)
             {
                 return Results.NotFound();
             }

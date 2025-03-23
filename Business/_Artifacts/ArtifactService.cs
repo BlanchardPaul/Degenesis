@@ -46,7 +46,7 @@ public class ArtifactService : IArtifactService
     public async Task<bool> UpdateAsync(Artifact artifact)
     {
         var existing = await _context.Artifacts.FindAsync(artifact.Id);
-        if (existing == null) return false;
+        if (existing is null) return false;
 
         _mapper.Map(artifact, existing);
 
@@ -57,7 +57,7 @@ public class ArtifactService : IArtifactService
     public async Task<bool> DeleteAsync(Guid id)
     {
         var artifact = await _context.Artifacts.FindAsync(id);
-        if (artifact == null) return false;
+        if (artifact is null) return false;
 
         _context.Artifacts.Remove(artifact);
         await _context.SaveChangesAsync();

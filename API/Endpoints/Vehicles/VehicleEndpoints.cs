@@ -19,7 +19,7 @@ public static class VehicleEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IVehicleService service) =>
         {
             var vehicle = await service.GetVehicleByIdAsync(id);
-            if (vehicle == null)
+            if (vehicle is null)
             {
                 return Results.NotFound();
             }

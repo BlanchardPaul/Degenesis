@@ -62,7 +62,7 @@ public class PotentialService : IPotentialService
             .Include(p => p.Cult)
             .FirstOrDefaultAsync(p => p.Id == potentialDto.Id);
 
-        if (existingPotential == null)
+        if (existingPotential is null)
             return false;
 
         _mapper.Map(potentialDto, existingPotential);
@@ -79,7 +79,7 @@ public class PotentialService : IPotentialService
     public async Task<bool> DeletePotentialAsync(Guid id)
     {
         var potential = await _context.Potentials.FindAsync(id);
-        if (potential == null)
+        if (potential is null)
             return false;
 
         _context.Potentials.Remove(potential);

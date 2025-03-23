@@ -18,7 +18,7 @@ public static class CharacterProtectionEndpoints
         group.MapGet("/{id:guid}", async (Guid id, ICharacterProtectionService service) =>
         {
             var characterProtection = await service.GetCharacterProtectionByIdAsync(id);
-            if (characterProtection == null)
+            if (characterProtection is null)
             {
                 return Results.NotFound();
             }
@@ -34,7 +34,7 @@ public static class CharacterProtectionEndpoints
         group.MapPut("/{id:guid}", async (Guid id, CharacterProtection characterProtection, ICharacterProtectionService service) =>
         {
             var updatedCharacterProtection = await service.UpdateCharacterProtectionAsync(id, characterProtection);
-            if (updatedCharacterProtection == null)
+            if (updatedCharacterProtection is null)
             {
                 return Results.NotFound();
             }

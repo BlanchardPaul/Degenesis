@@ -67,7 +67,7 @@ public class CultureService : ICultureService
             .Include(c => c.BonusSkills)
             .FirstOrDefaultAsync(c => c.Id == cultureDto.Id);
 
-        if (existingCulture == null)
+        if (existingCulture is null)
             return false;
 
         _mapper.Map(cultureDto, existingCulture);
@@ -83,7 +83,7 @@ public class CultureService : ICultureService
     public async Task<bool> DeleteCultureAsync(Guid id)
     {
         var culture = await _context.Cultures.FindAsync(id);
-        if (culture == null)
+        if (culture is null)
             return false;
 
         _context.Cultures.Remove(culture);

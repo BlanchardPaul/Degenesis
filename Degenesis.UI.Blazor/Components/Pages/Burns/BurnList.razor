@@ -2,11 +2,12 @@
 @using Degenesis.Shared.DTOs.Burns
 @using Degenesis.UI.Service.Features
 @inject BurnService BurnService
+@layout Layout.DashBoardLayout
 
 <h3>Burns</h3>
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Burn</MudButton>
 
-@if (burns == null)
+@if (burns is null)
 {
     <p><em>Loading...</em></p>
 }

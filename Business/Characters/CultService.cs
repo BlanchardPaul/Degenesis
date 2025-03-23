@@ -105,7 +105,7 @@ public class CultService : ICultService
             .Include(c => c.BonusSkills)
             .FirstOrDefaultAsync(c => c.Id == cultDto.Id);
 
-        if (existingCult == null)
+        if (existingCult is null)
             throw new Exception("Cult not found");
 
         _context.Entry(existingCult).CurrentValues.SetValues(cultDto);
@@ -128,7 +128,7 @@ public class CultService : ICultService
     public async Task<bool> DeleteCultAsync(Guid id)
     {
         var cult = await _context.Cults.FindAsync(id);
-        if (cult == null)
+        if (cult is null)
             return false;
 
         _context.Cults.Remove(cult);

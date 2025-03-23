@@ -92,7 +92,7 @@ public class WeaponService : IWeaponService
     public async Task<bool> DeleteWeaponAsync(Guid id)
     {
         var weapon = await _context.Weapons.FindAsync(id);
-        if (weapon == null)
+        if (weapon is null)
             return false;
 
         _context.Weapons.Remove(weapon);

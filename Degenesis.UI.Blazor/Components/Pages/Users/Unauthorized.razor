@@ -1,0 +1,25 @@
+﻿@page "/unauthorized"
+@using Microsoft.AspNetCore.Authorization
+@inject NavigationManager NavigationManager
+@attribute [AllowAnonymous]
+@layout Layout.DefaultLayout
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center justify-center" Style="height: 50vh;">
+    <MudPaper Elevation="10" Class="pa-8 text-center">
+        <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Large" Color="Color.Primary" Class="mb-4" />
+        <MudText Typo="Typo.h4" Class="mb-4">Access denied</MudText>
+        <MudText Typo="Typo.body1" Class="mb-6">
+           You are unauthorized on this page. Login to continue
+        </MudText>
+        <MudButton OnClick="RedirectToLogin" Color="Color.Primary" Variant="Variant.Filled" Size="Size.Large">
+            Login
+        </MudButton>
+    </MudPaper>
+</MudContainer>
+
+@code{
+    private void RedirectToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+}

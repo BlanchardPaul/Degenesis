@@ -41,7 +41,7 @@ public class NPCEquipmentService : INPCEquipmentService
     {
         var existingNPCEquipment = await _context.NPCEquipments.FindAsync(id);
 
-        if (existingNPCEquipment == null)
+        if (existingNPCEquipment is null)
         {
             return null;
         }
@@ -56,7 +56,7 @@ public class NPCEquipmentService : INPCEquipmentService
     {
         var existingNPCEquipment = await _context.NPCEquipments.FindAsync(id);
 
-        if (existingNPCEquipment == null)
+        if (existingNPCEquipment is null)
         {
             return false;
         }

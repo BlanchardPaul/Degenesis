@@ -3,12 +3,13 @@
 @inject CultService CultService
 @inject PotentialService PotentialService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Potentials</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Potential</MudButton>
 
-@if (potentials == null)
+@if (potentials is null)
 {
     <p><em>Loading...</em></p>
 }

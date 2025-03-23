@@ -18,7 +18,7 @@ public static class CharacterVehicleEndpoints
         group.MapGet("/{id:guid}", async (Guid id, ICharacterVehicleService service) =>
         {
             var characterVehicle = await service.GetCharacterVehicleByIdAsync(id);
-            if (characterVehicle == null)
+            if (characterVehicle is null)
             {
                 return Results.NotFound();
             }
@@ -34,7 +34,7 @@ public static class CharacterVehicleEndpoints
         group.MapPut("/{id:guid}", async (Guid id, CharacterVehicle characterVehicle, ICharacterVehicleService service) =>
         {
             var updatedCharacterVehicle = await service.UpdateCharacterVehicleAsync(id, characterVehicle);
-            if (updatedCharacterVehicle == null)
+            if (updatedCharacterVehicle is null)
             {
                 return Results.NotFound();
             }

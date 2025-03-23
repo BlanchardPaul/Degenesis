@@ -18,7 +18,7 @@ public static class CharacterBurnEndpoints
         group.MapGet("/{characterId:guid}/{burnId:guid}", async (Guid characterId, Guid burnId, ICharacterBurnService service) =>
         {
             var characterBurn = await service.GetCharacterBurnByIdAsync(characterId, burnId);
-            if (characterBurn == null)
+            if (characterBurn is null)
             {
                 return Results.NotFound();
             }
@@ -34,7 +34,7 @@ public static class CharacterBurnEndpoints
         group.MapPut("/{characterId:guid}/{burnId:guid}", async (Guid characterId, Guid burnId, CharacterBurn characterBurn, ICharacterBurnService service) =>
         {
             var updatedCharacterBurn = await service.UpdateCharacterBurnAsync(characterId, burnId, characterBurn);
-            if (updatedCharacterBurn == null)
+            if (updatedCharacterBurn is null)
             {
                 return Results.NotFound();
             }

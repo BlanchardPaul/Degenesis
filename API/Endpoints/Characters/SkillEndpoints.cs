@@ -19,7 +19,7 @@ public static class SkillEndpoints
         group.MapGet("/{id:guid}", async (Guid id, ISkillService service) =>
         {
             var skill = await service.GetSkillByIdAsync(id);
-            if (skill == null)
+            if (skill is null)
             {
                 return Results.NotFound();
             }

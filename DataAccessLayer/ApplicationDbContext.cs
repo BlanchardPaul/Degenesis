@@ -4,14 +4,16 @@ using Domain.Characters;
 using Domain.Equipments;
 using Domain.NPCs;
 using Domain.Protections;
+using Domain.Users;
 using Domain.Vehicles;
 using Domain.Weapons;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace DataAccessLayer;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

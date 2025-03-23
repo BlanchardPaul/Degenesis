@@ -3,12 +3,13 @@
 @inject VehicleService VehicleService
 @inject VehicleTypeService VehicleTypeService
 @inject IDialogService DialogService
+@layout Layout.DashBoardLayout
 
 <h3>Vehicles</h3>
 
 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Vehicle</MudButton>
 
-@if (vehicles == null)
+@if (vehicles is null)
 {
     <p><em>Loading...</em></p>
 }

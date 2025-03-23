@@ -48,7 +48,7 @@ public class BackgroundService : IBackgroundService
     public async Task<bool> UpdateBackgroundAsync(Background background)
     {
         var existing = await _context.Backgrounds.FindAsync(background.Id);
-        if (existing == null) return false;
+        if (existing is null) return false;
 
         _mapper.Map(background, existing);
 
@@ -59,7 +59,7 @@ public class BackgroundService : IBackgroundService
     public async Task<bool> DeleteBackgroundAsync(Guid id)
     {
         var background = await _context.Backgrounds.FindAsync(id);
-        if (background == null)
+        if (background is null)
             return false;
 
         _context.Backgrounds.Remove(background);

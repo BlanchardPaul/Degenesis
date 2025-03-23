@@ -41,7 +41,7 @@ public class NPCBurnService : INPCBurnService
     {
         var existingNPCBurn = await _context.NPCBurns.FindAsync(npcId, burnId);
 
-        if (existingNPCBurn == null)
+        if (existingNPCBurn is null)
         {
             return null;
         }
@@ -56,7 +56,7 @@ public class NPCBurnService : INPCBurnService
     {
         var existingNPCBurn = await _context.NPCBurns.FindAsync(npcId, burnId);
 
-        if (existingNPCBurn == null)
+        if (existingNPCBurn is null)
         {
             return false;
         }

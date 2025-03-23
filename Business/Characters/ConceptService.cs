@@ -132,7 +132,7 @@ public class ConceptService : IConceptService
             .Include(c => c.BonusSkills)
             .FirstOrDefaultAsync(c => c.Id == conceptDto.Id);
 
-        if (existingConcept == null)
+        if (existingConcept is null)
             throw new Exception("Concept not found");
 
         _context.Entry(existingConcept).CurrentValues.SetValues(conceptDto);
@@ -166,7 +166,7 @@ public class ConceptService : IConceptService
             .Include(c => c.BonusSkills) // Inclure les relations pour les supprimer
             .FirstOrDefaultAsync(c => c.Id == id);
 
-        if (concept == null)
+        if (concept is null)
             return false;
 
         // Supprimer les relations avec BonusSkills avant de supprimer le Concept

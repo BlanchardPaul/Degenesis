@@ -49,7 +49,7 @@ public class AttributeService : IAttributeService
     public async Task<bool> UpdateAttributeAsync(CAttribute attribute)
     {
         var existing = await _context.Attributes.FindAsync(attribute.Id);
-        if (existing == null) return false;
+        if (existing is null) return false;
 
         _mapper.Map(attribute, existing);
 
@@ -60,7 +60,7 @@ public class AttributeService : IAttributeService
     public async Task<bool> DeleteAttributeAsync(Guid id)
     {
         var attribute = await _context.Attributes.FindAsync(id);
-        if (attribute == null)
+        if (attribute is null)
             return false;
 
         _context.Attributes.Remove(attribute);

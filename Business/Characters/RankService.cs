@@ -89,7 +89,7 @@ public class RankService : IRankService
     public async Task<bool> DeleteRankAsync(Guid id)
     {
         var rank = await _context.Ranks.FindAsync(id);
-        if (rank == null)
+        if (rank is null)
             return false;
 
         _context.Ranks.Remove(rank);

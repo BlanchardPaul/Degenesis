@@ -41,7 +41,7 @@ public class CharacterProtectionService : ICharacterProtectionService
     {
         var existingCharacterProtection = await _context.CharacterProtections.FindAsync(id);
 
-        if (existingCharacterProtection == null)
+        if (existingCharacterProtection is null)
         {
             return null;
         }
@@ -56,7 +56,7 @@ public class CharacterProtectionService : ICharacterProtectionService
     {
         var existingCharacterProtection = await _context.CharacterProtections.FindAsync(id);
 
-        if (existingCharacterProtection == null)
+        if (existingCharacterProtection is null)
         {
             return false;
         }

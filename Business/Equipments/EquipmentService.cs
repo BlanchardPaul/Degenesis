@@ -70,7 +70,7 @@ public class EquipmentService : IEquipmentService
     public async Task<bool> DeleteEquipmentAsync(Guid id)
     {
         var equipment = await _context.Equipments.FindAsync(id);
-        if (equipment == null)
+        if (equipment is null)
             return false;
 
         _context.Equipments.Remove(equipment);
