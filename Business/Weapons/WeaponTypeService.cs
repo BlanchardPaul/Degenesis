@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs.Protections;
 using Degenesis.Shared.DTOs.Weapons;
+using Domain.Protections;
 using Domain.Weapons;
 using Microsoft.EntityFrameworkCore;
 
@@ -39,31 +41,52 @@ public class WeaponTypeService : IWeaponTypeService
 
     public async Task<WeaponTypeDto?> CreateWeaponTypeAsync(WeaponTypeCreateDto weaponTypeCreate)
     {
-        var weaponType = _mapper.Map<WeaponType>(weaponTypeCreate);
-        _context.WeaponTypes.Add(weaponType);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<WeaponTypeDto>(weaponType);
+        try
+        {
+            var weaponType = _mapper.Map<WeaponType>(weaponTypeCreate);
+            _context.WeaponTypes.Add(weaponType);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<WeaponTypeDto>(weaponType);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateWeaponTypeAsync(WeaponTypeDto weaponTypeDto)
     {
-        var existingWeaponType = await _context.WeaponTypes.FindAsync(weaponTypeDto.Id);
-        if (existingWeaponType is null)
-            return false;
+        try
+        {
+            var existingWeaponType = await _context.WeaponTypes.FindAsync(weaponTypeDto.Id);
+            if (existingWeaponType is null)
+                return false;
 
-        _mapper.Map(weaponTypeDto, existingWeaponType);
-        await _context.SaveChangesAsync();
-        return true;
+            _mapper.Map(weaponTypeDto, existingWeaponType);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public async Task<bool> DeleteWeaponTypeAsync(Guid id)
     {
-        var weaponType = await _context.WeaponTypes.FindAsync(id);
-        if (weaponType is null)
-            return false;
+        try
+        {
+            var weaponType = await _context.WeaponTypes.FindAsync(id);
+            if (weaponType is null)
+                return false;
 
-        _context.WeaponTypes.Remove(weaponType);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.WeaponTypes.Remove(weaponType);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

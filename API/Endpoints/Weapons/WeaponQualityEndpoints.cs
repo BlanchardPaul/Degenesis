@@ -7,7 +7,7 @@ public static class WeaponQualityEndpoints
 {
     public static void MapWeaponQualityEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/weapon-qualities").WithTags("WeaponQualities");
+        var group = app.MapGroup("/weapon-qualities").WithTags("WeaponQualities").RequireAuthorization();
 
         group.MapGet("/{id}", async (IWeaponQualityService service, Guid id) =>
         {
@@ -23,22 +23,22 @@ public static class WeaponQualityEndpoints
 
         group.MapPost("/", async (IWeaponQualityService service, WeaponQualityCreateDto weaponQuality) =>
         {
-            var weaponQualityCreated =  await service.CreateWeaponQualityAsync(weaponQuality);
-            if (weaponQualityCreated is null)
+            var created =  await service.CreateWeaponQualityAsync(weaponQuality);
+            if (created is null)
                 return Results.BadRequest();
-            return Results.Created($"/weapon-qualities/{weaponQualityCreated.Id}", weaponQualityCreated);
+            return Results.Created();
         });
 
         group.MapPut("/", async (IWeaponQualityService service, WeaponQualityDto weaponQuality) =>
         {
-            var updatedWeaponQuality = await service.UpdateWeaponQualityAsync(weaponQuality);
-            return updatedWeaponQuality ? Results.NoContent() : Results.NotFound();
+            var success = await service.UpdateWeaponQualityAsync(weaponQuality);
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id}", async (IWeaponQualityService service, Guid id) =>
         {
-            await service.DeleteWeaponQualityAsync(id);
-            return Results.NoContent();
+            var success = await service.DeleteWeaponQualityAsync(id);
+            return success ? Results.NoContent() : Results.NotFound();
         });
     }
 }

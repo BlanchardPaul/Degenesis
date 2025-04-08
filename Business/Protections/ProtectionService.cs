@@ -44,42 +44,63 @@ public class ProtectionService : IProtectionService
 
     public async Task<ProtectionDto?> CreateProtectionAsync(ProtectionCreateDto protectionCreate)
     {
-        var protection = _mapper.Map<Protection>(protectionCreate);
-        protection.Qualities = await _context.ProtectionQualities
-            .Where(q => protectionCreate.QualityIds.Contains(q.Id))
-            .ToListAsync();
+        try
+        {
+            var protection = _mapper.Map<Protection>(protectionCreate);
+            protection.Qualities = await _context.ProtectionQualities
+                .Where(q => protectionCreate.QualityIds.Contains(q.Id))
+                .ToListAsync();
 
-        _context.Protections.Add(protection);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<ProtectionDto>(protection);
+            _context.Protections.Add(protection);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<ProtectionDto>(protection);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateProtectionAsync(ProtectionDto protectionDto)
     {
-        var existingProtection = await _context.Protections
-            .Include(p => p.Qualities)
-            .FirstOrDefaultAsync(p => p.Id == protectionDto.Id);
+        try
+        {
+            var existingProtection = await _context.Protections
+                .Include(p => p.Qualities)
+                .FirstOrDefaultAsync(p => p.Id == protectionDto.Id);
 
-        if (existingProtection is null)
+            if (existingProtection is null)
+                return false;
+
+            _mapper.Map(protectionDto, existingProtection);
+            existingProtection.Qualities = await _context.ProtectionQualities
+                .Where(q => protectionDto.Qualities.Select(qd => qd.Id).Contains(q.Id))
+                .ToListAsync();
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
-
-        _mapper.Map(protectionDto, existingProtection);
-        existingProtection.Qualities = await _context.ProtectionQualities
-            .Where(q => protectionDto.Qualities.Select(qd => qd.Id).Contains(q.Id))
-            .ToListAsync();
-
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 
     public async Task<bool> DeleteProtectionAsync(Guid id)
     {
-        var protection = await _context.Protections.FindAsync(id);
-        if (protection is null)
-            return false;
+        try
+        {
+            var protection = await _context.Protections.FindAsync(id);
+            if (protection is null)
+                return false;
 
-        _context.Protections.Remove(protection);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.Protections.Remove(protection);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

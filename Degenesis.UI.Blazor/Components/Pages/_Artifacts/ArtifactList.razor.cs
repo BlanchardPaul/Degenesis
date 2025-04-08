@@ -8,14 +8,16 @@ public partial class ArtifactList
 {
     [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<ArtifactDto>? artifacts;
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadArtifacts();
     }
     private async Task LoadArtifacts()
     {
-        artifacts = await ArtifactService.GetArtifactsAsync();
+        artifacts = await _client.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -52,8 +54,13 @@ public partial class ArtifactList
 
     private async Task DeleteArtifact(Guid artifactId)
     {
-        await ArtifactService.DeleteArtifactAsync(artifactId);
-        artifacts = await ArtifactService.GetArtifactsAsync();
+        var result = await _client.DeleteAsync($"/artifacts/{artifactId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
+
+        await LoadArtifacts();
     }
 }
 

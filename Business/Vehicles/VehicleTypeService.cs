@@ -39,31 +39,52 @@ public class VehicleTypeService : IVehicleTypeService
 
     public async Task<VehicleTypeDto?> CreateVehicleTypeAsync(VehicleTypeCreateDto vehicleTypeCreate)
     {
-        var vehicleType = _mapper.Map<VehicleType>(vehicleTypeCreate);
-        _context.VehicleTypes.Add(vehicleType);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<VehicleTypeDto>(vehicleType);
+        try
+        {
+            var vehicleType = _mapper.Map<VehicleType>(vehicleTypeCreate);
+            _context.VehicleTypes.Add(vehicleType);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<VehicleTypeDto>(vehicleType);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateVehicleTypeAsync(VehicleTypeDto vehicleTypeDto)
     {
-        var existingVehicleType = await _context.VehicleTypes.FindAsync(vehicleTypeDto.Id);
-        if (existingVehicleType is null)
-            return false;
+        try
+        {
+            var existingVehicleType = await _context.VehicleTypes.FindAsync(vehicleTypeDto.Id);
+            if (existingVehicleType is null)
+                return false;
 
-        _mapper.Map(vehicleTypeDto, existingVehicleType);
-        await _context.SaveChangesAsync();
-        return true;
+            _mapper.Map(vehicleTypeDto, existingVehicleType);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public async Task<bool> DeleteVehicleTypeAsync(Guid id)
     {
-        var vehicleType = await _context.VehicleTypes.FindAsync(id);
-        if (vehicleType is null)
-            return false;
+        try
+        {
+            var vehicleType = await _context.VehicleTypes.FindAsync(id);
+            if (vehicleType is null)
+                return false;
 
-        _context.VehicleTypes.Remove(vehicleType);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.VehicleTypes.Remove(vehicleType);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

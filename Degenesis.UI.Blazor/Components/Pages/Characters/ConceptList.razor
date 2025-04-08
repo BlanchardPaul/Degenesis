@@ -1,22 +1,17 @@
 ﻿@page "/concepts"
 @using Degenesis.Shared.DTOs.Characters
-@using Degenesis.UI.Service.Features.Characters
-@inject ConceptService ConceptService
-@inject SkillService SkillService
-@inject AttributeService AttributeService
 @inject IDialogService DialogService
 @layout Layout.DashBoardLayout
 
 <h3>Concepts</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Concept</MudButton>
-
 @if (concepts is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Concept</MudButton>
     <MudTable Items="@concepts" Hover="true" LoadingProgressColor="Color.Info">
         <HeaderContent>
             <MudTh>Name</MudTh>

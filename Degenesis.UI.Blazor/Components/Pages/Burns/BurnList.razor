@@ -1,18 +1,17 @@
 ﻿@page "/burns"
 @using Degenesis.Shared.DTOs.Burns
-@using Degenesis.UI.Service.Features
-@inject BurnService BurnService
 @layout Layout.DashBoardLayout
 
 <h3>Burns</h3>
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Burn</MudButton>
 
 @if (burns is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Burn</MudButton>
+
     <MudTable Items="@burns" Hover="true" LoadingProgressColor="Color.Info">
         <HeaderContent>
             <MudTh>Name</MudTh>

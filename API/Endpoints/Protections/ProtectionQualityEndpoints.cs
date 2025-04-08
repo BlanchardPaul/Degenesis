@@ -7,7 +7,7 @@ public static class ProtectionQualityEndpoints
 {
     public static void MapProtectionQualityEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/protection-qualities").WithTags("ProtectionQualities");
+        var group = app.MapGroup("/protection-qualities").WithTags("ProtectionQualities").RequireAuthorization();
 
         group.MapGet("/", async (IProtectionQualityService service) =>
         {
@@ -27,26 +27,22 @@ public static class ProtectionQualityEndpoints
 
         group.MapPost("/", async (ProtectionQualityCreateDto protectionQuality, IProtectionQualityService service) =>
         {
-            var createdProtectionQuality = await service.CreateProtectionQualityAsync(protectionQuality);
-            if (createdProtectionQuality is null)
+            var created = await service.CreateProtectionQualityAsync(protectionQuality);
+            if (created is null)
                 return Results.BadRequest();
-            return Results.Created($"/protection-qualities/{createdProtectionQuality.Id}", createdProtectionQuality);
+            return Results.Created();
         });
 
         group.MapPut("/", async (ProtectionQualityDto protectionQuality, IProtectionQualityService service) =>
         {
-            var updatedProtectionQuality = await service.UpdateProtectionQualityAsync(protectionQuality);
-            return updatedProtectionQuality ? Results.NoContent() : Results.NotFound();
+            var success = await service.UpdateProtectionQualityAsync(protectionQuality);
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IProtectionQualityService service) =>
         {
             var success = await service.DeleteProtectionQualityAsync(id);
-            if (!success)
-            {
-                return Results.NotFound();
-            }
-            return Results.NoContent();
+            return success ? Results.NoContent() : Results.NotFound();
         });
     }
 }

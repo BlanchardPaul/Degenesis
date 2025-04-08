@@ -43,38 +43,59 @@ public class EquipmentService : IEquipmentService
 
     public async Task<EquipmentDto?> CreateEquipmentAsync(EquipmentCreateDto equipmentCreate)
     {
-        var equipment = _mapper.Map<Equipment>(equipmentCreate);
-        equipment.EquipmentType = await _context.EquipmentTypes.FirstAsync(et => et.Id == equipmentCreate.EquipmentTypeId);
+        try
+        {
+            var equipment = _mapper.Map<Equipment>(equipmentCreate);
+            equipment.EquipmentType = await _context.EquipmentTypes.FirstAsync(et => et.Id == equipmentCreate.EquipmentTypeId);
 
-        _context.Equipments.Add(equipment);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<EquipmentDto>(equipment);
+            _context.Equipments.Add(equipment);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<EquipmentDto>(equipment);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateEquipmentAsync(EquipmentDto equipmentDto)
     {
-        var existingEquipment = await _context.Equipments
-            .Include(e => e.EquipmentType)
-            .FirstOrDefaultAsync(e => e.Id == equipmentDto.Id);
+        try
+        {
+            var existingEquipment = await _context.Equipments
+                .Include(e => e.EquipmentType)
+                .FirstOrDefaultAsync(e => e.Id == equipmentDto.Id);
 
-        if (existingEquipment is null || equipmentDto.EquipmentType is null)
+            if (existingEquipment is null || equipmentDto.EquipmentType is null)
+                return false;
+
+            _mapper.Map(equipmentDto, existingEquipment);
+            existingEquipment.EquipmentType = await _context.EquipmentTypes.FirstAsync(et => et.Id == equipmentDto.EquipmentType.Id);
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
-
-        _mapper.Map(equipmentDto, existingEquipment);
-        existingEquipment.EquipmentType = await _context.EquipmentTypes.FirstAsync(et => et.Id == equipmentDto.EquipmentType.Id);
-
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 
     public async Task<bool> DeleteEquipmentAsync(Guid id)
     {
-        var equipment = await _context.Equipments.FindAsync(id);
-        if (equipment is null)
-            return false;
+        try
+        {
+            var equipment = await _context.Equipments.FindAsync(id);
+            if (equipment is null)
+                return false;
 
-        _context.Equipments.Remove(equipment);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.Equipments.Remove(equipment);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

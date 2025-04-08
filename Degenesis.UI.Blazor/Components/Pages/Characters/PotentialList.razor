@@ -1,20 +1,17 @@
 ﻿@page "/potentials"
-@using Degenesis.UI.Service.Features.Characters
-@inject CultService CultService
-@inject PotentialService PotentialService
 @inject IDialogService DialogService
 @layout Layout.DashBoardLayout
 
 <h3>Potentials</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Potential</MudButton>
 
 @if (potentials is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Potential</MudButton>
     <MudTable Items="@potentials" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>

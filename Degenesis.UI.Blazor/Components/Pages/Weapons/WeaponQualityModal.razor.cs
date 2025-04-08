@@ -1,5 +1,4 @@
 ﻿using Degenesis.Shared.DTOs.Weapons;
-using Degenesis.UI.Service.Features.Weapons;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -7,18 +6,40 @@ namespace Degenesis.UI.Blazor.Components.Pages.Weapons;
 
 public partial class WeaponQualityModal
 {
-    [Inject] private WeaponQualityService WeaponQualityService { get; set; } = default!;
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public WeaponQualityDto WeaponQuality { get; set; } = new();
+    private HttpClient _client = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _client = await HttpClientService.GetClientAsync();
+    }
 
     private async Task SaveWeaponQuality()
     {
         if (WeaponQuality.Id == Guid.Empty)
-            await WeaponQualityService.CreateWeaponQualityAsync(WeaponQuality);
+        {
+            var result = await _client.PostAsJsonAsync($"/weapon-qualities", WeaponQuality);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during creation", Severity.Error);
+            else
+            {
+                Snackbar.Add("Created", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
         else
-            await WeaponQualityService.UpdateWeaponQualityAsync(WeaponQuality);
-
+        {
+            var result = await _client.PutAsJsonAsync($"/weapon-qualities", WeaponQuality);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during edition", Severity.Error);
+            else
+            {
+                Snackbar.Add("Edited", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
         MudDialog.Close(DialogResult.Ok(true));
     }
 

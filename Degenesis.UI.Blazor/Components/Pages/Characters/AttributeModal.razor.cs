@@ -1,5 +1,4 @@
 ﻿using Degenesis.Shared.DTOs.Characters;
-using Degenesis.UI.Service.Features.Characters;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -7,17 +6,40 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters;
 
 public partial class AttributeModal
 {
-    [Inject] private AttributeService AttributeService { get; set; } = default!;
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
     [Parameter] public AttributeDto Attribute { get; set; } = new();
+    private HttpClient _client = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _client = await HttpClientService.GetClientAsync();
+    }
 
     private async Task SaveAttribute()
     {
         if (Attribute.Id == Guid.Empty)
-            await AttributeService.CreateAttributeAsync(Attribute);
-        else
-            await AttributeService.UpdateAttributeAsync(Attribute);
+        {
+            var result = await _client.PostAsJsonAsync("/attributes", Attribute);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during creation", Severity.Error);
+            else
+            {
+                Snackbar.Add("Created", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
 
+        else
+        {
+            var result = await _client.PutAsJsonAsync($"/attributes", Attribute);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during edition", Severity.Error);
+            else
+            {
+                Snackbar.Add("Edited", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
         MudDialog.Close(DialogResult.Ok(true));
     }
 

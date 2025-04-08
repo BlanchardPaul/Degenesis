@@ -44,46 +44,67 @@ public class PotentialService : IPotentialService
 
     public async Task<PotentialDto?> CreatePotentialAsync(PotentialCreateDto potentialCreate)
     {
-        var potential = _mapper.Map<Potential>(potentialCreate);
-
-        if (potentialCreate.CultId.HasValue)
+        try
         {
-            potential.Cult = await _context.Cults.FindAsync(potentialCreate.CultId);
-        }
+            var potential = _mapper.Map<Potential>(potentialCreate);
 
-        _context.Potentials.Add(potential);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<PotentialDto>(potential);
+            if (potentialCreate.CultId.HasValue)
+            {
+                potential.Cult = await _context.Cults.FindAsync(potentialCreate.CultId);
+            }
+
+            _context.Potentials.Add(potential);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<PotentialDto>(potential);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdatePotentialAsync(PotentialDto potentialDto)
     {
-        var existingPotential = await _context.Potentials
+        try
+        {
+            var existingPotential = await _context.Potentials
             .Include(p => p.Cult)
             .FirstOrDefaultAsync(p => p.Id == potentialDto.Id);
 
-        if (existingPotential is null)
-            return false;
+            if (existingPotential is null)
+                return false;
 
-        _mapper.Map(potentialDto, existingPotential);
+            _mapper.Map(potentialDto, existingPotential);
 
-        if (potentialDto.Cult?.Id != null)
-        {
-            existingPotential.Cult = await _context.Cults.FindAsync(potentialDto.Cult.Id);
+            if (potentialDto.Cult?.Id != null)
+            {
+                existingPotential.Cult = await _context.Cults.FindAsync(potentialDto.Cult.Id);
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
         }
-
-        await _context.SaveChangesAsync();
-        return true;
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public async Task<bool> DeletePotentialAsync(Guid id)
     {
-        var potential = await _context.Potentials.FindAsync(id);
-        if (potential is null)
-            return false;
+        try
+        {
+            var potential = await _context.Potentials.FindAsync(id);
+            if (potential is null)
+                return false;
 
-        _context.Potentials.Remove(potential);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.Potentials.Remove(potential);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

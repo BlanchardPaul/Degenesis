@@ -1,0 +1,86 @@
+﻿@page "/rooms"
+@using Degenesis.UI.Blazor.Extensions
+
+@if (rooms is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <h3 style="text-align: center;">Room List</h3>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create room</MudButton>
+    <MudText Typo="Typo.h4">Assigned Rooms</MudText>
+
+    @if (rooms.Where(r => !r.IsPendingForCurrentUser).Count() == 0)
+    {
+        <MudText Typo="Typo.h6">No Assigned Rooms</MudText>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var room in rooms.Where(r => !r.IsPendingForCurrentUser))
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Style="height: 100%;">
+                        <MudCardHeader Class="py-1" Style="min-height: 40px;">
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@room.Name</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText>@room.Description</MudText>
+                            <MudText>GM : @room.GMName</MudText>
+                            <MudText>Players : @string.Join(", ", room.Players)</MudText>
+                            <MudText>Pendings : @string.Join(", ", room.Pendings)</MudText>
+                        </MudCardContent>
+                        <MudCardActions>
+                            @if(room.IsCurrentUserGM){
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="() => ShowEditDialog(room.Id)">Edit</MudButton>
+                                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="() => ShowInviteDialog(room.Id)">Invite Player</MudButton>
+                                <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => DeleteRoom(room.Id)">Delete</MudButton>
+                            }else{
+                                <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => DeclineInvitation(room.Id)">Leave Room</MudButton>
+                            }
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+
+    <MudDivider Class="my-4" />
+    <MudText Typo="Typo.h4">Pending Rooms</MudText>
+
+    @if (rooms.Where(r => r.IsPendingForCurrentUser).Count() == 0)
+    {
+        <MudText Typo="Typo.h6">No Pending Rooms</MudText>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var room in rooms.Where(r => r.IsPendingForCurrentUser))
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    <MudCard Style="height: 100%;">
+                        <MudCardHeader Class="py-1" Style="min-height: 40px;">
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6">@room.Name</MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+                            <MudText>@room.Description</MudText>
+                            <MudText>GM : @room.GMName</MudText>
+                            <MudText>Players : @string.Join(", ", room.Players)</MudText>
+                            <MudText>Pendings : @string.Join(", ", room.Pendings)</MudText>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="() => AcceptInvitation(room.Id)">Accept</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => DeclineInvitation(room.Id)">Decline</MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+}

@@ -1,6 +1,5 @@
 ﻿using Business.Characters;
 using Degenesis.Shared.DTOs.Characters;
-using Domain.Characters;
 
 namespace API.Endpoints.Characters;
 
@@ -8,7 +7,7 @@ public static class ConceptEndpoints
 {
     public static void MapConceptEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/concepts").WithTags("Concepts");
+        var group = app.MapGroup("/concepts").WithTags("Concepts").RequireAuthorization();
 
         group.MapGet("/", async (IConceptService service) =>
         {
@@ -25,15 +24,15 @@ public static class ConceptEndpoints
         group.MapPost("/", async (ConceptCreateDto concept, IConceptService service) =>
         {
             var created = await service.CreateConceptAsync(concept);
-            return created is not null
-               ? Results.Created($"/concepts/{created.Id}", created)
-               : Results.BadRequest();
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         group.MapPut("/", async (ConceptDto concept, IConceptService service) =>
         {
             var success = await service.UpdateConceptAsync(concept);
-            return success ? Results.NoContent() : Results.NotFound();
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IConceptService service) =>

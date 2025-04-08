@@ -1,5 +1,4 @@
 ﻿using Degenesis.Shared.DTOs.Equipments;
-using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Equipments;
@@ -7,15 +6,17 @@ namespace Degenesis.UI.Blazor.Components.Pages.Equipments;
 public partial class EquipmentTypeList
 {
     private List<EquipmentTypeDto>? equipmentTypes;
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadEquipmentTypes();
     }
 
     private async Task LoadEquipmentTypes()
     {
-        equipmentTypes = [.. (await EquipmentTypeService.GetEquipmentTypesAsync())];
+        equipmentTypes = await _client.GetFromJsonAsync<List<EquipmentTypeDto>>("/equipment-types") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -60,7 +61,11 @@ public partial class EquipmentTypeList
 
     private async Task DeleteEquipmentType(Guid equipmentTypeId)
     {
-        await EquipmentTypeService.DeleteEquipmentTypeAsync(equipmentTypeId);
+        var result = await _client.DeleteAsync($"/equipment-types/{equipmentTypeId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadEquipmentTypes();
     }
 }

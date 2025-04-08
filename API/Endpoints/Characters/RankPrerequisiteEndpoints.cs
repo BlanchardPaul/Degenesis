@@ -7,7 +7,7 @@ public static class RankPrerequisiteEndpoints
 {
     public static void MapRankPrerequisiteEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/rank-prerequisites").WithTags("RankPrerequisites");
+        var group = app.MapGroup("/rank-prerequisites").WithTags("RankPrerequisites").RequireAuthorization();
 
         group.MapGet("/", async (IRankPrerequisiteService service) =>
         {
@@ -27,26 +27,22 @@ public static class RankPrerequisiteEndpoints
 
         group.MapPost("/", async (RankPrerequisiteCreateDto rankPrerequisite, IRankPrerequisiteService service) =>
         {
-            var createdRankPrerequisite = await service.CreateRankPrerequisiteAsync(rankPrerequisite);
-            return createdRankPrerequisite is not null
-               ? Results.Created($"/rank-prerequisites/{createdRankPrerequisite.Id}", createdRankPrerequisite)
-               : Results.BadRequest();
+            var created = await service.CreateRankPrerequisiteAsync(rankPrerequisite);
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         group.MapPut("/", async (RankPrerequisiteDto rankPrerequisite, IRankPrerequisiteService service) =>
         {
             var success = await service.UpdateRankPrerequisiteAsync(rankPrerequisite);
-            return success ? Results.NoContent() : Results.NotFound();
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IRankPrerequisiteService service) =>
         {
             var success = await service.DeleteRankPrerequisiteAsync(id);
-            if (!success)
-            {
-                return Results.NotFound();
-            }
-            return Results.NoContent();
+            return success ? Results.NoContent() : Results.NotFound();
         });
     }
 }

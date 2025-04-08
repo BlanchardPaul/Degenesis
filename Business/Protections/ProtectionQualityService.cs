@@ -39,32 +39,53 @@ public class ProtectionQualityService : IProtectionQualityService
 
     public async Task<ProtectionQualityDto?> CreateProtectionQualityAsync(ProtectionQualityCreateDto protectionQualityCreate)
     {
-        var quality = _mapper.Map<ProtectionQuality>(protectionQualityCreate);
-        _context.ProtectionQualities.Add(quality);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<ProtectionQualityDto>(quality);
+        try
+        {
+            var quality = _mapper.Map<ProtectionQuality>(protectionQualityCreate);
+            _context.ProtectionQualities.Add(quality);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<ProtectionQualityDto>(quality);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateProtectionQualityAsync(ProtectionQualityDto protectionQualityDto)
     {
-        var existingQuality = await _context.ProtectionQualities.FindAsync(protectionQualityDto.Id);
+        try
+        {
+            var existingQuality = await _context.ProtectionQualities.FindAsync(protectionQualityDto.Id);
 
-        if (existingQuality is null)
+            if (existingQuality is null)
+                return false;
+
+            _mapper.Map(protectionQualityDto, existingQuality);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
-
-        _mapper.Map(protectionQualityDto, existingQuality);
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 
     public async Task<bool> DeleteProtectionQualityAsync(Guid id)
     {
-        var quality = await _context.ProtectionQualities.FindAsync(id);
-        if (quality is null)
-            return false;
+        try
+        {
+            var quality = await _context.ProtectionQualities.FindAsync(id);
+            if (quality is null)
+                return false;
 
-        _context.ProtectionQualities.Remove(quality);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.ProtectionQualities.Remove(quality);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

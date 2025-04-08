@@ -7,7 +7,7 @@ public static class RankEndpoints
 {
     public static void MapRankEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/ranks").WithTags("Ranks");
+        var group = app.MapGroup("/ranks").WithTags("Ranks").RequireAuthorization();
 
         group.MapGet("/", async (IRankService service) =>
         {
@@ -27,16 +27,16 @@ public static class RankEndpoints
 
         group.MapPost("/", async (RankCreateDto rank, IRankService service) =>
         {
-            var createdRank = await service.CreateRankAsync(rank);
-            return createdRank is not null
-               ? Results.Created($"/ranks/{createdRank.Id}", createdRank)
-               : Results.BadRequest();
+            var created = await service.CreateRankAsync(rank);
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         group.MapPut("/", async (RankDto rank, IRankService service) =>
         {
             var success = await service.UpdateRankAsync(rank);
-            return success ? Results.NoContent() : Results.NotFound();
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IRankService service) =>

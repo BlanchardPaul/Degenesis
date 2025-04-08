@@ -45,38 +45,58 @@ public class VehicleService : IVehicleService
 
     public async Task<VehicleDto?> CreateVehicleAsync(VehicleCreateDto vehicleCreate)
     {
-        var vehicle = _mapper.Map<Vehicle>(vehicleCreate);
-        vehicle.VehicleType = await _context.VehicleTypes.FirstAsync(vt => vt.Id == vehicleCreate.VehicleTypeId);
+        try
+        {
+            var vehicle = _mapper.Map<Vehicle>(vehicleCreate);
+            vehicle.VehicleType = await _context.VehicleTypes.FirstAsync(vt => vt.Id == vehicleCreate.VehicleTypeId);
 
-        _context.Vehicles.Add(vehicle);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<VehicleDto>(vehicle);
+            _context.Vehicles.Add(vehicle);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<VehicleDto>(vehicle);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateVehicleAsync(VehicleDto vehicleDto)
     {
-        var existingVehicle = await _context.Vehicles
+        try
+        {
+            var existingVehicle = await _context.Vehicles
             .Include(v => v.VehicleType)
             .FirstOrDefaultAsync(v => v.Id == vehicleDto.Id);
 
-        if (existingVehicle is null || vehicleDto.VehicleType is null)
+            if (existingVehicle is null || vehicleDto.VehicleType is null)
+                return false;
+
+            _mapper.Map(vehicleDto, existingVehicle);
+            existingVehicle.VehicleType = await _context.VehicleTypes.FirstAsync(vt => vt.Id == vehicleDto.VehicleType.Id);
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception) {
             return false;
-
-        _mapper.Map(vehicleDto, existingVehicle);
-        existingVehicle.VehicleType = await _context.VehicleTypes.FirstAsync(vt => vt.Id == vehicleDto.VehicleType.Id);
-
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 
     public async Task<bool> DeleteVehicleAsync(Guid id)
     {
-        var vehicle = await _context.Vehicles.FindAsync(id);
-        if (vehicle is null)
-            return false;
+        try
+        {
+            var vehicle = await _context.Vehicles.FindAsync(id);
+            if (vehicle is null)
+                return false;
 
-        _context.Vehicles.Remove(vehicle);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.Vehicles.Remove(vehicle);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

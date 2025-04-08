@@ -7,7 +7,7 @@ public static class CultEndpoints
 {
     public static void MapCultEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/cults").WithTags("Cults");
+        var group = app.MapGroup("/cults").WithTags("Cults").RequireAuthorization();
 
         group.MapGet("/", async (ICultService service) =>
         {
@@ -23,16 +23,16 @@ public static class CultEndpoints
 
         group.MapPost("/", async (CultCreateDto cult, ICultService service) =>
         {
-            var createdCult = await service.CreateCultAsync(cult);
-            return createdCult is not null
-               ? Results.Created($"/cults/{createdCult.Id}", createdCult)
-               : Results.BadRequest();
+            var created = await service.CreateCultAsync(cult);
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         group.MapPut("/", async (CultDto cult, ICultService service) =>
         {
             var success = await service.UpdateCultAsync(cult);
-            return success ? Results.NoContent() : Results.NotFound();
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, ICultService service) =>

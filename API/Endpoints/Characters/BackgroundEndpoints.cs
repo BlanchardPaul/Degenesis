@@ -8,7 +8,7 @@ public static class BackgroundEndpoints
 {
     public static void MapBackgroundEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/backgrounds").WithTags("Backgrounds");
+        var group = app.MapGroup("/backgrounds").WithTags("Backgrounds").RequireAuthorization();
 
         // GET /backgrounds/{id}
         group.MapGet("/{id:guid}", async (Guid id, IBackgroundService service) =>
@@ -28,14 +28,16 @@ public static class BackgroundEndpoints
         group.MapPost("/", async (BackgroundCreateDto background, IBackgroundService service) =>
         {
             var created = await service.CreateBackgroundAsync(background);
-            return Results.Created($"/backgrounds/{created.Id}", created);
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         // PUT /backgrounds/{id}
         group.MapPut("/", async (Background background, IBackgroundService service) =>
         {
             var success = await service.UpdateBackgroundAsync(background);
-            return success ? Results.NoContent() : Results.NotFound();
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         // DELETE /backgrounds/{id}

@@ -1,20 +1,16 @@
 ﻿@page "/equipments"
-@using Degenesis.UI.Service.Features.Equipments
-@inject EquipmentService EquipmentService
-@inject EquipmentTypeService EquipmentTypeService
 @inject IDialogService DialogService
 @layout Layout.DashBoardLayout
 
 <h3>Equipments</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Equipment</MudButton>
-
 @if (equipments is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Equipment</MudButton>
     <MudTable Items="@equipments" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>

@@ -22,4 +22,9 @@ public partial class Login
             Snackbar.Add("Login failed", Severity.Error);
         }
     }
+
+    private void NavigateToRegister()
+    {
+        NavigationManager.NavigateTo("/register");
+    }
 }

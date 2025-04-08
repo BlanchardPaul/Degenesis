@@ -6,19 +6,21 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters;
 public partial class RankPrerequisiteList
 {
     private List<RankPrerequisiteDto>? rankPrerequisites;
-    private List<AttributeDto> attributes = new();
-    private List<SkillDto> skills = new();
+    private List<AttributeDto> attributes = [];
+    private List<SkillDto> skills = [];
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadRankPrerequisites();
     }
 
     private async Task LoadRankPrerequisites()
     {
-        rankPrerequisites = (await RankPrerequisiteService.GetRankPrerequisitesAsync()).ToList();
-        attributes = (await AttributeService.GetAttributesAsync()).ToList();
-        skills = (await SkillService.GetSkillsAsync()).ToList();
+        rankPrerequisites = await _client.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
+        attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
     }
 
     private async Task ShowCreateDialog()   
@@ -67,7 +69,11 @@ public partial class RankPrerequisiteList
 
     private async Task DeleteRankPrerequisite(Guid rankPrerequisiteId)
     {
-        await RankPrerequisiteService.DeleteRankPrerequisiteAsync(rankPrerequisiteId);
+        var result = await _client.DeleteAsync($"/rank-prerequisites/{rankPrerequisiteId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadRankPrerequisites();
     }
 }

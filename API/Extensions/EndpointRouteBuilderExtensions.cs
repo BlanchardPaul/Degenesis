@@ -4,6 +4,7 @@ using API.Endpoints.Characters;
 using API.Endpoints.Equipments;
 using API.Endpoints.Npcs;
 using API.Endpoints.Protections;
+using API.Endpoints.Rooms;
 using API.Endpoints.Users;
 using API.Endpoints.Vehicles;
 using API.Endpoints.Weapons;
@@ -63,6 +64,8 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapNPCSkillEndpoints();
 
         endpoints.MapUserEndpoints();
+
+        endpoints.MapRoomEndpoints();
         return endpoints;
     }
 }

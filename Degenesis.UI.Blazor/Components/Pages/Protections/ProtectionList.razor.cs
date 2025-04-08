@@ -7,17 +7,19 @@ namespace Degenesis.UI.Blazor.Components.Pages.Protections;
 public partial class ProtectionList
 {
     private List<ProtectionDto>? protections;
-    private List<ProtectionQualityDto> protectionQualities = new();
+    private List<ProtectionQualityDto> protectionQualities = [];
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadProtections();
     }
 
     private async Task LoadProtections()
     {
-        protections = [.. (await ProtectionService.GetProtectionsAsync())];
-        protectionQualities = [.. (await ProtectionQualityService.GetProtectionQualitysAsync())];
+        protections = await _client.GetFromJsonAsync<List<ProtectionDto>>("/protections") ?? [];
+        protectionQualities =  await _client.GetFromJsonAsync<List<ProtectionQualityDto>>("/protection-qualities") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -64,7 +66,11 @@ public partial class ProtectionList
 
     private async Task DeleteProtection(Guid protectionId)
     {
-        await ProtectionService.DeleteProtectionAsync(protectionId);
+        var result = await _client.DeleteAsync($"/protections/{protectionId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadProtections();
     }
 }

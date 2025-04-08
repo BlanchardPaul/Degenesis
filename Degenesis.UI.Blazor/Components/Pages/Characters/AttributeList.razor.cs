@@ -8,15 +8,17 @@ public partial class AttributeList
 {
     [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<AttributeDto>? attributes;
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadAttributes();
     }
 
     private async Task LoadAttributes()
     {
-        attributes = await AttributeService.GetAttributesAsync();
+        attributes= await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -53,8 +55,12 @@ public partial class AttributeList
 
     private async Task DeleteAttribute(Guid attributeId)
     {
-        await AttributeService.DeleteAttributeAsync(attributeId);
-        attributes = await AttributeService.GetAttributesAsync();
+        var result = await _client.DeleteAsync($"/attributes/{attributeId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
+        await LoadAttributes();
     }
 
 }

@@ -1,6 +1,5 @@
 ﻿using Business.Characters;
 using Degenesis.Shared.DTOs.Characters;
-using Domain.Characters;
 
 namespace API.Endpoints.Characters;
 
@@ -8,7 +7,7 @@ public static class PotentialEndpoints
 {
     public static void MapPotentialEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var group = endpoints.MapGroup("/potentials").WithTags("Potentials");
+        var group = endpoints.MapGroup("/potentials").WithTags("Potentials").RequireAuthorization();
 
         // Get all potentials
         group.MapGet("/", async (IPotentialService potentialService) =>
@@ -27,17 +26,17 @@ public static class PotentialEndpoints
         // Create a new potential
         group.MapPost("/", async (PotentialCreateDto potential, IPotentialService potentialService) =>
         {
-            var createdPotential = await potentialService.CreatePotentialAsync(potential);
-            return createdPotential is not null
-                ? Results.Created($"/potentials/{createdPotential.Id}", createdPotential)
-                : Results.BadRequest();
+            var created = await potentialService.CreatePotentialAsync(potential);
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         // Update an existing potential
         group.MapPut("/", async (PotentialDto potential, IPotentialService potentialService) =>
         {
             var success = await potentialService.UpdatePotentialAsync(potential);
-            return success ? Results.NoContent() : Results.NotFound();
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         // Delete a potential

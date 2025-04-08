@@ -1,18 +1,21 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Degenesis.Shared.DTOs.Characters;
 using MudBlazor;
-using Degenesis.UI.Service.Features.Characters;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters;
 
 public partial class SkillModal
 {
-    [Inject] private SkillService SkillService { get; set; } = default!;
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
 
     [Parameter] public SkillDto Skill { get; set; } = new();
     [Parameter] public List<AttributeDto> Attributes { get; set; } = new();
+    private HttpClient _client = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        _client = await HttpClientService.GetClientAsync();
+    }
     protected override void OnParametersSet()
     {
         if (Attributes.Count!=0 && Skill.CAttributeId == Guid.Empty)
@@ -24,10 +27,26 @@ public partial class SkillModal
     private async Task SaveSkill()
     {
         if (Skill.Id == Guid.Empty)
-            await SkillService.CreateSkillAsync(Skill);
-        else
-            await SkillService.UpdateSkillAsync(Skill);
-
+        {
+            var result = await _client.PostAsJsonAsync("/skills", Skill);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during creation", Severity.Error);
+            else
+            {
+                Snackbar.Add("Created", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }else
+        {
+            var result = await _client.PutAsJsonAsync("/skills", Skill);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during edition", Severity.Error);
+            else
+            {
+                Snackbar.Add("Edited", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
         MudDialog.Close(DialogResult.Ok(true));
     }
 

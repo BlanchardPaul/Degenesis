@@ -1,20 +1,16 @@
 ﻿@page "/vehicles"
-@using Degenesis.UI.Service.Features.Vehicles
-@inject VehicleService VehicleService
-@inject VehicleTypeService VehicleTypeService
 @inject IDialogService DialogService
 @layout Layout.DashBoardLayout
 
 <h3>Vehicles</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Vehicle</MudButton>
-
 @if (vehicles is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Vehicle</MudButton>
     <MudTable Items="@vehicles" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>

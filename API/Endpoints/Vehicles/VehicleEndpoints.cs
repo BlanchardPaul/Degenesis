@@ -1,6 +1,5 @@
 ﻿using Business.Vehicles;
 using Degenesis.Shared.DTOs.Vehicles;
-using Domain.Vehicles;
 
 namespace API.Endpoints.Vehicles;
 
@@ -8,7 +7,7 @@ public static class VehicleEndpoints
 {
     public static void MapVehicleEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/vehicles").WithTags("Vehicles");
+        var group = app.MapGroup("/vehicles").WithTags("Vehicles").RequireAuthorization();
 
         group.MapGet("/", async (IVehicleService service) =>
         {
@@ -28,26 +27,22 @@ public static class VehicleEndpoints
 
         group.MapPost("/", async (VehicleCreateDto vehicle, IVehicleService service) =>
         {
-            var createdVehicle = await service.CreateVehicleAsync(vehicle);
-            if (createdVehicle is null)
+            var created = await service.CreateVehicleAsync(vehicle);
+            if (created is null)
                 return Results.BadRequest();
-            return Results.Created($"/vehicles/{createdVehicle.Id}", createdVehicle);
+            return Results.Created();
         });
 
         group.MapPut("/", async (VehicleDto vehicle, IVehicleService service) =>
         {
-            var updatedVehicle = await service.UpdateVehicleAsync(vehicle);
-            return updatedVehicle ? Results.NoContent() : Results.NotFound();
+            var success = await service.UpdateVehicleAsync(vehicle);
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IVehicleService service) =>
         {
             var success = await service.DeleteVehicleAsync(id);
-            if (!success)
-            {
-                return Results.NotFound();
-            }
-            return Results.NoContent();
+            return success ? Results.NoContent() : Results.NotFound();
         });
     }
 }

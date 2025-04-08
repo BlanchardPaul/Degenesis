@@ -1,5 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
 
 <MudThemeProvider IsDarkMode="true" />
 <MudPopoverProvider />
@@ -9,25 +11,28 @@
     <MudAppBar Elevation="1">
         <MudButton OnClick="NavigateToHome" Size="Size.Large">Degenesis</MudButton>
         <MudSpacer />
+        <MudButton OnClick="NavigateToRooms" Color="Color.Primary">Rooms</MudButton>
         <MudButton OnClick="NavigateToDashboard" Color="Color.Primary">Dashboard</MudButton>
+        @if (_isReady)
+        {
+            @if (_isAuthenticated)
+            {
+                <MudButton OnClick="NavigateToLogout" Color="Color.Secondary">Logout</MudButton>
+            }
+            else
+            {
+                <MudButton OnClick="NavigateToLogin" Color="Color.Secondary">Login</MudButton>
+            }
+        }
+        else
+        {
+            <MudProgressCircular Color="Color.Primary" Size="Size.Small" />
+        }
     </MudAppBar>
     <MudMainContent Class="mt-16 pa-4">
         @Body
     </MudMainContent>
 </MudLayout>
-
-@code {
-
-    private void NavigateToHome()
-    {
-        NavigationManager.NavigateTo("/");
-    }
-
-    private void NavigateToDashboard()
-    {
-        NavigationManager.NavigateTo("/dashboard");
-    }
-}
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
@@ -43,6 +48,8 @@
 @code {
     private bool _drawerOpen = true;
     private MudTheme? _theme = null;
+    private bool _isAuthenticated;
+    private bool _isReady;
 
     protected override void OnInitialized()
     {
@@ -86,5 +93,42 @@
     {
         _drawerOpen = !_drawerOpen;
     }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            _isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+            _isReady = true;
+            StateHasChanged();
+        }
+    }
+
+    private void NavigateToRooms()
+    {
+        NavigationManager.NavigateTo("/rooms");
+    }
+
+    private void NavigateToDashboard()
+    {
+        NavigationManager.NavigateTo("/dashboard");
+    }
+
+    private void NavigateToLogin()
+    {
+        NavigationManager.NavigateTo("/login");
+    }
+
+    private void NavigateToLogout()
+    {
+        NavigationManager.NavigateTo("/logout");
+    }
+
+    private void NavigateToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
 }
 

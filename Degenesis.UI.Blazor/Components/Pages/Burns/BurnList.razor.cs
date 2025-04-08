@@ -8,15 +8,17 @@ public partial class BurnList
 {
     [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<BurnDto>? burns;
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadBurns();
     }
 
     private async Task LoadBurns()
     {
-        burns = await BurnService.GetBurnsAsync();
+        burns = await _client.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -53,7 +55,11 @@ public partial class BurnList
 
     private async Task DeleteBurn(Guid burnId)
     {
-        await BurnService.DeleteBurnAsync(burnId);
-        burns = await BurnService.GetBurnsAsync();
+        var result = await _client.DeleteAsync($"/burns/{burnId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
+        await LoadBurns();
     }
 }

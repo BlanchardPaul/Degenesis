@@ -1,5 +1,4 @@
 ﻿using Degenesis.Shared.DTOs.Characters;
-using Degenesis.UI.Service.Features.Characters;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -10,16 +9,18 @@ public partial class SkillList
     [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<SkillDto>? skills;
     private List<AttributeDto> attributes = [];
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadSkills();
-        attributes = await AttributeService.GetAttributesAsync();
+        attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
     }
 
     private async Task LoadSkills()
     {
-        skills = await SkillService.GetSkillsAsync();
+        skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -56,7 +57,11 @@ public partial class SkillList
 
     private async Task DeleteSkill(Guid skillId)
     {
-        await SkillService.DeleteSkillAsync(skillId);
+        var result = await _client.DeleteAsync($"/skills/{skillId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadSkills();
     }
 }

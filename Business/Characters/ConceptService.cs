@@ -97,84 +97,106 @@ public class ConceptService : IConceptService
 
     public async Task<ConceptDto?> CreateConceptAsync(ConceptCreateDto conceptCreate)
     {
-        var concept = _mapper.Map<Concept>(conceptCreate);
-
-        // Gérer la relation avec BonusAttribute
-        if (conceptCreate.BonusAttributeId != Guid.Empty)
+        try
         {
-            var attribute = await _context.Attributes.FindAsync(conceptCreate.BonusAttributeId);
-            if (attribute != null)
-            {
-                concept.BonusAttribute = attribute;
-            }
-        }
+            var concept = _mapper.Map<Concept>(conceptCreate);
 
-        // Gérer la relation avec BonusSkills
-        concept.BonusSkills = new List<Skill>();
-        foreach (var skillDto in conceptCreate.BonusSkills)
+            // Gérer la relation avec BonusAttribute
+            if (conceptCreate.BonusAttributeId != Guid.Empty)
+            {
+                var attribute = await _context.Attributes.FindAsync(conceptCreate.BonusAttributeId);
+                if (attribute != null)
+                {
+                    concept.BonusAttribute = attribute;
+                }
+            }
+
+            // Gérer la relation avec BonusSkills
+            concept.BonusSkills = new List<Skill>();
+            foreach (var skillDto in conceptCreate.BonusSkills)
+            {
+                var existingSkill = await _context.Skills.FindAsync(skillDto.Id);
+                if (existingSkill != null)
+                {
+                    concept.BonusSkills.Add(existingSkill);
+                }
+            }
+
+            _context.Concepts.Add(concept);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<ConceptDto>(concept);
+        }
+        catch (Exception)
         {
-            var existingSkill = await _context.Skills.FindAsync(skillDto.Id);
-            if (existingSkill != null)
-            {
-                concept.BonusSkills.Add(existingSkill);
-            }
+            return null;
         }
-
-        _context.Concepts.Add(concept);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<ConceptDto>(concept);
     }
 
     public async Task<bool> UpdateConceptAsync(ConceptDto conceptDto)
     {
-        var existingConcept = await _context.Concepts
-            .Include(c => c.BonusAttribute)
-            .Include(c => c.BonusSkills)
-            .FirstOrDefaultAsync(c => c.Id == conceptDto.Id);
 
-        if (existingConcept is null)
-            throw new Exception("Concept not found");
-
-        _context.Entry(existingConcept).CurrentValues.SetValues(conceptDto);
-
-        if (conceptDto.BonusAttribute != null)
+        try
         {
-            var attribute = await _context.Attributes.FindAsync(conceptDto.BonusAttribute.Id);
-            if (attribute != null)
-            {
-                existingConcept.BonusAttribute = attribute;
-            }
-        }
+            var existingConcept = await _context.Concepts
+                .Include(c => c.BonusAttribute)
+                .Include(c => c.BonusSkills)
+                .FirstOrDefaultAsync(c => c.Id == conceptDto.Id);
 
-        existingConcept.BonusSkills.Clear();
-        foreach (var skillDto in conceptDto.BonusSkills)
+            if (existingConcept is null)
+                throw new Exception("Concept not found");
+
+            _context.Entry(existingConcept).CurrentValues.SetValues(conceptDto);
+
+            if (conceptDto.BonusAttribute != null)
+            {
+                var attribute = await _context.Attributes.FindAsync(conceptDto.BonusAttribute.Id);
+                if (attribute != null)
+                {
+                    existingConcept.BonusAttribute = attribute;
+                }
+            }
+
+            existingConcept.BonusSkills.Clear();
+            foreach (var skillDto in conceptDto.BonusSkills)
+            {
+                var skill = await _context.Skills.FindAsync(skillDto.Id);
+                if (skill != null)
+                {
+                    existingConcept.BonusSkills.Add(skill);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
         {
-            var skill = await _context.Skills.FindAsync(skillDto.Id);
-            if (skill != null)
-            {
-                existingConcept.BonusSkills.Add(skill);
-            }
+            return false;
         }
-
-        await _context.SaveChangesAsync();
-        return true;
     }
 
     public async Task<bool> DeleteConceptAsync(Guid id)
     {
-        var concept = await _context.Concepts
-            .Include(c => c.BonusSkills) // Inclure les relations pour les supprimer
-            .FirstOrDefaultAsync(c => c.Id == id);
+        try
+        {
+            var concept = await _context.Concepts
+                .Include(c => c.BonusSkills) // Inclure les relations pour les supprimer
+                .FirstOrDefaultAsync(c => c.Id == id);
 
-        if (concept is null)
+            if (concept is null)
+                return false;
+
+            // Supprimer les relations avec BonusSkills avant de supprimer le Concept
+            concept.BonusSkills.Clear();
+            await _context.SaveChangesAsync();
+
+            _context.Concepts.Remove(concept);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
-
-        // Supprimer les relations avec BonusSkills avant de supprimer le Concept
-        concept.BonusSkills.Clear();
-        await _context.SaveChangesAsync();
-
-        _context.Concepts.Remove(concept);
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 }

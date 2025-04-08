@@ -39,31 +39,52 @@ public class WeaponQualityService : IWeaponQualityService
 
     public async Task<WeaponQualityDto?> CreateWeaponQualityAsync(WeaponQualityCreateDto weaponQualityCreate)
     {
-        var weaponQuality = _mapper.Map<WeaponQuality>(weaponQualityCreate);
-        _context.WeaponQualities.Add(weaponQuality);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<WeaponQualityDto>(weaponQuality);
+        try
+        {
+            var weaponQuality = _mapper.Map<WeaponQuality>(weaponQualityCreate);
+            _context.WeaponQualities.Add(weaponQuality);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<WeaponQualityDto>(weaponQuality);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateWeaponQualityAsync(WeaponQualityDto weaponQualityDto)
     {
-        var existingWeaponQuality = await _context.WeaponQualities.FindAsync(weaponQualityDto.Id);
-        if (existingWeaponQuality is null)
-            return false;
+        try
+        {
+            var existingWeaponQuality = await _context.WeaponQualities.FindAsync(weaponQualityDto.Id);
+            if (existingWeaponQuality is null)
+                return false;
 
-        _mapper.Map(weaponQualityDto, existingWeaponQuality);
-        await _context.SaveChangesAsync();
-        return true;
+            _mapper.Map(weaponQualityDto, existingWeaponQuality);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public async Task<bool> DeleteWeaponQualityAsync(Guid id)
     {
-        var weaponQuality = await _context.WeaponQualities.FindAsync(id);
-        if (weaponQuality is null)
-            return false;
+        try
+        {
+            var weaponQuality = await _context.WeaponQualities.FindAsync(id);
+            if (weaponQuality is null)
+                return false;
 
-        _context.WeaponQualities.Remove(weaponQuality);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.WeaponQualities.Remove(weaponQuality);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

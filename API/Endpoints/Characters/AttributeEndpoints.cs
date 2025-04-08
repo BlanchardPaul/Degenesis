@@ -8,7 +8,7 @@ public static class AttributeEndpoints
 {
     public static void MapAttributeEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/attributes").WithTags("Attributes");
+        var group = app.MapGroup("/attributes").WithTags("Attributes").RequireAuthorization();
 
         group.MapGet("/{id:guid}", async (Guid id, IAttributeService service) =>
         {
@@ -25,13 +25,15 @@ public static class AttributeEndpoints
         group.MapPost("/", async (AttributeCreateDto attribute, IAttributeService service) =>
         {
             var created = await service.CreateAttributeAsync(attribute);
-            return Results.Created($"/attributes/{created.Id}", created);
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         group.MapPut("/", async (CAttribute attribute, IAttributeService service) =>
         {
             var success = await service.UpdateAttributeAsync(attribute);
-            return success ? Results.NoContent() : Results.NotFound();
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IAttributeService service) =>

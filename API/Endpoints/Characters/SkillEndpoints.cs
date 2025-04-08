@@ -8,7 +8,7 @@ public static class SkillEndpoints
 {
     public static void MapSkillEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/skills").WithTags("Skills");
+        var group = app.MapGroup("/skills").WithTags("Skills").RequireAuthorization();
 
         group.MapGet("/", async (ISkillService service) =>
         {
@@ -28,28 +28,22 @@ public static class SkillEndpoints
 
         group.MapPost("/", async (SkillCreateDto skill, ISkillService service) =>
         {
-            var createdSkill = await service.CreateSkillAsync(skill);
-            return Results.Created($"/skills/{createdSkill.Id}", createdSkill);
+            var created = await service.CreateSkillAsync(skill);
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         group.MapPut("/", async (Skill skill, ISkillService service) =>
         {
-            var updatedSkill = await service.UpdateSkillAsync(skill);
-            if (!updatedSkill)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(updatedSkill);
+            var success = await service.UpdateSkillAsync(skill);
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, ISkillService service) =>
         {
             var success = await service.DeleteSkillAsync(id);
-            if (!success)
-            {
-                return Results.NotFound();
-            }
-            return Results.NoContent();
+            return success ? Results.NoContent() : Results.NotFound();
         });
     }
 }

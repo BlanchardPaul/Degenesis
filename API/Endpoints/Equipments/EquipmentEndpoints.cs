@@ -1,6 +1,5 @@
 ﻿using Business.Equipments;
 using Degenesis.Shared.DTOs.Equipments;
-using Domain.Equipments;
 
 namespace API.Endpoints.Equipments;
 
@@ -28,26 +27,22 @@ public static class EquipmentEndpoints
 
         group.MapPost("/", async (EquipmentCreateDto equipment, IEquipmentService service) =>
         {
-            var createdEquipment = await service.CreateEquipmentAsync(equipment);
-            if(createdEquipment is null)
+            var created = await service.CreateEquipmentAsync(equipment);
+            if (created is null)
                 return Results.BadRequest();
-            return Results.Created($"/equipments/{createdEquipment.Id}", createdEquipment);
+            return Results.Created();
         });
 
         group.MapPut("/", async (EquipmentDto equipment, IEquipmentService service) =>
         {
-            var updatedEquipment = await service.UpdateEquipmentAsync(equipment);
-            return updatedEquipment ? Results.NoContent() : Results.NotFound();
+            var success = await service.UpdateEquipmentAsync(equipment);
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IEquipmentService service) =>
         {
             var success = await service.DeleteEquipmentAsync(id);
-            if (!success)
-            {
-                return Results.NotFound();
-            }
-            return Results.NoContent();
+            return success ? Results.NoContent() : Results.NotFound();
         });
     }
 }

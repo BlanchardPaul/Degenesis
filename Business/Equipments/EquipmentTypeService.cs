@@ -39,32 +39,53 @@ public class EquipmentTypeService : IEquipmentTypeService
 
     public async Task<EquipmentTypeDto?> CreateEquipmentTypeAsync(EquipmentTypeCreateDto equipmentTypeCreate)
     {
-        var equipmentType = _mapper.Map<EquipmentType>(equipmentTypeCreate);
-        _context.EquipmentTypes.Add(equipmentType);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<EquipmentTypeDto>(equipmentType);
+        try
+        {
+            var equipmentType = _mapper.Map<EquipmentType>(equipmentTypeCreate);
+            _context.EquipmentTypes.Add(equipmentType);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<EquipmentTypeDto>(equipmentType);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateEquipmentTypeAsync(EquipmentTypeDto equipmentTypeDto)
     {
-        var existingEquipmentType = await _context.EquipmentTypes.FindAsync(equipmentTypeDto.Id);
+        try
+        {
+            var existingEquipmentType = await _context.EquipmentTypes.FindAsync(equipmentTypeDto.Id);
 
-        if (existingEquipmentType is null)
+            if (existingEquipmentType is null)
+                return false;
+
+            _mapper.Map(equipmentTypeDto, existingEquipmentType);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
-
-        _mapper.Map(equipmentTypeDto, existingEquipmentType);
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 
     public async Task<bool> DeleteEquipmentTypeAsync(Guid id)
     {
-        var existingEquipmentType = await _context.EquipmentTypes.FindAsync(id);
-        if (existingEquipmentType is null)
-            return false;
+        try
+        {
+            var existingEquipmentType = await _context.EquipmentTypes.FindAsync(id);
+            if (existingEquipmentType is null)
+                return false;
 
-        _context.EquipmentTypes.Remove(existingEquipmentType);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.EquipmentTypes.Remove(existingEquipmentType);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

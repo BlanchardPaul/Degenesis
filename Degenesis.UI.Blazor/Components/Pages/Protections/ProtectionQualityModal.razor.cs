@@ -1,5 +1,4 @@
 ﻿using Degenesis.Shared.DTOs.Protections;
-using Degenesis.UI.Service.Features.Protections;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -7,18 +6,40 @@ namespace Degenesis.UI.Blazor.Components.Pages.Protections;
 
 public partial class ProtectionQualityModal
 {
-    [Inject] private ProtectionQualityService ProtectionQualityService { get; set; } = default!;
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public ProtectionQualityDto ProtectionQuality { get; set; } = new();
+    private HttpClient _client = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _client = await HttpClientService.GetClientAsync();
+    }
 
     private async Task SaveProtectionQuality()
     {
         if (ProtectionQuality.Id == Guid.Empty)
-            await ProtectionQualityService.CreateProtectionQualityAsync(ProtectionQuality);
+        {
+            var result = await _client.PostAsJsonAsync("/protection-qualities", ProtectionQuality);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during creation", Severity.Error);
+            else
+            {
+                Snackbar.Add("Created", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
         else
-            await ProtectionQualityService.UpdateProtectionQualityAsync(ProtectionQuality);
-
+        {
+            var result = await _client.PutAsJsonAsync("/protection-qualities", ProtectionQuality);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during edition", Severity.Error);
+            else
+            {
+                Snackbar.Add("Edited", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
         MudDialog.Close(DialogResult.Ok(true));
     }
 

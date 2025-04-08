@@ -49,54 +49,73 @@ public class WeaponService : IWeaponService
 
     public async Task<WeaponDto?> CreateWeaponAsync(WeaponCreateDto weaponCreate)
     {
-        var weapon = _mapper.Map<Weapon>(weaponCreate);
-        weapon.WeaponType = await _context.WeaponTypes.FirstAsync(wt => wt.Id == weaponCreate.WeaponTypeId);
-        weapon.Attribute = weaponCreate.AttributeId.HasValue
-            ? await _context.Attributes.FindAsync(weaponCreate.AttributeId.Value)
-            : null;
+        try
+        {
+            var weapon = _mapper.Map<Weapon>(weaponCreate);
+            weapon.WeaponType = await _context.WeaponTypes.FirstAsync(wt => wt.Id == weaponCreate.WeaponTypeId);
+            weapon.Attribute = weaponCreate.AttributeId.HasValue
+                ? await _context.Attributes.FindAsync(weaponCreate.AttributeId.Value)
+                : null;
 
-        weapon.Qualities = _context.WeaponQualities
-            .Where(q => weaponCreate.Qualities.Select(qd => qd.Id).Contains(q.Id))
-            .ToList();
+            weapon.Qualities = [.. _context.WeaponQualities.Where(q => weaponCreate.Qualities.Select(qd => qd.Id).Contains(q.Id))];
 
-        _context.Weapons.Add(weapon);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<WeaponDto>(weapon);
+            _context.Weapons.Add(weapon);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<WeaponDto>(weapon);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateWeaponAsync(WeaponDto weaponDto)
     {
-        var existingWeapon = await _context.Weapons
-            .Include(w => w.WeaponType)
-            .Include(w => w.Attribute)
-            .Include(w => w.Qualities)
-            .FirstOrDefaultAsync(w => w.Id == weaponDto.Id);
+        try
+        {
+            var existingWeapon = await _context.Weapons
+                .Include(w => w.WeaponType)
+                .Include(w => w.Attribute)
+                .Include(w => w.Qualities)
+                .FirstOrDefaultAsync(w => w.Id == weaponDto.Id);
 
-        if (existingWeapon is null || weaponDto.WeaponType is null)
+            if (existingWeapon is null || weaponDto.WeaponType is null)
+                return false;
+
+            _mapper.Map(weaponDto, existingWeapon);
+            existingWeapon.WeaponType = await _context.WeaponTypes.FirstAsync(wt => wt.Id == weaponDto.WeaponType.Id);
+            existingWeapon.Attribute = weaponDto.Attribute?.Id != null
+                ? await _context.Attributes.FindAsync(weaponDto.Attribute.Id)
+                : null;
+
+            existingWeapon.Qualities.Clear();
+            existingWeapon.Qualities.AddRange(_context.WeaponQualities
+                .Where(q => weaponDto.Qualities.Select(qd => qd.Id).Contains(q.Id)));
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
-
-        _mapper.Map(weaponDto, existingWeapon);
-        existingWeapon.WeaponType = await _context.WeaponTypes.FirstAsync(wt => wt.Id == weaponDto.WeaponType.Id);
-        existingWeapon.Attribute = weaponDto.Attribute?.Id != null
-            ? await _context.Attributes.FindAsync(weaponDto.Attribute.Id)
-            : null;
-
-        existingWeapon.Qualities.Clear();
-        existingWeapon.Qualities.AddRange(_context.WeaponQualities
-            .Where(q => weaponDto.Qualities.Select(qd => qd.Id).Contains(q.Id)));
-
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 
     public async Task<bool> DeleteWeaponAsync(Guid id)
     {
-        var weapon = await _context.Weapons.FindAsync(id);
-        if (weapon is null)
-            return false;
+        try
+        {
+            var weapon = await _context.Weapons.FindAsync(id);
+            if (weapon is null)
+                return false;
 
-        _context.Weapons.Remove(weapon);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.Weapons.Remove(weapon);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

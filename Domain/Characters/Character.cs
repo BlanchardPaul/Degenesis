@@ -2,6 +2,8 @@
 using Domain.Burns;
 using Domain.Equipments;
 using Domain.Protections;
+using Domain.Rooms;
+using Domain.Users;
 using Domain.Vehicles;
 using Domain.Weapons;
 
@@ -32,6 +34,11 @@ public class Character
     public Culture Culture { get; set; } = new();
     public Guid ConceptId { get; set; }
     public Concept Concept { get; set; } = new();
+    // TODO => Gérer user et room puis mettre à jour la migration
+    //public Guid IdRoom { get; set; }
+    //public Room Room { get; set; } = new();
+    //public Guid IdApplicationUser { get; set; }
+    //public ApplicationUser ApplicationUser { get; set; } = new();
     public List<CharacterBackground> CharacterBackgrounds { get; set; } = [];
     public List<CharacterBurn> CharacterBurns { get; set; } = [];
     public List<CharacterAttribute> CharacterAttributes { get; set; } = [];

@@ -47,56 +47,77 @@ public class RankPrerequisiteService : IRankPrerequisiteService
 
     public async Task<RankPrerequisiteDto?> CreateRankPrerequisiteAsync(RankPrerequisiteCreateDto rankPrerequisiteCreate)
     {
-        var rankPrerequisite = _mapper.Map<RankPrerequisite>(rankPrerequisiteCreate);
-
-        if (rankPrerequisiteCreate.AttributeRequiredId != Guid.Empty)
+        try
         {
-            var attribute = await _context.Attributes.FindAsync(rankPrerequisiteCreate.AttributeRequiredId);
-            if (attribute != null)
-                rankPrerequisite.AttributeRequired = attribute;
-        }
+            var rankPrerequisite = _mapper.Map<RankPrerequisite>(rankPrerequisiteCreate);
 
-        if (rankPrerequisiteCreate.SkillRequiredId != Guid.Empty)
+            if (rankPrerequisiteCreate.AttributeRequiredId != Guid.Empty)
+            {
+                var attribute = await _context.Attributes.FindAsync(rankPrerequisiteCreate.AttributeRequiredId);
+                if (attribute != null)
+                    rankPrerequisite.AttributeRequired = attribute;
+            }
+
+            if (rankPrerequisiteCreate.SkillRequiredId != Guid.Empty)
+            {
+                var skill = await _context.Skills.FindAsync(rankPrerequisiteCreate.SkillRequiredId);
+                if (skill != null)
+                    rankPrerequisite.SkillRequired = skill;
+            }
+
+            _context.RankPrerequisites.Add(rankPrerequisite);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<RankPrerequisiteDto>(rankPrerequisite);
+        }
+        catch (Exception)
         {
-            var skill = await _context.Skills.FindAsync(rankPrerequisiteCreate.SkillRequiredId);
-            if (skill != null)
-                rankPrerequisite.SkillRequired = skill;
+            return null;
         }
-
-        _context.RankPrerequisites.Add(rankPrerequisite);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<RankPrerequisiteDto>(rankPrerequisite);
     }
 
     public async Task<bool> UpdateRankPrerequisiteAsync(RankPrerequisiteDto rankPrerequisiteDto)
     {
-        var existingRankPrerequisite = await _context.RankPrerequisites
+        try
+        {
+            var existingRankPrerequisite = await _context.RankPrerequisites
             .Include(rp => rp.AttributeRequired)
             .Include(rp => rp.SkillRequired)
             .FirstOrDefaultAsync(rp => rp.Id == rankPrerequisiteDto.Id);
 
-        if (existingRankPrerequisite is null || rankPrerequisiteDto.AttributeRequired is null)
+            if (existingRankPrerequisite is null || rankPrerequisiteDto.AttributeRequired is null)
             return false;
 
-        _mapper.Map(rankPrerequisiteDto, existingRankPrerequisite);
+            _mapper.Map(rankPrerequisiteDto, existingRankPrerequisite);
 
-        existingRankPrerequisite.AttributeRequired = await _context.Attributes.FirstAsync(a => a.Id == rankPrerequisiteDto.AttributeRequired.Id);
+            existingRankPrerequisite.AttributeRequired = await _context.Attributes.FirstAsync(a => a.Id == rankPrerequisiteDto.AttributeRequired.Id);
 
-        if(rankPrerequisiteDto.SkillRequired is not null)
+            if (rankPrerequisiteDto.SkillRequired is not null)
             existingRankPrerequisite.SkillRequired = await _context.Skills.FindAsync(rankPrerequisiteDto.SkillRequired.Id);
 
-        await _context.SaveChangesAsync();
-        return true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public async Task<bool> DeleteRankPrerequisiteAsync(Guid id)
     {
-        var rankPrerequisite = await _context.RankPrerequisites.FindAsync(id);
-        if (rankPrerequisite is null)
-            return false;
+        try
+        {
+            var rankPrerequisite = await _context.RankPrerequisites.FindAsync(id);
+            if (rankPrerequisite is null)
+                return false;
 
-        _context.RankPrerequisites.Remove(rankPrerequisite);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.RankPrerequisites.Remove(rankPrerequisite);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 }

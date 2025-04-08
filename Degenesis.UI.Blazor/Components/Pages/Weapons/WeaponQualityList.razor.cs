@@ -6,15 +6,17 @@ namespace Degenesis.UI.Blazor.Components.Pages.Weapons;
 public partial class WeaponQualityList
 {
     private List<WeaponQualityDto>? weaponQualities;
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadWeaponQualities();
     }
 
     private async Task LoadWeaponQualities()
     {
-        weaponQualities = [.. (await WeaponQualityService.GetWeaponQualitiesAsync())];
+        weaponQualities = await _client.GetFromJsonAsync<List<WeaponQualityDto>>("/weapon-qualities") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -60,7 +62,11 @@ public partial class WeaponQualityList
 
     private async Task DeleteWeaponQuality(Guid weaponQualityId)
     {
-        await WeaponQualityService.DeleteWeaponQualityAsync(weaponQualityId);
+        var result = await _client.DeleteAsync($"/weapon-qualities/{weaponQualityId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadWeaponQualities();
     }
 }

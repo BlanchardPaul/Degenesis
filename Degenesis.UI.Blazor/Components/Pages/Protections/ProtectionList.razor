@@ -1,20 +1,16 @@
 ﻿@page "/protections"
-@using Degenesis.UI.Service.Features.Protections
-@inject ProtectionService ProtectionService
-@inject ProtectionQualityService ProtectionQualityService
 @inject IDialogService DialogService
 @layout Layout.DashBoardLayout
 
 <h3>Protections</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Protection</MudButton>
-
 @if (protections is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Protection</MudButton>
     <MudTable Items="@protections" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>

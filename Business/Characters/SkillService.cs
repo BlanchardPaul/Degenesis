@@ -10,7 +10,7 @@ public interface ISkillService
 {
     Task<List<SkillDto>> GetAllSkillsAsync();
     Task<Skill?> GetSkillByIdAsync(Guid id);
-    Task<Skill> CreateSkillAsync(SkillCreateDto skillCreate);
+    Task<Skill?> CreateSkillAsync(SkillCreateDto skillCreate);
     Task<bool> UpdateSkillAsync(Skill skill);
     Task<bool> DeleteSkillAsync(Guid id);
 }
@@ -50,35 +50,56 @@ public class SkillService : ISkillService
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
-    public async Task<Skill> CreateSkillAsync(SkillCreateDto skillCreate)
+    public async Task<Skill?> CreateSkillAsync(SkillCreateDto skillCreate)
     {
-        var skill = _mapper.Map<Skill>(skillCreate);
-        _context.Skills.Add(skill);
-        await _context.SaveChangesAsync();
-        return skill;
+        try
+        {
+            var skill = _mapper.Map<Skill>(skillCreate);
+            _context.Skills.Add(skill);
+            await _context.SaveChangesAsync();
+            return skill;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<bool> UpdateSkillAsync(Skill skill)
     {
-        var existing = await _context.Skills.FindAsync(skill.Id);
-        if (existing is null) return false;
+        try
+        {
+            var existing = await _context.Skills.FindAsync(skill.Id);
+            if (existing is null) return false;
 
-        _mapper.Map(skill, existing);
+            _mapper.Map(skill, existing);
 
-        await _context.SaveChangesAsync();
-        return true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     public async Task<bool> DeleteSkillAsync(Guid id)
     {
-        var existingSkill = await _context.Skills.FindAsync(id);
-        if (existingSkill is null)
+        try
+        {
+            var existingSkill = await _context.Skills.FindAsync(id);
+            if (existingSkill is null)
+            {
+                return false;
+            }
+
+            _context.Skills.Remove(existingSkill);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
         {
             return false;
         }
-
-        _context.Skills.Remove(existingSkill);
-        await _context.SaveChangesAsync();
-        return true;
     }
 }

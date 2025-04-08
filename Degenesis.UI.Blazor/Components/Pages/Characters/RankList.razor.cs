@@ -1,24 +1,25 @@
 ﻿using Degenesis.Shared.DTOs.Characters;
 using MudBlazor;
-
 namespace Degenesis.UI.Blazor.Components.Pages.Characters;
 
 public partial class RankList
 {
     private List<RankDto>? ranks;
-    private List<CultDto> cults = new();
-    private List<RankPrerequisiteDto> rankPrerequisites = new();
+    private List<CultDto> cults = [];
+    private List<RankPrerequisiteDto> rankPrerequisites = [];
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadRanks();
     }
 
     private async Task LoadRanks()
     {
-        ranks = [.. (await RankService.GetRanksAsync())];
-        cults = [.. (await CultService.GetCultsAsync())];
-        rankPrerequisites = [.. (await RankPrerequisiteService.GetRankPrerequisitesAsync())];
+        ranks = await _client.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
+        cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        rankPrerequisites = await _client.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -67,7 +68,11 @@ public partial class RankList
 
     private async Task DeleteRank(Guid rankId)
     {
-        await RankService.DeleteRankAsync(rankId);
+        var result = await _client.DeleteAsync($"/ranks/{rankId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadRanks();
     }
 

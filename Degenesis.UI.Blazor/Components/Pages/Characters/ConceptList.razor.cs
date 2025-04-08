@@ -1,5 +1,6 @@
 ﻿using Degenesis.Shared.DTOs.Characters;
 using MudBlazor;
+using System.Net.Http;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters;
 
@@ -8,17 +9,19 @@ public partial class ConceptList
     private List<ConceptDto>? concepts;
     private List<SkillDto> skills = [];
     private List<AttributeDto> attributes = [];
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadConcepts();
     }
 
     private async Task LoadConcepts()
     {
-        concepts = (await ConceptService.GetConceptsAsync()).ToList();
-        skills = (await SkillService.GetSkillsAsync()).ToList();
-        attributes = (await AttributeService.GetAttributesAsync()).ToList();
+        concepts =await _client.GetFromJsonAsync<List<ConceptDto>>("/concepts") ?? [];
+        skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        attributes =  await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -67,7 +70,12 @@ public partial class ConceptList
 
     private async Task DeleteConcept(Guid conceptId)
     {
-        await ConceptService.DeleteConceptAsync(conceptId);
+        var result = await _client.DeleteAsync($"/concepts/{conceptId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
+
         await LoadConcepts();
     }
 }

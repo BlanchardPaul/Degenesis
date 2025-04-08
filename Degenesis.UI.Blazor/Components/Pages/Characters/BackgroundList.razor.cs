@@ -8,15 +8,17 @@ public partial class BackgroundList
 {
     [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<BackgroundDto>? backgrounds;
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadBackgrounds();
     }
 
     private async Task LoadBackgrounds()
     {
-        backgrounds = await BackgroundService.GetBackgroundsAsync();
+        backgrounds = await _client.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -53,8 +55,12 @@ public partial class BackgroundList
 
     private async Task DeleteBackground(Guid backgroundId)
     {
-        await BackgroundService.DeleteBackgroundAsync(backgroundId);
-        backgrounds = await BackgroundService.GetBackgroundsAsync();
+        var result = await _client.DeleteAsync($"/backgrounds/{backgroundId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
+        await LoadBackgrounds();
     }
 
 }

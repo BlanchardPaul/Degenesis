@@ -1,6 +1,5 @@
 ﻿using Business.Weapons;
 using Degenesis.Shared.DTOs.Weapons;
-using Domain.Weapons;
 
 namespace API.Endpoints.Weapons;
 
@@ -8,7 +7,7 @@ public static class WeaponTypeEndpoints
 {
     public static void MapWeaponTypeEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/weapon-types").WithTags("WeaponTypes");
+        var group = app.MapGroup("/weapon-types").WithTags("WeaponTypes").RequireAuthorization();
 
         group.MapGet("/{id}", async (IWeaponTypeService service, Guid id) =>
         {
@@ -24,8 +23,10 @@ public static class WeaponTypeEndpoints
 
         group.MapPost("/", async (IWeaponTypeService service, WeaponTypeCreateDto weaponType) =>
         {
-            var weaponTypeCreated = await service.CreateWeaponTypeAsync(weaponType);
-            return Results.Created($"/weapon-types/{weaponTypeCreated.Id}", weaponTypeCreated);
+            var created = await service.CreateWeaponTypeAsync(weaponType);
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         group.MapPut("/", async (IWeaponTypeService service, WeaponTypeDto weaponType) =>
@@ -36,8 +37,8 @@ public static class WeaponTypeEndpoints
 
         group.MapDelete("/{id}", async (IWeaponTypeService service, Guid id) =>
         {
-            await service.DeleteWeaponTypeAsync(id);
-            return Results.NoContent();
+            var success = await service.DeleteWeaponTypeAsync(id);
+            return success ? Results.NoContent() : Results.NotFound();
         });
     }
 }

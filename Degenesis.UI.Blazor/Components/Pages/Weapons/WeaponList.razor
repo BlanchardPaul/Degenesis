@@ -1,23 +1,16 @@
 ﻿@page "/weapons"
-@using Degenesis.UI.Service.Features.Characters
-@using Degenesis.UI.Service.Features.Weapons
-@inject WeaponService WeaponService
-@inject WeaponTypeService WeaponTypeService
-@inject WeaponQualityService WeaponQualityService
-@inject AttributeService AttributeService
 @inject IDialogService DialogService
 @layout Layout.DashBoardLayout
 
 <h3>Weapons</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Weapon</MudButton>
-
 @if (weapons is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Weapon</MudButton>
     <MudTable Items="@weapons" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>

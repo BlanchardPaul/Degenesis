@@ -1,21 +1,16 @@
 ﻿@page "/rankprerequisites"
-@using Degenesis.UI.Service.Features.Characters
-@inject RankPrerequisiteService RankPrerequisiteService
-@inject AttributeService AttributeService
-@inject SkillService SkillService
 @inject IDialogService DialogService
 @layout Layout.DashBoardLayout
 
 <h3>Rank Prerequisites</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank Prerequisite</MudButton>
-
 @if (rankPrerequisites is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank Prerequisite</MudButton>
     <MudTable Items="@rankPrerequisites" Hover="true">
         <HeaderContent>
             <MudTh>Attribute Required</MudTh>

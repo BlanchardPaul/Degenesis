@@ -8,7 +8,7 @@ public static class ArtifactEndpoints
 {
     public static void MapArtifactEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/artifacts").WithTags("Artifacts");
+        var group = app.MapGroup("/artifacts").WithTags("Artifacts").RequireAuthorization();
 
         group.MapGet("/", async (IArtifactService service) =>
         {
@@ -24,13 +24,15 @@ public static class ArtifactEndpoints
         group.MapPost("/", async (ArtifactCreateDto artifact, IArtifactService service) =>
         {
             var created = await service.CreateAsync(artifact);
-            return Results.Created($"/artifacts/{created.Id}", created);
+            if (created is null)
+                return Results.BadRequest();
+            return Results.Created();
         });
 
         group.MapPut("/", async (Artifact artifact, IArtifactService service) =>
         {
             var success = await service.UpdateAsync(artifact);
-            return success ? Results.NoContent() : Results.NotFound();
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IArtifactService service) =>

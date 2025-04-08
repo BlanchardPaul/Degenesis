@@ -9,16 +9,18 @@ public partial class CultList
     [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<CultDto>? cults;
     private List<SkillDto> skills = [];
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadCults();
     }
 
     private async Task LoadCults()
     {
-        cults = await CultService.GetCultsAsync();
-        skills = await SkillService.GetSkillsAsync();
+        cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -55,7 +57,11 @@ public partial class CultList
 
     private async Task DeleteCult(Guid cultId)
     {
-        await CultService.DeleteCultAsync(cultId);
+        var result = await _client.DeleteAsync($"/cults/{cultId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadCults();
     }
 }

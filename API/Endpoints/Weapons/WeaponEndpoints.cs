@@ -7,7 +7,7 @@ public static class WeaponEndpoints
 {
     public static void MapWeaponEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/weapons").WithTags("Weapons");
+        var group = app.MapGroup("/weapons").WithTags("Weapons").RequireAuthorization();
 
         group.MapGet("/{id}", async (IWeaponService service, Guid id) =>
         {
@@ -23,22 +23,22 @@ public static class WeaponEndpoints
 
         group.MapPost("/", async (IWeaponService service, WeaponCreateDto weapon) =>
         {
-            var weaponCreated = await service.CreateWeaponAsync(weapon);
-            if (weaponCreated is null)
+            var created = await service.CreateWeaponAsync(weapon);
+            if (created is null)
                 return Results.BadRequest();
-            return Results.Created($"/weapons/{weaponCreated.Id}", weaponCreated);
+            return Results.Created();
         });
 
         group.MapPut("/", async (IWeaponService service, WeaponDto weapon) =>
         {
-            var updatedWeapon = await service.UpdateWeaponAsync(weapon);
-            return updatedWeapon ? Results.NoContent() : Results.NotFound();
+            var success = await service.UpdateWeaponAsync(weapon);
+            return success ? Results.Ok() : Results.NotFound();
         });
 
         group.MapDelete("/{id}", async (IWeaponService service, Guid id) =>
         {
-            await service.DeleteWeaponAsync(id);
-            return Results.NoContent();
+            var success = await service.DeleteWeaponAsync(id);
+            return success ? Results.NoContent() : Results.NotFound();
         });
     }
 }

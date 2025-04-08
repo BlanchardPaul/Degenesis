@@ -1,21 +1,16 @@
 ﻿@page "/ranks"
-@using Degenesis.UI.Service.Features.Characters
-@inject CultService CultService
-@inject RankService RankService
-@inject RankPrerequisiteService RankPrerequisiteService
 @inject IDialogService DialogService
 @layout Layout.DashBoardLayout
 
 <h3>Ranks</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank</MudButton>
-
 @if (ranks is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank</MudButton>
     <MudTable Items="@ranks" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>

@@ -1,20 +1,16 @@
 ﻿@page "/cults"
 @using Degenesis.Shared.DTOs.Characters
-@using Degenesis.UI.Service.Features.Characters
-@inject CultService CultService
-@inject SkillService SkillService
 @layout Layout.DashBoardLayout
 
 <h3>Cults</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Cult</MudButton>
-
 @if (cults is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Cult</MudButton>
     <MudTable Items="@cults" Hover="true" LoadingProgressColor="Color.Info">
         <HeaderContent>
             <MudTh>Name</MudTh>

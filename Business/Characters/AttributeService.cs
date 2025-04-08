@@ -10,7 +10,7 @@ public interface IAttributeService
 {
     Task<CAttribute?> GetAttributeByIdAsync(Guid id);
     Task<IEnumerable<CAttribute>> GetAllAttributesAsync();
-    Task<CAttribute> CreateAttributeAsync(AttributeCreateDto attributeCreate);
+    Task<CAttribute?> CreateAttributeAsync(AttributeCreateDto attributeCreate);
     Task<bool> UpdateAttributeAsync(CAttribute attribute);
     Task<bool> DeleteAttributeAsync(Guid id);
 }
@@ -38,33 +38,55 @@ public class AttributeService : IAttributeService
         return await _context.Attributes.ToListAsync();
     }
 
-    public async Task<CAttribute> CreateAttributeAsync(AttributeCreateDto attributeCreate)
+    public async Task<CAttribute?> CreateAttributeAsync(AttributeCreateDto attributeCreate)
     {
-        var attribute = _mapper.Map<CAttribute>(attributeCreate);
-        _context.Attributes.Add(attribute);
-        await _context.SaveChangesAsync();
-        return attribute;
+        try
+        {
+            var attribute = _mapper.Map<CAttribute>(attributeCreate);
+            _context.Attributes.Add(attribute);
+            await _context.SaveChangesAsync();
+            return attribute;
+        }
+        catch (Exception) { 
+            return null;
+        }
+
     }
 
     public async Task<bool> UpdateAttributeAsync(CAttribute attribute)
     {
-        var existing = await _context.Attributes.FindAsync(attribute.Id);
-        if (existing is null) return false;
+        try
+        {
+            var existing = await _context.Attributes.FindAsync(attribute.Id);
+            if (existing is null) return false;
 
-        _mapper.Map(attribute, existing);
+            _mapper.Map(attribute, existing);
 
-        await _context.SaveChangesAsync();
-        return true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception) {
+            return false;
+        }
+
     }
 
     public async Task<bool> DeleteAttributeAsync(Guid id)
     {
-        var attribute = await _context.Attributes.FindAsync(id);
-        if (attribute is null)
-            return false;
+        try
+        {
+            var attribute = await _context.Attributes.FindAsync(id);
+            if (attribute is null)
+                return false;
 
-        _context.Attributes.Remove(attribute);
-        await _context.SaveChangesAsync();
-        return true;
+            _context.Attributes.Remove(attribute);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
     }
 }

@@ -7,21 +7,23 @@ namespace Degenesis.UI.Blazor.Components.Pages.Weapons;
 public partial class WeaponList
 {
     private List<WeaponDto>? weapons;
-    private List<WeaponTypeDto> weaponTypes = new();
-    private List<WeaponQualityDto> weaponQualities = new();
-    private List<AttributeDto> attributes = new();
+    private List<WeaponTypeDto> weaponTypes = [];
+    private List<WeaponQualityDto> weaponQualities = [];
+    private List<AttributeDto> attributes = [];
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadWeapons();
     }
 
     private async Task LoadWeapons()
     {
-        weapons = [.. (await WeaponService.GetWeaponsAsync())];
-        weaponTypes = [.. (await WeaponTypeService.GetWeaponTypesAsync())];
-        weaponQualities = [.. (await WeaponQualityService.GetWeaponQualitiesAsync())];
-        attributes = [.. (await AttributeService.GetAttributesAsync())];
+        weapons = await _client.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
+        weaponTypes = await _client.GetFromJsonAsync<List<WeaponTypeDto>>("/weapon-types") ?? [];
+        weaponQualities = await _client.GetFromJsonAsync<List<WeaponQualityDto>>("/weapon-qualities") ?? [];
+        attributes =  await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -72,7 +74,11 @@ public partial class WeaponList
 
     private async Task DeleteWeapon(Guid weaponId)
     {
-        await WeaponService.DeleteWeaponAsync(weaponId);
+        var result = await _client.DeleteAsync($"/weapons/{weaponId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadWeapons();
     }
 }

@@ -6,15 +6,17 @@ namespace Degenesis.UI.Blazor.Components.Pages.Weapons;
 public partial class WeaponTypeList
 {
     private List<WeaponTypeDto>? weaponTypes;
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadWeaponTypes();
     }
 
     private async Task LoadWeaponTypes()
     {
-        weaponTypes = [.. (await WeaponTypeService.GetWeaponTypesAsync())];
+        weaponTypes = await _client.GetFromJsonAsync<List<WeaponTypeDto>>("/weapon-types") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -59,7 +61,11 @@ public partial class WeaponTypeList
 
     private async Task DeleteWeaponType(Guid weaponTypeId)
     {
-        await WeaponTypeService.DeleteWeaponTypeAsync(weaponTypeId);
+        var result = await _client.DeleteAsync($"/weapon-types/{weaponTypeId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadWeaponTypes();
     }
 }

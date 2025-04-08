@@ -6,17 +6,19 @@ namespace Degenesis.UI.Blazor.Components.Pages.Equipments;
 public partial class EquipmentList
 {
     private List<EquipmentDto>? equipments;
-    private List<EquipmentTypeDto> equipmentTypes = new();
+    private List<EquipmentTypeDto> equipmentTypes = [];
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadEquipments();
     }
 
     private async Task LoadEquipments()
     {
-        equipments = [.. (await EquipmentService.GetEquipmentsAsync())];
-        equipmentTypes = [.. (await EquipmentTypeService.GetEquipmentTypesAsync())];
+        equipments = await _client.GetFromJsonAsync<List<EquipmentDto>>("/equipments") ?? [];
+        equipmentTypes = await _client.GetFromJsonAsync<List<EquipmentTypeDto>>("/equipment-types") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -63,7 +65,11 @@ public partial class EquipmentList
 
     private async Task DeleteEquipment(Guid equipmentId)
     {
-        await EquipmentService.DeleteEquipmentAsync(equipmentId);
+        var result = await _client.DeleteAsync($"/equipments/{equipmentId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadEquipments();
     }
 }

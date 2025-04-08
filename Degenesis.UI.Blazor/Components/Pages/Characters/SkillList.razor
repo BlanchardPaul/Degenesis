@@ -1,20 +1,16 @@
 ﻿@page "/skills"
 @using Degenesis.Shared.DTOs.Characters
-@using Degenesis.UI.Service.Features.Characters
-@inject SkillService SkillService
-@inject AttributeService AttributeService
 @layout Layout.DashBoardLayout
 
 <h3>Skills</h3>
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Skill</MudButton>
-
 @if (skills is null)
 {
-    <p><em>Loading...</em></p>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Skill</MudButton>
     <MudTable Items="@skills" Hover="true" LoadingProgressColor="Color.Info">
         <HeaderContent>
             <MudTh>Name</MudTh>

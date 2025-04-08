@@ -18,6 +18,9 @@ public class NPC
     public int PassiveDefense { get; set; } = 1;
     // For details like this enemy armor take -1 for each strike
     public string EnemySpec { get; set; } = string.Empty;
+    // TODO => Gérer room puis mettre à jour la migration
+    //public Guid IdRoom { get; set; }
+    //public Room Room { get; set; } = new();
     public List<NPCArtifact> NPCArtifacts { get; set; } = [];
     public List<NPCAttribute> NPCAttributes { get; set; } = [];
     public List<NPCBurn> NPCBurns { get; set; } = [];

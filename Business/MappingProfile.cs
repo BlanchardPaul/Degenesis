@@ -4,6 +4,7 @@ using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters;
 using Degenesis.Shared.DTOs.Equipments;
 using Degenesis.Shared.DTOs.Protections;
+using Degenesis.Shared.DTOs.Rooms;
 using Degenesis.Shared.DTOs.Users;
 using Degenesis.Shared.DTOs.Vehicles;
 using Degenesis.Shared.DTOs.Weapons;
@@ -12,6 +13,7 @@ using Domain.Burns;
 using Domain.Characters;
 using Domain.Equipments;
 using Domain.Protections;
+using Domain.Rooms;
 using Domain.Users;
 using Domain.Vehicles;
 using Domain.Weapons;
@@ -106,6 +108,13 @@ public class MappingProfile : Profile
         CreateMap<Skill, Skill>();
         CreateMap<Skill, SkillDto>();
         CreateMap<SkillDto, Skill>();
+
+        CreateMap<RoomCreateDto, Room>()
+            .ForMember(dest => dest.UserRooms, opt => opt.Ignore());
+        CreateMap<Room, Room>();
+        CreateMap<Room, RoomDto>();
+        CreateMap<RoomDto, Room>()
+            .ForMember(dest => dest.UserRooms, opt => opt.Ignore());
 
         CreateMap<VehicleCreateDto, Vehicle>()
         .ForMember(dest => dest.VehicleType, opt => opt.Ignore());

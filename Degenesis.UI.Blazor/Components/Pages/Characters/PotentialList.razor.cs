@@ -7,16 +7,18 @@ public partial class PotentialList
 {
     private List<PotentialDto>? potentials;
     private List<CultDto> cults = new();
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadPotentials();
     }
 
     private async Task LoadPotentials()
     {
-        potentials = [.. (await PotentialService.GetPotentialsAsync())];
-        cults = [.. (await CultService.GetCultsAsync())];
+        potentials = await _client.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
+        cults =await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -63,7 +65,11 @@ public partial class PotentialList
 
     private async Task DeletePotential(Guid potentialId)
     {
-        await PotentialService.DeletePotentialAsync(potentialId);
+        var result = await _client.DeleteAsync($"/potentials/{potentialId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadPotentials();
     }
 }

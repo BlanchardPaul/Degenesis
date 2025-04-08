@@ -4,6 +4,7 @@ using Domain.Characters;
 using Domain.Equipments;
 using Domain.NPCs;
 using Domain.Protections;
+using Domain.Rooms;
 using Domain.Users;
 using Domain.Vehicles;
 using Domain.Weapons;
@@ -13,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace DataAccessLayer;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, Guid>
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -54,7 +55,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ProtectionQuality> ProtectionQualities { get; set; } = null!;
     public DbSet<Rank> Ranks { get; set; } = null!;
     public DbSet<RankPrerequisite> RankPrerequisites { get; set; } = null!;
+    public DbSet<Room> Rooms { get; set; } = null!;
     public DbSet<Skill> Skills { get; set; } = null!;
+    public DbSet<UserRoom> UserRooms { get; set; } = null!;
     public DbSet<Vehicle> Vehicles { get; set; } = null!;
     public DbSet<VehicleType> VehicleTypes { get; set; } = null!;
     public DbSet<Weapon> Weapons { get; set; } = null!;

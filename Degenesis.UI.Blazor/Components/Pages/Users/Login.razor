@@ -2,12 +2,9 @@
 @using Degenesis.UI.Service.Features.Users
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject UserService UserService
 @inject NavigationManager NavigationManager
-@inject ProtectedLocalStorage ProtectedLocalStorage
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject ISnackbar Snackbar
 @attribute [AllowAnonymous]
 @layout Layout.DefaultLayout
 
@@ -20,4 +17,5 @@
     <MudTextField @bind-Value="loginModel.Password" For="@(() => loginModel.Password)" Label="Password" InputType="InputType.Password" />
 
     <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary">Login</MudButton>
+    <MudButton Color="Color.Error" OnClick="NavigateToRegister">Register</MudButton>
 </EditForm>

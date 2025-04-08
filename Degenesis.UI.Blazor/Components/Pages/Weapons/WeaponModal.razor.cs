@@ -1,6 +1,5 @@
 ﻿using Degenesis.Shared.DTOs.Characters;
 using Degenesis.Shared.DTOs.Weapons;
-using Degenesis.UI.Service.Features.Weapons;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -8,7 +7,6 @@ namespace Degenesis.UI.Blazor.Components.Pages.Weapons;
 
 public partial class WeaponModal
 {
-    [Inject] private WeaponService WeaponService { get; set; } = default!;
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public WeaponDto Weapon { get; set; } = new();
@@ -17,6 +15,12 @@ public partial class WeaponModal
     [Parameter] public List<WeaponQualityDto> WeaponQualities { get; set; } = [];
 
     private HashSet<Guid> SelectedQualityIds { get; set; } = [];
+    private HttpClient _client = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _client = await HttpClientService.GetClientAsync();
+    }
 
     protected override void OnParametersSet()
     {
@@ -38,10 +42,27 @@ public partial class WeaponModal
     private async Task SaveWeapon()
     {
         if (Weapon.Id == Guid.Empty)
-            await WeaponService.CreateWeaponAsync(Weapon);
+        {
+            var result = await _client.PostAsJsonAsync("/weapons", Weapon);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during creation", Severity.Error);
+            else
+            {
+                Snackbar.Add("Created", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
         else
-            await WeaponService.UpdateWeaponAsync(Weapon);
-
+        {
+            var result = await _client.PutAsJsonAsync("/weapons", Weapon);
+            if (!result.IsSuccessStatusCode)
+                Snackbar.Add("Error during edition", Severity.Error);
+            else
+            {
+                Snackbar.Add("Edited", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+        }
         MudDialog.Close(DialogResult.Ok(true));
     }
 

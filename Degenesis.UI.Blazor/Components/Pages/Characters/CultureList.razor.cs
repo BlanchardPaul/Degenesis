@@ -1,5 +1,4 @@
 ﻿using Degenesis.Shared.DTOs.Characters;
-using Degenesis.UI.Service.Features.Characters;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters;
@@ -10,18 +9,20 @@ public partial class CultureList
     private List<CultDto> cults = [];
     private List<AttributeDto> attributes = [];
     private List<SkillDto> skills = [];
+    private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _client = await HttpClientService.GetClientAsync();
         await LoadCultures();
     }
 
     private async Task LoadCultures()
     {
-        cultures = (await CultureService.GetCulturesAsync());
-        cults = (await CultService.GetCultsAsync());
-        attributes = (await AttributeService.GetAttributesAsync());
-        skills = (await SkillService.GetSkillsAsync());
+        cultures =await _client.GetFromJsonAsync<List<CultureDto>>("/cultures") ?? [];
+        cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        attributes =  await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -72,7 +73,11 @@ public partial class CultureList
 
     private async Task DeleteCulture(Guid cultureId)
     {
-        await CultureService.DeleteCultureAsync(cultureId);
+        var result = await _client.DeleteAsync($"/cultures/{cultureId}");
+        if (!result.IsSuccessStatusCode)
+            Snackbar.Add("Error during deletion");
+        else
+            Snackbar.Add("Deleted");
         await LoadCultures();
     }
 }

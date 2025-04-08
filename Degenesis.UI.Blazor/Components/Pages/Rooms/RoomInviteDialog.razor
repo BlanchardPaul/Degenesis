@@ -1,0 +1,9 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="InvitationDto.UserName" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Invite" Color="Color.Primary">Invite</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
