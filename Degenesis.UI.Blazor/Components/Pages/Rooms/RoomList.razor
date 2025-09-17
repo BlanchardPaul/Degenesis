@@ -1,5 +1,6 @@
 ﻿@page "/rooms"
 @using Degenesis.UI.Blazor.Extensions
+@inject NavigationManager NavigationManager
 
 @if (rooms is null)
 {
@@ -41,7 +42,12 @@ else
                                 <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => DeleteRoom(room.Id)">Delete</MudButton>
                             }else{
                                 <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => DeclineInvitation(room.Id)">Leave Room</MudButton>
+                                @if (!room.HasCharacter)
+                                {
+                                    <MudButton Variant="Variant.Text" Color="Color.Info" OnClick="() => CreateCharacter(room.Id)">Create Character</MudButton>
+                                }
                             }
+                            <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="() => JoinRoom(room.Id)">Join</MudButton>
                         </MudCardActions>
                     </MudCard>
                 </MudItem>

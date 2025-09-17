@@ -39,4 +39,17 @@ public class AuthenticatedHttpClientService
         }
 
     }
+
+    public async Task<string?> GetTokenAsync()
+    {
+        try
+        {
+            var tokenResult = await _localStorage.GetAsync<string>("authToken");
+            return tokenResult.Success ? tokenResult.Value : null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 }

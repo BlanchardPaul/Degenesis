@@ -41,6 +41,7 @@ public class RoomService : IRoomService
         if (user is null)
             return [];
         var rooms = await _context.Rooms
+            .Include(r => r.Characters)
             .Include(r => r.UserRooms)
             .ThenInclude(ur => ur.ApplicationUser)
             .Where(r => r.UserRooms.Any(ur => ur.IdApplicationUser == user.Id))
@@ -56,7 +57,8 @@ public class RoomService : IRoomService
                 Players = room.UserRooms.Where(ur => !ur.IsGM && ur.InvitationAccepted).Select(ur => ur.ApplicationUser.UserName ?? string.Empty).ToList(),
                 Pendings = room.UserRooms.Where(ur => !ur.IsGM && !ur.InvitationAccepted).Select(ur => ur.ApplicationUser.UserName ?? string.Empty).ToList(),
                 IsPendingForCurrentUser = !room.UserRooms.First(ur => ur.IdApplicationUser == user.Id).InvitationAccepted,
-                IsCurrentUserGM = room.UserRooms.First(ur => ur.IdApplicationUser == user.Id).IsGM
+                IsCurrentUserGM = room.UserRooms.First(ur => ur.IdApplicationUser == user.Id).IsGM,
+                HasCharacter = room.Characters.Exists(c => c.IdApplicationUser == user.Id)
             });
         }
         return displayRooms;
@@ -66,7 +68,10 @@ public class RoomService : IRoomService
     {
         try
         {
-            var dbRoom = await _context.Rooms.Include(r => r.UserRooms).FirstOrDefaultAsync(r => r.Id == id);
+            var dbRoom = await _context.Rooms
+                .Include(r => r.UserRooms)
+                .ThenInclude(ur => ur.ApplicationUser)
+                .FirstOrDefaultAsync(r => r.Id == id);
             if (dbRoom is null)
                 return null;
 

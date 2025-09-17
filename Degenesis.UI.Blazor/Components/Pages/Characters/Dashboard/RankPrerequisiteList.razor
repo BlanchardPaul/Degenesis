@@ -1,0 +1,33 @@
+﻿@page "/dashboard/rankprerequisites"
+
+<h3>Rank Prerequisites</h3>
+
+@if (rankPrerequisites is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank Prerequisite</MudButton>
+    <MudTable Items="@rankPrerequisites"
+              Hover="true"
+              SortLabel="Sort By"
+              Dense="true"
+              LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>Attribute Required</MudTh>
+            <MudTh>Skill Required</MudTh>
+            <MudTh>Sum</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.AttributeRequired?.Name</MudTd>
+            <MudTd>@context.SkillRequired?.Name</MudTd>
+            <MudTh>@context.SumRequired</MudTh>
+            <MudTd>
+                <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => DeleteRankPrerequisite(context.Id)" Color="Color.Error">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

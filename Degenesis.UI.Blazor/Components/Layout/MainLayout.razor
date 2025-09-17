@@ -1,7 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using System.IdentityModel.Tokens.Jwt
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
+@inject ProtectedLocalStorage ProtectedLocalStorage
 
 <MudThemeProvider IsDarkMode="true" />
 <MudPopoverProvider />
@@ -29,69 +32,69 @@
             <MudProgressCircular Color="Color.Primary" Size="Size.Small" />
         }
     </MudAppBar>
+
+    @if (_isDashboard)
+    {
+        <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
+            <NavMenu />
+        </MudDrawer>
+    }
+
     <MudMainContent Class="mt-16 pa-4">
         @Body
     </MudMainContent>
 </MudLayout>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
-
 @code {
-    private bool _drawerOpen = true;
     private MudTheme? _theme = null;
     private bool _isAuthenticated;
     private bool _isReady;
+    private bool _drawerOpen = true;
+    private bool _isDashboard;
 
     protected override void OnInitialized()
     {
         base.OnInitialized();
 
         _theme = new()
+        {
+            PaletteDark = new()
             {
-                PaletteDark = new()
-                {
-                    Primary = "#7e6fff",
-                    Surface = "#1e1e2d",
-                    Background = "#1a1a27",
-                    BackgroundGray = "#151521",
-                    AppbarText = "#92929f",
-                    AppbarBackground = "rgba(26,26,39,0.8)",
-                    DrawerBackground = "#1a1a27",
-                    ActionDefault = "#74718e",
-                    ActionDisabled = "#9999994d",
-                    ActionDisabledBackground = "#605f6d4d",
-                    TextPrimary = "#b2b0bf",
-                    TextSecondary = "#92929f",
-                    TextDisabled = "#ffffff33",
-                    DrawerIcon = "#92929f",
-                    DrawerText = "#92929f",
-                    GrayLight = "#2a2833",
-                    GrayLighter = "#1e1e2d",
-                    Info = "#4a86ff",
-                    Success = "#3dcb6c",
-                    Warning = "#ffb545",
-                    Error = "#ff3f5f",
-                    LinesDefault = "#33323e",
-                    TableLines = "#33323e",
-                    Divider = "#292838",
-                    OverlayLight = "#1e1e2d80",
-                },
-                LayoutProperties = new LayoutProperties()
-            };
-    }
+                Primary = "#7e6fff",
+                Surface = "#1e1e2d",
+                Background = "#1a1a27",
+                BackgroundGray = "#151521",
+                AppbarText = "#92929f",
+                AppbarBackground = "rgba(26,26,39,0.8)",
+                DrawerBackground = "#1a1a27",
+                ActionDefault = "#74718e",
+                ActionDisabled = "#9999994d",
+                ActionDisabledBackground = "#605f6d4d",
+                TextPrimary = "#b2b0bf",
+                TextSecondary = "#92929f",
+                TextDisabled = "#ffffff33",
+                DrawerIcon = "#92929f",
+                DrawerText = "#92929f",
+                GrayLight = "#2a2833",
+                GrayLighter = "#1e1e2d",
+                Info = "#4a86ff",
+                Success = "#3dcb6c",
+                Warning = "#ffb545",
+                Error = "#ff3f5f",
+                LinesDefault = "#33323e",
+                TableLines = "#33323e",
+                Divider = "#292838",
+                OverlayLight = "#1e1e2d80",
+            },
+            LayoutProperties = new LayoutProperties()
+        };
 
-    private void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
+        _isDashboard = NavigationManager.Uri.Contains("/dashboard", StringComparison.OrdinalIgnoreCase);
+        NavigationManager.LocationChanged += (s, e) =>
+        {
+            _isDashboard = NavigationManager.Uri.Contains("/dashboard", StringComparison.OrdinalIgnoreCase);
+            StateHasChanged();
+        };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -100,35 +103,48 @@
         {
             var authState = await AuthStateProvider.GetAuthenticationStateAsync();
             _isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+
+            if (!_isAuthenticated) NavigateToLogout();
+
+            var tokenResult = await ProtectedLocalStorage.GetAsync<string>("authToken");
+            var token = tokenResult.Success ? tokenResult.Value : null;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                if (IsTokenExpired(token))
+                {
+                    NavigationManager.NavigateTo("/logout");
+                }
+                else
+                {
+                    // refresh token by rewriting it
+                    await ProtectedLocalStorage.SetAsync("authToken", token);
+                }
+            }
+
             _isReady = true;
             StateHasChanged();
         }
     }
 
-    private void NavigateToRooms()
+    private bool IsTokenExpired(string token)
     {
-        NavigationManager.NavigateTo("/rooms");
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+            return jwt.ValidTo < DateTime.UtcNow;
+        }
+        catch
+        {
+            return true;
+        }
     }
 
-    private void NavigateToDashboard()
-    {
-        NavigationManager.NavigateTo("/dashboard");
-    }
-
-    private void NavigateToLogin()
-    {
-        NavigationManager.NavigateTo("/login");
-    }
-
-    private void NavigateToLogout()
-    {
-        NavigationManager.NavigateTo("/logout");
-    }
-
-    private void NavigateToHome()
-    {
-        NavigationManager.NavigateTo("/");
-    }
-
+    private void DrawerToggle() => _drawerOpen = !_drawerOpen;
+    private void NavigateToRooms() => NavigationManager.NavigateTo("/rooms");
+    private void NavigateToDashboard() => NavigationManager.NavigateTo("/dashboard");
+    private void NavigateToLogin() => NavigationManager.NavigateTo("/login");
+    private void NavigateToLogout() => NavigationManager.NavigateTo("/logout");
+    private void NavigateToHome() => NavigationManager.NavigateTo("/");
 }
-

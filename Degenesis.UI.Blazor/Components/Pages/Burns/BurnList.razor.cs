@@ -1,13 +1,11 @@
 ﻿using Degenesis.Shared.DTOs.Burns;
-using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Burns;
 
 public partial class BurnList
 {
-    [Inject] private IDialogService DialogService { get; set; } = default!;
-    private List<BurnDto>? burns;
+    private List<BurnDto>? Burns;
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -18,7 +16,7 @@ public partial class BurnList
 
     private async Task LoadBurns()
     {
-        burns = await _client.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
+        Burns = await _client.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -37,7 +35,7 @@ public partial class BurnList
 
     private async Task ShowEditDialog(Guid burnId)
     {
-        var burn = burns?.FirstOrDefault(a => a.Id == burnId);
+        var burn = Burns?.FirstOrDefault(a => a.Id == burnId);
         if (burn != null)
         {
             var parameters = new DialogParameters { { "Burn", burn } };

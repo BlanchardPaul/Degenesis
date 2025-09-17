@@ -1,0 +1,55 @@
+﻿@page "/dashboard/ranks"
+@using Degenesis.Shared.DTOs.Characters
+
+<h3>Ranks</h3>
+
+@if (ranks is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank</MudButton>
+    <MudTable Items="@ranks"
+              Hover="true"
+              SortLabel="Sort By"
+              Dense="true"
+              LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<RankDto, object>(x => x.Name)"
+                                   InitialDirection="SortDirection.Ascending">
+                    Name
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Equipment</MudTh>
+            <MudTh>Cult</MudTh>
+            <MudTh>Prerequisites</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Description</MudTd>
+            <MudTd>@context.Equipment</MudTd>
+            <MudTd>@context.Cult.Name</MudTd>
+            <MudTd>
+                @if (context.Prerequisites.Any())
+                {
+                    @foreach (var prerequisite in context.Prerequisites)
+                    {
+                        <div>@GetPrerequisiteLabel(prerequisite) | </div>
+                    }
+                }
+                else
+                {
+                    <span>No Prerequisites</span>
+                }
+            </MudTd>
+            <MudTd>
+                <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => DeleteRank(context.Id)" Color="Color.Error">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

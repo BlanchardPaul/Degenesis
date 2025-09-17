@@ -1,10 +1,9 @@
-﻿@page "/burns"
+﻿@page "/dashboard/burns"
 @using Degenesis.Shared.DTOs.Burns
-@layout Layout.DashBoardLayout
 
 <h3>Burns</h3>
 
-@if (burns is null)
+@if (Burns is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
@@ -12,7 +11,7 @@ else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Burn</MudButton>
 
-    <MudTable Items="@burns" Hover="true" LoadingProgressColor="Color.Info">
+    <MudTable Items="@Burns" Hover="true" LoadingProgressColor="Color.Info">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Description</MudTh>

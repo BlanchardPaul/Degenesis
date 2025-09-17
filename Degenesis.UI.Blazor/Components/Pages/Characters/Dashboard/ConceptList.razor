@@ -1,0 +1,50 @@
+﻿@page "/dashboard/concepts"
+@using Degenesis.Shared.DTOs.Characters
+
+<h3>Concepts</h3>
+
+@if (concepts is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Concept</MudButton>
+    <MudTable Items="@concepts" 
+              Hover="true"
+              SortLabel="Sort By"
+              Dense="true"
+              LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<ConceptDto, object>(x => x.Name)"
+                                   InitialDirection="SortDirection.Ascending">
+                    Name
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Bonus Attribute</MudTh>
+            <MudTh>Bonus Skills</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Bonus Attribute">@context.BonusAttribute?.Name</MudTd>
+            <MudTd DataLabel="Bonus Skills">
+                @if (context.BonusSkills != null && context.BonusSkills.Any())
+                {
+                    @string.Join(", ", context.BonusSkills.Select(bs => bs.Name))
+                }
+                else
+                {
+                    <span>No bonus skills</span>
+                }
+            </MudTd>
+            <MudTd>
+                <MudButton Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                <MudButton Color="Color.Error" OnClick="() => DeleteConcept(context.Id)">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

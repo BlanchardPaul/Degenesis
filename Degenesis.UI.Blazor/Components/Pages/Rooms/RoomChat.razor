@@ -1,0 +1,119 @@
+﻿@page "/room/{IdRoom:guid}"
+@using Degenesis.Shared.DTOs.Rooms
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject AuthenticatedHttpClientService AuthenticatedHttpClientService
+
+<h3>Room Chat - @room?.Name</h3>
+
+@if (room is null)
+{
+    <MudProgressCircular />
+}
+else
+{
+    <div>
+        <MudText Typo="Typo.subtitle1">GM: @room.GMName</MudText>
+        <MudText Typo="Typo.subtitle2">Players: @string.Join(", ", room.Players)</MudText>
+
+        <MudDivider Class="my-2" />
+
+        <MudChat>
+            @foreach (var msg in messages)
+            {
+                <MudChatBubble ChatPosition="@(msg.Sender == userName ? ChatBubblePosition.End : ChatBubblePosition.Start)">
+                    <b>@msg.Sender:</b> @msg.Text
+                </MudChatBubble>
+            }
+        </MudChat>
+
+        <div class="mt-2 d-flex">
+            <MudTextField @bind-Value="currentMessage" Placeholder="Type a message..." Immediate="true" Class="flex-grow-1" />
+            <MudButton OnClick="SendMessage" Color="Color.Primary" Class="ml-2">Send</MudButton>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Guid IdRoom { get; set; }
+
+    private RoomDisplayDto? room;
+    private HubConnection? hubConnection;
+    private string currentMessage = "";
+    private string? userName;
+    private HttpClient _client = new();
+
+    private class ChatMessage
+    {
+        public string Sender { get; set; } = "";
+        public string Text { get; set; } = "";
+    }
+
+    private List<ChatMessage> messages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is null || !user.Identity.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        userName = user.FindFirst("unique_name")?.Value;
+
+        _client = await AuthenticatedHttpClientService.GetClientAsync();
+        room = await _client.GetFromJsonAsync<RoomDisplayDto>($"/rooms/{IdRoom}");
+
+        if (room is null || string.IsNullOrEmpty(userName) || (!room.Players.Contains(userName) && room.GMName != userName))
+        {
+            Navigation.NavigateTo("/rooms");
+            return;
+        }
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:7274/roomchathub", options =>
+            {
+                options.AccessTokenProvider = async () =>
+                {
+                    var token = await AuthenticatedHttpClientService.GetTokenAsync();
+                    return token ?? string.Empty;
+                };
+            })
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (sender, message) =>
+        {
+            messages.Add(new ChatMessage { Sender = sender, Text = message });
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.StartAsync();
+        await hubConnection.SendAsync("JoinRoom", IdRoom.ToString());
+    }
+
+    private async Task SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(currentMessage))
+        {
+            await hubConnection!.SendAsync("SendMessage", IdRoom.ToString(), userName, currentMessage);
+            messages.Add(new ChatMessage { Sender = userName!, Text = currentMessage });
+            currentMessage = "";
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.SendAsync("LeaveRoom", IdRoom.ToString());
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

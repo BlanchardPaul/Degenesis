@@ -1,0 +1,39 @@
+﻿@page "/dashboard/skills"
+@using Degenesis.Shared.DTOs.Characters
+
+<h3>Skills</h3>
+
+@if (skills is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Skill</MudButton>
+    <MudTable Items="@skills"
+              Hover="true"
+              SortLabel="Sort By"
+              Dense="true"
+              LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SkillDto, object>(x => x.Name)"
+                                   InitialDirection="SortDirection.Ascending">
+                    Name
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Attribute</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Attribute">@context.CAttribute.Name</MudTd>
+            <MudTd>
+                <MudButton Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                <MudButton Color="Color.Error" OnClick="() => DeleteSkill(context.Id)">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

@@ -43,8 +43,58 @@ public class MappingProfile : Profile
                    .ForMember(dest => dest.BonusAttribute, opt => opt.MapFrom(src => src.BonusAttribute)) // BonusAttribute → AttributeDto
                    .ForMember(dest => dest.BonusSkills, opt => opt.MapFrom(src => src.BonusSkills)); // List<Skill> → List<SkillDto>
 
+        CreateMap<CharacterCreateDto, Character>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Generated in DB
+            .ForMember(dest => dest.Cult, opt => opt.Ignore())
+            .ForMember(dest => dest.Culture, opt => opt.Ignore())
+            .ForMember(dest => dest.Concept, opt => opt.Ignore())
+            .ForMember(dest => dest.Room, opt => opt.Ignore())
+            .ForMember(dest => dest.ApplicationUser, opt => opt.Ignore())
+            .ForMember(dest => dest.IdApplicationUser, opt => opt.Ignore()) // Handled in the service where it can be retrieved in the context
+            .ForMember(dest => dest.CharacterAttributes, opt => opt.Ignore())
+            .ForMember(dest => dest.CharacterSkills, opt => opt.Ignore())
+            .ForMember(dest => dest.CharacterBackgrounds, opt => opt.Ignore())
+            .ForMember(dest => dest.CharacterBurns, opt => opt.Ignore())
+            .ForMember(dest => dest.CharacterPontentials, opt => opt.Ignore())
+            .ForMember(dest => dest.CharacterProtections, opt => opt.Ignore())
+            .ForMember(dest => dest.CharacterEquipments, opt => opt.Ignore())
+            .ForMember(dest => dest.CharacterArtifacts, opt => opt.Ignore())
+            .ForMember(dest => dest.CharacterVehicles, opt => opt.Ignore())
+            .ForMember(dest => dest.CharacterWeapons, opt => opt.Ignore());
+
+        CreateMap<CharacterAttributeDto, CharacterAttribute>();
+        CreateMap<CharacterSkillDto, CharacterSkill>();
+        CreateMap<CharacterBackgroundDto, CharacterBackground>();
+
+        CreateMap<Character, CharacterDto>()
+            .ForMember(dest => dest.Cult, opt => opt.MapFrom(src => src.Cult))
+            .ForMember(dest => dest.Culture, opt => opt.MapFrom(src => src.Culture))
+            .ForMember(dest => dest.Concept, opt => opt.MapFrom(src => src.Concept))
+            .ForMember(dest => dest.Room, opt => opt.MapFrom(src => src.Room))
+            .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src =>
+                src.CharacterAttributes.Select(a => new CharacterAttributeDto
+                {
+                    CharacterId = a.CharacterId,
+                    AttributeId = a.AttributeId,
+                    Level = a.Level
+                })))
+            .ForMember(dest => dest.Skills, opt => opt.MapFrom(src =>
+                src.CharacterSkills.Select(s => new CharacterSkillDto
+                {
+                    CharacterId = s.CharacterId,
+                    SkillId = s.SkillId,
+                    Level = s.Level
+                })))
+            .ForMember(dest => dest.Backgrounds, opt => opt.MapFrom(src =>
+                src.CharacterBackgrounds.Select(b => new CharacterBackgroundDto
+                {
+                    CharacterId = b.CharacterId,
+                    BackgroundId = b.BackgroundId,
+                    Level = b.Level
+                })));
+
         CreateMap<CultCreateDto, Cult>()
-            .ForMember(dest => dest.BonusSkills, opt => opt.Ignore()); // Ignore pour éviter la création de doublons de skills
+            .ForMember(dest => dest.BonusSkills, opt => opt.Ignore()); // Ignore to avoid creating Skills doubles
         CreateMap<Cult, Cult>();
         CreateMap<Cult, CultDto>();
         CreateMap<CultDto, Cult>();
@@ -58,6 +108,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.AvailableCults, opt => opt.MapFrom(src => src.AvailableCults))
             .ForMember(dest => dest.BonusAttributes, opt => opt.MapFrom(src => src.BonusAttributes))
             .ForMember(dest => dest.BonusSkills, opt => opt.MapFrom(src => src.BonusSkills));
+
         CreateMap<Cult, CultDto>();
         CreateMap<CultDto, Cult>();
 
@@ -72,7 +123,7 @@ public class MappingProfile : Profile
         CreateMap<EquipmentType, EquipmentTypeDto>();
 
         CreateMap<PotentialCreateDto, Potential>()
-            .ForMember(dest => dest.Cult, opt => opt.Ignore()); // Ignorer Cult car il sera chargé séparément
+            .ForMember(dest => dest.Cult, opt => opt.Ignore()); // Ignore Cult, it'll be loaded later
         CreateMap<PotentialDto, Potential>();
         CreateMap<Potential, PotentialDto>()
             .ForMember(dest => dest.Cult, opt => opt.MapFrom(src => src.Cult));

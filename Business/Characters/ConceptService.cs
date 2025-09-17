@@ -101,7 +101,7 @@ public class ConceptService : IConceptService
         {
             var concept = _mapper.Map<Concept>(conceptCreate);
 
-            // Gérer la relation avec BonusAttribute
+            // Handle relationship with BonusAttribute
             if (conceptCreate.BonusAttributeId != Guid.Empty)
             {
                 var attribute = await _context.Attributes.FindAsync(conceptCreate.BonusAttributeId);
@@ -111,8 +111,8 @@ public class ConceptService : IConceptService
                 }
             }
 
-            // Gérer la relation avec BonusSkills
-            concept.BonusSkills = new List<Skill>();
+            // Handle relationship with BonusSkills
+            concept.BonusSkills = [];
             foreach (var skillDto in conceptCreate.BonusSkills)
             {
                 var existingSkill = await _context.Skills.FindAsync(skillDto.Id);

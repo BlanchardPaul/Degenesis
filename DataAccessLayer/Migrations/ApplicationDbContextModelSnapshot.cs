@@ -250,6 +250,12 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("Height")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("IdApplicationUser")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdRoom")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("MaxSporeInfestation")
                         .HasColumnType("int");
 
@@ -286,6 +292,10 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("CultId");
 
                     b.HasIndex("CultureId");
+
+                    b.HasIndex("IdApplicationUser");
+
+                    b.HasIndex("IdRoom");
 
                     b.ToTable("Characters", (string)null);
                 });
@@ -1697,11 +1707,27 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Users.ApplicationUser", "ApplicationUser")
+                        .WithMany("Characters")
+                        .HasForeignKey("IdApplicationUser")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Rooms.Room", "Room")
+                        .WithMany("Characters")
+                        .HasForeignKey("IdRoom")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
                     b.Navigation("Concept");
 
                     b.Navigation("Cult");
 
                     b.Navigation("Culture");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Domain.Characters.CharacterAttribute", b =>
@@ -2284,11 +2310,15 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("Domain.Rooms.Room", b =>
                 {
+                    b.Navigation("Characters");
+
                     b.Navigation("UserRooms");
                 });
 
             modelBuilder.Entity("Domain.Users.ApplicationUser", b =>
                 {
+                    b.Navigation("Characters");
+
                     b.Navigation("UserRooms");
                 });
 #pragma warning restore 612, 618

@@ -18,4 +18,5 @@ public class RoomDisplayDto : RoomDto
     public List<string> Pendings { get; set; } = [];
     public bool IsPendingForCurrentUser { get; set; }
     public bool IsCurrentUserGM { get; set; }
+    public bool HasCharacter { get; set; }
 }

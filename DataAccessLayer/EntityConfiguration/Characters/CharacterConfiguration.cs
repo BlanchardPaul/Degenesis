@@ -32,6 +32,8 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
 
         builder.Property(c => c.ChroniclerMoney);
 
+        builder.Property(c => c.MaxEgo);
+
         builder.Property(c => c.Ego);
 
         builder.Property(c => c.CurrentSporeInfestation);
@@ -40,7 +42,11 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
 
         builder.Property(c => c.PermanentSporeInfestation);
 
+        builder.Property(c => c.MaxFleshWounds);
+
         builder.Property(c => c.FleshWounds);
+
+        builder.Property(c => c.MaxTrauma);
 
         builder.Property(c => c.Trauma);
 
@@ -50,10 +56,18 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
 
         builder.Property(c => c.Notes);
 
+        builder.HasOne(c => c.Room)
+            .WithMany(r => r.Characters)
+            .HasForeignKey(c => c.IdRoom);
+
+        builder.HasOne(c => c.ApplicationUser)
+            .WithMany(u => u.Characters)
+            .HasForeignKey(c => c.IdApplicationUser);
+
         builder.HasOne(c => c.Cult)
             .WithMany()
             .HasForeignKey(c => c.CultId)
-             .IsRequired();
+            .IsRequired();
 
         builder.HasOne(c => c.Culture)
             .WithMany()

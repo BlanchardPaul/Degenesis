@@ -1,0 +1,112 @@
+﻿<MudForm @ref="_form" Model="@Character">
+    <MudTextField Label="Name" @bind-Value="Character.Name" Required="true" Class="mb-4" />
+    <MudNumericField Label="Age" @bind-Value="Character.Age" Min="1" Max="120" Required="true" Class="mb-4" />
+    <MudNumericField Label="Height (cm)" @bind-Value="Character.Height" Min="50" Max="250" Required="true" Class="mb-4" />
+    <MudNumericField Label="Weight (kg)" @bind-Value="Character.Weight" Min="20" Max="250" Required="true" Class="mb-4" />
+    <MudTextField T="string" Label="Sex" @bind-Value="Character.Sex" Required="true" Class="mb-4" />
+
+    <MudDivider />
+
+    <MudText>Culture selection</MudText>
+    <MudToggleGroup T="Guid"
+                    SelectionMode="SelectionMode.SingleSelection"
+                    Value="Character.CultureId"
+                    ValueChanged="HandleCultureChange"
+                    CheckMark
+                    Outlined="false"
+                    Class="d-flex flex-wrap gap-4 pb-4">
+
+        @foreach (var culture in Cultures)
+        {
+            <MudToggleItem Value="@culture.Id"
+                           Class="p-4 rounded-lg"
+                           Style="border:1px solid !important; box-sizing:border-box; width:calc(33.333% - 1rem); margin-left:0 !important;">
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.h6">@culture.Name</MudText>
+                    <MudText Typo="Typo.body2"
+                             Class="text-secondary"
+                             Style="white-space:normal; text-align:left;">
+                        @culture.Description
+                        <MudDivider />
+                        <MudStack Row="true">
+                            <MudText>
+                                Bonus Attribute : @string.Join(", ", culture.BonusAttributes.Select(ba => ba.Name))
+                            </MudText>
+                            <MudText>
+                                Bonus Skills : @string.Join(", ", culture.BonusSkills.Select(bs => bs.Name))
+                            </MudText>
+                        </MudStack>
+                    </MudText>
+                </MudStack>
+            </MudToggleItem>
+        }
+    </MudToggleGroup>
+
+    <MudDivider />
+
+    <MudText>Cult selection</MudText>
+    <MudToggleGroup T="Guid"
+                    SelectionMode="SelectionMode.SingleSelection"
+                    Value="Character.CultId"
+                    ValueChanged="HandleCultChange"
+                    CheckMark
+                    Outlined="false"
+                    Class="d-flex flex-wrap gap-4 pb-4">
+
+        @foreach (var cult in AvailableCults)
+        {
+            <MudToggleItem Value="@cult.Id"
+                           Class="p-4 rounded-lg"
+                           Style="border:1px solid !important; box-sizing:border-box; width:calc(33.333% - 1rem); margin-left:0 !important;">
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.h6">@cult.Name</MudText>
+                    <MudText Typo="Typo.body2"
+                             Class="text-secondary"
+                             Style="white-space:normal; text-align:left;">
+                        @cult.Description
+                    </MudText>
+                    <MudDivider />
+                    <MudStack Row="true">
+                        <MudText>
+                            Bonus Skills : @string.Join(", ", cult.BonusSkills.Select(bs => bs.Name))
+                        </MudText>
+                    </MudStack>
+                </MudStack>
+            </MudToggleItem>
+        }
+    </MudToggleGroup>
+
+    <MudDivider />
+
+    <MudText>Concept selection</MudText>
+    <MudToggleGroup T="Guid"
+                    SelectionMode="SelectionMode.SingleSelection"
+                    Value="Character.ConceptId"
+                    ValueChanged="HandleConceptChange"
+                    CheckMark
+                    Outlined="false"
+                    Class="d-flex flex-wrap gap-4 pb-4">
+        @foreach (var concept in Concepts)
+        {
+            <MudToggleItem Value="@concept.Id"
+                           Class="p-4 rounded-lg"
+                           Style="border:1px solid !important; box-sizing:border-box; width:calc(33.333% - 1rem);margin-left:0 !important;">
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.h6">@concept.Name</MudText>
+                    <MudText Typo="Typo.body2" Class="text-secondary" Style="white-space:normal; text-align:left;">
+                        @concept.Description
+                    </MudText>
+                    <MudDivider />
+                    <MudStack Row="true">
+                        <MudText>
+                            Bonus Attribute : @concept.BonusAttribute.Name
+                        </MudText>
+                        <MudText>
+                            Bonus Skills : @string.Join(", ", concept.BonusSkills.Select(bs => bs.Name))
+                        </MudText>
+                    </MudStack>
+                </MudStack>
+            </MudToggleItem>
+        }
+    </MudToggleGroup>
+</MudForm>

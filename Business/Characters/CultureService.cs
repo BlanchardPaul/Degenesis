@@ -29,9 +29,10 @@ public class CultureService : ICultureService
     public async Task<IEnumerable<CultureDto>> GetAllCulturesAsync()
     {
         var cultures = await _context.Cultures
-            .Include(c => c.AvailableCults)
             .Include(c => c.BonusAttributes)
             .Include(c => c.BonusSkills)
+            .Include(c => c.AvailableCults)
+                .ThenInclude(ac => ac.BonusSkills)
             .ToListAsync();
         return _mapper.Map<IEnumerable<CultureDto>>(cultures);
     }

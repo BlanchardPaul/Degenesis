@@ -19,7 +19,6 @@ internal class BackgroundConfiguration : IEntityTypeConfiguration<Background>
             .HasMaxLength(100);
 
         builder.Property(b => b.Description)
-            .IsRequired()
-            .HasMaxLength(100);
+            .IsRequired();
     }
 }

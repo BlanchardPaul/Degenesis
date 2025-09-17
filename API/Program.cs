@@ -1,42 +1,11 @@
 using API.Extensions;
-using DataAccessLayer;
-using Domain.Users;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Business.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddApplicationServices();
-builder.Services.AddIdentity<ApplicationUser, Role>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
-});
-
-builder.Services.AddAuthorization();
+builder.Services.AddApplicationServices(builder);
+builder.Services.AddBusinessServices();
 
 var app = builder.Build();
 
@@ -49,8 +18,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseCors("AllowFront");
 app.MapApplicationEndpoints();
 app.UseHttpsRedirection();
+app.MapHub<RoomChatHub>("/roomchathub").RequireCors("AllowFront");
 
 app.Run();

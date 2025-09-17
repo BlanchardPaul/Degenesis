@@ -39,7 +39,8 @@ public class SkillService : ISkillService
                     Name = s.CAttribute.Name,
                     Abbreviation = s.CAttribute.Abbreviation,
                     Description = s.CAttribute.Description
-                }
+                },
+                CAttributeId = s.CAttributeId,
             })
             .ToListAsync();
     }

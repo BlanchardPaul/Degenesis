@@ -1,0 +1,47 @@
+﻿@page "/dashboard/attributes"
+@using Degenesis.Shared.DTOs.Characters
+
+<h3>Attributes</h3>
+
+@if (attributes is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Attribute</MudButton>
+
+    <MudTable Items="@attributes"
+              Hover="true"
+              SortLabel="Sort By"
+              Dense="true"
+              LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<AttributeDto, object>(x => x.Name)"
+                                   InitialDirection="SortDirection.Ascending">
+                    Name
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<AttributeDto, object>(x => x.Abbreviation)">
+                    Abbreviation
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                Description
+            </MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Abbreviation">@context.Abbreviation</MudTd>
+            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd>
+                <MudButton Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                <MudButton Color="Color.Error" OnClick="() => DeleteAttribute(context.Id)">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

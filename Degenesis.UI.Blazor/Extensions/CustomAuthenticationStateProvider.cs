@@ -18,7 +18,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         try
         {
-            // Récupérer le token depuis ProtectedLocalStorage
+            // Get the token from ProtectedLocalStorage
             var tokenResult = await _protectedLocalStorage.GetAsync<string>("authToken");
             var token = tokenResult.Success ? tokenResult.Value : null;
 
@@ -36,20 +36,19 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         catch
         {
         }
-        // En cas d'erreur (par exemple, pendant le prerendering), retourner un état non authentifié
+        // In case of error return non authenticated state
         return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
     }
 
     public async Task SetToken(string token)
     {
-        // Stocker le token dans ProtectedLocalStorage
+        // Store token in ProtectedLocalStorage
         await _protectedLocalStorage.SetAsync("authToken", token);
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
     public async Task<string> GetToken()
     {
-        // Récupérer le token depuis ProtectedLocalStorage
         var tokenResult = await _protectedLocalStorage.GetAsync<string>("authToken");
         return tokenResult.Success ? tokenResult.Value : null;
     }

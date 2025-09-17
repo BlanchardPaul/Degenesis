@@ -1,0 +1,22 @@
+﻿<MudStack Row="true" Class="mb-4">
+    <MudText Typo="Typo.h6">Backgrounds @GetTotalBackgroundPointsUsed() / 4</MudText>
+</MudStack>
+
+<MudForm @ref="_formStep3">
+    <MudGrid>
+        @foreach (var bg in Backgrounds)
+        {
+            <MudItem xs="12" sm="6">
+                <MudNumericField T="int"
+                                 Label="@bg.Name"
+                                 Min="0"
+                                 Max="3"
+                                 Value="GetBackgroundLevel(bg.Id)"
+                                 ValueChanged="@(val => OnBackgroundLevelChanged(bg.Id, val))"
+                                 Immediate="true"
+                                 Required="true"
+                                 Class="mb-2" />
+            </MudItem>
+        }
+    </MudGrid>
+</MudForm>

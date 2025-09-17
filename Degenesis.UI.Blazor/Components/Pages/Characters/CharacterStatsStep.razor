@@ -1,0 +1,48 @@
+﻿<MudStack Row="true">
+    <MudText Typo="Typo.h6" Class="mb-2">Attributes @GetTotalAttributesUsed() / 10</MudText>
+    <MudText Typo="Typo.h6" Class="mb-4">Skills @GetTotalSkillsUsed() / 28</MudText>
+</MudStack>
+
+<MudStack Row="true" Spacing="2">
+    <MudText Typo="Typo.body1">Max Ego: @MaxEgo</MudText>
+    <MudText Typo="Typo.body1">Max Spore Infestation: @MaxSporeInfestation</MudText>
+    <MudText Typo="Typo.body1">Max Flesh Wounds: @MaxFleshWounds</MudText>
+    <MudText Typo="Typo.body1">Max Trauma: @MaxTrauma</MudText>
+</MudStack>
+
+<MudForm @ref="_formStep2">
+    <MudGrid>
+        @foreach (var attr in Attributes)
+        {
+            <MudItem xs="12" sm="4">
+                <MudPaper Class="pa-2 mb-4" Elevation="2">
+                    <MudText Typo="Typo.subtitle1" Class="mb-2">@attr.Name</MudText>
+                    <MudNumericField T="int"
+                                     Label="@($"{attr.Name} (max {GetAttributeMax(attr.Id)})")"
+                                     Min="1"
+                                     Max="@GetAttributeMax(attr.Id)"
+                                     Value="BindAttributeValue(attr.Id)"
+                                     ValueChanged="@(v => BindAttributeValueChanged(attr.Id, v))"
+                                     Immediate="true"
+                                     Disabled="@IsAttributeDisabled(attr.Id)"
+                                     Required="true" />
+
+                    <MudDivider Class="my-2" />
+
+                    @foreach (var skill in Skills.Where(s => s.CAttributeId == attr.Id))
+                    {
+                        <MudNumericField T="int"
+                                         Label="@($"{skill.Name} (max {GetSkillMax(skill.Id)})")"
+                                         Min="0"
+                                         Max="@GetSkillMax(skill.Id)"
+                                         Value="BindSkillValue(skill.Id)"
+                                         ValueChanged="@(v => BindSkillValueChanged(skill.Id, v))"
+                                         Immediate="true"
+                                         Required="true"
+                                         Class="mb-2" />
+                    }
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+</MudForm>

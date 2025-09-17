@@ -1,0 +1,45 @@
+﻿@page "/dashboard/cultures"
+@using Degenesis.Shared.DTOs.Characters
+
+<h3>Cultures</h3>
+
+
+@if (cultures is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Culture</MudButton>
+
+    <MudTable Items="@cultures"
+              Hover="true"
+              SortLabel="Sort By"
+              Dense="true"
+              LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<CultureDto, object>(x => x.Name)"
+                                   InitialDirection="SortDirection.Ascending">
+                    Name
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Available Cults</MudTh>
+            <MudTh>Bonus Attributes</MudTh>
+            <MudTh>Bonus Skills</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Description</MudTd>
+            <MudTd>@string.Join(", ", context.AvailableCults.Select(c => c.Name))</MudTd>
+            <MudTd>@string.Join(", ", context.BonusAttributes.Select(a => a.Name))</MudTd>
+            <MudTd>@string.Join(", ", context.BonusSkills.Select(s => s.Name))</MudTd>
+            <MudTd>
+                <MudButton Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                <MudButton Color="Color.Error" OnClick="() => DeleteCulture(context.Id)">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

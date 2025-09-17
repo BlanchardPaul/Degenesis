@@ -1,0 +1,30 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="Rank.Name" Required="true" />
+        <MudTextField Label="Description" @bind-Value="Rank.Description"/>
+        <MudTextField Label="Equipment" @bind-Value="Rank.Equipment" Required="true" />
+
+        <MudSelect T="Guid" Label="Cult" @bind-Value="Rank.CultId">
+            @foreach (var cult in Cults)
+            {
+                <MudSelectItem T="Guid" Value="@cult.Id">@cult.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="Guid" Label="Prerequisites" MultiSelection="true"
+                   SelectedValues="SelectedPrerequisiteIds"
+                   SelectedValuesChanged="OnPrerequisitesChanged"
+                   ToStringFunc="GetPrerequisiteLabel">
+            @foreach (var prerequisite in RankPrerequisites)
+            {
+                <MudSelectItem T="Guid" Value="@prerequisite.Id">@GetPrerequisiteLabel(prerequisite.Id)</MudSelectItem>
+            }
+        </MudSelect>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveRank" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

@@ -1,0 +1,54 @@
+﻿@page "/createcharacter/{roomId:guid}"
+@using Degenesis.Shared.DTOs.Characters
+@using MudBlazor
+@inject NavigationManager Navigation
+
+<MudPaper Class="pa-4 mx-auto mt-6">
+    <MudText Typo="Typo.h5" Class="mb-6">Character creation</MudText>
+
+    <MudStepper Elevation="0" @bind-ActiveStepIndex="_step" OnPreviewInteraction="OnPreviewInteraction">
+        <MudStep Label="Basic infos">
+            <CharacterBasicInfoStep @ref="_basicInfoStep"
+                                    Character="Character"
+                                    Cultures="Cultures"
+                                    AvailableCults="AvailableCults"
+                                    Concepts="Concepts"
+                                    CultureChanged="OnCultureChanged"
+                                    CultChanged="OnCultChanged"
+                                    ConceptChanged="OnConceptChanged" />
+
+            <MudButton OnClick="ValidateStep1" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
+                Validate
+            </MudButton>
+        </MudStep>
+
+        <MudStep Label="Attributes and skills" Disabled="@(_step < 1)">
+            <CharacterStatsStep @ref="_characterStatsStep"
+                                Attributes="@Attributes"
+                                Skills="@Skills"
+                                SelectedCulture="@SelectedCulture"
+                                SelectedCult="@SelectedCult"
+                                SelectedConcept="@selectedConcept"
+                                CharacterAttributes="@CharacterAttributes"
+                                CharacterSkills="@CharacterSkills" />
+
+            <MudButton OnClick="ValidateStep2" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
+                Validate
+            </MudButton>
+        </MudStep>
+        <MudStep Label="Backgrounds" Disabled="@(_step < 2)">
+            <CharacterBackgroundStep @ref="_characterBackgroundStep"
+                                     Backgrounds="@Backgrounds"
+                                     CharacterBackgrounds="@CharacterBackgrounds" />
+
+            <MudButton OnClick="ValidateStep3" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
+                Validate
+            </MudButton>
+        </MudStep>
+        <MudStep Label="Finish" Disabled="@(_step < 3)">
+            <MudText Typo="Typo.h6" Class="mb-4">
+                Congrats, your character is ready to be saved!
+            </MudText>
+        </MudStep>
+    </MudStepper>
+</MudPaper>

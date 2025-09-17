@@ -6,7 +6,6 @@ namespace Degenesis.UI.Blazor.Components.Pages._Artifacts;
 
 public partial class ArtifactList
 {
-    [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<ArtifactDto>? artifacts;
     private HttpClient _client = new();
 

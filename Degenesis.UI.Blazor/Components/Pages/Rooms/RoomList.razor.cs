@@ -6,7 +6,6 @@ namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
 public partial class RoomList
 {
-    [Inject] private IDialogService DialogService { get; set; } = default!;
     private List<RoomDisplayDto>? rooms;
     private HttpClient _client = new();
 
@@ -104,5 +103,15 @@ public partial class RoomList
 
         Snackbar.Add("Deleted", Severity.Success);
         await LoadRooms();
+    }
+
+    private void JoinRoom(Guid idRoom)
+    {
+        NavigationManager.NavigateTo($"/room/{idRoom}");
+    }
+
+    private void CreateCharacter(Guid roomId)
+    {
+        NavigationManager.NavigateTo($"/createcharacter/{roomId}");
     }
 }
