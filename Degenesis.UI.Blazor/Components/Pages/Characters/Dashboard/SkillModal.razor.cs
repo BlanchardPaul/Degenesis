@@ -6,10 +6,10 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
 public partial class SkillModal
 {
-    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
 
     [Parameter] public SkillDto Skill { get; set; } = new();
-    [Parameter] public List<AttributeDto> Attributes { get; set; } = new();
+    [Parameter] public List<AttributeDto> Attributes { get; set; } = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()

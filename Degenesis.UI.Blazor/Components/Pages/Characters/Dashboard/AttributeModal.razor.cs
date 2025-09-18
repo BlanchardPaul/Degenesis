@@ -6,7 +6,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
 public partial class AttributeModal
 {
-    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public AttributeDto Attribute { get; set; } = new();
     private HttpClient _client = new();
 

@@ -47,7 +47,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
-    public async Task<string> GetToken()
+    public async Task<string?> GetToken()
     {
         var tokenResult = await _protectedLocalStorage.GetAsync<string>("authToken");
         return tokenResult.Success ? tokenResult.Value : null;

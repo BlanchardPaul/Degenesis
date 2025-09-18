@@ -6,7 +6,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
 public partial class RoomInviteDialog
 {
-    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public InvitationDto InvitationDto { get; set; } = new();
 
     private HttpClient _client = new();

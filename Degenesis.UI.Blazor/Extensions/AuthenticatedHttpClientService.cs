@@ -14,7 +14,7 @@ public class AuthenticatedHttpClientService
         _localStorage = localStorage;
     }
 
-    // Méthode qui récupère le client HTTP authentifié
+    // Method to get an authentified HTTP client
     public async Task<HttpClient> GetClientAsync()
     {
         try
@@ -22,7 +22,7 @@ public class AuthenticatedHttpClientService
             var tokenResult = await _localStorage.GetAsync<string>("authToken");
             var token = tokenResult.Success ? tokenResult.Value : null;
 
-            // Créer le client HTTP
+            // Create the HTTP client
             var client = _clientFactory.CreateClient("API");
 
             if (!string.IsNullOrEmpty(token))

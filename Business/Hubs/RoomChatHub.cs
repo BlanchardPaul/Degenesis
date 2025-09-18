@@ -16,7 +16,6 @@ public class RoomChatHub : Hub
 
     public async Task SendMessage(string roomId, string user, string message)
     {
-        var time = DateTime.Now.ToString("HH:mm");
-        await Clients.Group(roomId).SendAsync("ReceiveMessage", $"{time} - {user}: {message}");
+        await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message);
     }
 }

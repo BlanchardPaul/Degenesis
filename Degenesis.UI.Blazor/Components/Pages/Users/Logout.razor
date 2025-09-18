@@ -11,7 +11,7 @@
     {
         await ProtectedLocalStorage.DeleteAsync("authToken");
         var authStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
-        await authStateProvider.SetToken(null);
+        await authStateProvider.SetToken(string.Empty);
         NavigationManager.NavigateTo("/login");
     }
 }

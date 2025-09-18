@@ -5,7 +5,7 @@ using MudBlazor;
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 public partial class RoomModal
 {
-    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public RoomDto Room { get; set; } = new();
     private HttpClient _client = new();
     protected override async Task OnInitializedAsync()

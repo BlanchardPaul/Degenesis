@@ -6,7 +6,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Burns;
 
 public partial class BurnModal
 {
-    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public BurnDto Burn { get; set; } = new();
     private HttpClient _client = new();
 
