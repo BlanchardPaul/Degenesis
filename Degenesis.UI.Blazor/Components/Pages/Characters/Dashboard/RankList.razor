@@ -36,10 +36,7 @@ else
             <MudTd>
                 @if (context.Prerequisites.Any())
                 {
-                    @foreach (var prerequisite in context.Prerequisites)
-                    {
-                        <div>@GetPrerequisiteLabel(prerequisite) | </div>
-                    }
+                    @string.Join(" | ", context.Prerequisites.Select(GetPrerequisiteLabel))
                 }
                 else
                 {

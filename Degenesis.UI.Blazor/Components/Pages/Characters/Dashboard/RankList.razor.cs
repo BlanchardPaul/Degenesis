@@ -78,9 +78,18 @@ public partial class RankList
 
     private static string GetPrerequisiteLabel(RankPrerequisiteDto prerequisite)
     {
-        if (prerequisite is null) return "Unknown Prerequisite";
+        if (prerequisite == null)
+            return "Unknown";
 
+        if (prerequisite.IsBackgroundPrerequisite && prerequisite.BackgroundRequired != null)
+        {
+            return $"{prerequisite.BackgroundRequired.Name} >= {prerequisite.BackgroundLevelRequired}";
+        }
+
+        string attributePart = prerequisite.AttributeRequired?.Name ?? "";
         string skillPart = prerequisite.SkillRequired != null ? $" + {prerequisite.SkillRequired.Name}" : "";
-        return $"{prerequisite.AttributeRequired.Name}{skillPart} = {prerequisite.SumRequired}";
+        string sumPart = prerequisite.SumRequired.HasValue ? $" >= {prerequisite.SumRequired}" : "";
+
+        return $"{attributePart}{skillPart}{sumPart}";
     }
 }

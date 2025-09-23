@@ -5,9 +5,10 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
 public partial class RankPrerequisiteList
 {
-    private List<RankPrerequisiteDto>? rankPrerequisites;
-    private List<AttributeDto> attributes = [];
-    private List<SkillDto> skills = [];
+    private List<RankPrerequisiteDto>? RankPrerequisites;
+    private List<AttributeDto> Attributes = [];
+    private List<SkillDto> Skills = [];
+    private List<BackgroundDto> Backgrounds  = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -18,9 +19,10 @@ public partial class RankPrerequisiteList
 
     private async Task LoadRankPrerequisites()
     {
-        rankPrerequisites = await _client.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
-        attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        RankPrerequisites = await _client.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
+        Attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        Skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        Backgrounds = await _client.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -28,8 +30,9 @@ public partial class RankPrerequisiteList
         var parameters = new DialogParameters
         {
             { "RankPrerequisite", new RankPrerequisiteDto() },
-            { "Attributes", attributes },
-            { "Skills", skills }
+            { "Attributes", Attributes },
+            { "Skills", Skills },
+            { "Backgrounds", Backgrounds }
         };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
@@ -45,14 +48,15 @@ public partial class RankPrerequisiteList
 
     private async Task ShowEditDialog(Guid rankPrerequisiteId)
     {
-        var rankPrerequisite = rankPrerequisites?.FirstOrDefault(rp => rp.Id == rankPrerequisiteId);
+        var rankPrerequisite = RankPrerequisites?.FirstOrDefault(rp => rp.Id == rankPrerequisiteId);
         if (rankPrerequisite != null)
         {
             var parameters = new DialogParameters
             {
                 { "RankPrerequisite", rankPrerequisite },
-                { "Attributes", attributes },
-                { "Skills", skills }
+                { "Attributes", Attributes },
+                { "Skills", Skills },
+                { "Backgrounds", Backgrounds }
             };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };

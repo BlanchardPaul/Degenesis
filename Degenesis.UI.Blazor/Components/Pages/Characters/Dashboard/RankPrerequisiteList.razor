@@ -2,28 +2,28 @@
 
 <h3>Rank Prerequisites</h3>
 
-@if (rankPrerequisites is null)
+@if (RankPrerequisites is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank Prerequisite</MudButton>
-    <MudTable Items="@rankPrerequisites"
-              Hover="true"
-              SortLabel="Sort By"
-              Dense="true"
-              LoadingProgressColor="Color.Info">
+    <MudTable Items="@RankPrerequisites" Hover="true" Dense="true">
         <HeaderContent>
-            <MudTh>Attribute Required</MudTh>
-            <MudTh>Skill Required</MudTh>
+            <MudTh>Attribute</MudTh>
+            <MudTh>Skill</MudTh>
             <MudTh>Sum</MudTh>
+            <MudTh>Background</MudTh>
+            <MudTh>Background Level</MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd>@context.AttributeRequired?.Name</MudTd>
-            <MudTd>@context.SkillRequired?.Name</MudTd>
-            <MudTh>@context.SumRequired</MudTh>
+            <MudTd>@(context.AttributeRequired?.Name ?? "-")</MudTd>
+            <MudTd>@(context.SkillRequired?.Name ?? "-")</MudTd>
+            <MudTd>@(context.SumRequired?.ToString() ?? "-")</MudTd>
+            <MudTd>@(context.BackgroundRequired?.Name ?? "-")</MudTd>
+            <MudTd>@(context.BackgroundLevelRequired?.ToString() ?? "-")</MudTd>
             <MudTd>
                 <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
                 <MudButton OnClick="() => DeleteRankPrerequisite(context.Id)" Color="Color.Error">Delete</MudButton>

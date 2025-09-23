@@ -24,7 +24,6 @@ internal sealed class CharacterPotentialConfiguration : IEntityTypeConfiguration
             .IsRequired();
 
         builder.Property(cp => cp.Level)
-            .IsRequired()
-            .HasMaxLength(100);
+            .IsRequired();
     }
 }

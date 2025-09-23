@@ -24,7 +24,6 @@ internal sealed class CharacterBackgroundConfiguration : IEntityTypeConfiguratio
             .IsRequired();
 
         builder.Property(cb => cb.Level)
-            .IsRequired()
-            .HasMaxLength(100);
+            .IsRequired();
     }
 }

@@ -26,7 +26,6 @@ internal sealed class CharacterAttributeConfiguration : IEntityTypeConfiguration
             .IsRequired();
 
         builder.Property(ca => ca.Level)
-            .IsRequired()
-            .HasMaxLength(100);
+            .IsRequired();
     }
 }

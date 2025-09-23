@@ -145,7 +145,7 @@ public class RoomService : IRoomService
         if (room is null) return false;
 
         _context.Rooms.Remove(room);
-        
+        await _context.SaveChangesAsync();
         return true;
     }
 

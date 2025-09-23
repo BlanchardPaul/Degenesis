@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250403231333_InitialMigration")]
+    [Migration("20250923083808_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -172,8 +172,7 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -253,7 +252,22 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("Height")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("IdApplicationUser")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdRoom")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("MaxEgo")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxFleshWounds")
+                        .HasColumnType("int");
+
                     b.Property<int>("MaxSporeInfestation")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxTrauma")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
@@ -290,6 +304,10 @@ namespace DataAccessLayer.Migrations
 
                     b.HasIndex("CultureId");
 
+                    b.HasIndex("IdApplicationUser");
+
+                    b.HasIndex("IdRoom");
+
                     b.ToTable("Characters", (string)null);
                 });
 
@@ -302,7 +320,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Level")
-                        .HasMaxLength(100)
                         .HasColumnType("int");
 
                     b.HasKey("CharacterId", "AttributeId");
@@ -321,7 +338,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Level")
-                        .HasMaxLength(100)
                         .HasColumnType("int");
 
                     b.HasKey("CharacterId", "BackgroundId");
@@ -340,7 +356,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Level")
-                        .HasMaxLength(100)
                         .HasColumnType("int");
 
                     b.HasKey("CharacterId", "PotentialId");
@@ -359,7 +374,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Level")
-                        .HasMaxLength(100)
                         .HasColumnType("int");
 
                     b.HasKey("CharacterId", "SkillId");
@@ -529,8 +543,17 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<Guid>("AttributeRequiredId")
+                    b.Property<Guid?>("AttributeRequiredId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("BackgroundLevelRequired")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("BackgroundRequiredId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsBackgroundPrerequisite")
+                        .HasColumnType("bit");
 
                     b.Property<Guid?>("RankId")
                         .HasColumnType("uniqueidentifier");
@@ -538,12 +561,14 @@ namespace DataAccessLayer.Migrations
                     b.Property<Guid?>("SkillRequiredId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("SumRequired")
+                    b.Property<int?>("SumRequired")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AttributeRequiredId");
+
+                    b.HasIndex("BackgroundRequiredId");
 
                     b.HasIndex("RankId");
 
@@ -1700,11 +1725,27 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Users.ApplicationUser", "ApplicationUser")
+                        .WithMany("Characters")
+                        .HasForeignKey("IdApplicationUser")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Rooms.Room", "Room")
+                        .WithMany("Characters")
+                        .HasForeignKey("IdRoom")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
                     b.Navigation("Concept");
 
                     b.Navigation("Cult");
 
                     b.Navigation("Culture");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Domain.Characters.CharacterAttribute", b =>
@@ -1838,8 +1879,12 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Characters.CAttribute", "AttributeRequired")
                         .WithMany()
                         .HasForeignKey("AttributeRequiredId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Domain.Characters.Background", "BackgroundRequired")
+                        .WithMany()
+                        .HasForeignKey("BackgroundRequiredId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Domain.Characters.Rank", null)
                         .WithMany("Prerequisites")
@@ -1851,6 +1896,8 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("AttributeRequired");
+
+                    b.Navigation("BackgroundRequired");
 
                     b.Navigation("SkillRequired");
                 });
@@ -2287,11 +2334,15 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("Domain.Rooms.Room", b =>
                 {
+                    b.Navigation("Characters");
+
                     b.Navigation("UserRooms");
                 });
 
             modelBuilder.Entity("Domain.Users.ApplicationUser", b =>
                 {
+                    b.Navigation("Characters");
+
                     b.Navigation("UserRooms");
                 });
 #pragma warning restore 612, 618

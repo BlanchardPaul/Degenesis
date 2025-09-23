@@ -7,15 +7,12 @@ internal class AttributeConfiguration : IEntityTypeConfiguration<CAttribute>
 {
     public void Configure(EntityTypeBuilder<CAttribute> builder)
     {
-        // Nom de la table
         builder.ToTable("Attributes");
 
-        // Clé primaire avec valeur par défaut (équivalent de DEFAULT NEWID())
         builder.HasKey(a => a.Id);
         builder.Property(a => a.Id)
                .HasDefaultValueSql("NEWID()");
 
-        // Contraintes de colonnes
         builder.Property(a => a.Name)
                .IsRequired()
                .HasMaxLength(100);

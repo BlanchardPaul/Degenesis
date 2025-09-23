@@ -1,0 +1,12 @@
+﻿@page "/room/{IdRoom:guid}"
+@using Degenesis.Shared.DTOs.Rooms
+@inject NavigationManager Navigation
+
+<MudTabs>
+    <MudTabPanel Text="Chat">
+        <RoomChat RoomId="IdRoom" />
+    </MudTabPanel>
+    <MudTabPanel Text="Character">
+        @* <CharacterSheet RoomId="IdRoom" /> *@
+    </MudTabPanel>
+</MudTabs>

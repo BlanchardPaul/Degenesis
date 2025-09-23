@@ -32,7 +32,7 @@ public class MappingProfile : Profile
         CreateMap<AttributeDto, CAttribute>();
 
         CreateMap<BackgroundCreateDto, Background>();
-        CreateMap<Background, Background>();
+        CreateMap<Background, BackgroundDto>();
 
         CreateMap<BurnCreateDto, Burn>();
         CreateMap<Burn, Burn>();
@@ -149,11 +149,18 @@ public class MappingProfile : Profile
 
         CreateMap<RankPrerequisiteCreateDto, RankPrerequisite>()
             .ForMember(dest => dest.AttributeRequired, opt => opt.Ignore())
-            .ForMember(dest => dest.SkillRequired, opt => opt.Ignore());
-        CreateMap<RankPrerequisiteDto, RankPrerequisite>();
+            .ForMember(dest => dest.SkillRequired, opt => opt.Ignore())
+            .ForMember(dest => dest.BackgroundRequired, opt => opt.Ignore());
+
+        CreateMap<RankPrerequisiteDto, RankPrerequisite>()
+            .ForMember(dest => dest.AttributeRequired, opt => opt.Ignore())
+            .ForMember(dest => dest.SkillRequired, opt => opt.Ignore())
+            .ForMember(dest => dest.BackgroundRequired, opt => opt.Ignore());
+
         CreateMap<RankPrerequisite, RankPrerequisiteDto>()
             .ForMember(dest => dest.AttributeRequired, opt => opt.MapFrom(src => src.AttributeRequired))
-            .ForMember(dest => dest.SkillRequired, opt => opt.MapFrom(src => src.SkillRequired));
+            .ForMember(dest => dest.SkillRequired, opt => opt.MapFrom(src => src.SkillRequired))
+            .ForMember(dest => dest.BackgroundRequired, opt => opt.MapFrom(src => src.BackgroundRequired));
 
         CreateMap<SkillCreateDto, Skill>();
         CreateMap<Skill, Skill>();

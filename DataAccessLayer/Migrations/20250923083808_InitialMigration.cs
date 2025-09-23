@@ -88,7 +88,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -756,22 +756,33 @@ namespace DataAccessLayer.Migrations
                     Sex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     DinarMoney = table.Column<int>(type: "int", nullable: false),
                     ChroniclerMoney = table.Column<int>(type: "int", nullable: false),
+                    MaxEgo = table.Column<int>(type: "int", nullable: false),
                     Ego = table.Column<int>(type: "int", nullable: false),
                     CurrentSporeInfestation = table.Column<int>(type: "int", nullable: false),
                     MaxSporeInfestation = table.Column<int>(type: "int", nullable: false),
                     PermanentSporeInfestation = table.Column<int>(type: "int", nullable: false),
+                    MaxFleshWounds = table.Column<int>(type: "int", nullable: false),
                     FleshWounds = table.Column<int>(type: "int", nullable: false),
+                    MaxTrauma = table.Column<int>(type: "int", nullable: false),
                     Trauma = table.Column<int>(type: "int", nullable: false),
                     PassiveDefense = table.Column<int>(type: "int", nullable: false),
                     Experience = table.Column<int>(type: "int", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CultureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ConceptId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ConceptId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdRoom = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdApplicationUser = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Characters", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Characters_AspNetUsers_IdApplicationUser",
+                        column: x => x.IdApplicationUser,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Characters_Concepts_ConceptId",
                         column: x => x.ConceptId,
@@ -788,6 +799,12 @@ namespace DataAccessLayer.Migrations
                         name: "FK_Characters_Cultures_CultureId",
                         column: x => x.CultureId,
                         principalTable: "Cultures",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Characters_Rooms_IdRoom",
+                        column: x => x.IdRoom,
+                        principalTable: "Rooms",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -917,9 +934,12 @@ namespace DataAccessLayer.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    AttributeRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AttributeRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SkillRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SumRequired = table.Column<int>(type: "int", nullable: false),
+                    SumRequired = table.Column<int>(type: "int", nullable: true),
+                    BackgroundRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    BackgroundLevelRequired = table.Column<int>(type: "int", nullable: true),
+                    IsBackgroundPrerequisite = table.Column<bool>(type: "bit", nullable: false),
                     RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -931,6 +951,11 @@ namespace DataAccessLayer.Migrations
                         principalTable: "Attributes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RankPrerequisites_Backgrounds_BackgroundRequiredId",
+                        column: x => x.BackgroundRequiredId,
+                        principalTable: "Backgrounds",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_RankPrerequisites_Ranks_RankId",
                         column: x => x.RankId,
@@ -1053,7 +1078,7 @@ namespace DataAccessLayer.Migrations
                 {
                     CharacterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AttributeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Level = table.Column<int>(type: "int", maxLength: 100, nullable: false)
+                    Level = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1077,7 +1102,7 @@ namespace DataAccessLayer.Migrations
                 {
                     CharacterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BackgroundId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Level = table.Column<int>(type: "int", maxLength: 100, nullable: false)
+                    Level = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1153,7 +1178,7 @@ namespace DataAccessLayer.Migrations
                 {
                     CharacterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PotentialId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Level = table.Column<int>(type: "int", maxLength: 100, nullable: false)
+                    Level = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1205,7 +1230,7 @@ namespace DataAccessLayer.Migrations
                 {
                     CharacterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SkillId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Level = table.Column<int>(type: "int", maxLength: 100, nullable: false)
+                    Level = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1384,6 +1409,16 @@ namespace DataAccessLayer.Migrations
                 column: "CultureId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Characters_IdApplicationUser",
+                table: "Characters",
+                column: "IdApplicationUser");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Characters_IdRoom",
+                table: "Characters",
+                column: "IdRoom");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CharacterSkills_SkillId",
                 table: "CharacterSkills",
                 column: "SkillId");
@@ -1512,6 +1547,11 @@ namespace DataAccessLayer.Migrations
                 name: "IX_RankPrerequisites_AttributeRequiredId",
                 table: "RankPrerequisites",
                 column: "AttributeRequiredId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RankPrerequisites_BackgroundRequiredId",
+                table: "RankPrerequisites",
+                column: "BackgroundRequiredId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RankPrerequisites_RankId",
@@ -1667,9 +1707,6 @@ namespace DataAccessLayer.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Backgrounds");
-
-            migrationBuilder.DropTable(
                 name: "Vehicles");
 
             migrationBuilder.DropTable(
@@ -1697,16 +1734,13 @@ namespace DataAccessLayer.Migrations
                 name: "Protections");
 
             migrationBuilder.DropTable(
+                name: "Backgrounds");
+
+            migrationBuilder.DropTable(
                 name: "Ranks");
 
             migrationBuilder.DropTable(
                 name: "Skills");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "WeaponQualities");
@@ -1718,10 +1752,16 @@ namespace DataAccessLayer.Migrations
                 name: "VehicleTypes");
 
             migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
                 name: "Concepts");
 
             migrationBuilder.DropTable(
                 name: "Cultures");
+
+            migrationBuilder.DropTable(
+                name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "EquipmentTypes");

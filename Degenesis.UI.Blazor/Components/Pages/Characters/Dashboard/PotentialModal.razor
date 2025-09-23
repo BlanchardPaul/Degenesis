@@ -2,7 +2,7 @@
     <DialogContent>
         <MudTextField Label="Name" @bind-Value="Potential.Name" Required="true" />
         <MudTextField Label="Description" @bind-Value="Potential.Description" Required="true" />
-        <MudTextField Label="Prerequisite" @bind-Value="Potential.Prerequisite" Required="true" />
+        <MudTextField Label="Prerequisite" @bind-Value="Potential.Prerequisite"/>
 
         <MudSelect T="Guid?" Label="Cult (Optional)" @bind-Value="Potential.CultId">
             <MudSelectItem T="Guid?" Value="null">(None)</MudSelectItem>

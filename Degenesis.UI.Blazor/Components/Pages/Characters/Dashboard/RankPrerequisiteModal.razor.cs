@@ -11,6 +11,8 @@ public partial class RankPrerequisiteModal
     [Parameter] public RankPrerequisiteDto RankPrerequisite { get; set; } = new();
     [Parameter] public List<AttributeDto> Attributes { get; set; } = [];
     [Parameter] public List<SkillDto> Skills { get; set; } = [];
+    [Parameter] public List<BackgroundDto> Backgrounds { get; set; } = [];
+
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -28,30 +30,44 @@ public partial class RankPrerequisiteModal
 
     private async Task SaveRankPrerequisite()
     {
+        if (RankPrerequisite.IsBackgroundPrerequisite)
+        {
+            RankPrerequisite.AttributeRequiredId = null;
+            RankPrerequisite.SkillRequiredId = null;
+            RankPrerequisite.SumRequired = null;
+        }
+        else
+        {
+            RankPrerequisite.BackgroundRequired = null;
+            RankPrerequisite.BackgroundLevelRequired = null;
+        }
+
         if (RankPrerequisite.Id == Guid.Empty)
         {
             var result = await _client.PostAsJsonAsync("/rank-prerequisites", RankPrerequisite);
             if (!result.IsSuccessStatusCode)
+            {
                 Snackbar.Add("Error during creation", Severity.Error);
+            }
             else
             {
                 Snackbar.Add("Created", Severity.Success);
                 MudDialog.Close(DialogResult.Ok(true));
             }
         }
-
         else
         {
-            var result = await _client.PutAsJsonAsync($"/rank-prerequisites", RankPrerequisite);
+            var result = await _client.PutAsJsonAsync("/rank-prerequisites", RankPrerequisite);
             if (!result.IsSuccessStatusCode)
+            {
                 Snackbar.Add("Error during edition", Severity.Error);
+            }
             else
             {
                 Snackbar.Add("Edited", Severity.Success);
                 MudDialog.Close(DialogResult.Ok(true));
             }
         }
-        MudDialog.Close(DialogResult.Ok(true));
     }
 
     private void Cancel() => MudDialog.Cancel();
