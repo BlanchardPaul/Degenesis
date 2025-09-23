@@ -33,6 +33,8 @@ public class RankService : IRankService
                 .ThenInclude(p => p.AttributeRequired)
             .Include(r => r.Prerequisites)
                 .ThenInclude(p => p.SkillRequired)
+            .Include(r => r.Prerequisites)
+                .ThenInclude(p => p.BackgroundRequired)
             .Include(r => r.Cult)
             .ToListAsync();
 
