@@ -34,5 +34,8 @@ internal sealed class RankConfiguration : IEntityTypeConfiguration<Rank>
             .WithMany()
             .HasForeignKey(r => r.CultId)
             .IsRequired();
+
+        builder.HasMany(r => r.Prerequisites)
+            .WithMany();
     }
 }

@@ -905,6 +905,39 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RankPrerequisites",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    AttributeRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SkillRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SumRequired = table.Column<int>(type: "int", nullable: true),
+                    BackgroundRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    BackgroundLevelRequired = table.Column<int>(type: "int", nullable: true),
+                    IsBackgroundPrerequisite = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RankPrerequisites", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RankPrerequisites_Attributes_AttributeRequiredId",
+                        column: x => x.AttributeRequiredId,
+                        principalTable: "Attributes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RankPrerequisites_Backgrounds_BackgroundRequiredId",
+                        column: x => x.BackgroundRequiredId,
+                        principalTable: "Backgrounds",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_RankPrerequisites_Skills_SkillRequiredId",
+                        column: x => x.SkillRequiredId,
+                        principalTable: "Skills",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NPCPotentials",
                 columns: table => new
                 {
@@ -927,45 +960,6 @@ namespace DataAccessLayer.Migrations
                         principalTable: "Potentials",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RankPrerequisites",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    AttributeRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SkillRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    SumRequired = table.Column<int>(type: "int", nullable: true),
-                    BackgroundRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    BackgroundLevelRequired = table.Column<int>(type: "int", nullable: true),
-                    IsBackgroundPrerequisite = table.Column<bool>(type: "bit", nullable: false),
-                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RankPrerequisites", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RankPrerequisites_Attributes_AttributeRequiredId",
-                        column: x => x.AttributeRequiredId,
-                        principalTable: "Attributes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RankPrerequisites_Backgrounds_BackgroundRequiredId",
-                        column: x => x.BackgroundRequiredId,
-                        principalTable: "Backgrounds",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_RankPrerequisites_Ranks_RankId",
-                        column: x => x.RankId,
-                        principalTable: "Ranks",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_RankPrerequisites_Skills_SkillRequiredId",
-                        column: x => x.SkillRequiredId,
-                        principalTable: "Skills",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1304,6 +1298,30 @@ namespace DataAccessLayer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "RankRankPrerequisite",
+                columns: table => new
+                {
+                    PrerequisitesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RankRankPrerequisite", x => new { x.PrerequisitesId, x.RankId });
+                    table.ForeignKey(
+                        name: "FK_RankRankPrerequisite_RankPrerequisites_PrerequisitesId",
+                        column: x => x.PrerequisitesId,
+                        principalTable: "RankPrerequisites",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RankRankPrerequisite_Ranks_RankId",
+                        column: x => x.RankId,
+                        principalTable: "Ranks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -1554,14 +1572,14 @@ namespace DataAccessLayer.Migrations
                 column: "BackgroundRequiredId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RankPrerequisites_RankId",
-                table: "RankPrerequisites",
-                column: "RankId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_RankPrerequisites_SkillRequiredId",
                 table: "RankPrerequisites",
                 column: "SkillRequiredId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RankRankPrerequisite_RankId",
+                table: "RankRankPrerequisite",
+                column: "RankId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Ranks_CultId",
@@ -1695,7 +1713,7 @@ namespace DataAccessLayer.Migrations
                 name: "ProtectionProtectionQuality");
 
             migrationBuilder.DropTable(
-                name: "RankPrerequisites");
+                name: "RankRankPrerequisite");
 
             migrationBuilder.DropTable(
                 name: "UserRooms");
@@ -1734,13 +1752,10 @@ namespace DataAccessLayer.Migrations
                 name: "Protections");
 
             migrationBuilder.DropTable(
-                name: "Backgrounds");
+                name: "RankPrerequisites");
 
             migrationBuilder.DropTable(
                 name: "Ranks");
-
-            migrationBuilder.DropTable(
-                name: "Skills");
 
             migrationBuilder.DropTable(
                 name: "WeaponQualities");
@@ -1765,6 +1780,12 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "EquipmentTypes");
+
+            migrationBuilder.DropTable(
+                name: "Backgrounds");
+
+            migrationBuilder.DropTable(
+                name: "Skills");
 
             migrationBuilder.DropTable(
                 name: "Cults");

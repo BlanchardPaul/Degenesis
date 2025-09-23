@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250923083808_InitialMigration")]
+    [Migration("20250923134714_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -555,9 +555,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<bool>("IsBackgroundPrerequisite")
                         .HasColumnType("bit");
 
-                    b.Property<Guid?>("RankId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("SkillRequiredId")
                         .HasColumnType("uniqueidentifier");
 
@@ -569,8 +566,6 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("AttributeRequiredId");
 
                     b.HasIndex("BackgroundRequiredId");
-
-                    b.HasIndex("RankId");
 
                     b.HasIndex("SkillRequiredId");
 
@@ -1592,6 +1587,21 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("ProtectionProtectionQuality");
                 });
 
+            modelBuilder.Entity("RankRankPrerequisite", b =>
+                {
+                    b.Property<Guid>("PrerequisitesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RankId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PrerequisitesId", "RankId");
+
+                    b.HasIndex("RankId");
+
+                    b.ToTable("RankRankPrerequisite");
+                });
+
             modelBuilder.Entity("WeaponWeaponQuality", b =>
                 {
                     b.Property<Guid>("QualitiesId")
@@ -1885,10 +1895,6 @@ namespace DataAccessLayer.Migrations
                         .WithMany()
                         .HasForeignKey("BackgroundRequiredId")
                         .OnDelete(DeleteBehavior.NoAction);
-
-                    b.HasOne("Domain.Characters.Rank", null)
-                        .WithMany("Prerequisites")
-                        .HasForeignKey("RankId");
 
                     b.HasOne("Domain.Characters.Skill", "SkillRequired")
                         .WithMany()
@@ -2265,6 +2271,21 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RankRankPrerequisite", b =>
+                {
+                    b.HasOne("Domain.Characters.RankPrerequisite", null)
+                        .WithMany()
+                        .HasForeignKey("PrerequisitesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Characters.Rank", null)
+                        .WithMany()
+                        .HasForeignKey("RankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("WeaponWeaponQuality", b =>
                 {
                     b.HasOne("Domain.Weapons.WeaponQuality", null)
@@ -2306,11 +2327,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("CharacterVehicles");
 
                     b.Navigation("CharacterWeapons");
-                });
-
-            modelBuilder.Entity("Domain.Characters.Rank", b =>
-                {
-                    b.Navigation("Prerequisites");
                 });
 
             modelBuilder.Entity("Domain.NPCs.NPC", b =>
