@@ -78,5 +78,11 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
             .WithMany()
             .HasForeignKey(c => c.ConceptId)
             .IsRequired();
+
+        builder.HasOne(c => c.Rank)
+           .WithMany()
+           .HasForeignKey(c => c.RankId)
+           .IsRequired()
+           .OnDelete(DeleteBehavior.Restrict); ;
     }
 }

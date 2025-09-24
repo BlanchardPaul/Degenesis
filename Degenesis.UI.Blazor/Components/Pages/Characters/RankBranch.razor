@@ -1,0 +1,29 @@
+﻿<MudStack Row="false" AlignItems="AlignItems.Center" Spacing="1">
+    <!-- Parent chip -->
+    <MudChip T="Guid"
+             Value="@Rank.Id"
+             OnClick="@(() => OnRankSelected.InvokeAsync(Rank.Id))"
+             Color="@(SelectedRankId == Rank.Id ? Color.Primary : Color.Default)"
+             Disabled="@IsRankDisabled(Rank)"
+             Class="px-6 py-2 rounded-xl font-bold">
+        @Rank.Name
+    </MudChip>
+
+    @if (Children.Any())
+    {
+        <!-- Vertical connector -->
+        <div class="rank-connector"></div>
+
+        <!-- Children in a row -->
+        <MudStack Row="true" Spacing="2" JustifyContent="JustifyContent.Center">
+            @foreach (var child in Children.OrderBy(c => c.Name))
+            {
+                <RankBranch Rank="child"
+                            AllRanks="AllRanks"
+                            SelectedRankId="SelectedRankId"
+                            OnRankSelected="OnRankSelected"
+                            Character="Character" />
+            }
+        </MudStack>
+    }
+</MudStack>

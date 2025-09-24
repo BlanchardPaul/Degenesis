@@ -33,6 +33,10 @@ public partial class CreateCharacter
     private CharacterBackgroundStep _characterBackgroundStep = default!;
     private List<BackgroundDto> Backgrounds = [];
 
+    private List<RankDto> SortedRanks = [];
+    private List<RankDto> Ranks = [];
+    private CharacterRankStep _rankStep = default!;
+
     protected override async Task OnInitializedAsync()
     {
         Character.IdRoom = RoomId;
@@ -42,6 +46,7 @@ public partial class CreateCharacter
         Attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
         Skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
         Backgrounds = await _client.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
+        Ranks = await _client.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
     }
 
     // Those are step 1 logic but it's here because we need some of the step 1 DTOs in step 2
@@ -59,6 +64,8 @@ public partial class CreateCharacter
     {
         Character.CultId = selectedCultId;
         SelectedCult = AvailableCults.FirstOrDefault(c => c.Id == selectedCultId) ?? new();
+        SortedRanks = Ranks.Where(r => r.CultId == Character.CultId).ToList();
+        Character.RankId = Guid.Empty;
         return Task.CompletedTask;
     }
 
@@ -132,13 +139,13 @@ public partial class CreateCharacter
     // Forms validation logic is in their respective .razor.cs, here we call them to allow
     // the next step access
     #region steps validation
-    private async Task ValidateStep1()
+    private async Task ValidateStepBasic()
     {
         if (await _basicInfoStep.ValidateFormAsync())
             _step = 1;
     }
 
-    private async Task ValidateStep2()
+    private async Task ValidateStepStats()
     {
         if (await _characterStatsStep.ValidateFormAsync())
         {
@@ -153,12 +160,20 @@ public partial class CreateCharacter
         }
     }
 
-    private async Task ValidateStep3()
+    private async Task ValidateStepBackgrounds()
     {
         if (await _characterBackgroundStep.ValidateFormAsync())
         {
             Character.Backgrounds = _characterBackgroundStep.CharacterBackgrounds;
             _step = 3;
+        }
+    }
+
+    private async Task ValidateStepRank()
+    {
+        if (await _rankStep.ValidateFormAsync())
+        {
+            _step = 4;
         }
     }
     #endregion

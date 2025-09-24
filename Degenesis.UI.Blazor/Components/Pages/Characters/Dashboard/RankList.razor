@@ -3,14 +3,14 @@
 
 <h3>Ranks</h3>
 
-@if (ranks is null)
+@if (Ranks is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank</MudButton>
-    <MudTable Items="@ranks"
+    <MudTable Items="@Ranks"
               Hover="true"
               SortLabel="Sort By"
               Dense="true"
@@ -26,6 +26,7 @@ else
             <MudTh>Equipment</MudTh>
             <MudTh>Cult</MudTh>
             <MudTh>Prerequisites</MudTh>
+            <MudTh>Parent Rank</MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -43,6 +44,7 @@ else
                     <span>No Prerequisites</span>
                 }
             </MudTd>
+            <MudTd>@(context.ParentRank != null ? context.ParentRank.Name : "-")</MudTd>
             <MudTd>
                 <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
                 <MudButton OnClick="() => DeleteRank(context.Id)" Color="Color.Error">Delete</MudButton>

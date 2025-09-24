@@ -16,6 +16,7 @@ public class CharacterCreateDto
     public Guid CultureId { get; set; }
     public Guid ConceptId { get; set; }
     public Guid IdRoom { get; set; }
+    public Guid RankId { get; set; }
     public List<CharacterAttributeDto> Attributes { get; set; } = [];
     public List<CharacterSkillDto> Skills { get; set; } = [];
     public List<CharacterBackgroundDto> Backgrounds { get; set; } = [];
@@ -38,10 +39,11 @@ public class CharacterDto : CharacterCreateDto
 
     public Guid IdApplicationUser { get; set; }
 
-    public CultDto? Cult { get; set; }
-    public CultureDto? Culture { get; set; }
-    public ConceptDto? Concept { get; set; }
-    public RoomDto? Room { get; set; }
+    public CultDto Cult { get; set; } = new();
+    public CultureDto Culture { get; set; } = new();
+    public ConceptDto Concept { get; set; } = new();
+    public RoomDto Room { get; set; } = new();
+    public RankDto Rank { get; set; } = new();
 
     public new List<CharacterAttributeDto> Attributes { get; set; } = [];
     public new List<CharacterSkillDto> Skills { get; set; } = [];

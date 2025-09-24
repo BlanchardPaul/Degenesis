@@ -6,7 +6,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters;
 
 public partial class CharacterBasicInfoStep
 {
-    private MudForm _form = default!;
+    private MudForm _formStepBasic = default!;
 
     [Parameter] public CharacterCreateDto Character { get; set; } = new();
     [Parameter] public List<CultureDto> Cultures { get; set; } = [];
@@ -21,13 +21,13 @@ public partial class CharacterBasicInfoStep
 
     public async Task<bool> ValidateFormAsync()
     {
-        await _form.Validate();
+        await _formStepBasic.Validate();
 
         bool selectsValid = Character.CultureId != Guid.Empty
                             && Character.CultId != Guid.Empty
                             && Character.ConceptId != Guid.Empty;
 
-        IsValid = _form.IsValid && selectsValid;
+        IsValid = _formStepBasic.IsValid && selectsValid;
         if(!IsValid)
             Snackbar.Add("Please fill in all required fields and select Culture, Cult and Concept.", Severity.Error);
         return IsValid;

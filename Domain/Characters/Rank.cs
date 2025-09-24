@@ -10,4 +10,8 @@ public class Rank
 
     // List of prerequisites, only one need to be fulfilled to pass the rank.
     public List<RankPrerequisite> Prerequisites { get; set; } = [];
+
+    // Optional parent rank (previous rank in progression)
+    public Guid? ParentRankId { get; set; }
+    public Rank? ParentRank { get; set; }
 }

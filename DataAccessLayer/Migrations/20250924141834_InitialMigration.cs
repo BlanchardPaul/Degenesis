@@ -75,7 +75,7 @@ namespace DataAccessLayer.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Abbreviation = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -392,7 +392,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CAttributeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -434,7 +434,8 @@ namespace DataAccessLayer.Migrations
                     CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Equipment = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false)
+                    Equipment = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    ParentRankId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -445,6 +446,12 @@ namespace DataAccessLayer.Migrations
                         principalTable: "Cults",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Ranks_Ranks_ParentRankId",
+                        column: x => x.ParentRankId,
+                        principalTable: "Ranks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -745,71 +752,6 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Characters",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Age = table.Column<int>(type: "int", nullable: false),
-                    Height = table.Column<int>(type: "int", nullable: false),
-                    Weight = table.Column<int>(type: "int", nullable: false),
-                    Sex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    DinarMoney = table.Column<int>(type: "int", nullable: false),
-                    ChroniclerMoney = table.Column<int>(type: "int", nullable: false),
-                    MaxEgo = table.Column<int>(type: "int", nullable: false),
-                    Ego = table.Column<int>(type: "int", nullable: false),
-                    CurrentSporeInfestation = table.Column<int>(type: "int", nullable: false),
-                    MaxSporeInfestation = table.Column<int>(type: "int", nullable: false),
-                    PermanentSporeInfestation = table.Column<int>(type: "int", nullable: false),
-                    MaxFleshWounds = table.Column<int>(type: "int", nullable: false),
-                    FleshWounds = table.Column<int>(type: "int", nullable: false),
-                    MaxTrauma = table.Column<int>(type: "int", nullable: false),
-                    Trauma = table.Column<int>(type: "int", nullable: false),
-                    PassiveDefense = table.Column<int>(type: "int", nullable: false),
-                    Experience = table.Column<int>(type: "int", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CultureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ConceptId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdRoom = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdApplicationUser = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Characters", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Characters_AspNetUsers_IdApplicationUser",
-                        column: x => x.IdApplicationUser,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Characters_Concepts_ConceptId",
-                        column: x => x.ConceptId,
-                        principalTable: "Concepts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Characters_Cults_CultId",
-                        column: x => x.CultId,
-                        principalTable: "Cults",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Characters_Cultures_CultureId",
-                        column: x => x.CultureId,
-                        principalTable: "Cultures",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Characters_Rooms_IdRoom",
-                        column: x => x.IdRoom,
-                        principalTable: "Rooms",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ConceptSkill",
                 columns: table => new
                 {
@@ -963,6 +905,78 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Characters",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Age = table.Column<int>(type: "int", nullable: false),
+                    Height = table.Column<int>(type: "int", nullable: false),
+                    Weight = table.Column<int>(type: "int", nullable: false),
+                    Sex = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    DinarMoney = table.Column<int>(type: "int", nullable: false),
+                    ChroniclerMoney = table.Column<int>(type: "int", nullable: false),
+                    MaxEgo = table.Column<int>(type: "int", nullable: false),
+                    Ego = table.Column<int>(type: "int", nullable: false),
+                    CurrentSporeInfestation = table.Column<int>(type: "int", nullable: false),
+                    MaxSporeInfestation = table.Column<int>(type: "int", nullable: false),
+                    PermanentSporeInfestation = table.Column<int>(type: "int", nullable: false),
+                    MaxFleshWounds = table.Column<int>(type: "int", nullable: false),
+                    FleshWounds = table.Column<int>(type: "int", nullable: false),
+                    MaxTrauma = table.Column<int>(type: "int", nullable: false),
+                    Trauma = table.Column<int>(type: "int", nullable: false),
+                    PassiveDefense = table.Column<int>(type: "int", nullable: false),
+                    Experience = table.Column<int>(type: "int", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CultureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ConceptId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdRoom = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdApplicationUser = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Characters", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Characters_AspNetUsers_IdApplicationUser",
+                        column: x => x.IdApplicationUser,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Characters_Concepts_ConceptId",
+                        column: x => x.ConceptId,
+                        principalTable: "Concepts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Characters_Cults_CultId",
+                        column: x => x.CultId,
+                        principalTable: "Cults",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Characters_Cultures_CultureId",
+                        column: x => x.CultureId,
+                        principalTable: "Cultures",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Characters_Ranks_RankId",
+                        column: x => x.RankId,
+                        principalTable: "Ranks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Characters_Rooms_IdRoom",
+                        column: x => x.IdRoom,
+                        principalTable: "Rooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NPCEquipments",
                 columns: table => new
                 {
@@ -1036,6 +1050,30 @@ namespace DataAccessLayer.Migrations
                         name: "FK_WeaponWeaponQuality_Weapons_WeaponId",
                         column: x => x.WeaponId,
                         principalTable: "Weapons",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RankRankPrerequisite",
+                columns: table => new
+                {
+                    PrerequisitesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RankRankPrerequisite", x => new { x.PrerequisitesId, x.RankId });
+                    table.ForeignKey(
+                        name: "FK_RankRankPrerequisite_RankPrerequisites_PrerequisitesId",
+                        column: x => x.PrerequisitesId,
+                        principalTable: "RankPrerequisites",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RankRankPrerequisite_Ranks_RankId",
+                        column: x => x.RankId,
+                        principalTable: "Ranks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1298,30 +1336,6 @@ namespace DataAccessLayer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "RankRankPrerequisite",
-                columns: table => new
-                {
-                    PrerequisitesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RankRankPrerequisite", x => new { x.PrerequisitesId, x.RankId });
-                    table.ForeignKey(
-                        name: "FK_RankRankPrerequisite_RankPrerequisites_PrerequisitesId",
-                        column: x => x.PrerequisitesId,
-                        principalTable: "RankPrerequisites",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RankRankPrerequisite_Ranks_RankId",
-                        column: x => x.RankId,
-                        principalTable: "Ranks",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -1435,6 +1449,11 @@ namespace DataAccessLayer.Migrations
                 name: "IX_Characters_IdRoom",
                 table: "Characters",
                 column: "IdRoom");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Characters_RankId",
+                table: "Characters",
+                column: "RankId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CharacterSkills_SkillId",
@@ -1585,6 +1604,11 @@ namespace DataAccessLayer.Migrations
                 name: "IX_Ranks_CultId",
                 table: "Ranks",
                 column: "CultId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ranks_ParentRankId",
+                table: "Ranks",
+                column: "ParentRankId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Skills_CAttributeId",
@@ -1755,9 +1779,6 @@ namespace DataAccessLayer.Migrations
                 name: "RankPrerequisites");
 
             migrationBuilder.DropTable(
-                name: "Ranks");
-
-            migrationBuilder.DropTable(
                 name: "WeaponQualities");
 
             migrationBuilder.DropTable(
@@ -1776,6 +1797,9 @@ namespace DataAccessLayer.Migrations
                 name: "Cultures");
 
             migrationBuilder.DropTable(
+                name: "Ranks");
+
+            migrationBuilder.DropTable(
                 name: "Rooms");
 
             migrationBuilder.DropTable(
@@ -1788,10 +1812,10 @@ namespace DataAccessLayer.Migrations
                 name: "Skills");
 
             migrationBuilder.DropTable(
-                name: "Cults");
+                name: "WeaponTypes");
 
             migrationBuilder.DropTable(
-                name: "WeaponTypes");
+                name: "Cults");
 
             migrationBuilder.DropTable(
                 name: "Attributes");

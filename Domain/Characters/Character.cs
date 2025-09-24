@@ -40,6 +40,8 @@ public class Character
     public Guid IdRoom { get; set; }
     public Room Room { get; set; } = new();
     public Guid IdApplicationUser { get; set; }
+    public Guid RankId { get; set; }
+    public Rank Rank { get; set; } = new();
     public ApplicationUser ApplicationUser { get; set; } = new();
     public List<CharacterBackground> CharacterBackgrounds { get; set; } = [];
     public List<CharacterBurn> CharacterBurns { get; set; } = [];

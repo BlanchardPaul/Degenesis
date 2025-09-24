@@ -22,7 +22,6 @@ internal class AttributeConfiguration : IEntityTypeConfiguration<CAttribute>
                .HasMaxLength(10);
 
         builder.Property(a => a.Description)
-               .IsRequired()
-               .HasMaxLength(1000);
+               .IsRequired();
     }
 }

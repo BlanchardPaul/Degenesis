@@ -1,4 +1,4 @@
-﻿<MudForm @ref="_form" Model="@Character">
+﻿<MudForm @ref="_formStepBasic" Model="@Character">
     <MudTextField Label="Name" @bind-Value="Character.Name" Required="true" Class="mb-4" />
     <MudNumericField Label="Age" @bind-Value="Character.Age" Min="1" Max="120" Required="true" Class="mb-4" />
     <MudNumericField Label="Height (cm)" @bind-Value="Character.Height" Min="50" Max="250" Required="true" Class="mb-4" />

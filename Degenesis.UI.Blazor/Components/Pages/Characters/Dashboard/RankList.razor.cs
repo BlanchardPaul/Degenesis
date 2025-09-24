@@ -4,9 +4,9 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
 public partial class RankList
 {
-    private List<RankDto>? ranks;
-    private List<CultDto> cults = [];
-    private List<RankPrerequisiteDto> rankPrerequisites = [];
+    private List<RankDto>? Ranks;
+    private List<CultDto> Cults = [];
+    private List<RankPrerequisiteDto> RankPrerequisites = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -17,9 +17,9 @@ public partial class RankList
 
     private async Task LoadRanks()
     {
-        ranks = await _client.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
-        cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
-        rankPrerequisites = await _client.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
+        Ranks = await _client.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
+        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        RankPrerequisites = await _client.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -27,8 +27,9 @@ public partial class RankList
         var parameters = new DialogParameters
         {
             { "Rank", new RankDto() },
-            { "Cults", cults },
-            { "RankPrerequisites", rankPrerequisites }
+            { "Cults", Cults },
+            { "RankPrerequisites", RankPrerequisites },
+            { "Ranks", Ranks }
         };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
@@ -39,19 +40,21 @@ public partial class RankList
         if (result is not null && !result.Canceled)
         {
             await LoadRanks();
+            StateHasChanged();
         }
     }
 
     private async Task ShowEditDialog(Guid rankId)
     {
-        var rank = ranks?.FirstOrDefault(r => r.Id == rankId);
+        var rank = Ranks?.FirstOrDefault(r => r.Id == rankId);
         if (rank != null)
         {
             var parameters = new DialogParameters
             {
                 { "Rank", rank },
-                { "Cults", cults },
-                { "RankPrerequisites", rankPrerequisites }
+                { "Cults", Cults },
+                { "RankPrerequisites", RankPrerequisites },
+                { "Ranks", Ranks }
             };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
@@ -62,6 +65,7 @@ public partial class RankList
             if (result is not null && !result.Canceled)
             {
                 await LoadRanks();
+                StateHasChanged();
             }
         }
     }
@@ -74,6 +78,7 @@ public partial class RankList
         else
             Snackbar.Add("Deleted");
         await LoadRanks();
+        StateHasChanged();
     }
 
     private static string GetPrerequisiteLabel(RankPrerequisiteDto prerequisite)

@@ -20,8 +20,7 @@ internal class SkillConfiguration : IEntityTypeConfiguration<Skill>
             .HasMaxLength(100);
 
         builder.Property(s => s.Description)
-            .IsRequired()
-            .HasMaxLength(1000);
+            .IsRequired();
 
         builder.Property(s => s.CAttributeId)
             .IsRequired();

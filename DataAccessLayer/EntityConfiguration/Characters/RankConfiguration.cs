@@ -37,5 +37,10 @@ internal sealed class RankConfiguration : IEntityTypeConfiguration<Rank>
 
         builder.HasMany(r => r.Prerequisites)
             .WithMany();
+
+        builder.HasOne(r => r.ParentRank)
+            .WithMany()
+            .HasForeignKey(r => r.ParentRankId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

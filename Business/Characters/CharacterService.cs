@@ -35,13 +35,23 @@ public class CharacterService : ICharacterService
             .Include(c => c.Cult)
             .Include(c => c.Culture)
             .Include(c => c.Concept)
-            .Include(c => c.CharacterArtifacts)
+            .Include(c => c.Room)
+            .Include(c => c.Rank)
+                .ThenInclude(r => r.Prerequisites)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
+
     public async Task<IEnumerable<Character>> GetAllCharactersAsync()
     {
-        return await _context.Characters.ToListAsync();
+        return await _context.Characters
+            .Include(c => c.Cult)
+            .Include(c => c.Culture)
+            .Include(c => c.Concept)
+            .Include(c => c.Room)
+            .Include(c => c.Rank)
+                .ThenInclude(r => r.Prerequisites)
+            .ToListAsync();
     }
 
     public async Task<CharacterDto?> CreateCharacterAsync(CharacterCreateDto characterCreate, string userName)
@@ -49,7 +59,6 @@ public class CharacterService : ICharacterService
         try
         {
             var character = _mapper.Map<Character>(characterCreate);
-
             character.Id = Guid.NewGuid();
 
             var user = await _userManager.FindByNameAsync(userName) ?? throw new Exception("User not found");
@@ -59,6 +68,16 @@ public class CharacterService : ICharacterService
             character.Cult = await _context.Cults.FindAsync(characterCreate.CultId) ?? throw new Exception("Cult not found");
             character.Culture = await _context.Cultures.FindAsync(characterCreate.CultureId) ?? throw new Exception("Culture not found");
             character.Concept = await _context.Concepts.FindAsync(characterCreate.ConceptId) ?? throw new Exception("Concept not found");
+
+            character.Rank = await _context.Ranks
+                .Include(r => r.Prerequisites)
+                    .ThenInclude(rp => rp.AttributeRequired)
+                .Include(r => r.Prerequisites)
+                    .ThenInclude(rp => rp.SkillRequired)
+                .Include(r => r.Prerequisites)
+                    .ThenInclude(rp => rp.BackgroundRequired)
+                .FirstOrDefaultAsync(r => r.Id == characterCreate.RankId)
+                ?? throw new Exception("Rank not found");
 
             _context.Characters.Add(character);
 
@@ -109,7 +128,24 @@ public class CharacterService : ICharacterService
 
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<CharacterDto>(character);
+            var characterWithRank = await _context.Characters
+                .Include(c => c.Cult)
+                .Include(c => c.Culture)
+                .Include(c => c.Concept)
+                .Include(c => c.Room)
+                .Include(c => c.Rank)
+                    .ThenInclude(r => r.Prerequisites)
+                        .ThenInclude(rp => rp.AttributeRequired)
+                .Include(c => c.Rank)
+                    .ThenInclude(r => r.Prerequisites)
+                        .ThenInclude(rp => rp.SkillRequired)
+                .Include(c => c.Rank)
+                    .ThenInclude(r => r.Prerequisites)
+                        .ThenInclude(rp => rp.BackgroundRequired)
+                .FirstOrDefaultAsync(c => c.Id == character.Id)
+                ?? throw new Exception("Character not found after creation");
+
+            return _mapper.Map<CharacterDto>(characterWithRank);
         }
         catch (Exception)
         {

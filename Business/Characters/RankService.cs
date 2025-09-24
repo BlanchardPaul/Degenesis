@@ -8,7 +8,7 @@ namespace Business.Characters;
 
 public interface IRankService
 {
-    Task<IEnumerable<RankDto>> GetAllRanksAsync();
+    Task<List<RankDto>> GetAllRanksAsync();
     Task<RankDto?> GetRankByIdAsync(Guid id);
     Task<RankDto?> CreateRankAsync(RankCreateDto rankCreate);
     Task<bool> UpdateRankAsync(RankDto rank);
@@ -26,9 +26,10 @@ public class RankService : IRankService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<RankDto>> GetAllRanksAsync()
+    public async Task<List<RankDto>> GetAllRanksAsync()
     {
         var ranks = await _context.Ranks
+            .OrderBy(r => r.Name)
             .Include(r => r.Prerequisites)
                 .ThenInclude(p => p.AttributeRequired)
             .Include(r => r.Prerequisites)
@@ -36,16 +37,23 @@ public class RankService : IRankService
             .Include(r => r.Prerequisites)
                 .ThenInclude(p => p.BackgroundRequired)
             .Include(r => r.Cult)
+            .Include(r => r.ParentRank)
             .ToListAsync();
-
-        return _mapper.Map<IEnumerable<RankDto>>(ranks);
+        
+        return ranks.Select(rank => _mapper.Map<RankDto>(rank)).ToList();
     }
 
     public async Task<RankDto?> GetRankByIdAsync(Guid id)
     {
         var rank = await _context.Ranks
             .Include(r => r.Prerequisites)
+                .ThenInclude(p => p.AttributeRequired)
+            .Include(r => r.Prerequisites)
+                .ThenInclude(p => p.SkillRequired)
+            .Include(r => r.Prerequisites)
+                .ThenInclude(p => p.BackgroundRequired)
             .Include(r => r.Cult)
+            .Include(r => r.ParentRank)
             .FirstOrDefaultAsync(r => r.Id == id);
 
         return rank is null ? null : _mapper.Map<RankDto>(rank);

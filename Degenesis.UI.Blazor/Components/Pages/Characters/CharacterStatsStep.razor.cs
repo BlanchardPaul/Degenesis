@@ -19,7 +19,7 @@ public partial class CharacterStatsStep
     public int MaxFleshWounds;
     public int MaxTrauma;
 
-    private MudForm _formStep2 = default!;
+    private MudForm _formStepStats = default!;
     private const int MaxAttributePoints = 10;
     private const int MaxSkillPoints = 28;
 
@@ -191,7 +191,7 @@ public partial class CharacterStatsStep
 
     public async Task<bool> ValidateFormAsync()
     {
-        await _formStep2.Validate();
+        await _formStepStats.Validate();
         return ValidateForm();
     }
 }

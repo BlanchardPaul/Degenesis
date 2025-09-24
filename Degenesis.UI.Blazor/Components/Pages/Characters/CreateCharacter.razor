@@ -17,7 +17,7 @@
                                     CultChanged="OnCultChanged"
                                     ConceptChanged="OnConceptChanged" />
 
-            <MudButton OnClick="ValidateStep1" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
+            <MudButton OnClick="ValidateStepBasic" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
                 Validate
             </MudButton>
         </MudStep>
@@ -32,7 +32,7 @@
                                 CharacterAttributes="@CharacterAttributes"
                                 CharacterSkills="@CharacterSkills" />
 
-            <MudButton OnClick="ValidateStep2" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
+            <MudButton OnClick="ValidateStepStats" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
                 Validate
             </MudButton>
         </MudStep>
@@ -41,7 +41,18 @@
                                      Backgrounds="@Backgrounds"
                                      CharacterBackgrounds="@CharacterBackgrounds" />
 
-            <MudButton OnClick="ValidateStep3" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
+            <MudButton OnClick="ValidateStepBackgrounds" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
+                Validate
+            </MudButton>
+        </MudStep>
+        <MudStep Label="Assign Rank" Disabled="@(_step < 3)">
+            <CharacterRankStep @ref="_rankStep"
+                               SelectedRankId="Character.RankId"
+                               SelectedRankIdChanged="@(v => Character.RankId = v)"
+                               Ranks="SortedRanks"
+                               Character="this.Character"/>
+
+            <MudButton OnClick="ValidateStepRank" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
                 Validate
             </MudButton>
         </MudStep>

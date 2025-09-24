@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250923134714_InitialMigration")]
+    [Migration("20250924141834_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -198,8 +198,7 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -285,6 +284,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("PermanentSporeInfestation")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("RankId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Sex")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -307,6 +309,8 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("IdApplicationUser");
 
                     b.HasIndex("IdRoom");
+
+                    b.HasIndex("RankId");
 
                     b.ToTable("Characters", (string)null);
                 });
@@ -529,9 +533,14 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<Guid?>("ParentRankId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CultId");
+
+                    b.HasIndex("ParentRankId");
 
                     b.ToTable("Ranks", (string)null);
                 });
@@ -583,8 +592,7 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1747,6 +1755,12 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Characters.Rank", "Rank")
+                        .WithMany()
+                        .HasForeignKey("RankId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("Concept");
@@ -1754,6 +1768,8 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Cult");
 
                     b.Navigation("Culture");
+
+                    b.Navigation("Rank");
 
                     b.Navigation("Room");
                 });
@@ -1881,7 +1897,14 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Characters.Rank", "ParentRank")
+                        .WithMany()
+                        .HasForeignKey("ParentRankId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Cult");
+
+                    b.Navigation("ParentRank");
                 });
 
             modelBuilder.Entity("Domain.Characters.RankPrerequisite", b =>

@@ -9,7 +9,7 @@ public partial class CharacterBackgroundStep
     [Parameter] public List<BackgroundDto> Backgrounds { get; set; } = [];
     [Parameter] public List<CharacterBackgroundDto> CharacterBackgrounds { get; set; } = [];
 
-    private MudForm _formStep3 = default!;
+    private MudForm _formStepBackgrounds = default!;
 
     private const int MaxTotalPoints = 4;
 
@@ -79,7 +79,7 @@ public partial class CharacterBackgroundStep
 
     public async Task<bool> ValidateFormAsync()
     {
-        await _formStep3.Validate();
+        await _formStepBackgrounds.Validate();
         return ValidateForm();
     }
 }

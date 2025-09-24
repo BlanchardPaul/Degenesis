@@ -11,7 +11,8 @@ public partial class RankModal
     [Parameter] public RankDto Rank { get; set; } = new();
     [Parameter] public List<CultDto> Cults { get; set; } = [];
     [Parameter] public List<RankPrerequisiteDto> RankPrerequisites { get; set; } = [];
-
+    [Parameter] public List<RankDto> Ranks { get; set; } = [];
+    public List<RankDto> SortedRanks { get; set; } = [];
     private HashSet<Guid> SelectedPrerequisiteIds { get; set; } = [];
     private HttpClient _client = new();
 
@@ -29,6 +30,9 @@ public partial class RankModal
         {
             Rank.CultId = Cults.First().Id;
         }
+
+        SortedRanks = Ranks.Where(r => r.CultId == Rank.CultId).ToList();
+
     }
 
     private Task OnPrerequisitesChanged(IEnumerable<Guid> selectedValues)
@@ -36,6 +40,12 @@ public partial class RankModal
         SelectedPrerequisiteIds = selectedValues.ToHashSet();
         Rank.Prerequisites = RankPrerequisites.Where(rp => SelectedPrerequisiteIds.Contains(rp.Id)).ToList();
         return Task.CompletedTask;
+    }
+
+    private void HandleCultChange(Guid selectedCultureId)
+    {
+        Rank.CultId = selectedCultureId;
+        SortedRanks = Ranks.Where(r => r.CultId == selectedCultureId).ToList();
     }
 
     private async Task SaveRank()

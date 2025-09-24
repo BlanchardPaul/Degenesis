@@ -4,7 +4,7 @@
         <MudTextField Label="Description" @bind-Value="Rank.Description"/>
         <MudTextField Label="Equipment" @bind-Value="Rank.Equipment" Required="true" />
 
-        <MudSelect T="Guid" Label="Cult" @bind-Value="Rank.CultId">
+        <MudSelect T="Guid" Label="Cult" Value="@Rank.CultId" ValueChanged="HandleCultChange">
             @foreach (var cult in Cults)
             {
                 <MudSelectItem T="Guid" Value="@cult.Id">@cult.Name</MudSelectItem>
@@ -20,7 +20,13 @@
                 <MudSelectItem T="Guid" Value="@prerequisite.Id">@GetPrerequisiteLabel(prerequisite.Id)</MudSelectItem>
             }
         </MudSelect>
-
+        <MudSelect T="Guid?" Label="Parent Rank (optional)" @bind-Value="Rank.ParentRankId">
+            <MudSelectItem T="Guid?" Value="null">- None -</MudSelectItem>
+            @foreach (var rank in SortedRanks.Where(r => r.Id != Rank.Id))
+            {
+                <MudSelectItem T="Guid?" Value="@rank.Id">@rank.Name</MudSelectItem>
+            }
+        </MudSelect>
     </DialogContent>
 
     <DialogActions>

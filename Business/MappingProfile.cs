@@ -60,7 +60,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.CharacterEquipments, opt => opt.Ignore())
             .ForMember(dest => dest.CharacterArtifacts, opt => opt.Ignore())
             .ForMember(dest => dest.CharacterVehicles, opt => opt.Ignore())
-            .ForMember(dest => dest.CharacterWeapons, opt => opt.Ignore());
+            .ForMember(dest => dest.CharacterWeapons, opt => opt.Ignore())
+            .ForMember(dest => dest.Rank, opt => opt.Ignore());
 
         CreateMap<CharacterAttributeDto, CharacterAttribute>();
         CreateMap<CharacterSkillDto, CharacterSkill>();
@@ -71,6 +72,7 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Culture, opt => opt.MapFrom(src => src.Culture))
             .ForMember(dest => dest.Concept, opt => opt.MapFrom(src => src.Concept))
             .ForMember(dest => dest.Room, opt => opt.MapFrom(src => src.Room))
+            .ForMember(dest => dest.Rank, opt => opt.MapFrom(src => src.Rank))
             .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src =>
                 src.CharacterAttributes.Select(a => new CharacterAttributeDto
                 {
@@ -140,12 +142,20 @@ public class MappingProfile : Profile
         CreateMap<ProtectionQuality, ProtectionQualityDto>();
 
         CreateMap<RankCreateDto, Rank>()
-           .ForMember(dest => dest.Prerequisites, opt => opt.Ignore())
-           .ForMember(dest => dest.Cult, opt => opt.Ignore());
-        CreateMap<RankDto, Rank>();
+            .ForMember(dest => dest.Prerequisites, opt => opt.Ignore())
+            .ForMember(dest => dest.Cult, opt => opt.Ignore())
+            .ForMember(dest => dest.ParentRank, opt => opt.Ignore());
+
+        CreateMap<RankDto, Rank>()
+            .ForMember(dest => dest.Cult, opt => opt.Ignore())
+            .ForMember(dest => dest.Prerequisites, opt => opt.Ignore())
+            .ForMember(dest => dest.ParentRank, opt => opt.Ignore());
+
         CreateMap<Rank, RankDto>()
             .ForMember(dest => dest.Prerequisites, opt => opt.MapFrom(src => src.Prerequisites))
-            .ForMember(dest => dest.Cult, opt => opt.MapFrom(src => src.Cult));
+            .ForMember(dest => dest.Cult, opt => opt.MapFrom(src => src.Cult))
+            .ForMember(dest => dest.ParentRank, opt => opt.MapFrom(src => src.ParentRank))
+            .MaxDepth(2);
 
         CreateMap<RankPrerequisiteCreateDto, RankPrerequisite>()
             .ForMember(dest => dest.AttributeRequired, opt => opt.Ignore())
