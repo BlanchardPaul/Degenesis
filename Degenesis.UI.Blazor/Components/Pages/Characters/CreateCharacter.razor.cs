@@ -83,7 +83,7 @@ public partial class CreateCharacter
         if (arg.Action == StepAction.Complete)
         {
             // If the user completes the final step (index 3 here), save the character
-            const int finalStepIndex = 3; // ajuste si tu as un nombre différent de steps
+            const int finalStepIndex = 4;
             if (arg.StepIndex == finalStepIndex)
             {
                 // Prevent double submission

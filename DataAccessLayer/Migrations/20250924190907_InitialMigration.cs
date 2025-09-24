@@ -1125,7 +1125,8 @@ namespace DataAccessLayer.Migrations
                         name: "FK_CharacterAttributes_Characters_CharacterId",
                         column: x => x.CharacterId,
                         principalTable: "Characters",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(

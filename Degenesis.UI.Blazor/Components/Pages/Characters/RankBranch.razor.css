@@ -1,6 +1,45 @@
-﻿.rank-connector {
+﻿/* Vertical line between parent and children */
+.rank-connector-vertical {
     width: 2px;
     height: 20px;
-    background-color: #aaa;
+    background-color: #aaa; /* or var(--mud-palette-text-secondary) */
     margin: 4px 0;
 }
+
+/* Container for children with a horizontal line across */
+.rank-children {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    padding-top: 10px;
+}
+
+    /* Horizontal line behind the children */
+    .rank-children::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: #aaa;
+    }
+
+/* Each child gets a vertical line down from the horizontal connector */
+.rank-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin: 0 10px; /* spacing between siblings */
+}
+
+    .rank-child::before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        width: 2px;
+        height: 10px;
+        background-color: #aaa;
+    }

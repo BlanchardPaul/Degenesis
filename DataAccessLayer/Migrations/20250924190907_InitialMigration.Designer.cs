@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250924141834_InitialMigration")]
+    [Migration("20250924190907_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -1785,7 +1785,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Characters.Character", "Character")
                         .WithMany("CharacterAttributes")
                         .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Attribute");

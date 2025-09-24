@@ -1782,7 +1782,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Characters.Character", "Character")
                         .WithMany("CharacterAttributes")
                         .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Attribute");

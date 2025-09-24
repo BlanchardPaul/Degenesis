@@ -51,4 +51,21 @@ public partial class RankBranch
 
         return false;
     }
+
+    private static string GetPrerequisiteLabel(RankPrerequisiteDto prerequisite)
+    {
+        if (prerequisite == null)
+            return "Unknown";
+
+        if (prerequisite.IsBackgroundPrerequisite && prerequisite.BackgroundRequired != null)
+        {
+            return $"{prerequisite.BackgroundRequired.Name} >= {prerequisite.BackgroundLevelRequired}";
+        }
+
+        string attributePart = prerequisite.AttributeRequired?.Name ?? "";
+        string skillPart = prerequisite.SkillRequired != null ? $" + {prerequisite.SkillRequired.Name}" : "";
+        string sumPart = prerequisite.SumRequired.HasValue ? $" >= {prerequisite.SumRequired}" : "";
+
+        return $"{attributePart}{skillPart}{sumPart}";
+    }
 }

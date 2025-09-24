@@ -1,29 +1,57 @@
 ﻿<MudStack Row="false" AlignItems="AlignItems.Center" Spacing="1">
-    <!-- Parent chip -->
-    <MudChip T="Guid"
-             Value="@Rank.Id"
-             OnClick="@(() => OnRankSelected.InvokeAsync(Rank.Id))"
-             Color="@(SelectedRankId == Rank.Id ? Color.Primary : Color.Default)"
-             Disabled="@IsRankDisabled(Rank)"
-             Class="px-6 py-2 rounded-xl font-bold">
-        @Rank.Name
-    </MudChip>
+    <!-- Parent chip with tooltip -->
+    <MudTooltip Placement="Placement.Right">
+        <ChildContent>
+            <MudChip T="Guid"
+                     Value="@Rank.Id"
+                     OnClick="@(() => OnRankSelected.InvokeAsync(Rank.Id))"
+                     Color="@(SelectedRankId == Rank.Id ? Color.Primary : Color.Default)"
+                     Disabled="@IsRankDisabled(Rank)"
+                     Class="px-6 py-2 rounded-xl font-bold">
+                @Rank.Name
+            </MudChip>
+        </ChildContent>
+        <TooltipContent>
+            <MudText Align="Align.Left" Typo="Typo.h6">
+                Result : <MudText Inline>
+                    @Rank.Description
+                </MudText>
+            </MudText>
+            @if (Rank.Prerequisites.Any())
+            {
+                <MudDivider />
+                <MudText Align="Align.Left" Typo="Typo.h6">
+                    Prerequisites : <MudText Inline>
+                        @string.Join(" | ", Rank.Prerequisites.Select(GetPrerequisiteLabel))
+                    </MudText>
+                </MudText>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Rank.Equipment))
+            {
+                <MudDivider/>
+                <MudText Align="Align.Left" Typo="Typo.h6">Equipment : <MudText Inline>@Rank.Equipment</MudText></MudText>
+            }
+        </TooltipContent>
+    </MudTooltip>
 
     @if (Children.Any())
     {
         <!-- Vertical connector -->
-        <div class="rank-connector"></div>
+        <div class="rank-connector-vertical"></div>
 
-        <!-- Children in a row -->
-        <MudStack Row="true" Spacing="2" JustifyContent="JustifyContent.Center">
+        <!-- Children row with horizontal connector -->
+        <div class="rank-children">
             @foreach (var child in Children.OrderBy(c => c.Name))
             {
-                <RankBranch Rank="child"
-                            AllRanks="AllRanks"
-                            SelectedRankId="SelectedRankId"
-                            OnRankSelected="OnRankSelected"
-                            Character="Character" />
+                <div class="rank-child">
+                    <RankBranch Rank="child"
+                                AllRanks="AllRanks"
+                                SelectedRankId="SelectedRankId"
+                                OnRankSelected="OnRankSelected"
+                                Character="Character" />
+                </div>
             }
-        </MudStack>
+        </div>
     }
 </MudStack>

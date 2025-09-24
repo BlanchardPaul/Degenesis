@@ -15,7 +15,7 @@ internal sealed class CharacterAttributeConfiguration : IEntityTypeConfiguration
         builder.HasOne(ca => ca.Character)
             .WithMany(c => c.CharacterAttributes)
             .HasForeignKey(c => c.CharacterId)
-            .OnDelete(DeleteBehavior.NoAction)
+            .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 
         builder.HasOne(ca => ca.Attribute)
