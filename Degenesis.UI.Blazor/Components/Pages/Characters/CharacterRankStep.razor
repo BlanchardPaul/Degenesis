@@ -1,15 +1,13 @@
-﻿<MudStack Row="true" Class="mb-4">
+﻿<MudStack Row Class="mb-4">
     <MudText Typo="Typo.h6">Select a Rank</MudText>
 </MudStack>
 
 <MudForm @ref="_formStepRank">
-    <MudStack Row="true" AlignItems="AlignItems.Start" Spacing="4">
+    <MudStack Row AlignItems="AlignItems.Start" Spacing="4">
         @foreach (var rank in Ranks.Where(r => r.ParentRankId == null))
         {
             <RankBranch Rank="rank"
                         AllRanks="Ranks"
-                        SelectedRankId="SelectedRankId"
-                        OnRankSelected="OnSelectedRankChanged"
                         Character="Character" />
         }
     </MudStack>

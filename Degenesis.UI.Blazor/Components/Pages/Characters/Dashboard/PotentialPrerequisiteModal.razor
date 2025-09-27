@@ -1,0 +1,66 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudCheckBox Value="PotentialPrerequisite.IsBackgroundPrerequisite"
+                     Label="Is Background Prerequisite"
+                     T="bool"
+                     ValueChanged="OnBackgroundCheckChanged" />
+
+        <MudCheckBox Value="PotentialPrerequisite.IsRankPrerequisite"
+                     Label="Is Rank Prerequisite"
+                     T="bool"
+                     ValueChanged="OnRankCheckChanged" />
+
+        @if (PotentialPrerequisite.IsBackgroundPrerequisite)
+        {
+            <MudSelect T="Guid?" Label="Background Required"
+                       @bind-Value="PotentialPrerequisite.BackgroundRequiredId" Required="true">
+                @foreach (var bg in Backgrounds)
+                {
+                    <MudSelectItem T="Guid?" Value="@bg.Id">@bg.Name</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudNumericField T="int?" Label="Background Level Required"
+                             @bind-Value="PotentialPrerequisite.BackgroundLevelRequired"
+                             Min="1" />
+        }
+        else if (PotentialPrerequisite.IsRankPrerequisite)
+        {
+            <MudSelect T="Guid?" Label="Rank Required"
+                       @bind-Value="PotentialPrerequisite.RankRequiredId" Required="true">
+                @foreach (var r in Ranks)
+                {
+                    <MudSelectItem T="Guid?" Value="@r.Id">@r.Name</MudSelectItem>
+                }
+            </MudSelect>
+        }
+        else
+        {
+            <MudSelect T="Guid?" Label="Attribute Required"
+                       @bind-Value="PotentialPrerequisite.AttributeRequiredId" Required="true">
+                @foreach (var attr in Attributes)
+                {
+                    <MudSelectItem T="Guid?" Value="@attr.Id">@attr.Name</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudSelect T="Guid?" Label="Skill Required (Optional)"
+                       @bind-Value="PotentialPrerequisite.SkillRequiredId">
+                <MudSelectItem T="Guid?" Value="null">(None)</MudSelectItem>
+                @foreach (var skill in Skills)
+                {
+                    <MudSelectItem T="Guid?" Value="@skill.Id">@skill.Name</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudNumericField T="int?" Label="Sum Required"
+                             @bind-Value="PotentialPrerequisite.SumRequired"
+                             Min="1" />
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SavePotentialPrerequisite" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

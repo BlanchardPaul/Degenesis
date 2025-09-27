@@ -4,8 +4,8 @@
         <ChildContent>
             <MudChip T="Guid"
                      Value="@Rank.Id"
-                     OnClick="@(() => OnRankSelected.InvokeAsync(Rank.Id))"
-                     Color="@(SelectedRankId == Rank.Id ? Color.Primary : Color.Default)"
+                     OnClick="@(() => Character.RankId = Rank.Id)"
+                     Color="@(Character.RankId == Rank.Id ? Color.Primary : Color.Default)"
                      Disabled="@IsRankDisabled(Rank)"
                      Class="px-6 py-2 rounded-xl font-bold">
                 @Rank.Name
@@ -47,8 +47,6 @@
                 <div class="rank-child">
                     <RankBranch Rank="child"
                                 AllRanks="AllRanks"
-                                SelectedRankId="SelectedRankId"
-                                OnRankSelected="OnRankSelected"
                                 Character="Character" />
                 </div>
             }

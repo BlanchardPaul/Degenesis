@@ -30,7 +30,7 @@ public class RankPrerequisiteService : IRankPrerequisiteService
     {
         var rankPrerequisites = await _context.RankPrerequisites
             .Include(rp => rp.AttributeRequired)
-            .Include(r => r.BackgroundRequired)
+            .Include(rp => rp.BackgroundRequired)
             .Include(rp => rp.SkillRequired)
             .ToListAsync();
         return _mapper.Map<IEnumerable<RankPrerequisiteDto>>(rankPrerequisites);

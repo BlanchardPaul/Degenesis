@@ -1,0 +1,46 @@
+﻿<MudStack Row="true" Class="mb-4">
+    <MudText Typo="Typo.h6">Select a Potential</MudText>
+</MudStack>
+
+<MudForm @ref="_formStepPotentials">
+    <MudRadioGroup T="Guid" @bind-Value="SelectedPotentialId">
+        @foreach (var potential in Potentials)
+        {
+            <MudTooltip Placement="Placement.Right">
+                <ChildContent>
+                    <MudRadio T="Guid"
+                              Value="@potential.Id"
+                              Disabled="@IsPotentialDisabled(potential)">
+                        <div>
+                            <MudText Typo="Typo.subtitle2">@potential.Name</MudText>
+                        </div>
+                    </MudRadio>
+                </ChildContent>
+                <TooltipContent>
+                    <MudText Align="Align.Left" Typo="Typo.h6">
+                        Description: <MudText Inline>@potential.Description</MudText>
+                    </MudText>
+
+                    @if (potential.Prerequisites.Any())
+                    {
+                        <MudDivider />
+                        <MudText Align="Align.Left" Typo="Typo.h6">
+                            Prerequisites:
+                            <MudText Inline>
+                                @string.Join(" | ", potential.Prerequisites.Select(GetPotentialPrerequisiteLabel))
+                            </MudText>
+                        </MudText>
+                    }
+
+                    @if (potential.Cult != null)
+                    {
+                        <MudDivider />
+                        <MudText Align="Align.Left" Typo="Typo.h6">
+                            Cult: <MudText Inline>@potential.Cult.Name</MudText>
+                        </MudText>
+                    }
+                </TooltipContent>
+            </MudTooltip>
+        }
+    </MudRadioGroup>
+</MudForm>

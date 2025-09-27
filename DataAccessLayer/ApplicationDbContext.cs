@@ -51,6 +51,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, Gui
     public DbSet<NPCSkill> NPCSkills { get; set; } = null!;
     public DbSet<NPCWeapon> NPCWeapons { get; set; } = null!;
     public DbSet<Potential> Potentials { get; set; } = null!;
+    public DbSet<PotentialPrerequisite> PotentialPrerequisites { get; set; } = null!;
     public DbSet<Protection> Protections { get; set; } = null!;
     public DbSet<ProtectionQuality> ProtectionQualities { get; set; } = null!;
     public DbSet<Rank> Ranks { get; set; } = null!;

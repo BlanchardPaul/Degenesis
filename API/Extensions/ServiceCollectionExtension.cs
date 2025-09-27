@@ -28,7 +28,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IArtifactService, ArtifactService>();
         services.AddScoped<ICharacterArtifactService, CharacterArtifactService>();
         services.AddScoped<INPCArtifactService, NPCArtifactService>();
-
         services.AddScoped<ICharacterService, CharacterService>();
         services.AddScoped<IAttributeService, AttributeService>();
         services.AddScoped<IBackgroundService, Business.Characters.BackgroundService>();
@@ -43,39 +42,32 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRankService, RankService>();
         services.AddScoped<IRankPrerequisiteService, RankPrerequisiteService>();
         services.AddScoped<ISkillService, SkillService>();
-
         services.AddScoped<IBurnService, BurnService>();
         services.AddScoped<ICharacterBurnService, CharacterBurnService>();
         services.AddScoped<INPCBurnService, NPCBurnService>();
-
         services.AddScoped<ICharacterEquipmentService, CharacterEquipmentService>();
         services.AddScoped<IEquipmentService, EquipmentService>();
         services.AddScoped<IEquipmentTypeService, EquipmentTypeService>();
         services.AddScoped<INPCEquipmentService,NPCEquipmentService>();
-
         services.AddScoped<ICharacterProtectionService, CharacterProtectionService>();
         services.AddScoped<INPCProtectionService, NPCProtectionService>();
         services.AddScoped<IProtectionService, ProtectionService>();
         services.AddScoped<IProtectionQualityService, ProtectionQualityService>();
-
         services.AddScoped<ICharacterVehicleService, CharacterVehicleService>();
         services.AddScoped<IVehicleService, VehicleService>();
         services.AddScoped<IVehicleTypeService, VehicleTypeService>();
-
         services.AddScoped<ICharacterWeaponService, CharacterWeaponService>();
         services.AddScoped<INPCWeaponService, NPCWeaponService>();
         services.AddScoped<IWeaponService, WeaponService>();
         services.AddScoped<IWeaponQualityService, WeaponQualityService>();
         services.AddScoped<IWeaponTypeService, WeaponTypeService>();
-
         services.AddScoped<INPCService, NPCService>();
         services.AddScoped<INPCAttributeService, NPCAttributeService>();
         services.AddScoped<INPCPotentialService, NPCPotentialService>();
         services.AddScoped<INPCSkillService, NPCSkillService>();
-
         services.AddScoped<IUserService, UserService>();
-
         services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<IPotentialPrerequisiteService, PotentialPrerequisiteService>();
         return services;
     }
 

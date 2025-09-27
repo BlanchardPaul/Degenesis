@@ -5,8 +5,9 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
 public partial class PotentialList
 {
-    private List<PotentialDto>? potentials;
-    private List<CultDto> cults = [];
+    private List<PotentialDto>? Potentials;
+    private List<CultDto> Cults = [];
+    private List<PotentialPrerequisiteDto> PotentialPrerequisites = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -17,8 +18,9 @@ public partial class PotentialList
 
     private async Task LoadPotentials()
     {
-        potentials = await _client.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
-        cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        Potentials = await _client.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
+        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        PotentialPrerequisites = await _client.GetFromJsonAsync<List<PotentialPrerequisiteDto>>("/potential-prerequisites") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -26,7 +28,8 @@ public partial class PotentialList
         var parameters = new DialogParameters
         {
             { "Potential", new PotentialDto() },
-            { "Cults", cults }
+            { "Cults", Cults },
+            { "PotentialPrerequisites", PotentialPrerequisites }
         };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
@@ -37,18 +40,20 @@ public partial class PotentialList
         if (result is not null && !result.Canceled)
         {
             await LoadPotentials();
+            StateHasChanged();
         }
     }
 
     private async Task ShowEditDialog(Guid potentialId)
     {
-        var potential = potentials?.FirstOrDefault(p => p.Id == potentialId);
+        var potential = Potentials?.FirstOrDefault(p => p.Id == potentialId);
         if (potential != null)
         {
             var parameters = new DialogParameters
             {
                 { "Potential", potential },
-                { "Cults", cults }
+                { "Cults", Cults },
+                { "PotentialPrerequisites", PotentialPrerequisites }
             };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
@@ -59,6 +64,7 @@ public partial class PotentialList
             if (result is not null && !result.Canceled)
             {
                 await LoadPotentials();
+                StateHasChanged();
             }
         }
     }
@@ -67,9 +73,29 @@ public partial class PotentialList
     {
         var result = await _client.DeleteAsync($"/potentials/{potentialId}");
         if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+            Snackbar.Add("Error during deletion", Severity.Error);
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
+
         await LoadPotentials();
+        StateHasChanged();
+    }
+
+    private static string GetPrerequisiteLabel(PotentialPrerequisiteDto prerequisite)
+    {
+        if (prerequisite == null)
+            return "Unknown";
+
+        if (prerequisite.IsBackgroundPrerequisite && prerequisite.BackgroundRequired != null)
+        {
+            return $"{prerequisite.BackgroundRequired.Name} >= {prerequisite.BackgroundLevelRequired}";
+        }
+
+        string attributePart = prerequisite.AttributeRequired?.Name ?? "";
+        string skillPart = prerequisite.SkillRequired != null ? $" + {prerequisite.SkillRequired.Name}" : "";
+        string sumPart = prerequisite.SumRequired.HasValue ? $" >= {prerequisite.SumRequired}" : "";
+        string rankPart = prerequisite.RankRequired != null ? $" RANK: {prerequisite.RankRequired.Name}" : "";
+
+        return $"{attributePart}{skillPart}{sumPart}{rankPart}".Trim();
     }
 }

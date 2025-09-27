@@ -20,6 +20,7 @@ public class CharacterCreateDto
     public List<CharacterAttributeDto> Attributes { get; set; } = [];
     public List<CharacterSkillDto> Skills { get; set; } = [];
     public List<CharacterBackgroundDto> Backgrounds { get; set; } = [];
+    public List<CharacterPotentialDto> Potentials { get; set; } = []; 
 }
 
 public class CharacterDto : CharacterCreateDto

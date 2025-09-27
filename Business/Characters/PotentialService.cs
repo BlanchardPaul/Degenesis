@@ -5,9 +5,10 @@ using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;
+
 public interface IPotentialService
 {
-    Task<IEnumerable<PotentialDto>> GetAllPotentialsAsync();
+    Task<List<PotentialDto>> GetAllPotentialsAsync();
     Task<PotentialDto?> GetPotentialByIdAsync(Guid id);
     Task<PotentialDto?> CreatePotentialAsync(PotentialCreateDto potentialCreate);
     Task<bool> UpdatePotentialAsync(PotentialDto potential);
@@ -25,17 +26,37 @@ public class PotentialService : IPotentialService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<PotentialDto>> GetAllPotentialsAsync()
+    public async Task<List<PotentialDto>> GetAllPotentialsAsync()
     {
         var potentials = await _context.Potentials
+            .OrderBy(p => p.Name)
+            .Include(p => p.Prerequisites)
+                .ThenInclude(pr => pr.AttributeRequired)
+            .Include(p => p.Prerequisites)
+                .ThenInclude(pr => pr.SkillRequired)
+            .Include(p => p.Prerequisites)
+                .ThenInclude(pr => pr.BackgroundRequired)
+            .Include(p => p.Prerequisites)
+                .ThenInclude(pr => pr.RankRequired)
+            .Include(p => p.Prerequisites)
             .Include(p => p.Cult)
             .ToListAsync();
-        return _mapper.Map<IEnumerable<PotentialDto>>(potentials);
+
+        return potentials.Select(p => _mapper.Map<PotentialDto>(p)).ToList();
     }
 
     public async Task<PotentialDto?> GetPotentialByIdAsync(Guid id)
     {
         var potential = await _context.Potentials
+            .Include(p => p.Prerequisites)
+                .ThenInclude(pr => pr.AttributeRequired)
+            .Include(p => p.Prerequisites)
+                .ThenInclude(pr => pr.SkillRequired)
+            .Include(p => p.Prerequisites)
+                .ThenInclude(pr => pr.BackgroundRequired)
+            .Include(p => p.Prerequisites)
+                .ThenInclude(pr => pr.RankRequired)
+            .Include(p => p.Prerequisites)
             .Include(p => p.Cult)
             .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -48,12 +69,20 @@ public class PotentialService : IPotentialService
         {
             var potential = _mapper.Map<Potential>(potentialCreate);
 
-            if (potentialCreate.CultId.HasValue)
+            potential.Prerequisites = await _context.PotentialPrerequisites
+                .Where(pp => potentialCreate.Prerequisites.Select(p => p.Id).Contains(pp.Id))
+                .ToListAsync();
+
+            if (potentialCreate.CultId is not null)
             {
-                potential.Cult = await _context.Cults.FindAsync(potentialCreate.CultId);
+                potential.Cult = await _context.Cults.FirstAsync(c => c.Id == potentialCreate.CultId);
+            }
+            else
+            {
+                potential.Cult = null;
             }
 
-            _context.Potentials.Add(potential);
+                _context.Potentials.Add(potential);
             await _context.SaveChangesAsync();
             return _mapper.Map<PotentialDto>(potential);
         }
@@ -68,18 +97,29 @@ public class PotentialService : IPotentialService
         try
         {
             var existingPotential = await _context.Potentials
-            .Include(p => p.Cult)
-            .FirstOrDefaultAsync(p => p.Id == potentialDto.Id);
+                .Include(p => p.Prerequisites)
+                .Include(p => p.Cult)
+                .FirstOrDefaultAsync(p => p.Id == potentialDto.Id);
 
             if (existingPotential is null)
                 return false;
 
             _mapper.Map(potentialDto, existingPotential);
 
-            if (potentialDto.Cult?.Id != null)
+            existingPotential.Prerequisites = await _context.PotentialPrerequisites
+                .Where(pp => potentialDto.Prerequisites.Select(p => p.Id).Contains(pp.Id))
+                .ToListAsync();
+
+            if(potentialDto.CultId is not null)
             {
-                existingPotential.Cult = await _context.Cults.FindAsync(potentialDto.Cult.Id);
+                existingPotential.Cult = await _context.Cults.FirstAsync(c => c.Id == potentialDto.CultId);
             }
+            else
+            {
+                existingPotential.Cult = null;
+                existingPotential.CultId = null;
+            }
+                
 
             await _context.SaveChangesAsync();
             return true;

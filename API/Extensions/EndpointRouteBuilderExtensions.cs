@@ -30,6 +30,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapCultEndpoints();
         endpoints.MapCultureEndpoints();
         endpoints.MapPotentialEndpoints();
+        endpoints.MapPotentialPrerequisiteEndpoints();
         endpoints.MapRankEndpoints();
         endpoints.MapRankPrerequisiteEndpoints();
         endpoints.MapSkillEndpoints();

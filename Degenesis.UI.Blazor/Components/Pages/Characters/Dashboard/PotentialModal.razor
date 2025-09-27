@@ -1,17 +1,27 @@
 ﻿<MudDialog>
     <DialogContent>
         <MudTextField Label="Name" @bind-Value="Potential.Name" Required="true" />
-        <MudTextField Label="Description" @bind-Value="Potential.Description" Required="true" />
-        <MudTextField Label="Prerequisite" @bind-Value="Potential.Prerequisite"/>
+        <MudTextField Label="Description" @bind-Value="Potential.Description" />
 
         <MudSelect T="Guid?" Label="Cult (Optional)" @bind-Value="Potential.CultId">
-            <MudSelectItem T="Guid?" Value="null">(None)</MudSelectItem>
+            <MudSelectItem T="Guid?" Value="null">- None -</MudSelectItem>
             @foreach (var cult in Cults)
             {
                 <MudSelectItem T="Guid?" Value="@cult.Id">@cult.Name</MudSelectItem>
             }
         </MudSelect>
 
+        <MudSelect T="Guid" Label="Prerequisites" MultiSelection="true"
+                   SelectedValues="SelectedPrerequisiteIds"
+                   SelectedValuesChanged="OnPrerequisitesChanged"
+                   ToStringFunc="GetPrerequisiteLabel">
+            @foreach (var prerequisite in PotentialPrerequisites)
+            {
+                <MudSelectItem T="Guid" Value="@prerequisite.Id">
+                    @GetPrerequisiteLabel(prerequisite.Id)
+                </MudSelectItem>
+            }
+        </MudSelect>
     </DialogContent>
 
     <DialogActions>

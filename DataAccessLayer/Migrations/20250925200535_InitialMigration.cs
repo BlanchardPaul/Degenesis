@@ -413,7 +413,6 @@ namespace DataAccessLayer.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Prerequisite = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -977,6 +976,54 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PotentialPrerequisites",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    AttributeRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SkillRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SumRequired = table.Column<int>(type: "int", nullable: true),
+                    BackgroundRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    BackgroundLevelRequired = table.Column<int>(type: "int", nullable: true),
+                    IsBackgroundPrerequisite = table.Column<bool>(type: "bit", nullable: false),
+                    RankRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsRankPrerequisite = table.Column<bool>(type: "bit", nullable: false),
+                    CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PotentialPrerequisites", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PotentialPrerequisites_Attributes_AttributeRequiredId",
+                        column: x => x.AttributeRequiredId,
+                        principalTable: "Attributes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PotentialPrerequisites_Backgrounds_BackgroundRequiredId",
+                        column: x => x.BackgroundRequiredId,
+                        principalTable: "Backgrounds",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PotentialPrerequisites_Cults_CultId",
+                        column: x => x.CultId,
+                        principalTable: "Cults",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PotentialPrerequisites_Ranks_RankRequiredId",
+                        column: x => x.RankRequiredId,
+                        principalTable: "Ranks",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PotentialPrerequisites_Skills_SkillRequiredId",
+                        column: x => x.SkillRequiredId,
+                        principalTable: "Skills",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NPCEquipments",
                 columns: table => new
                 {
@@ -1125,8 +1172,7 @@ namespace DataAccessLayer.Migrations
                         name: "FK_CharacterAttributes_Characters_CharacterId",
                         column: x => x.CharacterId,
                         principalTable: "Characters",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1333,6 +1379,30 @@ namespace DataAccessLayer.Migrations
                         name: "FK_CharacterWeapons_Weapons_WeaponId",
                         column: x => x.WeaponId,
                         principalTable: "Weapons",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PotentialPotentialPrerequisite",
+                columns: table => new
+                {
+                    PotentialId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PrerequisitesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PotentialPotentialPrerequisite", x => new { x.PotentialId, x.PrerequisitesId });
+                    table.ForeignKey(
+                        name: "FK_PotentialPotentialPrerequisite_PotentialPrerequisites_PrerequisitesId",
+                        column: x => x.PrerequisitesId,
+                        principalTable: "PotentialPrerequisites",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PotentialPotentialPrerequisite_Potentials_PotentialId",
+                        column: x => x.PotentialId,
+                        principalTable: "Potentials",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1572,6 +1642,36 @@ namespace DataAccessLayer.Migrations
                 column: "WeaponId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PotentialPotentialPrerequisite_PrerequisitesId",
+                table: "PotentialPotentialPrerequisite",
+                column: "PrerequisitesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PotentialPrerequisites_AttributeRequiredId",
+                table: "PotentialPrerequisites",
+                column: "AttributeRequiredId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PotentialPrerequisites_BackgroundRequiredId",
+                table: "PotentialPrerequisites",
+                column: "BackgroundRequiredId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PotentialPrerequisites_CultId",
+                table: "PotentialPrerequisites",
+                column: "CultId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PotentialPrerequisites_RankRequiredId",
+                table: "PotentialPrerequisites",
+                column: "RankRequiredId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PotentialPrerequisites_SkillRequiredId",
+                table: "PotentialPrerequisites",
+                column: "SkillRequiredId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Potentials_CultId",
                 table: "Potentials",
                 column: "CultId");
@@ -1735,6 +1835,9 @@ namespace DataAccessLayer.Migrations
                 name: "NPCWeapons");
 
             migrationBuilder.DropTable(
+                name: "PotentialPotentialPrerequisite");
+
+            migrationBuilder.DropTable(
                 name: "ProtectionProtectionQuality");
 
             migrationBuilder.DropTable(
@@ -1765,10 +1868,13 @@ namespace DataAccessLayer.Migrations
                 name: "Equipments");
 
             migrationBuilder.DropTable(
-                name: "Potentials");
+                name: "NPCs");
 
             migrationBuilder.DropTable(
-                name: "NPCs");
+                name: "PotentialPrerequisites");
+
+            migrationBuilder.DropTable(
+                name: "Potentials");
 
             migrationBuilder.DropTable(
                 name: "ProtectionQualities");
@@ -1798,13 +1904,13 @@ namespace DataAccessLayer.Migrations
                 name: "Cultures");
 
             migrationBuilder.DropTable(
-                name: "Ranks");
-
-            migrationBuilder.DropTable(
                 name: "Rooms");
 
             migrationBuilder.DropTable(
                 name: "EquipmentTypes");
+
+            migrationBuilder.DropTable(
+                name: "Ranks");
 
             migrationBuilder.DropTable(
                 name: "Backgrounds");

@@ -37,10 +37,16 @@ public class CharacterService : ICharacterService
             .Include(c => c.Concept)
             .Include(c => c.Room)
             .Include(c => c.Rank)
-                .ThenInclude(r => r.Prerequisites)
+            .Include(c => c.CharacterAttributes)
+                .ThenInclude(ca => ca.Attribute)
+            .Include(c => c.CharacterSkills)
+                .ThenInclude(cs => cs.Skill)
+            .Include(c => c.CharacterBackgrounds)
+                .ThenInclude(cb => cb.Background)
+            .Include(c => c.CharacterPontentials)
+                .ThenInclude(cp => cp.Potential)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
-
 
     public async Task<IEnumerable<Character>> GetAllCharactersAsync()
     {
@@ -50,7 +56,14 @@ public class CharacterService : ICharacterService
             .Include(c => c.Concept)
             .Include(c => c.Room)
             .Include(c => c.Rank)
-                .ThenInclude(r => r.Prerequisites)
+            .Include(c => c.CharacterAttributes)
+                .ThenInclude(ca => ca.Attribute)
+            .Include(c => c.CharacterSkills)
+                .ThenInclude(cs => cs.Skill)
+            .Include(c => c.CharacterBackgrounds)
+                .ThenInclude(cb => cb.Background)
+            .Include(c => c.CharacterPontentials)
+                .ThenInclude(cp => cp.Potential)
             .ToListAsync();
     }
 
@@ -123,6 +136,21 @@ public class CharacterService : ICharacterService
                     BackgroundId = bgDto.BackgroundId,
                     Background = background,
                     Level = bgDto.Level
+                });
+            }
+
+            foreach (var cpDto in characterCreate.Potentials)
+            {
+                var potential = await _context.Potentials.FindAsync(cpDto.PotentialId)
+                                ?? throw new Exception("Potential not found");
+
+                _context.CharacterPotentials.Add(new CharacterPotential
+                {
+                    CharacterId = character.Id,
+                    Character = character,
+                    PotentialId = cpDto.PotentialId,
+                    Potential = potential,
+                    Level = cpDto.Level
                 });
             }
 

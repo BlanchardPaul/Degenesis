@@ -3,15 +3,14 @@
 
 <h3>Potentials</h3>
 
-
-@if (potentials is null)
+@if (Potentials is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Potential</MudButton>
-    <MudTable Items="@potentials"
+    <MudTable Items="@Potentials"
               Hover="true"
               SortLabel="Sort By"
               Dense="true"
@@ -24,15 +23,24 @@ else
                 </MudTableSortLabel>
             </MudTh>
             <MudTh>Description</MudTh>
-            <MudTh>Prerequisite</MudTh>
             <MudTh>Cult</MudTh>
+            <MudTh>Prerequisites</MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>@context.Name</MudTd>
             <MudTd>@context.Description</MudTd>
-            <MudTd>@context.Prerequisite</MudTd>
-            <MudTd>@(context.Cult != null ? context.Cult.Name : "None")</MudTd>
+            <MudTd>@(context.Cult != null ? context.Cult.Name : "-")</MudTd>
+            <MudTd>
+                @if (context.Prerequisites.Any())
+                {
+                    @string.Join(" | ", context.Prerequisites.Select(GetPrerequisiteLabel))
+                }
+                else
+                {
+                    <span>No Prerequisites</span>
+                }
+            </MudTd>
             <MudTd>
                 <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
                 <MudButton OnClick="() => DeletePotential(context.Id)" Color="Color.Error">Delete</MudButton>

@@ -9,6 +9,6 @@ public class PotentialCreateDto
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public string Prerequisite { get; set; } = string.Empty;
     public Guid? CultId { get; set; }
+    public List<PotentialPrerequisiteDto> Prerequisites { get; set; } = [];
 }

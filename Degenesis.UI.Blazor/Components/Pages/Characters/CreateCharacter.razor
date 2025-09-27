@@ -47,16 +47,23 @@
         </MudStep>
         <MudStep Label="Assign Rank" Disabled="@(_step < 3)">
             <CharacterRankStep @ref="_rankStep"
-                               SelectedRankId="Character.RankId"
-                               SelectedRankIdChanged="@(v => Character.RankId = v)"
                                Ranks="SortedRanks"
-                               Character="this.Character"/>
+                               Character="Character" />
 
             <MudButton OnClick="ValidateStepRank" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
                 Validate
             </MudButton>
         </MudStep>
-        <MudStep Label="Finish" Disabled="@(_step < 4)">
+        <MudStep Label="Potential" Disabled="@(_step < 4)">
+            <CharacterPotentialStep @ref="_potentialStep"
+                                    Potentials="SortedPotentials"
+                                    Character="Character" />
+
+            <MudButton OnClick="ValidateStepPotential" Color="Color.Primary" Variant="Variant.Filled" FullWidth="true">
+                Validate
+            </MudButton>
+        </MudStep>
+        <MudStep Label="Finish" Disabled="@(_step < 5)">
             <MudText Typo="Typo.h6" Class="mb-4">
                 Congrats, your character is ready to be saved!
             </MudText>

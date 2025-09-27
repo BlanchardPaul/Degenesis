@@ -22,11 +22,11 @@ internal sealed class PotentialConfiguration : IEntityTypeConfiguration<Potentia
             .IsRequired()
             .HasMaxLength(1000);
 
-        builder.Property(p => p.Prerequisite)
-            .HasMaxLength(200);
-
         builder.HasOne(p => p.Cult)
             .WithMany()
             .HasForeignKey(p => p.CultId);
+
+        builder.HasMany(p => p.Prerequisites)
+            .WithMany();
     }
 }

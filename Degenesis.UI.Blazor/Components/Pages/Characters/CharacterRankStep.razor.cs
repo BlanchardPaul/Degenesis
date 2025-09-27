@@ -7,21 +7,13 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters;
 public partial class CharacterRankStep
 {
     [Parameter] public List<RankDto> Ranks { get; set; } = [];
-    [Parameter] public Guid SelectedRankId { get; set; } = Guid.Empty;
-    [Parameter] public EventCallback<Guid> SelectedRankIdChanged { get; set; }
     [Parameter] public CharacterCreateDto Character { get; set; } = new();
 
     private MudForm _formStepRank = default!;
 
-    private async Task OnSelectedRankChanged(Guid rankId)
-    {
-        SelectedRankId = rankId;
-        await SelectedRankIdChanged.InvokeAsync(rankId);
-    }
-
     public bool ValidateForm()
     {
-        if (SelectedRankId == Guid.Empty)
+        if (Character.RankId == Guid.Empty)
         {
             Snackbar.Add("Please select a rank before continuing.", Severity.Error);
             return false;

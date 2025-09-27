@@ -492,16 +492,60 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("Prerequisite")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CultId");
 
                     b.ToTable("Potentials", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Characters.PotentialPrerequisite", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<Guid?>("AttributeRequiredId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("BackgroundLevelRequired")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("BackgroundRequiredId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CultId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsBackgroundPrerequisite")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRankPrerequisite")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("RankRequiredId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("SkillRequiredId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("SumRequired")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttributeRequiredId");
+
+                    b.HasIndex("BackgroundRequiredId");
+
+                    b.HasIndex("CultId");
+
+                    b.HasIndex("RankRequiredId");
+
+                    b.HasIndex("SkillRequiredId");
+
+                    b.ToTable("PotentialPrerequisites", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Characters.Rank", b =>
@@ -1577,6 +1621,21 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PotentialPotentialPrerequisite", b =>
+                {
+                    b.Property<Guid>("PotentialId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PrerequisitesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("PotentialId", "PrerequisitesId");
+
+                    b.HasIndex("PrerequisitesId");
+
+                    b.ToTable("PotentialPotentialPrerequisite");
+                });
+
             modelBuilder.Entity("ProtectionProtectionQuality", b =>
                 {
                     b.Property<Guid>("ProtectionId")
@@ -1782,7 +1841,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Characters.Character", "Character")
                         .WithMany("CharacterAttributes")
                         .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Attribute");
@@ -1884,6 +1943,44 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("CultId");
 
                     b.Navigation("Cult");
+                });
+
+            modelBuilder.Entity("Domain.Characters.PotentialPrerequisite", b =>
+                {
+                    b.HasOne("Domain.Characters.CAttribute", "AttributeRequired")
+                        .WithMany()
+                        .HasForeignKey("AttributeRequiredId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Domain.Characters.Background", "BackgroundRequired")
+                        .WithMany()
+                        .HasForeignKey("BackgroundRequiredId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Domain.Characters.Cult", "Cult")
+                        .WithMany()
+                        .HasForeignKey("CultId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Domain.Characters.Rank", "RankRequired")
+                        .WithMany()
+                        .HasForeignKey("RankRequiredId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Domain.Characters.Skill", "SkillRequired")
+                        .WithMany()
+                        .HasForeignKey("SkillRequiredId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("AttributeRequired");
+
+                    b.Navigation("BackgroundRequired");
+
+                    b.Navigation("Cult");
+
+                    b.Navigation("RankRequired");
+
+                    b.Navigation("SkillRequired");
                 });
 
             modelBuilder.Entity("Domain.Characters.Rank", b =>
@@ -2272,6 +2369,21 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Users.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PotentialPotentialPrerequisite", b =>
+                {
+                    b.HasOne("Domain.Characters.Potential", null)
+                        .WithMany()
+                        .HasForeignKey("PotentialId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Characters.PotentialPrerequisite", null)
+                        .WithMany()
+                        .HasForeignKey("PrerequisitesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

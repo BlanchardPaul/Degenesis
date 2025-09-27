@@ -1,0 +1,38 @@
+﻿@page "/dashboard/potentialprerequisites"
+
+<h3>Potential Prerequisites</h3>
+
+@if (PotentialPrerequisites is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">
+        Create New Potential Prerequisite
+    </MudButton>
+
+    <MudTable Items="@PotentialPrerequisites" Hover="true" Dense="true">
+        <HeaderContent>
+            <MudTh>Attribute</MudTh>
+            <MudTh>Skill</MudTh>
+            <MudTh>Sum</MudTh>
+            <MudTh>Background</MudTh>
+            <MudTh>Background Level</MudTh>
+            <MudTh>Rank Required</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@(context.AttributeRequired?.Name ?? "-")</MudTd>
+            <MudTd>@(context.SkillRequired?.Name ?? "-")</MudTd>
+            <MudTd>@(context.SumRequired?.ToString() ?? "-")</MudTd>
+            <MudTd>@(context.BackgroundRequired?.Name ?? "-")</MudTd>
+            <MudTd>@(context.BackgroundLevelRequired?.ToString() ?? "-")</MudTd>
+            <MudTd>@(context.RankRequired?.Name ?? "-")</MudTd>
+            <MudTd>
+                <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
+                <MudButton OnClick="() => DeletePotentialPrerequisite(context.Id)" Color="Color.Error">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

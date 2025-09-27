@@ -7,35 +7,36 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters;
 public partial class CreateCharacter
 {
     [Parameter] public Guid RoomId { get; set; }
-    private HttpClient _client = new();
-
-    private CharacterCreateDto Character = new();
-    private List<CultDto> AvailableCults = [];
-    private List<CultureDto> Cultures = [];
-    private List<ConceptDto> Concepts = [];
 
     private int _step = 0;
     private bool _saving = false;
 
-    private List<AttributeDto> Attributes = [];
-    private List<SkillDto> Skills = [];
+    private HttpClient _client = new();
 
-    private List<CharacterAttributeDto> CharacterAttributes = [];
-    private List<CharacterSkillDto> CharacterSkills = [];
-    private List<CharacterBackgroundDto> CharacterBackgrounds = [];
-
+    private CharacterCreateDto Character = new();
     private CultureDto SelectedCulture = new();
     private CultDto SelectedCult = new();
     private ConceptDto selectedConcept = new();
-    private CharacterBasicInfoStep _basicInfoStep = default!;
-    private CharacterStatsStep _characterStatsStep = default!;
 
-    private CharacterBackgroundStep _characterBackgroundStep = default!;
+    private List<CultDto> AvailableCults = [];
+    private List<CultureDto> Cultures = [];
+    private List<ConceptDto> Concepts = [];
+    private List<AttributeDto> Attributes = [];
+    private List<SkillDto> Skills = [];
+    private List<CharacterAttributeDto> CharacterAttributes = [];
+    private List<CharacterSkillDto> CharacterSkills = [];
+    private List<CharacterBackgroundDto> CharacterBackgrounds = [];
     private List<BackgroundDto> Backgrounds = [];
-
     private List<RankDto> SortedRanks = [];
     private List<RankDto> Ranks = [];
+    private List<PotentialDto> Potentials = [];
+    private List<PotentialDto> SortedPotentials = [];
+
+    private CharacterBasicInfoStep _basicInfoStep = default!;
+    private CharacterStatsStep _characterStatsStep = default!;
     private CharacterRankStep _rankStep = default!;
+    private CharacterPotentialStep _potentialStep = default!;
+    private CharacterBackgroundStep _characterBackgroundStep = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -47,6 +48,7 @@ public partial class CreateCharacter
         Skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
         Backgrounds = await _client.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
         Ranks = await _client.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
+        Potentials = await _client.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
     }
 
     // Those are step 1 logic but it's here because we need some of the step 1 DTOs in step 2
@@ -65,6 +67,7 @@ public partial class CreateCharacter
         Character.CultId = selectedCultId;
         SelectedCult = AvailableCults.FirstOrDefault(c => c.Id == selectedCultId) ?? new();
         SortedRanks = Ranks.Where(r => r.CultId == Character.CultId).ToList();
+        SortedPotentials = Potentials.Where(p => p.CultId == Character.CultId || p.CultId is null).ToList();
         Character.RankId = Guid.Empty;
         return Task.CompletedTask;
     }
@@ -82,9 +85,8 @@ public partial class CreateCharacter
         // When user clicks the "Complete" button, arg.Action == StepAction.Complete
         if (arg.Action == StepAction.Complete)
         {
-            // If the user completes the final step (index 3 here), save the character
-            const int finalStepIndex = 4;
-            if (arg.StepIndex == finalStepIndex)
+            // If the user completes the final step, save the character
+            if (arg.StepIndex == 5)
             {
                 // Prevent double submission
                 if (_saving)
@@ -174,6 +176,14 @@ public partial class CreateCharacter
         if (await _rankStep.ValidateFormAsync())
         {
             _step = 4;
+        }
+    }
+
+    private async Task ValidateStepPotential()
+    {
+        if (await _potentialStep.ValidateFormAsync())
+        {
+            _step = 5;
         }
     }
     #endregion
