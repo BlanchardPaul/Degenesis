@@ -27,9 +27,9 @@ public class MappingProfile : Profile
         CreateMap<Artifact, Artifact>();
 
         CreateMap<AttributeCreateDto, CAttribute>();
-        CreateMap<CAttribute, CAttribute>();
         CreateMap<CAttribute, AttributeDto>();
-        CreateMap<AttributeDto, CAttribute>();
+        CreateMap<AttributeDto, CAttribute>()
+            .ForMember(dest => dest.Skills, opt => opt.Ignore()); ;
 
         CreateMap<BackgroundCreateDto, Background>();
         CreateMap<Background, BackgroundDto>();

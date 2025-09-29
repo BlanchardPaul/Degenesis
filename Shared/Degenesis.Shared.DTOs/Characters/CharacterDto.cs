@@ -12,6 +12,7 @@ public class CharacterCreateDto
     public int MaxSporeInfestation { get; set; } = 2;
     public int MaxFleshWounds { get; set; } = 2;
     public int MaxTrauma { get; set; } = 2;
+    public bool IsFocusOriented { get; set; }
     public Guid CultId { get; set; }
     public Guid CultureId { get; set; }
     public Guid ConceptId { get; set; }

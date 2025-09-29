@@ -6,6 +6,6 @@ public class Skill
     public string Description { get; set; } = string.Empty;
 
     public Guid CAttributeId { get; set; }
-
+    public bool IsFocusOriented { get; set; }
     public CAttribute CAttribute { get; set; } = null!;
 }

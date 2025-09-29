@@ -56,6 +56,16 @@ public class SkillService : ISkillService
         try
         {
             var skill = _mapper.Map<Skill>(skillCreate);
+
+            // Ensure IsFocusOriented comes from parent Attribute
+            var parentAttribute = await _context.Attributes
+                .FirstOrDefaultAsync(a => a.Id == skillCreate.CAttributeId);
+
+            if (parentAttribute != null)
+            {
+                skill.IsFocusOriented = parentAttribute.IsFocusOriented;
+            }
+
             _context.Skills.Add(skill);
             await _context.SaveChangesAsync();
             return skill;

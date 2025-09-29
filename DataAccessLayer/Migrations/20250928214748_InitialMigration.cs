@@ -75,7 +75,8 @@ namespace DataAccessLayer.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Abbreviation = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsFocusOriented = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -393,7 +394,8 @@ namespace DataAccessLayer.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CAttributeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    CAttributeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsFocusOriented = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -927,12 +929,13 @@ namespace DataAccessLayer.Migrations
                     PassiveDefense = table.Column<int>(type: "int", nullable: false),
                     Experience = table.Column<int>(type: "int", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsFocusOriented = table.Column<bool>(type: "bit", nullable: false),
                     CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CultureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ConceptId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     IdRoom = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdApplicationUser = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdApplicationUser = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -987,8 +990,7 @@ namespace DataAccessLayer.Migrations
                     BackgroundLevelRequired = table.Column<int>(type: "int", nullable: true),
                     IsBackgroundPrerequisite = table.Column<bool>(type: "bit", nullable: false),
                     RankRequiredId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsRankPrerequisite = table.Column<bool>(type: "bit", nullable: false),
-                    CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    IsRankPrerequisite = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1003,12 +1005,6 @@ namespace DataAccessLayer.Migrations
                         name: "FK_PotentialPrerequisites_Backgrounds_BackgroundRequiredId",
                         column: x => x.BackgroundRequiredId,
                         principalTable: "Backgrounds",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_PotentialPrerequisites_Cults_CultId",
-                        column: x => x.CultId,
-                        principalTable: "Cults",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -1655,11 +1651,6 @@ namespace DataAccessLayer.Migrations
                 name: "IX_PotentialPrerequisites_BackgroundRequiredId",
                 table: "PotentialPrerequisites",
                 column: "BackgroundRequiredId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PotentialPrerequisites_CultId",
-                table: "PotentialPrerequisites",
-                column: "CultId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PotentialPrerequisites_RankRequiredId",

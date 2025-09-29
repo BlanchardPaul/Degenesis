@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Characters;
 public interface IAttributeService
 {
-    Task<CAttribute?> GetAttributeByIdAsync(Guid id);
-    Task<IEnumerable<CAttribute>> GetAllAttributesAsync();
-    Task<CAttribute?> CreateAttributeAsync(AttributeCreateDto attributeCreate);
-    Task<bool> UpdateAttributeAsync(CAttribute attribute);
+    Task<AttributeDto?> GetAttributeByIdAsync(Guid id);
+    Task<IEnumerable<AttributeDto>> GetAllAttributesAsync();
+    Task<AttributeDto?> CreateAttributeAsync(AttributeCreateDto attributeCreate);
+    Task<bool> UpdateAttributeAsync(AttributeDto attribute);
     Task<bool> DeleteAttributeAsync(Guid id);
 }
 
@@ -26,26 +26,28 @@ public class AttributeService : IAttributeService
         _mapper = mapper;
     }
 
-    public async Task<CAttribute?> GetAttributeByIdAsync(Guid id)
+    public async Task<AttributeDto?> GetAttributeByIdAsync(Guid id)
     {
-        return await _context.Attributes
-            .Include(a => a.Skills) // Inclure les compétences associées
+        var attribute = await _context.Attributes
+            .Include(a => a.Skills)
             .FirstOrDefaultAsync(a => a.Id == id);
+        return _mapper.Map<AttributeDto>(attribute);
     }
 
-    public async Task<IEnumerable<CAttribute>> GetAllAttributesAsync()
+    public async Task<IEnumerable<AttributeDto>> GetAllAttributesAsync()
     {
-        return await _context.Attributes.ToListAsync();
+        var attributes = await _context.Attributes.ToListAsync();
+        return _mapper.Map<IEnumerable<AttributeDto>>(attributes);
     }
 
-    public async Task<CAttribute?> CreateAttributeAsync(AttributeCreateDto attributeCreate)
+    public async Task<AttributeDto?> CreateAttributeAsync(AttributeCreateDto attributeCreate)
     {
         try
         {
             var attribute = _mapper.Map<CAttribute>(attributeCreate);
             _context.Attributes.Add(attribute);
             await _context.SaveChangesAsync();
-            return attribute;
+            return _mapper.Map<AttributeDto>(attribute);
         }
         catch (Exception) { 
             return null;
@@ -53,14 +55,23 @@ public class AttributeService : IAttributeService
 
     }
 
-    public async Task<bool> UpdateAttributeAsync(CAttribute attribute)
+    public async Task<bool> UpdateAttributeAsync(AttributeDto attribute)
     {
         try
         {
-            var existing = await _context.Attributes.FindAsync(attribute.Id);
+            var existing = await _context.Attributes
+                .Include(a => a.Skills)
+                .FirstOrDefaultAsync(a => a.Id == attribute.Id);
             if (existing is null) return false;
 
             _mapper.Map(attribute, existing);
+
+
+            // Cascade IsFocusOriented to all linked Skills
+            foreach (var skill in existing.Skills)
+            {
+                skill.IsFocusOriented = existing.IsFocusOriented;
+            }
 
             await _context.SaveChangesAsync();
             return true;

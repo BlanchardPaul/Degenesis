@@ -31,13 +31,19 @@ else
             <MudTh>
                 Description
             </MudTh>
+            <MudTh>
+                Focus/Primal Oriented
+            </MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
 
         <RowTemplate>
-            <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Abbreviation">@context.Abbreviation</MudTd>
-            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.Abbreviation</MudTd>
+            <MudTd>@context.Description</MudTd>
+            <MudTd>
+                @(context.IsFocusOriented ? "Focus" : "Primal")
+            </MudTd>
             <MudTd>
                 <MudButton Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
                 <MudButton Color="Color.Error" OnClick="() => DeleteAttribute(context.Id)">Delete</MudButton>

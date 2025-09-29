@@ -25,6 +25,8 @@ internal class SkillConfiguration : IEntityTypeConfiguration<Skill>
         builder.Property(s => s.CAttributeId)
             .IsRequired();
 
+        builder.Property(a => a.IsFocusOriented);
+
         builder.HasOne(s => s.CAttribute)
             .WithMany(a => a.Skills)
             .HasForeignKey(s => s.CAttributeId)

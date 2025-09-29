@@ -30,7 +30,7 @@ public static class AttributeEndpoints
             return Results.Created();
         });
 
-        group.MapPut("/", async (CAttribute attribute, IAttributeService service) =>
+        group.MapPut("/", async (AttributeDto attribute, IAttributeService service) =>
         {
             var success = await service.UpdateAttributeAsync(attribute);
             return success ? Results.Ok() : Results.NotFound();

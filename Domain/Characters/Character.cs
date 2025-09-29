@@ -31,6 +31,7 @@ public class Character
     public int PassiveDefense { get; set; } = 1;
     public int Experience { get; set; }
     public string Notes { get; set; } = string.Empty;
+    public bool IsFocusOriented { get; set; }
     public Guid CultId { get; set; }
     public Cult Cult { get; set; } = new();
     public Guid CultureId { get; set; }
@@ -39,9 +40,9 @@ public class Character
     public Concept Concept { get; set; } = new();
     public Guid IdRoom { get; set; }
     public Room Room { get; set; } = new();
-    public Guid IdApplicationUser { get; set; }
     public Guid RankId { get; set; }
     public Rank Rank { get; set; } = new();
+    public Guid IdApplicationUser { get; set; }
     public ApplicationUser ApplicationUser { get; set; } = new();
     public List<CharacterBackground> CharacterBackgrounds { get; set; } = [];
     public List<CharacterBurn> CharacterBurns { get; set; } = [];

@@ -42,6 +42,8 @@ public partial class CharacterStatsStep
         foreach (var skill in Skills)
             if (!CharacterSkills.Any(s => s.SkillId == skill.Id))
                 CharacterSkills.Add(new CharacterSkillDto { SkillId = skill.Id, Level = 0 });
+
+        ComputeCharacterDerivedStats();
     }
 
     private int GetAttributeLevel(Guid attributeId) =>
@@ -129,6 +131,13 @@ public partial class CharacterStatsStep
         var total = GetTotalAttributesUsed();
         var current = GetAttributeLevel(attributeId);
         return total >= MaxAttributePoints && current <= 1;
+    }
+
+    private bool IsSkillDisabled(Guid skillId)
+    {
+        var total = GetTotalSkillsUsed();
+        var current = GetSkillLevel(skillId);
+        return total >= MaxSkillPoints && current <= 0;
     }
 
     private void OnSkillValueChanged(Guid skillId, int newValue)

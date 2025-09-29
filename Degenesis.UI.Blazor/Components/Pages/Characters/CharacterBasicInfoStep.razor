@@ -4,7 +4,10 @@
     <MudNumericField Label="Height (cm)" @bind-Value="Character.Height" Min="50" Max="250" Required="true" Class="mb-4" />
     <MudNumericField Label="Weight (kg)" @bind-Value="Character.Weight" Min="20" Max="250" Required="true" Class="mb-4" />
     <MudTextField T="string" Label="Sex" @bind-Value="Character.Sex" Required="true" Class="mb-4" />
-
+    <MudRadioGroup @bind-Value="@Character.IsFocusOriented">
+        <MudRadio Value="@true" Color="Color.Primary">Is Focus Oriented</MudRadio>
+        <MudRadio Value="@false" Color="Color.Primary">Is Primal Oriented</MudRadio>
+    </MudRadioGroup>
     <MudDivider />
 
     <MudText Typo="Typo.h6">Culture selection</MudText>

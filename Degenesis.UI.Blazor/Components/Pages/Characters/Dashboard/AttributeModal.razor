@@ -3,6 +3,12 @@
         <MudTextField Label="Name" @bind-Value="Attribute.Name" Required="true" />
         <MudTextField Label="Abbreviation" @bind-Value="Attribute.Abbreviation" Required="true" />
         <MudTextField Label="Description" @bind-Value="Attribute.Description" Required="true" />
+
+        <MudRadioGroup @bind-Value="@Attribute.IsFocusOriented">
+            <MudRadio Value="@true" Color="Color.Primary">Is Focus Oriented</MudRadio>
+            <MudRadio Value="@false" Color="Color.Primary">Is Primal Oriented</MudRadio>
+        </MudRadioGroup>
+
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="SaveAttribute" Color="Color.Primary">Save</MudButton>

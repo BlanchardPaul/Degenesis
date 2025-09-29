@@ -38,6 +38,7 @@
                                          Value="BindSkillValue(skill.Id)"
                                          ValueChanged="@(v => BindSkillValueChanged(skill.Id, v))"
                                          Immediate="true"
+                                         Disabled="@IsSkillDisabled(skill.Id)"
                                          Required="true"
                                          Class="mb-2" />
                     }

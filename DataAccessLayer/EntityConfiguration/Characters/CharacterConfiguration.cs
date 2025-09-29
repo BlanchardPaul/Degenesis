@@ -56,6 +56,8 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
 
         builder.Property(c => c.Notes);
 
+        builder.Property(a => a.IsFocusOriented);
+
         builder.HasOne(c => c.Room)
             .WithMany(r => r.Characters)
             .HasForeignKey(c => c.IdRoom);

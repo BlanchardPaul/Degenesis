@@ -23,5 +23,7 @@ internal class AttributeConfiguration : IEntityTypeConfiguration<CAttribute>
 
         builder.Property(a => a.Description)
                .IsRequired();
+
+        builder.Property(a => a.IsFocusOriented);
     }
 }

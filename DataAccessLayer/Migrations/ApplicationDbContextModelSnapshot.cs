@@ -197,6 +197,9 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsFocusOriented")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -253,6 +256,9 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<Guid>("IdRoom")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsFocusOriented")
+                        .HasColumnType("bit");
 
                     b.Property<int>("MaxEgo")
                         .HasColumnType("int");
@@ -515,9 +521,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<Guid?>("BackgroundRequiredId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("CultId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsBackgroundPrerequisite")
                         .HasColumnType("bit");
 
@@ -538,8 +541,6 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("AttributeRequiredId");
 
                     b.HasIndex("BackgroundRequiredId");
-
-                    b.HasIndex("CultId");
 
                     b.HasIndex("RankRequiredId");
 
@@ -634,6 +635,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsFocusOriented")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1957,11 +1961,6 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("BackgroundRequiredId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Domain.Characters.Cult", "Cult")
-                        .WithMany()
-                        .HasForeignKey("CultId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("Domain.Characters.Rank", "RankRequired")
                         .WithMany()
                         .HasForeignKey("RankRequiredId")
@@ -1975,8 +1974,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("AttributeRequired");
 
                     b.Navigation("BackgroundRequired");
-
-                    b.Navigation("Cult");
 
                     b.Navigation("RankRequired");
 

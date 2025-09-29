@@ -194,9 +194,18 @@ public class CharacterService : ICharacterService
 
     public async Task<bool> DeleteCharacterAsync(Guid id)
     {
-        var character = await _context.Characters.FindAsync(id);
+        var character = await _context.Characters
+               .Include(c => c.CharacterAttributes)
+               .Include(c => c.CharacterSkills)
+               .Include(c => c.CharacterBackgrounds)
+               .Include(c => c.CharacterPontentials)
+               .FirstOrDefaultAsync(c => c.Id == id);
+
         if (character is null)
             return false;
+
+        // Here we have to delete the CharacterAttributes manually because we can't put an OnDelete.Cascade in the configuration
+        _context.CharacterAttributes.RemoveRange(character.CharacterAttributes);
 
         _context.Characters.Remove(character);
         await _context.SaveChangesAsync();

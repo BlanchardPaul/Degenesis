@@ -114,7 +114,7 @@ public class CultService : ICultService
             .Include(c => c.BonusSkills)
             .FirstOrDefaultAsync(c => c.Id == cultDto.Id);
 
-            if (existingCult is null)
+            if(existingCult is null)
                 throw new Exception("Cult not found");
 
             _context.Entry(existingCult).CurrentValues.SetValues(cultDto);
