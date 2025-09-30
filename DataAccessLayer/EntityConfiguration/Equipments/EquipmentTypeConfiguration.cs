@@ -20,7 +20,6 @@ internal class EquipmentTypeConfiguration : IEntityTypeConfiguration<EquipmentTy
             .HasMaxLength(100);
 
         builder.Property(et => et.Description)
-            .IsRequired()
-            .HasMaxLength(1000);
+            .IsRequired();
     }
 }

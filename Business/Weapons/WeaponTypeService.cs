@@ -1,15 +1,13 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
-using Degenesis.Shared.DTOs.Protections;
 using Degenesis.Shared.DTOs.Weapons;
-using Domain.Protections;
 using Domain.Weapons;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Weapons;
 public interface IWeaponTypeService
 {
-    Task<IEnumerable<WeaponTypeDto>> GetAllWeaponTypesAsync();
+    Task<List<WeaponTypeDto>> GetAllWeaponTypesAsync();
     Task<WeaponTypeDto?> GetWeaponTypeByIdAsync(Guid id);
     Task<WeaponTypeDto?> CreateWeaponTypeAsync(WeaponTypeCreateDto weaponTypeCreate);
     Task<bool> UpdateWeaponTypeAsync(WeaponTypeDto weaponType);
@@ -27,16 +25,24 @@ public class WeaponTypeService : IWeaponTypeService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<WeaponTypeDto>> GetAllWeaponTypesAsync()
+    public async Task<List<WeaponTypeDto>> GetAllWeaponTypesAsync()
     {
         var weaponTypes = await _context.WeaponTypes.ToListAsync();
-        return _mapper.Map<IEnumerable<WeaponTypeDto>>(weaponTypes);
+        return _mapper.Map<List<WeaponTypeDto>>(weaponTypes);
     }
 
     public async Task<WeaponTypeDto?> GetWeaponTypeByIdAsync(Guid id)
     {
-        var weaponType = await _context.WeaponTypes.FindAsync(id);
-        return weaponType is null ? null : _mapper.Map<WeaponTypeDto>(weaponType);
+        try
+        {
+            var weaponType = await _context.WeaponTypes.FindAsync(id)
+                ?? throw new Exception("WeaponType not found");
+            return _mapper.Map<WeaponTypeDto>(weaponType);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<WeaponTypeDto?> CreateWeaponTypeAsync(WeaponTypeCreateDto weaponTypeCreate)
@@ -58,9 +64,8 @@ public class WeaponTypeService : IWeaponTypeService
     {
         try
         {
-            var existingWeaponType = await _context.WeaponTypes.FindAsync(weaponTypeDto.Id);
-            if (existingWeaponType is null)
-                return false;
+            var existingWeaponType = await _context.WeaponTypes.FindAsync(weaponTypeDto.Id)
+                ?? throw new Exception("WeaponType not found");
 
             _mapper.Map(weaponTypeDto, existingWeaponType);
             await _context.SaveChangesAsync();
@@ -76,9 +81,8 @@ public class WeaponTypeService : IWeaponTypeService
     {
         try
         {
-            var weaponType = await _context.WeaponTypes.FindAsync(id);
-            if (weaponType is null)
-                return false;
+            var weaponType = await _context.WeaponTypes.FindAsync(id)
+                ?? throw new Exception("WeaponType not found");
 
             _context.WeaponTypes.Remove(weaponType);
             await _context.SaveChangesAsync();

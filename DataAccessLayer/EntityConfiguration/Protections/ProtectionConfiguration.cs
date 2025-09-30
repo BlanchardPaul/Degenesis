@@ -25,8 +25,7 @@ internal sealed class ProtectionConfiguration : IEntityTypeConfiguration<Protect
             .HasMaxLength(100);
 
         builder.Property(p => p.Description)
-            .IsRequired()
-            .HasMaxLength(1000);
+            .IsRequired();
 
         builder.Property(p => p.Armor);
         builder.Property(p => p.Stockage);

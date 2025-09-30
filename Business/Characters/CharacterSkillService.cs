@@ -1,76 +1,46 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Characters;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;
 public interface ICharacterSkillService
 {
-    Task<CharacterSkill?> GetCharacterSkillByIdAsync(Guid characterId, Guid skillId);
-    Task<IEnumerable<CharacterSkill>> GetCharacterSkillsByCharacterIdAsync(Guid characterId);
-    Task<IEnumerable<CharacterSkill>> GetCharacterSkillsBySkillIdAsync(Guid skillId);
-    Task<CharacterSkill> CreateCharacterSkillAsync(CharacterSkill characterSkill);
-    Task<bool> UpdateCharacterSkillAsync(Guid characterId, Guid skillId, CharacterSkill characterSkill);
-    Task<bool> DeleteCharacterSkillAsync(Guid characterId, Guid skillId);
+    Task<bool> UpdateCharacterSkillAsync(CharacterSkillDto characterSkill);
 }
 public class CharacterSkillService : ICharacterSkillService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public CharacterSkillService(ApplicationDbContext context)
+    public CharacterSkillService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<CharacterSkill?> GetCharacterSkillByIdAsync(Guid characterId, Guid skillId)
+    public async Task<bool> UpdateCharacterSkillAsync(CharacterSkillDto characterSkill)
     {
-        return await _context.CharacterSkills
-            .FirstOrDefaultAsync(cs => cs.CharacterId == characterId && cs.SkillId == skillId);
-    }
+        try
+        {
+            var existingCharacterSkill = await _context.CharacterSkills
+                .Include(a => a.Skill)
+                .Include(a => a.Character)
+                .FirstOrDefaultAsync(cs => cs.CharacterId == characterSkill.CharacterId && cs.SkillId == characterSkill.SkillId)
+                ?? throw new Exception("CharacterSkill not found");
 
-    public async Task<IEnumerable<CharacterSkill>> GetCharacterSkillsByCharacterIdAsync(Guid characterId)
-    {
-        return await _context.CharacterSkills
-            .Where(cs => cs.CharacterId == characterId)
-            .ToListAsync();
-    }
+            _mapper.Map(characterSkill, existingCharacterSkill);
 
-    public async Task<IEnumerable<CharacterSkill>> GetCharacterSkillsBySkillIdAsync(Guid skillId)
-    {
-        return await _context.CharacterSkills
-            .Where(cs => cs.SkillId == skillId)
-            .ToListAsync();
-    }
-
-    public async Task<CharacterSkill> CreateCharacterSkillAsync(CharacterSkill characterSkill)
-    {
-        _context.CharacterSkills.Add(characterSkill);
-        await _context.SaveChangesAsync();
-        return characterSkill;
-    }
-
-    public async Task<bool> UpdateCharacterSkillAsync(Guid characterId, Guid skillId, CharacterSkill characterSkill)
-    {
-        var existingCharacterSkill = await _context.CharacterSkills
-            .FirstOrDefaultAsync(cs => cs.CharacterId == characterId && cs.SkillId == skillId);
-
-        if (existingCharacterSkill is null)
+            existingCharacterSkill.Skill = await _context.Skills.FirstOrDefaultAsync(a => a.Id == characterSkill.SkillId) ?? throw new Exception("Skill not found");
+            existingCharacterSkill.Character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == characterSkill.CharacterId) ?? throw new Exception("Character not found");
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
-
-        _context.Entry(existingCharacterSkill).CurrentValues.SetValues(characterSkill);
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 
-    public async Task<bool> DeleteCharacterSkillAsync(Guid characterId, Guid skillId)
-    {
-        var characterSkill = await _context.CharacterSkills
-            .FirstOrDefaultAsync(cs => cs.CharacterId == characterId && cs.SkillId == skillId);
-
-        if (characterSkill is null)
-            return false;
-
-        _context.CharacterSkills.Remove(characterSkill);
-        await _context.SaveChangesAsync();
-        return true;
-    }
 }

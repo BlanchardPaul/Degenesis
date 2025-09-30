@@ -24,9 +24,7 @@ public static class WeaponEndpoints
         group.MapPost("/", async (IWeaponService service, WeaponCreateDto weapon) =>
         {
             var created = await service.CreateWeaponAsync(weapon);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (IWeaponService service, WeaponDto weapon) =>

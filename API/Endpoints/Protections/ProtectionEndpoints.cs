@@ -18,19 +18,13 @@ public static class ProtectionEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IProtectionService service) =>
         {
             var protection = await service.GetProtectionByIdAsync(id);
-            if (protection is null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(protection);
+            return protection is not null ? Results.Ok(protection) : Results.NotFound();
         });
 
         group.MapPost("/", async (ProtectionCreateDto protection, IProtectionService service) =>
         {
             var created = await service.CreateProtectionAsync(protection);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (ProtectionDto protection, IProtectionService service) =>

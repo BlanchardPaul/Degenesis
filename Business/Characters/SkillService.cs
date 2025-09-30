@@ -9,9 +9,9 @@ namespace Business.Characters;
 public interface ISkillService
 {
     Task<List<SkillDto>> GetAllSkillsAsync();
-    Task<Skill?> GetSkillByIdAsync(Guid id);
-    Task<Skill?> CreateSkillAsync(SkillCreateDto skillCreate);
-    Task<bool> UpdateSkillAsync(Skill skill);
+    Task<SkillDto?> GetSkillByIdAsync(Guid id);
+    Task<SkillDto?> CreateSkillAsync(SkillCreateDto skillCreate);
+    Task<bool> UpdateSkillAsync(SkillDto skill);
     Task<bool> DeleteSkillAsync(Guid id);
 }
 public class SkillService : ISkillService
@@ -26,49 +26,22 @@ public class SkillService : ISkillService
 
     public async Task<List<SkillDto>> GetAllSkillsAsync()
     {
-        return await _context.Skills
+        var skills = await _context.Skills
             .Include(s => s.CAttribute)
-            .Select(s => new SkillDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                Description = s.Description,
-                CAttribute = new AttributeDto
-                {
-                    Id = s.CAttribute.Id,
-                    Name = s.CAttribute.Name,
-                    Abbreviation = s.CAttribute.Abbreviation,
-                    Description = s.CAttribute.Description
-                },
-                CAttributeId = s.CAttributeId,
-            })
             .ToListAsync();
+        return _mapper.Map<List<SkillDto>>(skills);
     }
 
-    public async Task<Skill?> GetSkillByIdAsync(Guid id)
-    {
-        return await _context.Skills
-            .FirstOrDefaultAsync(s => s.Id == id);
-    }
-
-    public async Task<Skill?> CreateSkillAsync(SkillCreateDto skillCreate)
+    public async Task<SkillDto?> GetSkillByIdAsync(Guid id)
     {
         try
         {
-            var skill = _mapper.Map<Skill>(skillCreate);
+            var skill = await _context.Skills
+            .Include(s => s.CAttribute)
+            .FirstOrDefaultAsync(a => a.Id == id)
+            ?? throw new Exception("Skill not found");
 
-            // Ensure IsFocusOriented comes from parent Attribute
-            var parentAttribute = await _context.Attributes
-                .FirstOrDefaultAsync(a => a.Id == skillCreate.CAttributeId);
-
-            if (parentAttribute != null)
-            {
-                skill.IsFocusOriented = parentAttribute.IsFocusOriented;
-            }
-
-            _context.Skills.Add(skill);
-            await _context.SaveChangesAsync();
-            return skill;
+            return _mapper.Map<SkillDto>(skill);
         }
         catch (Exception)
         {
@@ -76,14 +49,47 @@ public class SkillService : ISkillService
         }
     }
 
-    public async Task<bool> UpdateSkillAsync(Skill skill)
+    public async Task<SkillDto?> CreateSkillAsync(SkillCreateDto skillCreate)
     {
         try
         {
-            var existing = await _context.Skills.FindAsync(skill.Id);
-            if (existing is null) return false;
+            var skill = _mapper.Map<Skill>(skillCreate);
+
+            // Ensure IsFocusOriented comes from parent Attribute
+            var parentAttribute = await _context.Attributes
+                .FirstOrDefaultAsync(a => a.Id == skillCreate.CAttributeId)
+                ?? throw new Exception("Attribute not found");
+
+            skill.CAttribute = parentAttribute;
+            skill.IsFocusOriented = parentAttribute.IsFocusOriented;
+
+            _context.Skills.Add(skill);
+            await _context.SaveChangesAsync();
+            return _mapper.Map<SkillDto>(skill);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateSkillAsync(SkillDto skill)
+    {
+        try
+        {
+            var existing = await _context.Skills
+                .Include(s => s.CAttribute)
+                .FirstOrDefaultAsync(a => a.Id == skill.Id)
+                ?? throw new Exception("Skill not found");
 
             _mapper.Map(skill, existing);
+
+            var parentAttribute = await _context.Attributes
+                .FirstOrDefaultAsync(a => a.Id == skill.CAttributeId)
+                ?? throw new Exception("Attribute not found");
+
+            existing.CAttribute = parentAttribute;
+            existing.IsFocusOriented = parentAttribute.IsFocusOriented;
 
             await _context.SaveChangesAsync();
             return true;
@@ -98,11 +104,10 @@ public class SkillService : ISkillService
     {
         try
         {
-            var existingSkill = await _context.Skills.FindAsync(id);
-            if (existingSkill is null)
-            {
-                return false;
-            }
+            var existingSkill = await _context.Skills
+                .Include(s => s.CAttribute)
+                .FirstOrDefaultAsync(a => a.Id == id)
+                ?? throw new Exception("Skill not found");
 
             _context.Skills.Remove(existingSkill);
             await _context.SaveChangesAsync();

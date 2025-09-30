@@ -33,8 +33,16 @@ public class WeaponQualityService : IWeaponQualityService
 
     public async Task<WeaponQualityDto?> GetWeaponQualityByIdAsync(Guid id)
     {
-        var weaponQuality = await _context.WeaponQualities.FindAsync(id);
-        return weaponQuality is null ? null : _mapper.Map<WeaponQualityDto>(weaponQuality);
+        try
+        {
+            var weaponQuality = await _context.WeaponQualities.FindAsync(id)
+                ?? throw new Exception("WeaponQuality not found");
+            return _mapper.Map<WeaponQualityDto>(weaponQuality);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<WeaponQualityDto?> CreateWeaponQualityAsync(WeaponQualityCreateDto weaponQualityCreate)
@@ -56,9 +64,8 @@ public class WeaponQualityService : IWeaponQualityService
     {
         try
         {
-            var existingWeaponQuality = await _context.WeaponQualities.FindAsync(weaponQualityDto.Id);
-            if (existingWeaponQuality is null)
-                return false;
+            var existingWeaponQuality = await _context.WeaponQualities.FindAsync(weaponQualityDto.Id)
+                ?? throw new Exception("WeaponQuality not found");
 
             _mapper.Map(weaponQualityDto, existingWeaponQuality);
             await _context.SaveChangesAsync();
@@ -74,9 +81,8 @@ public class WeaponQualityService : IWeaponQualityService
     {
         try
         {
-            var weaponQuality = await _context.WeaponQualities.FindAsync(id);
-            if (weaponQuality is null)
-                return false;
+            var weaponQuality = await _context.WeaponQualities.FindAsync(id)
+                ?? throw new Exception("WeaponQuality not found");
 
             _context.WeaponQualities.Remove(weaponQuality);
             await _context.SaveChangesAsync();

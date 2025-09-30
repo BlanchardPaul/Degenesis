@@ -1,6 +1,5 @@
 ﻿using Business._Artifacts;
 using Degenesis.Shared.DTOs._Artifacts;
-using Domain._Artifacts;
 
 namespace API.Endpoints._Artifacts;
 
@@ -24,15 +23,13 @@ public static class ArtifactEndpoints
         group.MapPost("/", async (ArtifactCreateDto artifact, IArtifactService service) =>
         {
             var created = await service.CreateAsync(artifact);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
-        group.MapPut("/", async (Artifact artifact, IArtifactService service) =>
+        group.MapPut("/", async (ArtifactDto artifact, IArtifactService service) =>
         {
             var success = await service.UpdateAsync(artifact);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IArtifactService service) =>

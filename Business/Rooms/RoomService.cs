@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs.Rooms;
-using Domain._Artifacts;
 using Domain.Rooms;
 using Domain.Users;
 using Microsoft.AspNetCore.Identity;
@@ -11,7 +10,7 @@ namespace Business.Rooms;
 
 public interface IRoomService
 {
-    Task<IEnumerable<RoomDisplayDto>> GetAllAsync(string userName);
+    Task<List<RoomDisplayDto>> GetAllAsync(string userName);
     Task<RoomDisplayDto?> GetByIdAsync(Guid id);
     Task<Guid?> CreateAsync(RoomCreateDto roomCreate, string userName);
     Task<bool> UpdateAsync(RoomDto room);
@@ -35,7 +34,7 @@ public class RoomService : IRoomService
     }
 
 
-    public async Task<IEnumerable<RoomDisplayDto>> GetAllAsync(string userName)
+    public async Task<List<RoomDisplayDto>> GetAllAsync(string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
         if (user is null)
@@ -71,9 +70,8 @@ public class RoomService : IRoomService
             var dbRoom = await _context.Rooms
                 .Include(r => r.UserRooms)
                 .ThenInclude(ur => ur.ApplicationUser)
-                .FirstOrDefaultAsync(r => r.Id == id);
-            if (dbRoom is null)
-                return null;
+                .FirstOrDefaultAsync(r => r.Id == id) 
+                ?? throw new Exception("Room not found");
 
             return new RoomDisplayDto
             {
@@ -96,18 +94,15 @@ public class RoomService : IRoomService
     {
         try
         {
-            var creator = await _userManager.FindByNameAsync(userName);
-            if (creator is null)
-                return null;
-
-            var dbUser = _context.Users.Find(creator.Id);
-            if (dbUser is null)
-                return null;
+            var creator = await _userManager.FindByNameAsync(userName) 
+                ?? throw new Exception("User in UserManager not found");
+            var dbUser = _context.Users.Find(creator.Id) 
+                ?? throw new Exception("User in DB not found");
 
             var room = _mapper.Map<Room>(roomCreate);
 
-            room.UserRooms = new List<UserRoom>
-            {
+            room.UserRooms =
+            [
                 new UserRoom
                 {
                     IdApplicationUser = creator.Id,
@@ -115,7 +110,7 @@ public class RoomService : IRoomService
                     InvitationAccepted = true,
                     ApplicationUser = dbUser
                 }
-            };
+            ];
 
             _context.Rooms.Add(room);
             await _context.SaveChangesAsync();
@@ -130,8 +125,8 @@ public class RoomService : IRoomService
 
     public async Task<bool> UpdateAsync(RoomDto room)
     {
-        var existing = await _context.Rooms.IgnoreAutoIncludes().FirstOrDefaultAsync(r => r.Id == room.Id);
-        if (existing is null) return false;
+        var existing = await _context.Rooms.IgnoreAutoIncludes().FirstOrDefaultAsync(r => r.Id == room.Id)
+            ?? throw new Exception("Room not found"); ;
 
         _mapper.Map(room, existing);
 
@@ -141,8 +136,8 @@ public class RoomService : IRoomService
 
     public async Task<bool> DeleteRoomAsync(Guid id)
     {
-        var room = await _context.Rooms.FindAsync(id);
-        if (room is null) return false;
+        var room = await _context.Rooms.FindAsync(id)
+            ?? throw new Exception("User in UserManager not found");
 
         _context.Rooms.Remove(room);
         await _context.SaveChangesAsync();
@@ -153,11 +148,11 @@ public class RoomService : IRoomService
     {
         try
         {
-            var dbRoom = await _context.Rooms.FindAsync(invitationDto.IdRoom);
-            if (dbRoom is null) return false;
+            var dbRoom = await _context.Rooms.FindAsync(invitationDto.IdRoom)
+                ?? throw new Exception("Room not found");
 
-            var user = await _userManager.FindByNameAsync(invitationDto.UserName);
-            if (user is null) return false;
+            var user = await _userManager.FindByNameAsync(invitationDto.UserName)
+                ?? throw new Exception("User not found");
 
             //Check if user alreasy invited
             var existingUserRoom = await _context.UserRooms.FirstOrDefaultAsync(ur => ur.IdRoom == invitationDto.IdRoom && ur.IdApplicationUser == user.Id);
@@ -185,11 +180,11 @@ public class RoomService : IRoomService
     {
         try
         {
-            var user = await _userManager.FindByNameAsync(userName);
-            if (user is null) return false;
+            var user = await _userManager.FindByNameAsync(userName)
+                ?? throw new Exception("User not found");
 
-            var dbUserRoom = await _context.UserRooms.FirstOrDefaultAsync(ur => ur.IdRoom == idRoom && ur.IdApplicationUser == user.Id);
-            if (dbUserRoom is null) return false;
+            var dbUserRoom = await _context.UserRooms.FirstOrDefaultAsync(ur => ur.IdRoom == idRoom && ur.IdApplicationUser == user.Id)
+                ?? throw new Exception("UserRoom not found");
 
             dbUserRoom.InvitationAccepted = true;
             await _context.SaveChangesAsync();
@@ -204,11 +199,11 @@ public class RoomService : IRoomService
     {
         try
         {
-            var user = await _userManager.FindByNameAsync(userName);
-            if (user is null) return false;
+            var user = await _userManager.FindByNameAsync(userName)
+                ?? throw new Exception("User not found");
 
-            var dbUserRoom = await _context.UserRooms.FirstOrDefaultAsync(ur => ur.IdRoom == idRoom && ur.IdApplicationUser == user.Id);
-            if (dbUserRoom is null) return false;
+            var dbUserRoom = await _context.UserRooms.FirstOrDefaultAsync(ur => ur.IdRoom == idRoom && ur.IdApplicationUser == user.Id)
+                ?? throw new Exception("UserRoom not found");
 
             _context.UserRooms.Remove(dbUserRoom);
             await _context.SaveChangesAsync();

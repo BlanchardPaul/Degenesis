@@ -18,25 +18,19 @@ public static class RankPrerequisiteEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IRankPrerequisiteService service) =>
         {
             var rankPrerequisite = await service.GetRankPrerequisiteByIdAsync(id);
-            if (rankPrerequisite is null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(rankPrerequisite);
+            return rankPrerequisite is not null ? Results.Ok(rankPrerequisite) : Results.NotFound();
         });
 
         group.MapPost("/", async (RankPrerequisiteCreateDto rankPrerequisite, IRankPrerequisiteService service) =>
         {
             var created = await service.CreateRankPrerequisiteAsync(rankPrerequisite);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (RankPrerequisiteDto rankPrerequisite, IRankPrerequisiteService service) =>
         {
             var success = await service.UpdateRankPrerequisiteAsync(rankPrerequisite);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IRankPrerequisiteService service) =>

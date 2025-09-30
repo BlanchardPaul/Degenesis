@@ -23,15 +23,13 @@ public static class CultureEndpoints
         group.MapPost("/", async (CultureCreateDto culture, ICultureService cultureService) =>
         {
             var created = await cultureService.CreateCultureAsync(culture);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (CultureDto culture, ICultureService cultureService) =>
         {
             var success = await cultureService.UpdateCultureAsync(culture);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id}", async (Guid id, ICultureService cultureService) =>

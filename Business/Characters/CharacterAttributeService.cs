@@ -1,77 +1,45 @@
-﻿using DataAccessLayer;
-using Domain.Characters;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Characters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;
 public interface ICharacterAttributeService
 {
-    Task<CharacterAttribute?> GetCharacterAttributeByIdAsync(Guid characterId, Guid attributeId);
-    Task<IEnumerable<CharacterAttribute>> GetCharacterAttributesByCharacterIdAsync(Guid characterId);
-    Task<IEnumerable<CharacterAttribute>> GetCharacterAttributesByAttributeIdAsync(Guid attributeId);
-    Task<CharacterAttribute> CreateCharacterAttributeAsync(CharacterAttribute characterAttribute);
-    Task<bool> UpdateCharacterAttributeAsync(Guid characterId, Guid attributeId, CharacterAttribute characterAttribute);
-    Task<bool> DeleteCharacterAttributeAsync(Guid characterId, Guid attributeId);
+    Task<bool> UpdateCharacterAttributeAsync(CharacterAttributeDto characterAttribute);
 }
 
 public class CharacterAttributeService : ICharacterAttributeService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public CharacterAttributeService(ApplicationDbContext context)
+    public CharacterAttributeService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<CharacterAttribute?> GetCharacterAttributeByIdAsync(Guid characterId, Guid attributeId)
+    public async Task<bool> UpdateCharacterAttributeAsync(CharacterAttributeDto characterAttribute)
     {
-        return await _context.CharacterAttributes
-            .FirstOrDefaultAsync(ca => ca.CharacterId == characterId && ca.AttributeId == attributeId);
-    }
+        try
+        {
+            var existingCharacterAttribute = await _context.CharacterAttributes
+                .Include(a => a.Attribute)
+                .Include(a => a.Character)
+                .FirstOrDefaultAsync(ca => ca.CharacterId == characterAttribute.CharacterId && ca.AttributeId == characterAttribute.AttributeId) ?? throw new Exception("CharacterAttribute not found");
 
-    public async Task<IEnumerable<CharacterAttribute>> GetCharacterAttributesByCharacterIdAsync(Guid characterId)
-    {
-        return await _context.CharacterAttributes
-            .Where(ca => ca.CharacterId == characterId)
-            .ToListAsync();
-    }
+            // We ignore the Attribute and character in the mapper, it will never be changed from here
+            _mapper.Map(characterAttribute, existingCharacterAttribute);
 
-    public async Task<IEnumerable<CharacterAttribute>> GetCharacterAttributesByAttributeIdAsync(Guid attributeId)
-    {
-        return await _context.CharacterAttributes
-            .Where(ca => ca.AttributeId == attributeId)
-            .ToListAsync();
-    }
-
-    public async Task<CharacterAttribute> CreateCharacterAttributeAsync(CharacterAttribute characterAttribute)
-    {
-        _context.CharacterAttributes.Add(characterAttribute);
-        await _context.SaveChangesAsync();
-        return characterAttribute;
-    }
-
-    public async Task<bool> UpdateCharacterAttributeAsync(Guid characterId, Guid attributeId, CharacterAttribute characterAttribute)
-    {
-        var existingCharacterAttribute = await _context.CharacterAttributes
-            .FirstOrDefaultAsync(ca => ca.CharacterId == characterId && ca.AttributeId == attributeId);
-
-        if (existingCharacterAttribute is null)
+            existingCharacterAttribute.Attribute = await _context.Attributes.FirstOrDefaultAsync(a => a.Id == characterAttribute.AttributeId) ?? throw new Exception("Attribute not found");
+            existingCharacterAttribute.Character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == characterAttribute.CharacterId) ?? throw new Exception("Character not found");
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
-
-        _context.Entry(existingCharacterAttribute).CurrentValues.SetValues(characterAttribute);
-        await _context.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<bool> DeleteCharacterAttributeAsync(Guid characterId, Guid attributeId)
-    {
-        var characterAttribute = await _context.CharacterAttributes
-            .FirstOrDefaultAsync(ca => ca.CharacterId == characterId && ca.AttributeId == attributeId);
-
-        if (characterAttribute is null)
-            return false;
-
-        _context.CharacterAttributes.Remove(characterAttribute);
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 }

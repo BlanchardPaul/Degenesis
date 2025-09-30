@@ -11,7 +11,7 @@ public partial class ProtectionModal
     [Parameter] public ProtectionDto Protection { get; set; } = new();
     [Parameter] public List<ProtectionQualityDto> ProtectionQualities { get; set; } = new();
 
-    private HashSet<Guid> SelectedQualityIds { get; set; } = [];
+    private List<Guid> SelectedQualityIds { get; set; } = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -21,14 +21,14 @@ public partial class ProtectionModal
 
     protected override void OnParametersSet()
     {
-        // Assurer la préselection des qualités existantes
-        SelectedQualityIds = new HashSet<Guid>(Protection.Qualities.Select(q => q.Id));
+        Protection.Qualities ??= [];
+        SelectedQualityIds = [.. Protection.Qualities.Select(bs => bs.Id)];
     }
 
     private Task OnQualitiesChanged(IEnumerable<Guid> selectedValues)
     {
-        SelectedQualityIds = new HashSet<Guid>(selectedValues);
-        Protection.QualityIds = [.. SelectedQualityIds];
+        SelectedQualityIds = [.. selectedValues];
+        Protection.Qualities = [.. ProtectionQualities.Where(s => SelectedQualityIds.Contains(s.Id))]; ;
         return Task.CompletedTask;
     }
 

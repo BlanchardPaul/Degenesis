@@ -18,19 +18,13 @@ public static class EquipmentEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IEquipmentService service) =>
         {
             var equipment = await service.GetEquipmentByIdAsync(id);
-            if (equipment is null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(equipment);
+            return equipment is not null ? Results.Ok(equipment) : Results.NotFound();
         });
 
         group.MapPost("/", async (EquipmentCreateDto equipment, IEquipmentService service) =>
         {
             var created = await service.CreateEquipmentAsync(equipment);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (EquipmentDto equipment, IEquipmentService service) =>

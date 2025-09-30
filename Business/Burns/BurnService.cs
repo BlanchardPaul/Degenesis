@@ -1,17 +1,16 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs.Burns;
-using Domain._Artifacts;
 using Domain.Burns;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Burns;
 public interface IBurnService
 {
-    Task<List<Burn>> GetAllAsync();
-    Task<Burn?> GetByIdAsync(Guid id);
-    Task<Burn?> CreateAsync(BurnCreateDto burn);
-    Task<bool> UpdateAsync(Burn burn);
+    Task<List<BurnDto>> GetAllAsync();
+    Task<BurnDto?> GetByIdAsync(Guid id);
+    Task<BurnDto?> CreateAsync(BurnCreateDto burn);
+    Task<bool> UpdateAsync(BurnDto burn);
     Task<bool> DeleteAsync(Guid id);
 }
 public class BurnService : IBurnService
@@ -25,37 +24,44 @@ public class BurnService : IBurnService
         _mapper = mapper;
     }
 
-    public async Task<List<Burn>> GetAllAsync()
+    public async Task<List<BurnDto>> GetAllAsync()
     {
-        return await _context.Burns.ToListAsync();
+        var burns = await _context.Burns.ToListAsync();
+        return _mapper.Map<List<BurnDto>>(burns);
     }
 
-    public async Task<Burn?> GetByIdAsync(Guid id)
+    public async Task<BurnDto?> GetByIdAsync(Guid id)
     {
-        return await _context.Burns
-            .FirstOrDefaultAsync(b => b.Id == id);
+        try
+        {
+            var burn = await _context.Burns.FirstOrDefaultAsync(b => b.Id == id) ?? throw new Exception("Burn not found");
+            return _mapper.Map<BurnDto>(burn);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
-    public async Task<Burn?> CreateAsync(BurnCreateDto burnCreate)
+    public async Task<BurnDto?> CreateAsync(BurnCreateDto burnCreate)
     {
         try
         {
             var burn = _mapper.Map<Burn>(burnCreate);
             _context.Burns.Add(burn);
             await _context.SaveChangesAsync();
-            return burn;
+            return _mapper.Map<BurnDto>(burn);
         }
         catch (Exception) {
             return null;
         }
     }
 
-    public async Task<bool> UpdateAsync(Burn burn)
+    public async Task<bool> UpdateAsync(BurnDto burn)
     {
         try
         {
-            var existing = await _context.Burns.FindAsync(burn.Id);
-            if (existing is null) return false;
+            var existing = await _context.Burns.FirstOrDefaultAsync(b => b.Id == burn.Id) ?? throw new Exception("Burns not found");
 
             _mapper.Map(burn, existing);
 
@@ -71,11 +77,7 @@ public class BurnService : IBurnService
     {
         try
         {
-            var existingBurn = await _context.Burns.FindAsync(id);
-            if (existingBurn is null)
-            {
-                return false;
-            }
+            var existingBurn = await _context.Burns.FirstOrDefaultAsync(b => b.Id == id) ?? throw new Exception("Burns not found");
 
             _context.Burns.Remove(existingBurn);
             await _context.SaveChangesAsync();

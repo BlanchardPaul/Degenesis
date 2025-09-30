@@ -16,7 +16,6 @@ internal class ProtectionQualitiesConfiguration : IEntityTypeConfiguration<Prote
             .HasMaxLength(100);
 
         builder.Property(pq => pq.Description)
-            .IsRequired()
-            .HasMaxLength(1000);
+            .IsRequired();
     }
 }

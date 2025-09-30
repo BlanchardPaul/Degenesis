@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.Shared.DTOs.Characters;
-using Domain.Burns;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +9,7 @@ namespace Business.Characters;
 public interface IAttributeService
 {
     Task<AttributeDto?> GetAttributeByIdAsync(Guid id);
-    Task<IEnumerable<AttributeDto>> GetAllAttributesAsync();
+    Task<List<AttributeDto>> GetAllAttributesAsync();
     Task<AttributeDto?> CreateAttributeAsync(AttributeCreateDto attributeCreate);
     Task<bool> UpdateAttributeAsync(AttributeDto attribute);
     Task<bool> DeleteAttributeAsync(Guid id);
@@ -28,16 +28,23 @@ public class AttributeService : IAttributeService
 
     public async Task<AttributeDto?> GetAttributeByIdAsync(Guid id)
     {
-        var attribute = await _context.Attributes
-            .Include(a => a.Skills)
-            .FirstOrDefaultAsync(a => a.Id == id);
-        return _mapper.Map<AttributeDto>(attribute);
+        try
+        {
+            var attribute = await _context.Attributes
+                .Include(a => a.Skills)
+                .FirstOrDefaultAsync(a => a.Id == id) ?? throw new Exception("Attribute not found");
+            return _mapper.Map<AttributeDto>(attribute);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
-    public async Task<IEnumerable<AttributeDto>> GetAllAttributesAsync()
+    public async Task<List<AttributeDto>> GetAllAttributesAsync()
     {
         var attributes = await _context.Attributes.ToListAsync();
-        return _mapper.Map<IEnumerable<AttributeDto>>(attributes);
+        return _mapper.Map<List<AttributeDto>>(attributes);
     }
 
     public async Task<AttributeDto?> CreateAttributeAsync(AttributeCreateDto attributeCreate)
@@ -52,7 +59,6 @@ public class AttributeService : IAttributeService
         catch (Exception) { 
             return null;
         }
-
     }
 
     public async Task<bool> UpdateAttributeAsync(AttributeDto attribute)
@@ -61,11 +67,11 @@ public class AttributeService : IAttributeService
         {
             var existing = await _context.Attributes
                 .Include(a => a.Skills)
-                .FirstOrDefaultAsync(a => a.Id == attribute.Id);
-            if (existing is null) return false;
+                .FirstOrDefaultAsync(a => a.Id == attribute.Id) 
+                ?? throw new Exception("Attribute not found");
 
+            // Mapping ignores Skills, we don't modify them here (ecxept for IsFocusOriented)
             _mapper.Map(attribute, existing);
-
 
             // Cascade IsFocusOriented to all linked Skills
             foreach (var skill in existing.Skills)
@@ -86,9 +92,7 @@ public class AttributeService : IAttributeService
     {
         try
         {
-            var attribute = await _context.Attributes.FindAsync(id);
-            if (attribute is null)
-                return false;
+            var attribute = await _context.Attributes.FirstOrDefaultAsync(a => a.Id == id) ?? throw new Exception("Attribute not found");
 
             _context.Attributes.Remove(attribute);
             await _context.SaveChangesAsync();

@@ -13,7 +13,10 @@
         <MudNumericField Label="TechLevel" @bind-Value="Protection.TechLevel" />
         <MudNumericField Label="Value" @bind-Value="Protection.Value" />
         <MudTextField Label="Resources" @bind-Value="Protection.Resources" />
-        <MudSelect T="Guid" Label="Qualities" MultiSelection="true" SelectedValues="SelectedQualityIds" SelectedValuesChanged="OnQualitiesChanged"
+        <MudSelect T="Guid" Label="Qualities" 
+            MultiSelection="true" 
+            SelectedValues="SelectedQualityIds" 
+            SelectedValuesChanged="OnQualitiesChanged"
                    ToStringFunc="@(id => ProtectionQualities.FirstOrDefault(s => s.Id == id)?.Name ?? "Unknown")">
             @foreach (var quality in ProtectionQualities)
             {

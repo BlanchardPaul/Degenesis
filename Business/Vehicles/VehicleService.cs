@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
-using Degenesis.Shared.DTOs.Equipments;
 using Degenesis.Shared.DTOs.Vehicles;
 using Domain.Vehicles;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Vehicles;
 public interface IVehicleService
 {
-    Task<IEnumerable<VehicleDto>> GetAllVehiclesAsync();
+    Task<List<VehicleDto>> GetAllVehiclesAsync();
     Task<VehicleDto?> GetVehicleByIdAsync(Guid id);
     Task<VehicleDto?> CreateVehicleAsync(VehicleCreateDto vehicleCreate);
     Task<bool> UpdateVehicleAsync(VehicleDto vehicle);
@@ -26,21 +25,29 @@ public class VehicleService : IVehicleService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<VehicleDto>> GetAllVehiclesAsync()
+    public async Task<List<VehicleDto>> GetAllVehiclesAsync()
     {
         var vehicles = await _context.Vehicles
             .Include(v => v.VehicleType)
             .ToListAsync();
-        return _mapper.Map<IEnumerable<VehicleDto>>(vehicles);
+        return _mapper.Map<List<VehicleDto>>(vehicles);
     }
 
     public async Task<VehicleDto?> GetVehicleByIdAsync(Guid id)
     {
-        var vehicle = await _context.Vehicles
+        try
+        {
+            var vehicle = await _context.Vehicles
             .Include(v => v.VehicleType)
-            .FirstOrDefaultAsync(v => v.Id == id);
+            .FirstOrDefaultAsync(v => v.Id == id)
+            ?? throw new Exception("Vehicle not found");
 
-        return vehicle is null ? null : _mapper.Map<VehicleDto>(vehicle);
+            return _mapper.Map<VehicleDto>(vehicle);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<VehicleDto?> CreateVehicleAsync(VehicleCreateDto vehicleCreate)
@@ -48,7 +55,9 @@ public class VehicleService : IVehicleService
         try
         {
             var vehicle = _mapper.Map<Vehicle>(vehicleCreate);
-            vehicle.VehicleType = await _context.VehicleTypes.FirstAsync(vt => vt.Id == vehicleCreate.VehicleTypeId);
+            vehicle.VehicleType = await _context.VehicleTypes
+                .FirstOrDefaultAsync(vt => vt.Id == vehicleCreate.VehicleTypeId)
+                ?? throw new Exception("VehicleType not found");
 
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();
@@ -65,14 +74,14 @@ public class VehicleService : IVehicleService
         try
         {
             var existingVehicle = await _context.Vehicles
-            .Include(v => v.VehicleType)
-            .FirstOrDefaultAsync(v => v.Id == vehicleDto.Id);
-
-            if (existingVehicle is null || vehicleDto.VehicleType is null)
-                return false;
+                .Include(v => v.VehicleType)
+                .FirstOrDefaultAsync(v => v.Id == vehicleDto.Id)
+                ?? throw new Exception("Vehicle not found");
 
             _mapper.Map(vehicleDto, existingVehicle);
-            existingVehicle.VehicleType = await _context.VehicleTypes.FirstAsync(vt => vt.Id == vehicleDto.VehicleType.Id);
+            existingVehicle.VehicleType = await _context.VehicleTypes
+                .FirstOrDefaultAsync(vt => vt.Id == vehicleDto.VehicleType.Id)
+                ?? throw new Exception("VehicleType not found");
 
             await _context.SaveChangesAsync();
             return true;
@@ -86,9 +95,10 @@ public class VehicleService : IVehicleService
     {
         try
         {
-            var vehicle = await _context.Vehicles.FindAsync(id);
-            if (vehicle is null)
-                return false;
+            var vehicle = await _context.Vehicles
+                .Include(v => v.VehicleType)
+                .FirstOrDefaultAsync(v => v.Id == id)
+                ?? throw new Exception("Vehicle not found");
 
             _context.Vehicles.Remove(vehicle);
             await _context.SaveChangesAsync();

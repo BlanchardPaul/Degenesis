@@ -20,25 +20,19 @@ public static class PotentialPrerequisiteEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IPotentialPrerequisiteService service) =>
         {
             var prerequisite = await service.GetPotentialPrerequisiteByIdAsync(id);
-            if (prerequisite is null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(prerequisite);
+            return prerequisite is not null ? Results.Ok(prerequisite) : Results.NotFound();
         });
 
         group.MapPost("/", async (PotentialPrerequisiteCreateDto prerequisite, IPotentialPrerequisiteService service) =>
         {
             var created = await service.CreatePotentialPrerequisiteAsync(prerequisite);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created($"/potential-prerequisites/{created.Id}", created);
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (PotentialPrerequisiteDto prerequisite, IPotentialPrerequisiteService service) =>
         {
             var success = await service.UpdatePotentialPrerequisiteAsync(prerequisite);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IPotentialPrerequisiteService service) =>

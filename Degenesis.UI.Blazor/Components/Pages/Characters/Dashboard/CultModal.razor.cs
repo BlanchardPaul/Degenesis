@@ -18,21 +18,18 @@ public partial class CultModal
         _client = await HttpClientService.GetClientAsync();
     }
 
-    // Liste temporaire pour MudSelect
-    private HashSet<Guid> SelectedBonusSkillIds { get; set; } = new();
+    private List<Guid> SelectedBonusSkillIds { get; set; } = new();
 
     protected override void OnParametersSet()
     {
         Cult.BonusSkills ??= [];
-
-        // Assurer la préselection des valeurs existantes
-        SelectedBonusSkillIds = Cult.BonusSkills.Select(bs => bs.Id).ToHashSet();
+        SelectedBonusSkillIds = [.. Cult.BonusSkills.Select(bs => bs.Id)];
     }
 
     private Task OnBonusSkillsChanged(IEnumerable<Guid> selectedValues)
     {
-        SelectedBonusSkillIds = new HashSet<Guid>(selectedValues);
-        Cult.BonusSkills = Skills.Where(s => SelectedBonusSkillIds.ToList().Contains(s.Id)).ToList();
+        SelectedBonusSkillIds = [.. selectedValues];
+        Cult.BonusSkills = [.. Skills.Where(s => SelectedBonusSkillIds.Contains(s.Id))];
         return Task.CompletedTask;
     }
 

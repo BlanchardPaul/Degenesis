@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Protections;
 public interface IProtectionService
 {
-    Task<IEnumerable<ProtectionDto>> GetAllProtectionsAsync();
+    Task<List<ProtectionDto>> GetAllProtectionsAsync();
     Task<ProtectionDto?> GetProtectionByIdAsync(Guid id);
     Task<ProtectionDto?> CreateProtectionAsync(ProtectionCreateDto protectionCreate);
     Task<bool> UpdateProtectionAsync(ProtectionDto protection);
@@ -25,21 +25,29 @@ public class ProtectionService : IProtectionService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<ProtectionDto>> GetAllProtectionsAsync()
+    public async Task<List<ProtectionDto>> GetAllProtectionsAsync()
     {
         var protections = await _context.Protections
             .Include(p => p.Qualities)
             .ToListAsync();
-        return _mapper.Map<IEnumerable<ProtectionDto>>(protections);
+        return _mapper.Map<List<ProtectionDto>>(protections);
     }
 
     public async Task<ProtectionDto?> GetProtectionByIdAsync(Guid id)
     {
-        var protection = await _context.Protections
-            .Include(p => p.Qualities)
-            .FirstOrDefaultAsync(p => p.Id == id);
+        try
+        {
+            var protection = await _context.Protections
+                .Include(p => p.Qualities)
+                .FirstOrDefaultAsync(p => p.Id == id) ?? throw new Exception("Protection not found");
 
-        return protection is null ? null : _mapper.Map<ProtectionDto>(protection);
+            return _mapper.Map<ProtectionDto>(protection);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
     }
 
     public async Task<ProtectionDto?> CreateProtectionAsync(ProtectionCreateDto protectionCreate)
@@ -47,9 +55,13 @@ public class ProtectionService : IProtectionService
         try
         {
             var protection = _mapper.Map<Protection>(protectionCreate);
-            protection.Qualities = await _context.ProtectionQualities
-                .Where(q => protectionCreate.QualityIds.Contains(q.Id))
-                .ToListAsync();
+
+            foreach(var quality in protectionCreate.Qualities)
+            {
+                var existingQuality = await _context.ProtectionQualities.FindAsync(quality.Id)
+                    ?? throw new Exception("ProtectionQuality not found");
+                protection.Qualities.Add(existingQuality);
+            }
 
             _context.Protections.Add(protection);
             await _context.SaveChangesAsync();
@@ -67,15 +79,18 @@ public class ProtectionService : IProtectionService
         {
             var existingProtection = await _context.Protections
                 .Include(p => p.Qualities)
-                .FirstOrDefaultAsync(p => p.Id == protectionDto.Id);
-
-            if (existingProtection is null)
-                return false;
+                .FirstOrDefaultAsync(p => p.Id == protectionDto.Id)
+                ?? throw new Exception("Protection not found");
 
             _mapper.Map(protectionDto, existingProtection);
-            existingProtection.Qualities = await _context.ProtectionQualities
-                .Where(q => protectionDto.Qualities.Select(qd => qd.Id).Contains(q.Id))
-                .ToListAsync();
+
+            existingProtection.Qualities.Clear();
+            foreach (var quality in protectionDto.Qualities)
+            {
+                var existingQuality = await _context.ProtectionQualities.FindAsync(quality.Id)
+                    ?? throw new Exception("ProtectionQuality not found");
+                existingProtection.Qualities.Add(existingQuality);
+            }
 
             await _context.SaveChangesAsync();
             return true;
@@ -90,9 +105,10 @@ public class ProtectionService : IProtectionService
     {
         try
         {
-            var protection = await _context.Protections.FindAsync(id);
-            if (protection is null)
-                return false;
+            var protection = await _context.Protections
+                .Include(p => p.Qualities)
+                .FirstOrDefaultAsync(p => p.Id == id)
+                ?? throw new Exception("ProtectionQuality not found");
 
             _context.Protections.Remove(protection);
             await _context.SaveChangesAsync();

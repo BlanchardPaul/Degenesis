@@ -40,14 +40,20 @@ public class PotentialPrerequisiteService : IPotentialPrerequisiteService
 
     public async Task<PotentialPrerequisiteDto?> GetPotentialPrerequisiteByIdAsync(Guid id)
     {
-        var prerequisite = await _context.PotentialPrerequisites
+        try
+        {
+            var prerequisite = await _context.PotentialPrerequisites
             .Include(pp => pp.AttributeRequired)
             .Include(pp => pp.SkillRequired)
             .Include(pp => pp.BackgroundRequired)
             .Include(pp => pp.RankRequired)
-            .FirstOrDefaultAsync(pp => pp.Id == id);
-
-        return prerequisite is null ? null : _mapper.Map<PotentialPrerequisiteDto>(prerequisite);
+            .FirstOrDefaultAsync(pp => pp.Id == id) ?? throw new Exception("PotentialPrerequisite not found");
+            return _mapper.Map<PotentialPrerequisiteDto>(prerequisite);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<PotentialPrerequisiteDto?> CreatePotentialPrerequisiteAsync(PotentialPrerequisiteCreateDto createDto)
@@ -58,16 +64,24 @@ public class PotentialPrerequisiteService : IPotentialPrerequisiteService
             prerequisite.Id = Guid.NewGuid();
 
             if (createDto.AttributeRequiredId is not null)
-                prerequisite.AttributeRequired = await _context.Attributes.FindAsync(createDto.AttributeRequiredId);
+                prerequisite.AttributeRequired = await _context.Attributes
+                    .FindAsync(createDto.AttributeRequiredId)
+                    ?? throw new Exception("Attribute not found");
 
             if (createDto.SkillRequiredId is not null)
-                prerequisite.SkillRequired = await _context.Skills.FindAsync(createDto.SkillRequiredId);
+                prerequisite.SkillRequired = await _context.Skills
+                    .FindAsync(createDto.SkillRequiredId)
+                    ?? throw new Exception("Skill not found");
 
             if (createDto.BackgroundRequiredId is not null)
-                prerequisite.BackgroundRequired = await _context.Backgrounds.FindAsync(createDto.BackgroundRequiredId);
+                prerequisite.BackgroundRequired = await _context.Backgrounds
+                    .FindAsync(createDto.BackgroundRequiredId)
+                    ?? throw new Exception("Background not found");
 
             if (createDto.RankRequiredId is not null)
-                prerequisite.RankRequired = await _context.Ranks.FindAsync(createDto.RankRequiredId);
+                prerequisite.RankRequired = await _context.Ranks
+                    .FindAsync(createDto.RankRequiredId)
+                    ?? throw new Exception("Rank not found");
 
             _context.PotentialPrerequisites.Add(prerequisite);
             await _context.SaveChangesAsync();
@@ -89,7 +103,8 @@ public class PotentialPrerequisiteService : IPotentialPrerequisiteService
                 .Include(pp => pp.SkillRequired)
                 .Include(pp => pp.BackgroundRequired)
                 .Include(pp => pp.RankRequired)
-                .FirstOrDefaultAsync(pp => pp.Id == prerequisiteDto.Id);
+                .FirstOrDefaultAsync(pp => pp.Id == prerequisiteDto.Id)
+                ?? throw new Exception("PotentialPrerequisite not found");
 
             if (existing is null)
                 return false;
@@ -107,7 +122,9 @@ public class PotentialPrerequisiteService : IPotentialPrerequisiteService
                 existing.RankRequiredId = null;
 
                 if (prerequisiteDto.BackgroundRequired is not null)
-                    existing.BackgroundRequired = await _context.Backgrounds.FindAsync(prerequisiteDto.BackgroundRequired.Id);
+                    existing.BackgroundRequired = await _context.Backgrounds
+                        .FindAsync(prerequisiteDto.BackgroundRequired.Id)
+                        ?? throw new Exception("Background not found");
                 else
                     existing.BackgroundRequired = null;
             }
@@ -123,7 +140,9 @@ public class PotentialPrerequisiteService : IPotentialPrerequisiteService
                 existing.BackgroundLevelRequired = null;
 
                 if (prerequisiteDto.RankRequired is not null)
-                    existing.RankRequired = await _context.Ranks.FindAsync(prerequisiteDto.RankRequired.Id);
+                    existing.RankRequired = await _context.Ranks
+                        .FindAsync(prerequisiteDto.RankRequired.Id)
+                        ?? throw new Exception("Rank not found");
                 else
                     existing.RankRequired = null;
             }
@@ -136,12 +155,16 @@ public class PotentialPrerequisiteService : IPotentialPrerequisiteService
                 existing.RankRequiredId = null;
 
                 if (prerequisiteDto.AttributeRequired is not null)
-                    existing.AttributeRequired = await _context.Attributes.FindAsync(prerequisiteDto.AttributeRequired.Id);
+                    existing.AttributeRequired = await _context.Attributes
+                        .FindAsync(prerequisiteDto.AttributeRequired.Id)
+                        ?? throw new Exception("Attribute not found");
                 else
                     existing.AttributeRequired = null;
 
                 if (prerequisiteDto.SkillRequired is not null)
-                    existing.SkillRequired = await _context.Skills.FindAsync(prerequisiteDto.SkillRequired.Id);
+                    existing.SkillRequired = await _context.Skills
+                        .FindAsync(prerequisiteDto.SkillRequired.Id)
+                        ?? throw new Exception("Skill not found");
                 else
                     existing.SkillRequired = null;
             }
@@ -159,7 +182,9 @@ public class PotentialPrerequisiteService : IPotentialPrerequisiteService
     {
         try
         {
-            var prerequisite = await _context.PotentialPrerequisites.FindAsync(id);
+            var prerequisite = await _context.PotentialPrerequisites
+                .FindAsync(id)
+                ?? throw new Exception("PotentialPrerequisite not found");
             if (prerequisite is null)
                 return false;
 

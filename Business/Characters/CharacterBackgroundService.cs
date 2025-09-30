@@ -1,77 +1,45 @@
-﻿using DataAccessLayer;
-using Domain.Characters;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs.Characters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;
 public interface ICharacterBackgroundService
 {
-    Task<CharacterBackground?> GetCharacterBackgroundByIdAsync(Guid characterId, Guid backgroundId);
-    Task<IEnumerable<CharacterBackground>> GetCharacterBackgroundsByCharacterIdAsync(Guid characterId);
-    Task<IEnumerable<CharacterBackground>> GetCharacterBackgroundsByBackgroundIdAsync(Guid backgroundId);
-    Task<CharacterBackground> CreateCharacterBackgroundAsync(CharacterBackground characterBackground);
-    Task<bool> UpdateCharacterBackgroundAsync(Guid characterId, Guid backgroundId, CharacterBackground characterBackground);
-    Task<bool> DeleteCharacterBackgroundAsync(Guid characterId, Guid backgroundId);
+    Task<bool> UpdateCharacterBackgroundAsync(CharacterBackgroundDto characterBackground);
 }
 public class CharacterBackgroundService : ICharacterBackgroundService
 {
     private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public CharacterBackgroundService(ApplicationDbContext context)
+    public CharacterBackgroundService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
-    public async Task<CharacterBackground?> GetCharacterBackgroundByIdAsync(Guid characterId, Guid backgroundId)
+    public async Task<bool> UpdateCharacterBackgroundAsync(CharacterBackgroundDto characterBackground)
     {
-        return await _context.CharacterBackgrounds
-            .FirstOrDefaultAsync(cb => cb.CharacterId == characterId && cb.BackgroundId == backgroundId);
-    }
+        try
+        {
+            var existingCharacterBackground = await _context.CharacterBackgrounds
+                .Include(a => a.Background)
+                .Include(a => a.Character)
+            .FirstOrDefaultAsync(cb => cb.CharacterId == characterBackground.CharacterId && cb.BackgroundId == characterBackground.BackgroundId) ?? throw new Exception("CharacterBackground not found"); ;
 
-    public async Task<IEnumerable<CharacterBackground>> GetCharacterBackgroundsByCharacterIdAsync(Guid characterId)
-    {
-        return await _context.CharacterBackgrounds
-            .Where(cb => cb.CharacterId == characterId)
-            .ToListAsync();
-    }
+            // We ignore the Attribute and character in the mapper, it will never be changed from here
+            _mapper.Map(characterBackground, existingCharacterBackground);
 
-    public async Task<IEnumerable<CharacterBackground>> GetCharacterBackgroundsByBackgroundIdAsync(Guid backgroundId)
-    {
-        return await _context.CharacterBackgrounds
-            .Where(cb => cb.BackgroundId == backgroundId)
-            .ToListAsync();
-    }
-
-    public async Task<CharacterBackground> CreateCharacterBackgroundAsync(CharacterBackground characterBackground)
-    {
-        _context.CharacterBackgrounds.Add(characterBackground);
-        await _context.SaveChangesAsync();
-        return characterBackground;
-    }
-
-    public async Task<bool> UpdateCharacterBackgroundAsync(Guid characterId, Guid backgroundId, CharacterBackground characterBackground)
-    {
-        var existingCharacterBackground = await _context.CharacterBackgrounds
-            .FirstOrDefaultAsync(cb => cb.CharacterId == characterId && cb.BackgroundId == backgroundId);
-
-        if (existingCharacterBackground is null)
+            existingCharacterBackground.Background = await _context.Backgrounds.FirstOrDefaultAsync(a => a.Id == characterBackground.BackgroundId) ?? throw new Exception("Background not found");
+            existingCharacterBackground.Character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == characterBackground.CharacterId) ?? throw new Exception("Character not found");
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
             return false;
-
-        _context.Entry(existingCharacterBackground).CurrentValues.SetValues(characterBackground);
-        await _context.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<bool> DeleteCharacterBackgroundAsync(Guid characterId, Guid backgroundId)
-    {
-        var characterBackground = await _context.CharacterBackgrounds
-            .FirstOrDefaultAsync(cb => cb.CharacterId == characterId && cb.BackgroundId == backgroundId);
-
-        if (characterBackground is null)
-            return false;
-
-        _context.CharacterBackgrounds.Remove(characterBackground);
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 }
 

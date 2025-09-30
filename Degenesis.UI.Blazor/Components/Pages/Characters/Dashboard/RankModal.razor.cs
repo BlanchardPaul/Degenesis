@@ -24,28 +24,29 @@ public partial class RankModal
     protected override void OnParametersSet()
     {
         Rank.Prerequisites ??= [];
-        SelectedPrerequisiteIds = Rank.Prerequisites.Select(rp => rp.Id).ToHashSet();
+        SelectedPrerequisiteIds = [.. Rank.Prerequisites.Select(rp => rp.Id)];
 
         if (Rank.CultId == Guid.Empty && Cults.Any())
         {
             Rank.CultId = Cults.First().Id;
         }
 
-        SortedRanks = Ranks.Where(r => r.CultId == Rank.CultId).ToList();
+        SortedRanks = [.. Ranks.Where(r => r.CultId == Rank.CultId)];
 
     }
 
     private Task OnPrerequisitesChanged(IEnumerable<Guid> selectedValues)
     {
         SelectedPrerequisiteIds = selectedValues.ToHashSet();
-        Rank.Prerequisites = RankPrerequisites.Where(rp => SelectedPrerequisiteIds.Contains(rp.Id)).ToList();
+        Rank.Prerequisites = [.. RankPrerequisites.Where(rp => SelectedPrerequisiteIds.Contains(rp.Id))];
         return Task.CompletedTask;
     }
 
     private void HandleCultChange(Guid selectedCultureId)
     {
         Rank.CultId = selectedCultureId;
-        SortedRanks = Ranks.Where(r => r.CultId == selectedCultureId).ToList();
+        SortedRanks = [.. Ranks.Where(r => r.CultId == selectedCultureId)];
+        Rank.ParentRankId = null;
     }
 
     private async Task SaveRank()

@@ -19,8 +19,7 @@ internal class EquipmentConfiguration : IEntityTypeConfiguration<Equipment>
             .HasMaxLength(100);
 
         builder.Property(e => e.Description)
-            .IsRequired()
-            .HasMaxLength(1000);
+            .IsRequired();
 
         builder.Property(e => e.Capacity)
             .HasMaxLength(1000);

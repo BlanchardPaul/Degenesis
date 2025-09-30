@@ -1,6 +1,5 @@
 ﻿using Business.Characters;
 using Degenesis.Shared.DTOs.Characters;
-using Domain.Characters;
 using System.Security.Claims;
 
 namespace API.Endpoints.Characters;
@@ -20,25 +19,19 @@ public static class CharacterEndpoints
         group.MapGet("/", async (ICharacterService service) =>
         {
             var characters = await service.GetAllCharactersAsync();
-            if (characters is null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(characters);
+            return characters is not null ? Results.Ok(characters) : Results.NotFound();
         });
 
         group.MapPost("/", async (CharacterCreateDto character, ICharacterService service, ClaimsPrincipal user) =>
         {
             var created = await service.CreateCharacterAsync(character, user?.Identity?.Name ?? string.Empty);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return character is not null ? Results.Created() : Results.BadRequest();
         });
 
-        group.MapPut("/{id:guid}", async (Guid id, Character character, ICharacterService service) =>
+        group.MapPut("/", async (CharacterDto character, ICharacterService service) =>
         {
-            var success = await service.UpdateCharacterAsync(id, character);
-            return success ? Results.NoContent() : Results.NotFound();
+            var success = await service.UpdateCharacterAsync(character);
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, ICharacterService service) =>

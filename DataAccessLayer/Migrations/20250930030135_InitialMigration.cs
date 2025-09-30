@@ -17,7 +17,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EnergyStorage = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Magazine = table.Column<int>(type: "int", nullable: false),
                     Encumbrance = table.Column<int>(type: "int", nullable: false),
@@ -146,7 +146,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -178,7 +178,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -191,7 +191,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Armor = table.Column<int>(type: "int", nullable: true),
                     Stockage = table.Column<int>(type: "int", nullable: false),
                     Slots = table.Column<int>(type: "int", nullable: false),
@@ -241,7 +241,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -254,7 +254,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -509,7 +509,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Capacity = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Effect = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Encumbrance = table.Column<int>(type: "int", nullable: false),
@@ -697,7 +697,7 @@ namespace DataAccessLayer.Migrations
                     Brake = table.Column<int>(type: "int", nullable: false),
                     Armor = table.Column<int>(type: "int", nullable: false),
                     BodyFlesh = table.Column<int>(type: "int", nullable: false),
-                    StrucutureTrauma = table.Column<int>(type: "int", nullable: false),
+                    StructureTrauma = table.Column<int>(type: "int", nullable: false),
                     TechLevel = table.Column<int>(type: "int", nullable: false),
                     Slots = table.Column<int>(type: "int", nullable: false),
                     Value = table.Column<int>(type: "int", nullable: false),
@@ -721,7 +721,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Caliber = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Handling = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Distance = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),

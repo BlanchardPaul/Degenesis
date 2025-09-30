@@ -1,6 +1,5 @@
 ﻿using Business.Characters;
 using Degenesis.Shared.DTOs.Characters;
-using Domain.Characters;
 
 namespace API.Endpoints.Characters;
 
@@ -25,15 +24,13 @@ public static class AttributeEndpoints
         group.MapPost("/", async (AttributeCreateDto attribute, IAttributeService service) =>
         {
             var created = await service.CreateAttributeAsync(attribute);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (AttributeDto attribute, IAttributeService service) =>
         {
             var success = await service.UpdateAttributeAsync(attribute);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IAttributeService service) =>

@@ -8,7 +8,7 @@ namespace Business.Characters;
 public interface ICultService
 {
     Task<CultDto?> GetCultByIdAsync(Guid id);
-    Task<IEnumerable<CultDto>> GetAllCultsAsync();
+    Task<List<CultDto>> GetAllCultsAsync();
     Task<CultDto?> CreateCultAsync(CultCreateDto cultCreate);
     Task<bool> UpdateCultAsync(CultDto cult);
     Task<bool> DeleteCultAsync(Guid id);
@@ -27,54 +27,25 @@ public class CultService : ICultService
 
     public async Task<CultDto?> GetCultByIdAsync(Guid id)
     {
-        return await _context.Cults
-            .Include(c => c.BonusSkills)
-            .Where(c => c.Id == id)
-            .Select(c => new CultDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                BonusSkills = c.BonusSkills.Select(s => new SkillDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    CAttribute = new AttributeDto
-                    {
-                        Id = s.CAttribute.Id,
-                        Name = s.CAttribute.Name,
-                        Abbreviation = s.CAttribute.Abbreviation,
-                        Description = s.CAttribute.Description
-                    }
-                }).ToList()
-            })
-            .FirstOrDefaultAsync();
+        try
+        {
+            var cult = await _context.Cults
+                .Include(c => c.BonusSkills)
+                .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Cult not found");
+            return _mapper.Map<CultDto>(cult);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
-    public async Task<IEnumerable<CultDto>> GetAllCultsAsync()
+
+    public async Task<List<CultDto>> GetAllCultsAsync()
     {
-        return await _context.Cults
+        var cults = await _context.Cults
             .Include(c => c.BonusSkills)
-            .Select(c => new CultDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                BonusSkills = c.BonusSkills.Select(s => new SkillDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    CAttribute = new AttributeDto
-                    {
-                        Id = s.CAttribute.Id,
-                        Name = s.CAttribute.Name,
-                        Abbreviation = s.CAttribute.Abbreviation,
-                        Description = s.CAttribute.Description
-                    }
-                }).ToList()
-            })
             .ToListAsync();
+        return _mapper.Map<List<CultDto>>(cults);
     }
 
     public async Task<CultDto?> CreateCultAsync(CultCreateDto cultCreate)
@@ -82,16 +53,11 @@ public class CultService : ICultService
         try
         {
             var cult = _mapper.Map<Cult>(cultCreate);
-            cult.BonusSkills = new List<Skill>();
 
             foreach (var skillDto in cultCreate.BonusSkills)
             {
-                var existingSkill = await _context.Skills.FindAsync(skillDto.Id);
-
-                if (existingSkill != null)
-                {
-                    cult.BonusSkills.Add(existingSkill);
-                }
+                var existingSkill = await _context.Skills.FindAsync(skillDto.Id) ?? throw new Exception("Skill not found");
+                cult.BonusSkills.Add(existingSkill);
             }
 
             _context.Cults.Add(cult);
@@ -111,23 +77,17 @@ public class CultService : ICultService
         try
         {
             var existingCult = await _context.Cults
-            .Include(c => c.BonusSkills)
-            .FirstOrDefaultAsync(c => c.Id == cultDto.Id);
+                .Include(c => c.BonusSkills)
+                .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
 
-            if(existingCult is null)
-                throw new Exception("Cult not found");
-
-            _context.Entry(existingCult).CurrentValues.SetValues(cultDto);
+            _mapper.Map(cultDto, existingCult);
 
             existingCult.BonusSkills.Clear();
-
             foreach (var skillDto in cultDto.BonusSkills)
             {
-                var skill = await _context.Skills.FindAsync(skillDto.Id);
-                if (skill != null)
-                {
-                    existingCult.BonusSkills.Add(skill);
-                }
+                var skill = await _context.Skills
+                    .FirstOrDefaultAsync(s => s.Id == skillDto.Id) ?? throw new Exception("Skill not found");
+                existingCult.BonusSkills.Add(skill);
             }
 
             await _context.SaveChangesAsync();
@@ -144,9 +104,9 @@ public class CultService : ICultService
     {
         try
         {
-            var cult = await _context.Cults.FindAsync(id);
-            if (cult is null)
-                return false;
+            var cult = await _context.Cults
+                .Include(c => c.BonusSkills)
+                .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Cult not found");
 
             _context.Cults.Remove(cult);
             await _context.SaveChangesAsync();

@@ -42,25 +42,31 @@ public class PotentialService : IPotentialService
             .Include(p => p.Cult)
             .ToListAsync();
 
-        return potentials.Select(p => _mapper.Map<PotentialDto>(p)).ToList();
+        return _mapper.Map<List<PotentialDto>>(potentials);
     }
 
     public async Task<PotentialDto?> GetPotentialByIdAsync(Guid id)
     {
-        var potential = await _context.Potentials
-            .Include(p => p.Prerequisites)
-                .ThenInclude(pr => pr.AttributeRequired)
-            .Include(p => p.Prerequisites)
-                .ThenInclude(pr => pr.SkillRequired)
-            .Include(p => p.Prerequisites)
-                .ThenInclude(pr => pr.BackgroundRequired)
-            .Include(p => p.Prerequisites)
-                .ThenInclude(pr => pr.RankRequired)
-            .Include(p => p.Prerequisites)
-            .Include(p => p.Cult)
-            .FirstOrDefaultAsync(p => p.Id == id);
-
-        return potential is null ? null : _mapper.Map<PotentialDto>(potential);
+        try
+        {
+            var potential = await _context.Potentials
+                .Include(p => p.Prerequisites)
+                    .ThenInclude(pr => pr.AttributeRequired)
+                .Include(p => p.Prerequisites)
+                    .ThenInclude(pr => pr.SkillRequired)
+                .Include(p => p.Prerequisites)
+                    .ThenInclude(pr => pr.BackgroundRequired)
+                .Include(p => p.Prerequisites)
+                    .ThenInclude(pr => pr.RankRequired)
+                .Include(p => p.Prerequisites)
+                .Include(p => p.Cult)
+                .FirstOrDefaultAsync(p => p.Id == id) ?? throw new Exception("Potential not found");
+            return _mapper.Map<PotentialDto>(potential);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<PotentialDto?> CreatePotentialAsync(PotentialCreateDto potentialCreate)
@@ -69,20 +75,27 @@ public class PotentialService : IPotentialService
         {
             var potential = _mapper.Map<Potential>(potentialCreate);
 
-            potential.Prerequisites = await _context.PotentialPrerequisites
-                .Where(pp => potentialCreate.Prerequisites.Select(p => p.Id).Contains(pp.Id))
-                .ToListAsync();
-
-            if (potentialCreate.CultId is not null)
+            foreach (var prerequisiteDto in potentialCreate.Prerequisites)
             {
-                potential.Cult = await _context.Cults.FirstAsync(c => c.Id == potentialCreate.CultId);
+                var existingPrerequisite = await _context.PotentialPrerequisites
+                    .FirstOrDefaultAsync(s => s.Id == prerequisiteDto.Id)
+                    ?? throw new Exception("PotentialPrerequisite not found");
+
+                potential.Prerequisites.Add(existingPrerequisite);
+            }
+
+            if (potentialCreate.CultId is not null && potentialCreate.CultId != Guid.Empty)
+            {
+                potential.Cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == potentialCreate.CultId)
+                    ?? throw new Exception("Cult not found");
             }
             else
             {
                 potential.Cult = null;
             }
 
-                _context.Potentials.Add(potential);
+            _context.Potentials.Add(potential);
             await _context.SaveChangesAsync();
             return _mapper.Map<PotentialDto>(potential);
         }
@@ -99,27 +112,34 @@ public class PotentialService : IPotentialService
             var existingPotential = await _context.Potentials
                 .Include(p => p.Prerequisites)
                 .Include(p => p.Cult)
-                .FirstOrDefaultAsync(p => p.Id == potentialDto.Id);
+                .FirstOrDefaultAsync(p => p.Id == potentialDto.Id)
+                ?? throw new Exception("Potential not found");
 
             if (existingPotential is null)
                 return false;
 
             _mapper.Map(potentialDto, existingPotential);
 
-            existingPotential.Prerequisites = await _context.PotentialPrerequisites
-                .Where(pp => potentialDto.Prerequisites.Select(p => p.Id).Contains(pp.Id))
-                .ToListAsync();
+            existingPotential.Prerequisites.Clear();
+            foreach (var prerequisiteDto in potentialDto.Prerequisites)
+            {
+                var prerequisite = await _context.PotentialPrerequisites
+                    .FirstOrDefaultAsync(s => s.Id == prerequisiteDto.Id)
+                    ?? throw new Exception("PotentialPrerequisite not found");
+                existingPotential.Prerequisites.Add(prerequisite);
+            }
 
             if(potentialDto.CultId is not null)
             {
-                existingPotential.Cult = await _context.Cults.FirstAsync(c => c.Id == potentialDto.CultId);
+                existingPotential.Cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == potentialDto.CultId)
+                    ?? throw new Exception("Cult not found");
             }
             else
             {
                 existingPotential.Cult = null;
                 existingPotential.CultId = null;
             }
-                
 
             await _context.SaveChangesAsync();
             return true;
@@ -134,9 +154,11 @@ public class PotentialService : IPotentialService
     {
         try
         {
-            var potential = await _context.Potentials.FindAsync(id);
-            if (potential is null)
-                return false;
+            var potential = await _context.Potentials
+                .Include(p => p.Prerequisites)
+                .Include(p => p.Cult)
+                .FirstOrDefaultAsync(p => p.Id == id)
+                ?? throw new Exception("Potential not found");
 
             _context.Potentials.Remove(potential);
             await _context.SaveChangesAsync();

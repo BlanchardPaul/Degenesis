@@ -9,7 +9,7 @@ namespace Business.Characters;
 public interface IConceptService
 {
     Task<ConceptDto?> GetConceptByIdAsync(Guid id);
-    Task<IEnumerable<ConceptDto>> GetAllConceptsAsync();
+    Task<List<ConceptDto>> GetAllConceptsAsync();
     Task<ConceptDto?> CreateConceptAsync(ConceptCreateDto conceptCreate);
     Task<bool> UpdateConceptAsync(ConceptDto conceptDto);
     Task<bool> DeleteConceptAsync(Guid id);
@@ -28,71 +28,28 @@ public class ConceptService : IConceptService
 
     public async Task<ConceptDto?> GetConceptByIdAsync(Guid id)
     {
-        return await _context.Concepts
+        try
+        {
+            var concept = await _context.Concepts
             .Include(c => c.BonusAttribute)
             .Include(c => c.BonusSkills)
-            .Where(c => c.Id == id)
-            .Select(c => new ConceptDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                BonusAttribute = new AttributeDto
-                {
-                    Id = c.BonusAttribute.Id,
-                    Name = c.BonusAttribute.Name,
-                    Abbreviation = c.BonusAttribute.Abbreviation,
-                    Description = c.BonusAttribute.Description
-                },
-                BonusSkills = c.BonusSkills.Select(s => new SkillDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    CAttribute = new AttributeDto
-                    {
-                        Id = s.CAttribute.Id,
-                        Name = s.CAttribute.Name,
-                        Abbreviation = s.CAttribute.Abbreviation,
-                        Description = s.CAttribute.Description
-                    }
-                }).ToList()
-            })
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Concept not found");
+            return _mapper.Map<ConceptDto>(concept);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
-    public async Task<IEnumerable<ConceptDto>> GetAllConceptsAsync()
+    public async Task<List<ConceptDto>> GetAllConceptsAsync()
     {
-        return await _context.Concepts
+        var concepts = await _context.Concepts
             .Include(c => c.BonusAttribute)
             .Include(c => c.BonusSkills)
-            .Select(c => new ConceptDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                BonusAttribute = new AttributeDto
-                {
-                    Id = c.BonusAttribute.Id,
-                    Name = c.BonusAttribute.Name,
-                    Abbreviation = c.BonusAttribute.Abbreviation,
-                    Description = c.BonusAttribute.Description
-                },
-                BonusSkills = c.BonusSkills.Select(s => new SkillDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    CAttribute = new AttributeDto
-                    {
-                        Id = s.CAttribute.Id,
-                        Name = s.CAttribute.Name,
-                        Abbreviation = s.CAttribute.Abbreviation,
-                        Description = s.CAttribute.Description
-                    }
-                }).ToList()
-            })
             .ToListAsync();
+
+        return _mapper.Map<List<ConceptDto>>(concepts);
     }
 
     public async Task<ConceptDto?> CreateConceptAsync(ConceptCreateDto conceptCreate)
@@ -101,25 +58,19 @@ public class ConceptService : IConceptService
         {
             var concept = _mapper.Map<Concept>(conceptCreate);
 
-            // Handle relationship with BonusAttribute
-            if (conceptCreate.BonusAttributeId != Guid.Empty)
-            {
-                var attribute = await _context.Attributes.FindAsync(conceptCreate.BonusAttributeId);
-                if (attribute != null)
-                {
-                    concept.BonusAttribute = attribute;
-                }
-            }
+            var attribute = await _context.Attributes
+                .FirstOrDefaultAsync(a => a.Id == conceptCreate.BonusAttributeId)
+                ?? throw new Exception("Attribute not found");
 
-            // Handle relationship with BonusSkills
-            concept.BonusSkills = [];
+            concept.BonusAttribute = attribute;
+
             foreach (var skillDto in conceptCreate.BonusSkills)
             {
-                var existingSkill = await _context.Skills.FindAsync(skillDto.Id);
-                if (existingSkill != null)
-                {
-                    concept.BonusSkills.Add(existingSkill);
-                }
+                var existingSkill = await _context.Skills
+                    .FirstOrDefaultAsync(s => s.Id == skillDto.Id)
+                    ?? throw new Exception("Skill not found");
+
+                concept.BonusSkills.Add(existingSkill);
             }
 
             _context.Concepts.Add(concept);
@@ -140,30 +91,22 @@ public class ConceptService : IConceptService
             var existingConcept = await _context.Concepts
                 .Include(c => c.BonusAttribute)
                 .Include(c => c.BonusSkills)
-                .FirstOrDefaultAsync(c => c.Id == conceptDto.Id);
+                .FirstOrDefaultAsync(c => c.Id == conceptDto.Id) ?? throw new Exception("Concept not found");
 
-            if (existingConcept is null)
-                throw new Exception("Concept not found");
+            var attribute = await _context.Attributes
+                .FirstOrDefaultAsync(a => a.Id == conceptDto.BonusAttributeId)
+                ?? throw new Exception("Attribute not found");
 
-            _context.Entry(existingConcept).CurrentValues.SetValues(conceptDto);
-
-            if (conceptDto.BonusAttribute != null)
-            {
-                var attribute = await _context.Attributes.FindAsync(conceptDto.BonusAttribute.Id);
-                if (attribute != null)
-                {
-                    existingConcept.BonusAttribute = attribute;
-                }
-            }
+            existingConcept.BonusAttribute = attribute;
 
             existingConcept.BonusSkills.Clear();
             foreach (var skillDto in conceptDto.BonusSkills)
             {
-                var skill = await _context.Skills.FindAsync(skillDto.Id);
-                if (skill != null)
-                {
-                    existingConcept.BonusSkills.Add(skill);
-                }
+                var existingSkill = await _context.Skills
+                    .FirstOrDefaultAsync(s => s.Id == skillDto.Id)
+                    ?? throw new Exception("Skill not found");
+
+                existingConcept.BonusSkills.Add(existingSkill);
             }
 
             await _context.SaveChangesAsync();
@@ -180,15 +123,11 @@ public class ConceptService : IConceptService
         try
         {
             var concept = await _context.Concepts
-                .Include(c => c.BonusSkills) // Inclure les relations pour les supprimer
+                .Include(c => c.BonusSkills)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (concept is null)
                 return false;
-
-            // Supprimer les relations avec BonusSkills avant de supprimer le Concept
-            concept.BonusSkills.Clear();
-            await _context.SaveChangesAsync();
 
             _context.Concepts.Remove(concept);
             await _context.SaveChangesAsync();

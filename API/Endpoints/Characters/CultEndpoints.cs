@@ -24,15 +24,13 @@ public static class CultEndpoints
         group.MapPost("/", async (CultCreateDto cult, ICultService service) =>
         {
             var created = await service.CreateCultAsync(cult);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return cult is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (CultDto cult, ICultService service) =>
         {
             var success = await service.UpdateCultAsync(cult);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, ICultService service) =>

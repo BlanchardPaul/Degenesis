@@ -24,15 +24,13 @@ public static class WeaponQualityEndpoints
         group.MapPost("/", async (IWeaponQualityService service, WeaponQualityCreateDto weaponQuality) =>
         {
             var created =  await service.CreateWeaponQualityAsync(weaponQuality);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (IWeaponQualityService service, WeaponQualityDto weaponQuality) =>
         {
             var success = await service.UpdateWeaponQualityAsync(weaponQuality);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id}", async (IWeaponQualityService service, Guid id) =>

@@ -8,7 +8,7 @@ namespace Business.Characters;
 
 public interface IRankPrerequisiteService
 {
-    Task<IEnumerable<RankPrerequisiteDto>> GetAllRankPrerequisitesAsync();
+    Task<List<RankPrerequisiteDto>> GetAllRankPrerequisitesAsync();
     Task<RankPrerequisiteDto?> GetRankPrerequisiteByIdAsync(Guid id);
     Task<RankPrerequisiteDto?> CreateRankPrerequisiteAsync(RankPrerequisiteCreateDto rankPrerequisiteCreate);
     Task<bool> UpdateRankPrerequisiteAsync(RankPrerequisiteDto rankPrerequisite);
@@ -26,25 +26,33 @@ public class RankPrerequisiteService : IRankPrerequisiteService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<RankPrerequisiteDto>> GetAllRankPrerequisitesAsync()
+    public async Task<List<RankPrerequisiteDto>> GetAllRankPrerequisitesAsync()
     {
         var rankPrerequisites = await _context.RankPrerequisites
             .Include(rp => rp.AttributeRequired)
             .Include(rp => rp.BackgroundRequired)
             .Include(rp => rp.SkillRequired)
             .ToListAsync();
-        return _mapper.Map<IEnumerable<RankPrerequisiteDto>>(rankPrerequisites);
+        return _mapper.Map<List<RankPrerequisiteDto>>(rankPrerequisites);
     }
 
     public async Task<RankPrerequisiteDto?> GetRankPrerequisiteByIdAsync(Guid id)
     {
-        var rankPrerequisite = await _context.RankPrerequisites
-            .Include(rp => rp.AttributeRequired)
-            .Include(r => r.BackgroundRequired)
-            .Include(rp => rp.SkillRequired)
-            .FirstOrDefaultAsync(rp => rp.Id == id);
+        try
+        {
+            var rankPrerequisite = await _context.RankPrerequisites
+                .Include(rp => rp.AttributeRequired)
+                .Include(r => r.BackgroundRequired)
+                .Include(rp => rp.SkillRequired)
+                .FirstOrDefaultAsync(rp => rp.Id == id)
+                ?? throw new Exception("Perequisite not found");
 
-        return rankPrerequisite is null ? null : _mapper.Map<RankPrerequisiteDto>(rankPrerequisite);
+            return _mapper.Map<RankPrerequisiteDto>(rankPrerequisite);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<RankPrerequisiteDto?> CreateRankPrerequisiteAsync(RankPrerequisiteCreateDto createDto)
@@ -55,13 +63,16 @@ public class RankPrerequisiteService : IRankPrerequisiteService
             rankPrerequisite.Id = Guid.NewGuid();
 
             if (createDto.AttributeRequiredId is not null)
-                rankPrerequisite.AttributeRequired = await _context.Attributes.FindAsync(createDto.AttributeRequiredId);
+                rankPrerequisite.AttributeRequired = await _context.Attributes.FindAsync(createDto.AttributeRequiredId)
+                    ?? throw new Exception("Attribute not found");
 
             if (createDto.SkillRequiredId is not null)
-                rankPrerequisite.SkillRequired = await _context.Skills.FindAsync(createDto.SkillRequiredId);
+                rankPrerequisite.SkillRequired = await _context.Skills.FindAsync(createDto.SkillRequiredId)
+                    ?? throw new Exception("Skill not found");
 
             if (createDto.BackgroundRequiredId is not null)
-                rankPrerequisite.BackgroundRequired = await _context.Backgrounds.FindAsync(createDto.BackgroundRequiredId);
+                rankPrerequisite.BackgroundRequired = await _context.Backgrounds.FindAsync(createDto.BackgroundRequiredId)
+                    ?? throw new Exception("Background not found");
 
             _context.RankPrerequisites.Add(rankPrerequisite);
             await _context.SaveChangesAsync();
@@ -82,10 +93,8 @@ public class RankPrerequisiteService : IRankPrerequisiteService
                 .Include(rp => rp.AttributeRequired)
                 .Include(rp => rp.SkillRequired)
                 .Include(rp => rp.BackgroundRequired)
-                .FirstOrDefaultAsync(rp => rp.Id == rankPrerequisiteDto.Id);
-
-            if (existingRankPrerequisite is null || rankPrerequisiteDto.AttributeRequired is null)
-            return false;
+                .FirstOrDefaultAsync(rp => rp.Id == rankPrerequisiteDto.Id)
+                ?? throw new Exception("RankPrerequisite not found");
 
             _mapper.Map(rankPrerequisiteDto, existingRankPrerequisite);
 
@@ -98,7 +107,8 @@ public class RankPrerequisiteService : IRankPrerequisiteService
                 existingRankPrerequisite.SumRequired = null;
 
                 if (rankPrerequisiteDto.BackgroundRequired is not null)
-                    existingRankPrerequisite.BackgroundRequired = await _context.Backgrounds.FindAsync(rankPrerequisiteDto.BackgroundRequired.Id);
+                    existingRankPrerequisite.BackgroundRequired = await _context.Backgrounds.FindAsync(rankPrerequisiteDto.BackgroundRequired.Id)
+                        ?? throw new Exception("Background not found");
                 else
                     existingRankPrerequisite.BackgroundRequired = null;
             }
@@ -109,12 +119,14 @@ public class RankPrerequisiteService : IRankPrerequisiteService
                 existingRankPrerequisite.BackgroundLevelRequired = null;
 
                 if (rankPrerequisiteDto.AttributeRequired is not null)
-                    existingRankPrerequisite.AttributeRequired = await _context.Attributes.FindAsync(rankPrerequisiteDto.AttributeRequired.Id);
+                    existingRankPrerequisite.AttributeRequired = await _context.Attributes.FindAsync(rankPrerequisiteDto.AttributeRequired.Id)
+                        ?? throw new Exception("Attribute not found");
                 else
                     existingRankPrerequisite.AttributeRequired = null;
 
                 if (rankPrerequisiteDto.SkillRequired is not null)
-                    existingRankPrerequisite.SkillRequired = await _context.Skills.FindAsync(rankPrerequisiteDto.SkillRequired.Id);
+                    existingRankPrerequisite.SkillRequired = await _context.Skills.FindAsync(rankPrerequisiteDto.SkillRequired.Id)
+                        ?? throw new Exception("Skill not found");
                 else
                     existingRankPrerequisite.SkillRequired = null;
             }
@@ -132,7 +144,13 @@ public class RankPrerequisiteService : IRankPrerequisiteService
     {
         try
         {
-            var rankPrerequisite = await _context.RankPrerequisites.FindAsync(id);
+            var rankPrerequisite = await _context.RankPrerequisites
+                .Include(rp => rp.AttributeRequired)
+                .Include(rp => rp.SkillRequired)
+                .Include(rp => rp.BackgroundRequired)
+                .FirstOrDefaultAsync(rp => rp.Id == id)
+                ?? throw new Exception("RankPrerequisite not found");
+
             if (rankPrerequisite is null)
                 return false;
 

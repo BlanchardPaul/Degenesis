@@ -33,7 +33,7 @@ internal class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.Property(v => v.Brake).IsRequired();
         builder.Property(v => v.Armor).IsRequired();
         builder.Property(v => v.BodyFlesh).IsRequired();
-        builder.Property(v => v.StrucutureTrauma).IsRequired();
+        builder.Property(v => v.StructureTrauma).IsRequired();
         builder.Property(v => v.TechLevel).IsRequired();
         builder.Property(v => v.Slots).IsRequired();
         builder.Property(v => v.Value).IsRequired();

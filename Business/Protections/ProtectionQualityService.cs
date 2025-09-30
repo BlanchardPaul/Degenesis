@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Protections;
 public interface IProtectionQualityService
 {
-    Task<IEnumerable<ProtectionQualityDto>> GetAllProtectionQualitiesAsync();
+    Task<List<ProtectionQualityDto>> GetAllProtectionQualitiesAsync();
     Task<ProtectionQualityDto?> GetProtectionQualityByIdAsync(Guid id);
     Task<ProtectionQualityDto?> CreateProtectionQualityAsync(ProtectionQualityCreateDto protectionQualityCreate);
     Task<bool> UpdateProtectionQualityAsync(ProtectionQualityDto protectionQuality);
@@ -25,16 +25,24 @@ public class ProtectionQualityService : IProtectionQualityService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<ProtectionQualityDto>> GetAllProtectionQualitiesAsync()
+    public async Task<List<ProtectionQualityDto>> GetAllProtectionQualitiesAsync()
     {
         var qualities = await _context.ProtectionQualities.ToListAsync();
-        return _mapper.Map<IEnumerable<ProtectionQualityDto>>(qualities);
+        return _mapper.Map<List<ProtectionQualityDto>>(qualities);
     }
 
     public async Task<ProtectionQualityDto?> GetProtectionQualityByIdAsync(Guid id)
     {
-        var quality = await _context.ProtectionQualities.FindAsync(id);
-        return quality is null ? null : _mapper.Map<ProtectionQualityDto>(quality);
+        try
+        {
+            var quality = await _context.ProtectionQualities.FindAsync(id) 
+                ?? throw new Exception("ProtectionQuality not found");
+            return _mapper.Map<ProtectionQualityDto>(quality);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<ProtectionQualityDto?> CreateProtectionQualityAsync(ProtectionQualityCreateDto protectionQualityCreate)
@@ -56,10 +64,8 @@ public class ProtectionQualityService : IProtectionQualityService
     {
         try
         {
-            var existingQuality = await _context.ProtectionQualities.FindAsync(protectionQualityDto.Id);
-
-            if (existingQuality is null)
-                return false;
+            var existingQuality = await _context.ProtectionQualities.FindAsync(protectionQualityDto.Id)
+                ?? throw new Exception("ProtectionQuality not found");
 
             _mapper.Map(protectionQualityDto, existingQuality);
             await _context.SaveChangesAsync();
@@ -75,9 +81,8 @@ public class ProtectionQualityService : IProtectionQualityService
     {
         try
         {
-            var quality = await _context.ProtectionQualities.FindAsync(id);
-            if (quality is null)
-                return false;
+            var quality = await _context.ProtectionQualities.FindAsync(id)
+                ?? throw new Exception("ProtectionQuality not found");
 
             _context.ProtectionQualities.Remove(quality);
             await _context.SaveChangesAsync();

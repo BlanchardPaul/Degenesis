@@ -25,8 +25,7 @@ internal class WeaponConfiguration : IEntityTypeConfiguration<Weapon>
             .HasMaxLength(100);
 
         builder.Property(w => w.Description)
-            .IsRequired()
-            .HasMaxLength(1000);
+            .IsRequired();
 
         builder.Property(w => w.Caliber)
             .HasMaxLength(1000);

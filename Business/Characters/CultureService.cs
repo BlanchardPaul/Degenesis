@@ -3,6 +3,8 @@ using DataAccessLayer;
 using Degenesis.Shared.DTOs.Characters;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Text.RegularExpressions;
 
 namespace Business.Characters;
 
@@ -32,20 +34,25 @@ public class CultureService : ICultureService
             .Include(c => c.BonusAttributes)
             .Include(c => c.BonusSkills)
             .Include(c => c.AvailableCults)
-                .ThenInclude(ac => ac.BonusSkills)
             .ToListAsync();
         return _mapper.Map<IEnumerable<CultureDto>>(cultures);
     }
 
     public async Task<CultureDto?> GetCultureByIdAsync(Guid id)
     {
-        var culture = await _context.Cultures
-            .Include(c => c.AvailableCults)
-            .Include(c => c.BonusAttributes)
-            .Include(c => c.BonusSkills)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
-        return culture is null ? null : _mapper.Map<CultureDto>(culture);
+        try
+        {
+            var culture = await _context.Cultures
+                .Include(c => c.AvailableCults)
+                .Include(c => c.BonusAttributes)
+                .Include(c => c.BonusSkills)
+                .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Culture not found");
+            return _mapper.Map<CultureDto>(culture);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<CultureDto?> CreateCultureAsync(CultureCreateDto cultureCreate)
@@ -55,9 +62,32 @@ public class CultureService : ICultureService
         {
             var culture = _mapper.Map<Culture>(cultureCreate);
 
-            culture.AvailableCults = await _context.Cults.Where(c => cultureCreate.AvailableCults.Select(x => x.Id).Contains(c.Id)).ToListAsync();
-            culture.BonusAttributes = await _context.Attributes.Where(a => cultureCreate.BonusAttributes.Select(x => x.Id).Contains(a.Id)).ToListAsync();
-            culture.BonusSkills = await _context.Skills.Where(s => cultureCreate.BonusSkills.Select(x => x.Id).Contains(s.Id)).ToListAsync();
+            foreach (var cultDto in cultureCreate.AvailableCults)
+            {
+                var existingCult = await _context.Cults
+                    .FirstOrDefaultAsync(s => s.Id == cultDto.Id)
+                    ?? throw new Exception("Cult not found");
+
+                culture.AvailableCults.Add(existingCult);
+            }
+
+            foreach (var attributeDto in cultureCreate.BonusAttributes)
+            {
+                var existingAttribute = await _context.Attributes
+                    .FirstOrDefaultAsync(s => s.Id == attributeDto.Id)
+                    ?? throw new Exception("Attribute not found");
+
+                culture.BonusAttributes.Add(existingAttribute);
+            }
+
+            foreach (var skillDto in cultureCreate.BonusSkills)
+            {
+                var existingSkill = await _context.Skills
+                    .FirstOrDefaultAsync(s => s.Id == skillDto.Id)
+                    ?? throw new Exception("Skill not found");
+
+                culture.BonusSkills.Add(existingSkill);
+            }
 
             _context.Cultures.Add(culture);
             await _context.SaveChangesAsync();
@@ -75,19 +105,42 @@ public class CultureService : ICultureService
         try
         {
             var existingCulture = await _context.Cultures
-            .Include(c => c.AvailableCults)
-            .Include(c => c.BonusAttributes)
-            .Include(c => c.BonusSkills)
-            .FirstOrDefaultAsync(c => c.Id == cultureDto.Id);
-
-            if (existingCulture is null)
-                return false;
+                .Include(c => c.AvailableCults)
+                .Include(c => c.BonusAttributes)
+                .Include(c => c.BonusSkills)
+                .FirstOrDefaultAsync(c => c.Id == cultureDto.Id) ?? throw new Exception("Culture not found");
 
             _mapper.Map(cultureDto, existingCulture);
 
-            existingCulture.AvailableCults = await _context.Cults.Where(c => cultureDto.AvailableCults.Select(x => x.Id).Contains(c.Id)).ToListAsync();
-            existingCulture.BonusAttributes = await _context.Attributes.Where(a => cultureDto.BonusAttributes.Select(x => x.Id).Contains(a.Id)).ToListAsync();
-            existingCulture.BonusSkills = await _context.Skills.Where(s => cultureDto.BonusSkills.Select(x => x.Id).Contains(s.Id)).ToListAsync();
+            existingCulture.AvailableCults.Clear();
+            foreach (var cultDto in cultureDto.AvailableCults)
+            {
+                var existingCult = await _context.Cults
+                    .FirstOrDefaultAsync(s => s.Id == cultDto.Id)
+                    ?? throw new Exception("Cult not found");
+
+                existingCulture.AvailableCults.Add(existingCult);
+            }
+
+            existingCulture.BonusAttributes.Clear();
+            foreach (var attributeDto in cultureDto.BonusAttributes)
+            {
+                var existingAttribute = await _context.Attributes
+                    .FirstOrDefaultAsync(s => s.Id == attributeDto.Id)
+                    ?? throw new Exception("Attribute not found");
+
+                existingCulture.BonusAttributes.Add(existingAttribute);
+            }
+
+            existingCulture.BonusSkills.Clear();
+            foreach (var skillDto in cultureDto.BonusSkills)
+            {
+                var existingSkill = await _context.Skills
+                    .FirstOrDefaultAsync(s => s.Id == skillDto.Id)
+                    ?? throw new Exception("Skill not found");
+
+                existingCulture.BonusSkills.Add(existingSkill);
+            }
 
             await _context.SaveChangesAsync();
             return true;
@@ -102,9 +155,11 @@ public class CultureService : ICultureService
     {
         try
         {
-            var culture = await _context.Cultures.FindAsync(id);
-            if (culture is null)
-                return false;
+            var culture = await _context.Cultures
+                .Include(c => c.AvailableCults)
+                .Include(c => c.BonusAttributes)
+                .Include(c => c.BonusSkills)
+                .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Culture not found");
 
             _context.Cultures.Remove(culture);
             await _context.SaveChangesAsync();

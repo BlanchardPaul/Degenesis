@@ -18,25 +18,19 @@ public static class ProtectionQualityEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IProtectionQualityService service) =>
         {
             var protectionQuality = await service.GetProtectionQualityByIdAsync(id);
-            if (protectionQuality is null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(protectionQuality);
+            return protectionQuality is not null ? Results.Ok(protectionQuality) : Results.NotFound();
         });
 
         group.MapPost("/", async (ProtectionQualityCreateDto protectionQuality, IProtectionQualityService service) =>
         {
             var created = await service.CreateProtectionQualityAsync(protectionQuality);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (ProtectionQualityDto protectionQuality, IProtectionQualityService service) =>
         {
             var success = await service.UpdateProtectionQualityAsync(protectionQuality);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IProtectionQualityService service) =>

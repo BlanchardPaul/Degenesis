@@ -12,7 +12,7 @@ public interface ICharacterService
     Task<Character?> GetCharacterByIdAsync(Guid id);
     Task<IEnumerable<Character>> GetAllCharactersAsync();
     Task<CharacterDto?> CreateCharacterAsync(CharacterCreateDto character, string userName);
-    Task<bool> UpdateCharacterAsync(Guid id, Character character);
+    Task<bool> UpdateCharacterAsync(CharacterDto character);
     Task<bool> DeleteCharacterAsync(Guid id);
 }
 
@@ -181,11 +181,10 @@ public class CharacterService : ICharacterService
         }
     }
 
-    public async Task<bool> UpdateCharacterAsync(Guid id, Character character)
+    public async Task<bool> UpdateCharacterAsync(CharacterDto character)
     {
-        var existingCharacter = await _context.Characters.FindAsync(id);
-        if (existingCharacter is null)
-            return false;
+        var existingCharacter = await _context.Characters
+            .FirstOrDefaultAsync(c => c.Id == character.Id) ?? throw new Exception("Character not found");
 
         _context.Entry(existingCharacter).CurrentValues.SetValues(character);
         await _context.SaveChangesAsync();
@@ -199,10 +198,7 @@ public class CharacterService : ICharacterService
                .Include(c => c.CharacterSkills)
                .Include(c => c.CharacterBackgrounds)
                .Include(c => c.CharacterPontentials)
-               .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (character is null)
-            return false;
+               .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Character not found");
 
         // Here we have to delete the CharacterAttributes manually because we can't put an OnDelete.Cascade in the configuration
         _context.CharacterAttributes.RemoveRange(character.CharacterAttributes);

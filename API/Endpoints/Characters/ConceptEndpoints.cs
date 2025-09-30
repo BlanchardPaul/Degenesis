@@ -24,15 +24,13 @@ public static class ConceptEndpoints
         group.MapPost("/", async (ConceptCreateDto concept, IConceptService service) =>
         {
             var created = await service.CreateConceptAsync(concept);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapPut("/", async (ConceptDto concept, IConceptService service) =>
         {
             var success = await service.UpdateConceptAsync(concept);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IConceptService service) =>

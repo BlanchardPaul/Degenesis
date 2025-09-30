@@ -9,7 +9,7 @@ public class Vehicle
     public int Brake { get; set; } = 0;
     public int Armor { get; set; } = 0;
     public int BodyFlesh { get; set; } = 1;
-    public int StrucutureTrauma { get; set; } = 1;
+    public int StructureTrauma { get; set; } = 1;
     public int TechLevel { get; set; } = 0;
     public int Slots { get; set; } = 0;
     public int Value { get; set; } = 0;

@@ -2,6 +2,7 @@
 using DataAccessLayer;
 using Degenesis.Shared.DTOs.Characters;
 using Domain.Characters;
+using Domain.Protections;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;
@@ -45,18 +46,26 @@ public class RankService : IRankService
 
     public async Task<RankDto?> GetRankByIdAsync(Guid id)
     {
-        var rank = await _context.Ranks
-            .Include(r => r.Prerequisites)
-                .ThenInclude(p => p.AttributeRequired)
-            .Include(r => r.Prerequisites)
-                .ThenInclude(p => p.SkillRequired)
-            .Include(r => r.Prerequisites)
-                .ThenInclude(p => p.BackgroundRequired)
-            .Include(r => r.Cult)
-            .Include(r => r.ParentRank)
-            .FirstOrDefaultAsync(r => r.Id == id);
+        try
+        {
+            var rank = await _context.Ranks
+                .Include(r => r.Prerequisites)
+                    .ThenInclude(p => p.AttributeRequired)
+                .Include(r => r.Prerequisites)
+                    .ThenInclude(p => p.SkillRequired)
+                .Include(r => r.Prerequisites)
+                    .ThenInclude(p => p.BackgroundRequired)
+                .Include(r => r.Cult)
+                .Include(r => r.ParentRank)
+                .FirstOrDefaultAsync(r => r.Id == id) 
+                ?? throw new Exception("Rank not found");
 
-        return rank is null ? null : _mapper.Map<RankDto>(rank);
+            return _mapper.Map<RankDto>(rank);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<RankDto?> CreateRankAsync(RankCreateDto rankCreate)
@@ -65,11 +74,16 @@ public class RankService : IRankService
         {
             var rank = _mapper.Map<Rank>(rankCreate);
 
-            rank.Prerequisites = await _context.RankPrerequisites
-                .Where(rp => rankCreate.Prerequisites.Select(p => p.Id).Contains(rp.Id))
-                .ToListAsync();
+            foreach (var prerequisite in rankCreate.Prerequisites)
+            {
+                var existingPerequisite = await _context.RankPrerequisites.FindAsync(prerequisite.Id)
+                    ?? throw new Exception("Perequisite not found");
+                rank.Prerequisites.Add(existingPerequisite);
+            }
 
-            rank.Cult = await _context.Cults.FirstAsync(c => c.Id == rankCreate.CultId);
+            rank.Cult = await _context.Cults
+                .FirstOrDefaultAsync(c => c.Id == rankCreate.CultId) 
+                ?? throw new Exception("Cult not found");
 
             _context.Ranks.Add(rank);
             await _context.SaveChangesAsync();
@@ -88,18 +102,22 @@ public class RankService : IRankService
             var existingRank = await _context.Ranks
                 .Include(r => r.Prerequisites)
                 .Include(r => r.Cult)
-                .FirstOrDefaultAsync(r => r.Id == rankDto.Id);
-
-            if (existingRank is null || rankDto.Cult is null)
-                return false;
+                .FirstOrDefaultAsync(r => r.Id == rankDto.Id)
+                 ?? throw new Exception("Rank not found");
 
             _mapper.Map(rankDto, existingRank);
 
-            existingRank.Prerequisites = await _context.RankPrerequisites
-                .Where(rp => rankDto.Prerequisites.Select(p => p.Id).Contains(rp.Id))
-                .ToListAsync();
+            existingRank.Prerequisites.Clear();
+            foreach (var prerequisite in rankDto.Prerequisites)
+            {
+                var existingPerequisite = await _context.RankPrerequisites.FindAsync(prerequisite.Id)
+                    ?? throw new Exception("Perequisite not found");
+                existingRank.Prerequisites.Add(existingPerequisite);
+            }
 
-            existingRank.Cult = await _context.Cults.FirstAsync(c => c.Id == rankDto.Cult.Id);
+            existingRank.Cult = await _context.Cults
+                .FirstOrDefaultAsync(c => c.Id == rankDto.CultId)
+                ?? throw new Exception("Cult not found");
 
             await _context.SaveChangesAsync();
             return true;
@@ -114,9 +132,23 @@ public class RankService : IRankService
     {
         try
         {
-            var rank = await _context.Ranks.FindAsync(id);
-            if (rank is null)
-                return false;
+            var rank = await _context.Ranks
+                .Include(r => r.Prerequisites)
+                .Include(r => r.Cult)
+                .FirstOrDefaultAsync(r => r.Id == id)
+                 ?? throw new Exception("Rank not found");
+
+            // We also have to remove the dependant ranks
+            // Find dependent ranks
+            var dependentRanks = await _context.Ranks
+                .Where(r => r.ParentRankId == id)
+                .ToListAsync();
+
+            // Recursively delete dependents
+            foreach (var dependent in dependentRanks)
+            {
+                await DeleteRankAsync(dependent.Id);
+            }
 
             _context.Ranks.Remove(rank);
             await _context.SaveChangesAsync();

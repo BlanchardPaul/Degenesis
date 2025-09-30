@@ -18,35 +18,25 @@ public static class RankEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IRankService service) =>
         {
             var rank = await service.GetRankByIdAsync(id);
-            if (rank is null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(rank);
+            return rank is not null ? Results.Ok(rank) : Results.NotFound();
         });
 
         group.MapPost("/", async (RankCreateDto rank, IRankService service) =>
         {
             var created = await service.CreateRankAsync(rank);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (RankDto rank, IRankService service) =>
         {
             var success = await service.UpdateRankAsync(rank);
-            return success ? Results.Ok() : Results.NotFound();
+            return success ? Results.Ok() : Results.BadRequest();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IRankService service) =>
         {
             var success = await service.DeleteRankAsync(id);
-            if (!success)
-            {
-                return Results.NotFound();
-            }
-            return Results.NoContent();
+            return success ? Results.NoContent() : Results.NotFound();
         });
     }
 }

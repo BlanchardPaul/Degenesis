@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Equipments;
 public interface IEquipmentTypeService
 {
-    Task<IEnumerable<EquipmentTypeDto>> GetAllEquipmentTypesAsync();
+    Task<List<EquipmentTypeDto>> GetAllEquipmentTypesAsync();
     Task<EquipmentTypeDto?> GetEquipmentTypeByIdAsync(Guid id);
     Task<EquipmentTypeDto?> CreateEquipmentTypeAsync(EquipmentTypeCreateDto equipmentTypeCreate);
     Task<bool> UpdateEquipmentTypeAsync(EquipmentTypeDto equipmentType);
@@ -25,16 +25,25 @@ public class EquipmentTypeService : IEquipmentTypeService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<EquipmentTypeDto>> GetAllEquipmentTypesAsync()
+    public async Task<List<EquipmentTypeDto>> GetAllEquipmentTypesAsync()
     {
         var equipmentTypes = await _context.EquipmentTypes.ToListAsync();
-        return _mapper.Map<IEnumerable<EquipmentTypeDto>>(equipmentTypes);
+        return _mapper.Map<List<EquipmentTypeDto>>(equipmentTypes);
     }
 
     public async Task<EquipmentTypeDto?> GetEquipmentTypeByIdAsync(Guid id)
     {
-        var equipmentType = await _context.EquipmentTypes.FindAsync(id);
-        return equipmentType is null ? null : _mapper.Map<EquipmentTypeDto>(equipmentType);
+        try
+        {
+            var equipmentType = await _context.EquipmentTypes
+                .FirstOrDefaultAsync(e => e.Id == id)
+                ?? throw new Exception("EquipmentType not found");
+            return _mapper.Map<EquipmentTypeDto>(equipmentType);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<EquipmentTypeDto?> CreateEquipmentTypeAsync(EquipmentTypeCreateDto equipmentTypeCreate)
@@ -56,10 +65,9 @@ public class EquipmentTypeService : IEquipmentTypeService
     {
         try
         {
-            var existingEquipmentType = await _context.EquipmentTypes.FindAsync(equipmentTypeDto.Id);
-
-            if (existingEquipmentType is null)
-                return false;
+            var existingEquipmentType = await _context.EquipmentTypes
+                .FirstOrDefaultAsync(e => e.Id == equipmentTypeDto.Id)
+                ?? throw new Exception("EquipmentType not found");
 
             _mapper.Map(equipmentTypeDto, existingEquipmentType);
             await _context.SaveChangesAsync();
@@ -75,7 +83,9 @@ public class EquipmentTypeService : IEquipmentTypeService
     {
         try
         {
-            var existingEquipmentType = await _context.EquipmentTypes.FindAsync(id);
+            var existingEquipmentType = await _context.EquipmentTypes
+                .FirstOrDefaultAsync(e => e.Id == id)
+                ?? throw new Exception("EquipmentType not found");
             if (existingEquipmentType is null)
                 return false;
 

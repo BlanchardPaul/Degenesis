@@ -18,19 +18,13 @@ public static class VehicleEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IVehicleService service) =>
         {
             var vehicle = await service.GetVehicleByIdAsync(id);
-            if (vehicle is null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(vehicle);
+            return vehicle is not null ? Results.Ok(vehicle) : Results.NotFound();
         });
 
         group.MapPost("/", async (VehicleCreateDto vehicle, IVehicleService service) =>
         {
             var created = await service.CreateVehicleAsync(vehicle);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (VehicleDto vehicle, IVehicleService service) =>

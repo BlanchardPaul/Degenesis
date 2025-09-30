@@ -18,19 +18,13 @@ public static class EquipmentTypeEndpoints
         group.MapGet("/{id:guid}", async (Guid id, IEquipmentTypeService service) =>
         {
             var equipmentType = await service.GetEquipmentTypeByIdAsync(id);
-            if (equipmentType is null)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok(equipmentType);
+            return equipmentType is not null ? Results.Ok(equipmentType) : Results.NotFound();
         });
 
         group.MapPost("/", async (EquipmentTypeCreateDto equipmentType, IEquipmentTypeService service) =>
         {
             var created = await service.CreateEquipmentTypeAsync(equipmentType);
-            if (created is null)
-                return Results.BadRequest();
-            return Results.Created();
+            return created is not null ? Results.Created() : Results.BadRequest();
         });
 
         group.MapPut("/", async (EquipmentTypeDto equipmentType, IEquipmentTypeService service) =>
