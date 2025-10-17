@@ -1,4 +1,4 @@
-﻿using Degenesis.Shared.DTOs.Characters;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Weapons;
 using MudBlazor;
 

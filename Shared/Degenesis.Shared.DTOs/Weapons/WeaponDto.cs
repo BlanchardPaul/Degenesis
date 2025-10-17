@@ -1,4 +1,4 @@
-﻿using Degenesis.Shared.DTOs.Characters;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
 
 namespace Degenesis.Shared.DTOs.Weapons;
 public class WeaponDto : WeaponCreateDto

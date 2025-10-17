@@ -1,4 +1,4 @@
-﻿namespace Degenesis.Shared.DTOs.Characters;
+﻿namespace Degenesis.Shared.DTOs.Characters.CRUD;
 
 public class RankCreateDto
 {

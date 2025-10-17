@@ -1,0 +1,226 @@
+﻿
+@if (Character is null)
+{
+    <MudText Color="Color.Error">No character data available.</MudText>
+}
+else
+{
+    <MudPaper Elevation="0" Class="pa-1">
+        <MudPaper Class="pa-1" Outlined Elevation="0">
+            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                <MudStack>
+                    <MudText Typo="Typo.h6"><b>Name</b>: @Character.Name</MudText>
+                    <MudText Typo="Typo.h6"><b>Rank:</b> @Character.Rank?.Name</MudText>
+                </MudStack>
+                <MudStack>
+                    <MudText Typo="Typo.h6"><b>Age</b>: @Character.Age years</MudText>
+                    <MudStack Row>
+                        <MudText Typo="Typo.h6"><b>XP:</b> </MudText>
+                        <MudItem Style="width:25%">
+                            <MudNumericField HideSpinButtons @bind-Value="@Character.Experience" />
+                        </MudItem>
+                    </MudStack>
+                </MudStack>
+                <MudStack>
+                    <MudText Typo="Typo.h6"><b>Height</b>: @Character.Height cms</MudText>
+                    <MudStack Row>
+                        <MudText Typo="Typo.h6"><b>Money (Draft/Dinar)</b>: </MudText>
+                        <MudItem Style="width:15%">
+                            <MudNumericField HideSpinButtons @bind-Value="@Character.ChroniclerMoney" />
+                        </MudItem>
+                        <MudText Typo="Typo.h6">/</MudText>
+                        <MudItem Style="width:15%">
+                            <MudNumericField HideSpinButtons @bind-Value="@Character.DinarMoney" />
+                        </MudItem>
+                    </MudStack>
+                    
+                </MudStack>
+
+                <MudText Typo="Typo.h6"><b>Weight</b>: @Character.Weight kgs</MudText>
+                <MudText Typo="Typo.h6"><b>Sex</b>: @Character.Sex</MudText>
+                @if (Character.IsFocusOriented)
+                {
+                    <MudText Typo="Typo.h6"><b>Orientation:</b> Focus</MudText>
+                }
+                else
+                {
+                    <MudText Typo="Typo.h6"><b>Orientation:</b> Primal</MudText>
+                }
+                <MudButton Variant="Variant.Outlined" Size="Size.Small">Edit infos</MudButton>
+            </MudStack>
+            <MudStack Row>
+
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Elevation="0" Class="my-4">
+            <MudStack Justify="Justify.SpaceEvenly" Row="true">
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h6">Cult</MudText>
+                    <MudText Typo="Typo.h6">@Character.Cult?.Name</MudText>
+                </MudStack>
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h6">Culture</MudText>
+                    <MudText Typo="Typo.h6">@Character.Culture?.Name</MudText>
+                </MudStack>
+                <MudStack AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h6">Concept</MudText>
+                    <MudText Typo="Typo.h6">@Character.Concept?.Name</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Elevation="0" Class="my-4">
+            <MudStack Wrap="Wrap.Wrap" Row AlignItems="AlignItems.Center" Justify="@Justify.SpaceAround">
+                @{
+                    int rowMaxElement = 3;
+                    int rowElementNb = 0;
+                }
+                @foreach (var attr in Character.Attributes)
+                {
+                    <MudPaper Class="pa-1" Width="32%" Outlined="true">
+                        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                            <MudText Typo="Typo.h6">@attr.Name</MudText>
+                            <MudRating @bind-SelectedValue="@attr.Level"
+                                       FullIcon="@Icons.Material.Filled.Square"
+                                       EmptyIcon="@Icons.Material.Outlined.Square"
+                                       FullIconColor="Color.Error"
+                                       EmptyIconColor="Color.Error"
+                                       Size="Size.Small"/>
+                        </MudStack>
+
+                        <MudDivider/>
+
+                        @foreach (var skill in Character.Skills.Where(s => s.AttributeId == attr.AttributeId))
+                        {
+                            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                <MudText Typo="Typo.h6">@skill.Name</MudText>
+                                <MudRating @bind-SelectedValue="@skill.Level"
+                                           FullIcon="@Icons.Material.Filled.Square"
+                                           EmptyIcon="@Icons.Material.Outlined.Square"
+                                           FullIconColor="Color.Error"
+                                           EmptyIconColor="Color.Error"
+                                           Size="Size.Small" />
+                            </MudStack>
+                        }
+                    </MudPaper>
+                    rowElementNb++;
+                    if (rowElementNb == rowMaxElement)
+                    {
+                        <MudFlexBreak />
+                        rowElementNb = 0;
+                    }
+                }
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Elevation="0" Class="my-4">
+            <MudStack Row Justify="Justify.SpaceBetween">
+                <MudPaper Elevation="0" Width="80%">
+
+                    <MudText Align="Align.Center" Typo="Typo.h5">Backgrounds</MudText>
+
+                    <MudTable Items="@Character.Backgrounds"
+                              Dense="true"
+                              Hover="false"
+                              Bordered="false"
+                              Striped="false"
+                              Elevation="0"
+                              Breakpoint="Breakpoint.None">
+
+                        <RowTemplate>
+                            <MudTd>
+                                <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                    <MudText Typo="Typo.h6">@context.Name</MudText>
+                                    <MudRating @bind-SelectedValue="@context.Level"
+                                               FullIcon="@Icons.Material.Filled.Square"
+                                               EmptyIcon="@Icons.Material.Outlined.Square"
+                                               FullIconColor="Color.Error"
+                                               EmptyIconColor="Color.Error"
+                                               Size="Size.Small" />
+                                </MudStack>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                </MudPaper>
+
+
+                <MudPaper Elevation="0" Width="80%">
+                    <MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">Ego</MudText>
+                            <MudRating @bind-SelectedValue="@Character.Ego"
+                                       MaxValue="@Character.MaxEgo"
+                                       FullIcon="@Icons.Material.Filled.Square"
+                                       EmptyIcon="@Icons.Material.Outlined.Square"
+                                       FullIconColor="Color.Error"
+                                       EmptyIconColor="Color.Error" />
+                        </MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">Spore Infestation</MudText>
+                            <MudRating @bind-SelectedValue="@Character.CurrentSporeInfestation"
+                                       MaxValue="@Character.MaxSporeInfestation"
+                                       FullIcon="@Icons.Material.Filled.Square"
+                                       EmptyIcon="@Icons.Material.Outlined.Square"
+                                       FullIconColor="Color.Error"
+                                       EmptyIconColor="Color.Error" />
+                            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.Center">
+                                <MudText Align="Align.Center">Permanent Infestation : </MudText>
+                                <MudItem Style="width:20%">
+                                    <MudNumericField HideSpinButtons @bind-Value="@Character.PermanentSporeInfestation" />
+                                </MudItem>
+                            </MudStack>
+                        </MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">Fleshwounds</MudText>
+                            <MudRating @bind-SelectedValue="@Character.FleshWounds"
+                                       MaxValue="@Character.MaxFleshWounds"
+                                       FullIcon="@Icons.Material.Filled.Square"
+                                       EmptyIcon="@Icons.Material.Outlined.Square"
+                                       FullIconColor="Color.Error"
+                                       EmptyIconColor="Color.Error" />
+                        </MudStack>
+                        <MudStack AlignItems="AlignItems.Center">
+                            <MudText Typo="Typo.h6">Traumas</MudText>
+                            <MudRating @bind-SelectedValue="@Character.Trauma"
+                                       MaxValue="@Character.MaxTrauma"
+                                       FullIcon="@Icons.Material.Filled.Square"
+                                       EmptyIcon="@Icons.Material.Outlined.Square"
+                                       FullIconColor="Color.Error"
+                                       EmptyIconColor="Color.Error" />
+                        </MudStack>
+                    </MudStack>
+                </MudPaper>
+
+                <MudPaper Elevation="0" Width="80%">
+
+                    <MudText Align="Align.Center" Typo="Typo.h5">Potentials</MudText>
+
+                    <MudTable Items="@Character.Potentials"
+                              Dense="true"
+                              Hover="false"
+                              Bordered="false"
+                              Striped="false"
+                              Elevation="0"
+                              Breakpoint="Breakpoint.None">
+
+                        <RowTemplate>
+                            <MudTd>
+                                <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                    <MudText Typo="Typo.h6">@context.Name</MudText>
+                                    <MudRating @bind-SelectedValue="@context.Level"
+                                               FullIcon="@Icons.Material.Filled.Square"
+                                               EmptyIcon="@Icons.Material.Outlined.Square"
+                                               FullIconColor="Color.Error"
+                                               EmptyIconColor="Color.Error"
+                                               Size="Size.Small" />
+                                </MudStack>
+                            </MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                    <MudText Align="Align.Right"><MudButton Style="margin-top:10px" Variant="Variant.Outlined" Size="Size.Small">Edit potentials</MudButton></MudText>
+                </MudPaper>
+            </MudStack>
+        </MudPaper>
+    </MudPaper>
+}

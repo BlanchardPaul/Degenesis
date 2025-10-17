@@ -1,6 +1,6 @@
 ﻿using Degenesis.Shared.DTOs.Rooms;
 
-namespace Degenesis.Shared.DTOs.Characters;
+namespace Degenesis.Shared.DTOs.Characters.CRUD;
 public class CharacterCreateDto
 {
     public string Name { get; set; } = string.Empty;

@@ -1,4 +1,4 @@
-﻿using Degenesis.Shared.DTOs.Characters;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters;

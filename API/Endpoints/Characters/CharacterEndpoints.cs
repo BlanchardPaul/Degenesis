@@ -1,5 +1,5 @@
 ﻿using Business.Characters;
-using Degenesis.Shared.DTOs.Characters;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using System.Security.Claims;
 
 namespace API.Endpoints.Characters;
@@ -10,9 +10,9 @@ public static class CharacterEndpoints
     {
         var group = app.MapGroup("/characters").WithTags("Characters");
 
-        group.MapGet("/{id:guid}", async (Guid id, ICharacterService service) =>
+        group.MapGet("/{roomId:guid}", async (Guid roomId, ICharacterService service, ClaimsPrincipal user) =>
         {
-            var character = await service.GetCharacterByIdAsync(id);
+            var character = await service.GetCharacterByUserAndRoomAsync(roomId, user?.Identity?.Name ?? string.Empty);
             return character is not null ? Results.Ok(character) : Results.NotFound();
         });
 

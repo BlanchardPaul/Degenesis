@@ -1,0 +1,46 @@
+﻿@if (room is null)
+{
+    <MudProgressCircular />
+}
+else
+{
+    <MudPaper Class="pl-6 pr-4 pb-4 rounded-lg d-flex flex-column" Style="height: 85vh; margin-top : 4px !important">
+
+        <MudGrid style="height: 100%; margin-top: 0 !important;">
+            <MudItem xs="9" Class="border bg-light" Style="height: 100%;">
+                <!-- Map / image area -->
+            </MudItem>
+
+            <MudItem xs="3" class="d-flex flex-column" Style="height: 100%; border-left: 1px solid #ccc;">
+                <div class="p-2">
+                    <MudText Typo="Typo.subtitle1">GM: @room.GMName</MudText>
+                    <MudText Typo="Typo.subtitle2">Players: @string.Join(", ", room.Players)</MudText>
+                </div>
+
+                <MudDivider />
+
+                <div class="flex-grow-1 d-flex flex-column-reverse overflow-auto p-2">
+                    @foreach (var msg in Messages)
+                    {
+                        <MudChatBubble ChatPosition="@(msg.Sender == userName ? ChatBubblePosition.End : ChatBubblePosition.Start)">
+                            <b>@msg.Sender:</b> @msg.Text
+                        </MudChatBubble>
+                    }
+                </div>
+
+                <div class="p-2 d-flex flex-shrink-0">
+                    <MudTextField @bind-Value="currentMessage"
+                                  Immediate
+                                  TextUpdateSuppression="false"
+                                  Placeholder="Type a message..."
+                                  OnKeyUp="@(async e => { if (e.Key == "Enter") await SendMessage(); })"
+                                  Class="flex-grow-1" />
+
+                    <MudButton OnClick="SendMessage"
+                               Color="Color.Primary"
+                               Class="ml-2">Send</MudButton>
+                </div>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+}

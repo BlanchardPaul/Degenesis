@@ -3,13 +3,12 @@
         <MudTextField Label="Name" @bind-Value="Skill.Name" Required="true" />
 
         <MudTextField Label="Description" @bind-Value="Skill.Description" Required="true" />
-
+        <MudTextField Label="Abbreviation" @bind-Value="Skill.Abbreviation" Required="true" />
         <MudSelect T="Guid"
                    Label="Attribute"
                    Value="Skill.CAttributeId"
                    ValueChanged="OnAttributeChanged"
                    ValueExpression="@(() => Skill.CAttributeId)"
-                   Placeholder="Sélectionner une valeur"
                    Required="true">
             @foreach (var cattribute in Attributes)
             {

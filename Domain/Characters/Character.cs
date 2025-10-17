@@ -25,9 +25,9 @@ public class Character
     public int MaxSporeInfestation { get; set; } = 2;
     public int PermanentSporeInfestation { get; set; } = 0;
     public int MaxFleshWounds { get; set; } = 2;
-    public int FleshWounds { get; set; } = 2;
+    public int FleshWounds { get; set; } = 0;
     public int MaxTrauma { get; set; } = 2;
-    public int Trauma { get; set; } = 2;
+    public int Trauma { get; set; } = 0;
     public int PassiveDefense { get; set; } = 1;
     public int Experience { get; set; }
     public string Notes { get; set; } = string.Empty;

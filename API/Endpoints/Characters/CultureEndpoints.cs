@@ -1,5 +1,5 @@
 ﻿using Business.Characters;
-using Degenesis.Shared.DTOs.Characters;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 
 namespace API.Endpoints.Characters;
 public static class CultureEndpoints

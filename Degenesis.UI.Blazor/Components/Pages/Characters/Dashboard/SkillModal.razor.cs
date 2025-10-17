@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Degenesis.Shared.DTOs.Characters;
 using MudBlazor;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 

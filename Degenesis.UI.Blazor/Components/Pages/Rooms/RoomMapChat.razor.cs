@@ -3,10 +3,11 @@ using Degenesis.UI.Blazor.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.JSInterop;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
-public partial class RoomChat : ComponentBase, IAsyncDisposable
+public partial class RoomMapChat : ComponentBase, IAsyncDisposable
 {
     [Parameter] public Guid RoomId { get; set; }
 
@@ -26,7 +27,7 @@ public partial class RoomChat : ComponentBase, IAsyncDisposable
         public string Text { get; set; } = "";
     }
 
-    private List<ChatMessage> messages = [];
+    private List<ChatMessage> Messages = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,7 +65,7 @@ public partial class RoomChat : ComponentBase, IAsyncDisposable
 
         hubConnection.On<string, string>("ReceiveMessage", (sender, message) =>
         {
-            messages.Add(new ChatMessage { Sender = sender, Text = message });
+            Messages.Add(new ChatMessage { Sender = sender, Text = message });
             InvokeAsync(StateHasChanged);
         });
 
@@ -78,6 +79,7 @@ public partial class RoomChat : ComponentBase, IAsyncDisposable
         {
             await hubConnection!.SendAsync("SendMessage", RoomId.ToString(), userName, currentMessage);
             currentMessage = "";
+            StateHasChanged();
         }
     }
 

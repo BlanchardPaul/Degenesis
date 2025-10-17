@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.Shared.DTOs.Burns;
-using Degenesis.Shared.DTOs.Characters;
+using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Equipments;
 using Degenesis.Shared.DTOs.Protections;
 using Degenesis.Shared.DTOs.Rooms;
@@ -74,6 +75,12 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Backgrounds, opt => opt.MapFrom(src => src.CharacterBackgrounds))
             .ForMember(dest => dest.Potentials, opt => opt.MapFrom(src => src.CharacterPontentials));
 
+        CreateMap<Character, CharacterDisplayDto>()
+            .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src.CharacterAttributes))
+            .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.CharacterSkills))
+            .ForMember(dest => dest.Backgrounds, opt => opt.MapFrom(src => src.CharacterBackgrounds))
+            .ForMember(dest => dest.Potentials, opt => opt.MapFrom(src => src.CharacterPontentials));
+
         CreateMap<CharacterArtifactCreateDto, CharacterArtifact>()
              .ForMember(dest => dest.Character, opt => opt.Ignore())
              .ForMember(dest => dest.Artifact, opt => opt.Ignore());
@@ -87,21 +94,30 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Character, opt => opt.Ignore())
             .ForMember(dest => dest.Attribute, opt => opt.Ignore());
         CreateMap<CharacterAttribute, CharacterAttributeDto>();
+        CreateMap<CharacterAttribute, CharacterAttributeDisplayDto>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Attribute.Name));
 
         CreateMap<CharacterSkillDto, CharacterSkill>()
             .ForMember(dest => dest.Character, opt => opt.Ignore())
             .ForMember(dest => dest.Skill, opt => opt.Ignore());
         CreateMap<CharacterSkill, CharacterSkillDto>();
+        CreateMap<CharacterSkill, CharacterSkillDisplayDto>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Skill.Name))
+            .ForMember(dest => dest.AttributeId, opt => opt.MapFrom(src => src.Skill.CAttributeId));
 
         CreateMap<CharacterBackgroundDto, CharacterBackground>()
             .ForMember(dest => dest.Character, opt => opt.Ignore())
             .ForMember(dest => dest.Background, opt => opt.Ignore());
         CreateMap<CharacterBackground, CharacterBackgroundDto>();
+        CreateMap<CharacterBackground, CharacterBackgroundDisplayDto>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Background.Name));
 
         CreateMap<CharacterPotentialDto, CharacterPotential>()
             .ForMember(dest => dest.Character, opt => opt.Ignore())
             .ForMember(dest => dest.Potential, opt => opt.Ignore());
         CreateMap<CharacterPotential, CharacterPotentialDto>();
+        CreateMap<CharacterPotential, CharacterPotentialDisplayDto>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Potential.Name));
 
         CreateMap<ConceptCreateDto, Concept>()
             .ForMember(dest => dest.BonusAttribute, opt => opt.Ignore())

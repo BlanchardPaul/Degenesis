@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
-using Degenesis.Shared.DTOs.Characters;
+using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Characters.Display;
 using Domain.Characters;
 using Domain.Users;
 using Microsoft.AspNetCore.Identity;
@@ -9,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Characters;
 public interface ICharacterService
 {
-    Task<Character?> GetCharacterByIdAsync(Guid id);
-    Task<IEnumerable<Character>> GetAllCharactersAsync();
-    Task<CharacterDto?> CreateCharacterAsync(CharacterCreateDto character, string userName);
+    Task<CharacterDisplayDto?> GetCharacterByUserAndRoomAsync(Guid roomId, string userName);
+    Task<List<CharacterDisplayDto>> GetAllCharactersAsync();
+    Task<CharacterDisplayDto?> CreateCharacterAsync(CharacterCreateDto character, string userName);
     Task<bool> UpdateCharacterAsync(CharacterDto character);
     Task<bool> DeleteCharacterAsync(Guid id);
 }
@@ -29,9 +30,10 @@ public class CharacterService : ICharacterService
         _userManager = userManager;
     }
 
-    public async Task<Character?> GetCharacterByIdAsync(Guid id)
+    public async Task<CharacterDisplayDto?> GetCharacterByUserAndRoomAsync(Guid roomId, string userName)
     {
-        return await _context.Characters
+        var user = await _userManager.FindByNameAsync(userName) ?? throw new Exception("User not found");
+        var character = await _context.Characters
             .Include(c => c.Cult)
             .Include(c => c.Culture)
             .Include(c => c.Concept)
@@ -45,12 +47,13 @@ public class CharacterService : ICharacterService
                 .ThenInclude(cb => cb.Background)
             .Include(c => c.CharacterPontentials)
                 .ThenInclude(cp => cp.Potential)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.IdRoom == roomId && c.IdApplicationUser == user.Id);
+        return _mapper.Map<CharacterDisplayDto>(character);
     }
 
-    public async Task<IEnumerable<Character>> GetAllCharactersAsync()
+    public async Task<List<CharacterDisplayDto>> GetAllCharactersAsync()
     {
-        return await _context.Characters
+        var characters = await _context.Characters
             .Include(c => c.Cult)
             .Include(c => c.Culture)
             .Include(c => c.Concept)
@@ -65,9 +68,10 @@ public class CharacterService : ICharacterService
             .Include(c => c.CharacterPontentials)
                 .ThenInclude(cp => cp.Potential)
             .ToListAsync();
+        return _mapper.Map<List<CharacterDisplayDto>>(characters);
     }
 
-    public async Task<CharacterDto?> CreateCharacterAsync(CharacterCreateDto characterCreate, string userName)
+    public async Task<CharacterDisplayDto?> CreateCharacterAsync(CharacterCreateDto characterCreate, string userName)
     {
         try
         {
@@ -83,13 +87,7 @@ public class CharacterService : ICharacterService
             character.Concept = await _context.Concepts.FindAsync(characterCreate.ConceptId) ?? throw new Exception("Concept not found");
 
             character.Rank = await _context.Ranks
-                .Include(r => r.Prerequisites)
-                    .ThenInclude(rp => rp.AttributeRequired)
-                .Include(r => r.Prerequisites)
-                    .ThenInclude(rp => rp.SkillRequired)
-                .Include(r => r.Prerequisites)
-                    .ThenInclude(rp => rp.BackgroundRequired)
-                .FirstOrDefaultAsync(r => r.Id == characterCreate.RankId)
+                .FindAsync(characterCreate.RankId)
                 ?? throw new Exception("Rank not found");
 
             _context.Characters.Add(character);
@@ -162,18 +160,10 @@ public class CharacterService : ICharacterService
                 .Include(c => c.Concept)
                 .Include(c => c.Room)
                 .Include(c => c.Rank)
-                    .ThenInclude(r => r.Prerequisites)
-                        .ThenInclude(rp => rp.AttributeRequired)
-                .Include(c => c.Rank)
-                    .ThenInclude(r => r.Prerequisites)
-                        .ThenInclude(rp => rp.SkillRequired)
-                .Include(c => c.Rank)
-                    .ThenInclude(r => r.Prerequisites)
-                        .ThenInclude(rp => rp.BackgroundRequired)
                 .FirstOrDefaultAsync(c => c.Id == character.Id)
                 ?? throw new Exception("Character not found after creation");
 
-            return _mapper.Map<CharacterDto>(characterWithRank);
+            return _mapper.Map<CharacterDisplayDto>(characterWithRank);
         }
         catch (Exception)
         {

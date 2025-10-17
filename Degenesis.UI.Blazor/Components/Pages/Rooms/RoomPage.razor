@@ -2,11 +2,20 @@
 @using Degenesis.Shared.DTOs.Rooms
 @inject NavigationManager Navigation
 
-<MudTabs>
-    <MudTabPanel Text="Chat">
-        <RoomChat RoomId="IdRoom" />
-    </MudTabPanel>
-    <MudTabPanel Text="Character">
-        @* <CharacterSheet RoomId="IdRoom" /> *@
-    </MudTabPanel>
-</MudTabs>
+@if (Character is null)
+{
+        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudTabs Class="d-flex flex-column" Style="height: 100%;">
+        <!-- adjust 64px if navbar exists -->
+        <MudTabPanel Text="Map and Chat">
+            <RoomMapChat RoomId="IdRoom" />
+        </MudTabPanel>
+
+        <MudTabPanel Text="Character">
+            <RoomCharacterSheet Character="Character" />
+        </MudTabPanel>
+    </MudTabs>
+}

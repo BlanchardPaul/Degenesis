@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
-using Degenesis.Shared.DTOs._Artifacts;
-using Degenesis.Shared.DTOs.Characters;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
 
