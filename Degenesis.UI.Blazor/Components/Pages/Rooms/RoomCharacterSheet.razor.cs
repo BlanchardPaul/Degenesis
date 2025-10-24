@@ -18,6 +18,26 @@ public partial class RoomCharacterSheet
         _client = await HttpClientService.GetClientAsync();
     }
 
+    private bool IsSkillDisabled(CharacterSkillDisplayDto characterSkill)
+    {
+        if(Character is null)
+            return false;
+
+        if (characterSkill.Name == "PRIMAL" && Character.IsFocusOriented)
+            return true;
+
+        if (characterSkill.Name == "FOCUS" && !Character.IsFocusOriented)
+            return true;
+
+        if (characterSkill.Name == "FAITH" && Character.Skills.First(s => s.Name == "WILLPOWER").Level > 0)
+            return true;
+
+        if (characterSkill.Name == "WILLPOWER" && Character.Skills.First(s => s.Name == "FAITH").Level > 0)
+            return true;
+
+        return false;
+    }
+
     private async Task OpenEditInfosDialog()
     {
         if (Character is null)

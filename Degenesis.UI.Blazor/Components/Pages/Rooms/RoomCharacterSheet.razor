@@ -129,26 +129,45 @@ else
                             <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                                 <MudText Typo="Typo.h6">@skill.Name</MudText>
                                 <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Remove"
-                                                   Disabled="@(@skill.Level <= 0)"
-                                                   OnClick="() => ChangeSkillLevel(skill, -1)"
-                                                   Size="Size.Small"
-                                                   Color="Color.Error" />
+                                    @if (!IsSkillDisabled(skill))
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                                                       Disabled="@(skill.Level <= 0)"
+                                                       OnClick="() => ChangeSkillLevel(skill, -1)"
+                                                       Size="Size.Small"
+                                                       Color="Color.Error" />
+                                        <MudRating SelectedValue="@skill.Level"
+                                                   MaxValue="6"
+                                                   ReadOnly="true"
+                                                   FullIcon="@Icons.Material.Filled.Square"
+                                                   EmptyIcon="@Icons.Material.Outlined.Square"
+                                                   FullIconColor="Color.Error"
+                                                   EmptyIconColor="Color.Error"
+                                                   Size="Size.Small" />
 
-                                    <MudRating SelectedValue="@skill.Level"
-                                               MaxValue="6"
-                                               ReadOnly="true"
-                                               FullIcon="@Icons.Material.Filled.Square"
-                                               EmptyIcon="@Icons.Material.Outlined.Square"
-                                               FullIconColor="Color.Error"
-                                               EmptyIconColor="Color.Error"
-                                               Size="Size.Small" />
-
-                                    <MudIconButton Icon="@Icons.Material.Filled.Add"
-                                                   Disabled="@(@skill.Level >= 6)"
-                                                   OnClick="() => ChangeSkillLevel(skill, 1)"
-                                                   Size="Size.Small"
-                                                   Color="Color.Success" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                       Disabled="@(@skill.Level >= 6)"
+                                                       OnClick="() => ChangeSkillLevel(skill, 1)"
+                                                       Size="Size.Small"
+                                                       Color="Color.Success" />
+                                    }
+                                    else
+                                    {
+                                        <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                                                       Disabled
+                                                       Size="Size.Small"/>
+                                        <MudRating SelectedValue="@skill.Level"
+                                                   MaxValue="6"
+                                                   Disabled
+                                                   FullIcon="@Icons.Material.Filled.Square"
+                                                   EmptyIcon="@Icons.Material.Outlined.Square"
+                                                   FullIconColor="Color.Error"
+                                                   EmptyIconColor="Color.Error"
+                                                   Size="Size.Small" />
+                                        <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                       Disabled
+                                                       Size="Size.Small" />
+                                    }
                                 </MudStack>
                             </MudStack>
                         }
