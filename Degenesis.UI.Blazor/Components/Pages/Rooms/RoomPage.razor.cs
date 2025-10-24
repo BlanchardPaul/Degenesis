@@ -13,9 +13,12 @@ public partial class RoomPage
     protected override async Task OnInitializedAsync()
     {
         _client = await HttpClientService.GetClientAsync();
-        Character = await _client.GetFromJsonAsync<CharacterDisplayDto>($"/characters/{IdRoom}");
+        await ReloadCharacter();
+    }
 
-        if (Character is null)
-            Snackbar.Add("Character not found for this room and player.", Severity.Error);
+    private async Task ReloadCharacter()
+    {
+        Character = await _client.GetFromJsonAsync<CharacterDisplayDto>($"/characters/{IdRoom}");
+        StateHasChanged();
     }
 }

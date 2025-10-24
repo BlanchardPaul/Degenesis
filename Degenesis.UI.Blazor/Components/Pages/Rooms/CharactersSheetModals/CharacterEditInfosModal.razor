@@ -1,0 +1,18 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="CharacterInfos.Name" Required="true" Class="mb-4" />
+        <MudNumericField Label="Age" @bind-Value="CharacterInfos.Age" Min="1" Max="120" Required="true" Class="mb-4" />
+        <MudNumericField Label="Height (cm)" @bind-Value="CharacterInfos.Height" Min="50" Max="250" Required="true" Class="mb-4" />
+        <MudNumericField Label="Weight (kg)" @bind-Value="CharacterInfos.Weight" Min="20" Max="250" Required="true" Class="mb-4" />
+        <MudTextField T="string" Label="Sex" @bind-Value="CharacterInfos.Sex" Required="true" Class="mb-4" />
+        <MudRadioGroup @bind-Value="@CharacterInfos.IsFocusOriented">
+            <MudRadio Value="@true" Color="Color.Primary">Is Focus Oriented</MudRadio>
+            <MudRadio Value="@false" Color="Color.Primary">Is Primal Oriented</MudRadio>
+        </MudRadioGroup>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveCharacterInfos" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

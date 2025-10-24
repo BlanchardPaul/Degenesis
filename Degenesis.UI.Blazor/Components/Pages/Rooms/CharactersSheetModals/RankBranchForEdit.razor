@@ -28,7 +28,7 @@
 
             @if (!string.IsNullOrWhiteSpace(Rank.Equipment))
             {
-                <MudDivider />
+                <MudDivider/>
                 <MudText Align="Align.Left" Typo="Typo.h6">
                     Equipment : <MudText Inline>@Rank.Equipment</MudText>
                 </MudText>
@@ -43,7 +43,7 @@
             @foreach (var child in Children.OrderBy(c => c.Name))
             {
                 <div class="rank-child">
-                    <RankBranch Rank="child"
+                    <RankBranchForEdit Rank="child"
                                 AllRanks="AllRanks"
                                 Character="Character"
                                 SelectedRankId="SelectedRankId"
@@ -52,4 +52,5 @@
             }
         </div>
     }
+
 </MudStack>

@@ -66,8 +66,8 @@ public partial class CreateCharacter
     {
         Character.CultId = selectedCultId;
         SelectedCult = AvailableCults.FirstOrDefault(c => c.Id == selectedCultId) ?? new();
-        SortedRanks = Ranks.Where(r => r.CultId == Character.CultId).ToList();
-        SortedPotentials = Potentials.Where(p => p.CultId == Character.CultId || p.CultId is null).ToList();
+        SortedRanks = [.. Ranks.Where(r => r.CultId == Character.CultId)];
+        SortedPotentials = [.. Potentials.Where(p => p.CultId == Character.CultId || p.CultId is null)];
         Character.RankId = Guid.Empty;
         return Task.CompletedTask;
     }

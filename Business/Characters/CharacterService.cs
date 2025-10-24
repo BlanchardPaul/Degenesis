@@ -13,7 +13,16 @@ public interface ICharacterService
     Task<CharacterDisplayDto?> GetCharacterByUserAndRoomAsync(Guid roomId, string userName);
     Task<List<CharacterDisplayDto>> GetAllCharactersAsync();
     Task<CharacterDisplayDto?> CreateCharacterAsync(CharacterCreateDto character, string userName);
-    Task<bool> UpdateCharacterAsync(CharacterDto character);
+    Task<bool> UpdateCharacterBasicInfosAsync(CharacterBasicInfosEditDto characterBasicInfosEditDto);
+    Task<bool> UpdateCharacterChroniclerMoneyAsync(CharacterIntValueEditDto characterChroniclerMoney); 
+    Task<bool> UpdateCharacterCurrentSporeInfestationAsync(CharacterIntValueEditDto characterCurrentSporeInfestation);
+    Task<bool> UpdateCharacterEgoAsync(CharacterIntValueEditDto characterEgo); 
+    Task<bool> UpdateCharacterFleshWoundsAsync(CharacterIntValueEditDto characterFleshWounds);
+    Task<bool> UpdateCharacterDinarAsync(CharacterIntValueEditDto characterDinar);
+    Task<bool> UpdateCharacterPermanentSporeInfestationAsync(CharacterIntValueEditDto characterPermanentSporeInfestation);
+    Task<bool> UpdateCharacterRankAsync(CharacterGuidValueEditDto characterRank);
+    Task<bool> UpdateCharacterTraumaAsync(CharacterIntValueEditDto characterTrauma);
+    Task<bool> UpdateCharacterXpAsync(CharacterIntValueEditDto characterXp);
     Task<bool> DeleteCharacterAsync(Guid id);
 }
 
@@ -171,14 +180,193 @@ public class CharacterService : ICharacterService
         }
     }
 
-    public async Task<bool> UpdateCharacterAsync(CharacterDto character)
+    public async Task<bool> UpdateCharacterBasicInfosAsync(CharacterBasicInfosEditDto characterBasicInfosEditDto)
     {
-        var existingCharacter = await _context.Characters
-            .FirstOrDefaultAsync(c => c.Id == character.Id) ?? throw new Exception("Character not found");
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterBasicInfosEditDto.Id) ?? throw new Exception("Character not found");
 
-        _context.Entry(existingCharacter).CurrentValues.SetValues(character);
-        await _context.SaveChangesAsync();
-        return true;
+            _mapper.Map(characterBasicInfosEditDto, existingCharacter);
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+    }
+
+    public async Task<bool> UpdateCharacterChroniclerMoneyAsync(CharacterIntValueEditDto characterChroniclerMoney)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterChroniclerMoney.Id) ?? throw new Exception("Character not found");
+
+            existingCharacter.ChroniclerMoney = characterChroniclerMoney.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+    }
+
+    public async Task<bool> UpdateCharacterCurrentSporeInfestationAsync(CharacterIntValueEditDto characterCurrentSporeInfestation)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterCurrentSporeInfestation.Id) ?? throw new Exception("Character not found");
+
+            existingCharacter.CurrentSporeInfestation = characterCurrentSporeInfestation.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateCharacterDinarAsync(CharacterIntValueEditDto characterDinar)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterDinar.Id) ?? throw new Exception("Character not found");
+
+            existingCharacter.DinarMoney = characterDinar.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+    }
+
+    public async Task<bool> UpdateCharacterEgoAsync(CharacterIntValueEditDto characterEgo)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterEgo.Id) ?? throw new Exception("Character not found");
+
+            existingCharacter.Ego = characterEgo.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateCharacterFleshWoundsAsync(CharacterIntValueEditDto characterFleshWounds)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterFleshWounds.Id) ?? throw new Exception("Character not found");
+
+            existingCharacter.FleshWounds = characterFleshWounds.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateCharacterPermanentSporeInfestationAsync(CharacterIntValueEditDto characterPermanentSporeInfestation)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterPermanentSporeInfestation.Id) ?? throw new Exception("Character not found");
+
+            existingCharacter.PermanentSporeInfestation = characterPermanentSporeInfestation.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateCharacterRankAsync(CharacterGuidValueEditDto characterRank)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .Include(c => c.Rank)
+                .FirstOrDefaultAsync(c => c.Id == characterRank.Id) ?? throw new Exception("Character not found");
+
+            var newRank = await _context.Ranks
+                .FirstOrDefaultAsync(r => r.Id == characterRank.Value) ?? throw new Exception("Rank not found");
+
+            existingCharacter.Rank = newRank;
+            existingCharacter.RankId = characterRank.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateCharacterTraumaAsync(CharacterIntValueEditDto characterTrauma)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterTrauma.Id) ?? throw new Exception("Character not found");
+
+            existingCharacter.Trauma = characterTrauma.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateCharacterXpAsync(CharacterIntValueEditDto characterXp)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterXp.Id) ?? throw new Exception("Character not found");
+
+            existingCharacter.Experience = characterXp.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
     }
 
     public async Task<bool> DeleteCharacterAsync(Guid id)

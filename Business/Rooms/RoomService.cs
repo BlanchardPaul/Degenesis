@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Business.Characters;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs.Rooms;
+using Domain.Characters;
 using Domain.Rooms;
 using Domain.Users;
 using Microsoft.AspNetCore.Identity;
@@ -32,7 +34,6 @@ public class RoomService : IRoomService
         _mapper = mapper;
         _userManager = userManager;
     }
-
 
     public async Task<List<RoomDisplayDto>> GetAllAsync(string userName)
     {
@@ -136,8 +137,24 @@ public class RoomService : IRoomService
 
     public async Task<bool> DeleteRoomAsync(Guid id)
     {
-        var room = await _context.Rooms.FindAsync(id)
+        var room = await _context.Rooms
+            .Include(r => r.Characters)
+            .FirstOrDefaultAsync(r => r.Id == id)
             ?? throw new Exception("User in UserManager not found");
+
+        foreach (var character in room.Characters)
+        {
+            var characterToDelete = await _context.Characters
+               .Include(c => c.CharacterAttributes)
+               .Include(c => c.CharacterSkills)
+               .Include(c => c.CharacterBackgrounds)
+               .Include(c => c.CharacterPontentials)
+               .FirstOrDefaultAsync(c => c.Id == character.Id) ?? throw new Exception("Character not found");
+
+            _context.CharacterAttributes.RemoveRange(character.CharacterAttributes);
+
+            _context.Characters.Remove(character);
+        }
 
         _context.Rooms.Remove(room);
         await _context.SaveChangesAsync();

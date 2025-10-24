@@ -1,15 +1,16 @@
 ﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Characters;
+namespace Degenesis.UI.Blazor.Components.Pages.Rooms.CharactersSheetModals;
 
-public partial class RankBranch
+public partial class RankBranchForEdit
 {
     [Parameter] public RankDto Rank { get; set; } = default!;
     [Parameter] public List<RankDto> AllRanks { get; set; } = [];
     [Parameter] public Guid SelectedRankId { get; set; }
     [Parameter] public EventCallback<Guid> OnRankSelected { get; set; }
-    [Parameter] public CharacterCreateDto Character { get; set; } = default!;
+    [Parameter] public CharacterDisplayDto Character { get; set; } = default!;
 
     private List<RankDto> Children =>
         [.. AllRanks.Where(r => r.ParentRankId == Rank.Id)];

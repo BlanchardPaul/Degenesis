@@ -1,6 +1,5 @@
 ﻿using Business.Characters;
 using Degenesis.Shared.DTOs.Characters.CRUD;
-using Domain.Characters;
 
 namespace API.Endpoints.Characters;
 

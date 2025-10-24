@@ -35,10 +35,7 @@ public partial class BurnModal
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else
-            {
                 Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
         }
         MudDialog.Close(DialogResult.Ok(true));
     }

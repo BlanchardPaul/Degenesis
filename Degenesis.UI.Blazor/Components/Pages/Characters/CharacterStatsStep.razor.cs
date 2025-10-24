@@ -13,6 +13,7 @@ public partial class CharacterStatsStep
 
     [Parameter] public List<CharacterAttributeDto> CharacterAttributes { get; set; } = [];
     [Parameter] public List<CharacterSkillDto> CharacterSkills { get; set; } = [];
+    [Parameter] public bool IsFocusOrientied { get; set; }
 
     public int MaxEgo;
     public int MaxSporeInfestation;
@@ -171,7 +172,11 @@ public partial class CharacterStatsStep
         int willpower = GetSkill(WillpowerSkillId);
         int toughness = GetSkill(ToughnessSkillId);
 
-        MaxEgo = Math.Max((intellect + focus) * 2, (instinct + primal) * 2);
+        if (IsFocusOrientied)
+            MaxEgo = (intellect + focus) * 2;
+        else
+            MaxEgo = (instinct + primal) * 2;
+
         MaxSporeInfestation = (psyche + Math.Max(faith, willpower)) * 2;
         MaxFleshWounds = (body + toughness) * 2;
         MaxTrauma = body + psyche;

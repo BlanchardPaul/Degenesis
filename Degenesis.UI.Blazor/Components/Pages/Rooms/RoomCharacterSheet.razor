@@ -1,7 +1,7 @@
-﻿
-@if (Character is null)
+﻿@if (Character is null)
 {
-    <MudText Color="Color.Error">No character data available.</MudText>
+    <MudText Color="Color.Error">Loading Character data.</MudText>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
@@ -10,27 +10,42 @@ else
             <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
                 <MudStack>
                     <MudText Typo="Typo.h6"><b>Name</b>: @Character.Name</MudText>
-                    <MudText Typo="Typo.h6"><b>Rank:</b> @Character.Rank?.Name</MudText>
+                    <MudStack Row>
+                        <MudText Typo="Typo.h6"><b>Rank:</b> @Character.Rank?.Name</MudText>
+                        <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="OpenEditRankDialog">
+                            Change rank
+                        </MudButton>
+                    </MudStack>
                 </MudStack>
                 <MudStack>
                     <MudText Typo="Typo.h6"><b>Age</b>: @Character.Age years</MudText>
                     <MudStack Row>
                         <MudText Typo="Typo.h6"><b>XP:</b> </MudText>
                         <MudItem Style="width:25%">
-                            <MudNumericField HideSpinButtons @bind-Value="@Character.Experience" />
+                            <MudNumericField HideSpinButtons @bind-Value="@Character.Experience"
+                                             Immediate="true"
+                                             TextUpdateSuppression="false"
+                                             OnBlur="UpdateXp" />
                         </MudItem>
                     </MudStack>
                 </MudStack>
-                <MudStack>
+                <MudStack Style="width:16%">
                     <MudText Typo="Typo.h6"><b>Height</b>: @Character.Height cms</MudText>
                     <MudStack Row>
                         <MudText Typo="Typo.h6"><b>Money (Draft/Dinar)</b>: </MudText>
                         <MudItem Style="width:15%">
-                            <MudNumericField HideSpinButtons @bind-Value="@Character.ChroniclerMoney" />
+                            <MudNumericField HideSpinButtons @bind-Value="@Character.ChroniclerMoney"
+                                             Immediate="true"
+                                             TextUpdateSuppression="false"
+                                             OnBlur="UpdateChroniclerMoney" />
+                            
                         </MudItem>
                         <MudText Typo="Typo.h6">/</MudText>
                         <MudItem Style="width:15%">
-                            <MudNumericField HideSpinButtons @bind-Value="@Character.DinarMoney" />
+                            <MudNumericField HideSpinButtons @bind-Value="@Character.DinarMoney"
+                                             Immediate="true"
+                                             TextUpdateSuppression="false"
+                                             OnBlur="UpdateDinar" />
                         </MudItem>
                     </MudStack>
                     
@@ -46,7 +61,9 @@ else
                 {
                     <MudText Typo="Typo.h6"><b>Orientation:</b> Primal</MudText>
                 }
-                <MudButton Variant="Variant.Outlined" Size="Size.Small">Edit infos</MudButton>
+                <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="OpenEditInfosDialog">
+                    Edit infos
+                </MudButton>
             </MudStack>
             <MudStack Row>
 
@@ -81,12 +98,28 @@ else
                     <MudPaper Class="pa-1" Width="32%" Outlined="true">
                         <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                             <MudText Typo="Typo.h6">@attr.Name</MudText>
-                            <MudRating @bind-SelectedValue="@attr.Level"
-                                       FullIcon="@Icons.Material.Filled.Square"
-                                       EmptyIcon="@Icons.Material.Outlined.Square"
-                                       FullIconColor="Color.Error"
-                                       EmptyIconColor="Color.Error"
-                                       Size="Size.Small"/>
+                            <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                                <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                                               Disabled="@(@attr.Level <= 0)"
+                                               OnClick="() => ChangeAttributeLevel(attr, -1)"
+                                               Size="Size.Small"
+                                               Color="Color.Error" />
+
+                                <MudRating SelectedValue="@attr.Level"
+                                           MaxValue="6"
+                                           ReadOnly="true"
+                                           FullIcon="@Icons.Material.Filled.Square"
+                                           EmptyIcon="@Icons.Material.Outlined.Square"
+                                           FullIconColor="Color.Error"
+                                           EmptyIconColor="Color.Error"
+                                           Size="Size.Small" />
+
+                                <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                               Disabled="@(@attr.Level >= 6)"
+                                               OnClick="() => ChangeAttributeLevel(attr, 1)"
+                                               Size="Size.Small"
+                                               Color="Color.Success" />
+                            </MudStack>
                         </MudStack>
 
                         <MudDivider/>
@@ -95,12 +128,28 @@ else
                         {
                             <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                                 <MudText Typo="Typo.h6">@skill.Name</MudText>
-                                <MudRating @bind-SelectedValue="@skill.Level"
-                                           FullIcon="@Icons.Material.Filled.Square"
-                                           EmptyIcon="@Icons.Material.Outlined.Square"
-                                           FullIconColor="Color.Error"
-                                           EmptyIconColor="Color.Error"
-                                           Size="Size.Small" />
+                                <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                                                   Disabled="@(@skill.Level <= 0)"
+                                                   OnClick="() => ChangeSkillLevel(skill, -1)"
+                                                   Size="Size.Small"
+                                                   Color="Color.Error" />
+
+                                    <MudRating SelectedValue="@skill.Level"
+                                               MaxValue="6"
+                                               ReadOnly="true"
+                                               FullIcon="@Icons.Material.Filled.Square"
+                                               EmptyIcon="@Icons.Material.Outlined.Square"
+                                               FullIconColor="Color.Error"
+                                               EmptyIconColor="Color.Error"
+                                               Size="Size.Small" />
+
+                                    <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                   Disabled="@(@skill.Level >= 6)"
+                                                   OnClick="() => ChangeSkillLevel(skill, 1)"
+                                                   Size="Size.Small"
+                                                   Color="Color.Success" />
+                                </MudStack>
                             </MudStack>
                         }
                     </MudPaper>
@@ -132,7 +181,8 @@ else
                             <MudTd>
                                 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                                     <MudText Typo="Typo.h6">@context.Name</MudText>
-                                    <MudRating @bind-SelectedValue="@context.Level"
+                                    <MudRating SelectedValue="@context.Level"
+                                               SelectedValueChanged="@(newValue => UpdateBackgroundLevel(context, newValue))"
                                                FullIcon="@Icons.Material.Filled.Square"
                                                EmptyIcon="@Icons.Material.Outlined.Square"
                                                FullIconColor="Color.Error"
@@ -149,7 +199,8 @@ else
                     <MudStack>
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText Typo="Typo.h6">Ego</MudText>
-                            <MudRating @bind-SelectedValue="@Character.Ego"
+                            <MudRating SelectedValue="@Character.Ego"
+                                       SelectedValueChanged="UpdateEgo"
                                        MaxValue="@Character.MaxEgo"
                                        FullIcon="@Icons.Material.Filled.Square"
                                        EmptyIcon="@Icons.Material.Outlined.Square"
@@ -158,7 +209,8 @@ else
                         </MudStack>
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText Typo="Typo.h6">Spore Infestation</MudText>
-                            <MudRating @bind-SelectedValue="@Character.CurrentSporeInfestation"
+                            <MudRating SelectedValue="@Character.CurrentSporeInfestation"
+                                       SelectedValueChanged="UpdateCurrentSporeInfestation"
                                        MaxValue="@Character.MaxSporeInfestation"
                                        FullIcon="@Icons.Material.Filled.Square"
                                        EmptyIcon="@Icons.Material.Outlined.Square"
@@ -167,13 +219,17 @@ else
                             <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.Center">
                                 <MudText Align="Align.Center">Permanent Infestation : </MudText>
                                 <MudItem Style="width:20%">
-                                    <MudNumericField HideSpinButtons @bind-Value="@Character.PermanentSporeInfestation" />
+                                    <MudNumericField HideSpinButtons @bind-Value="@Character.PermanentSporeInfestation" 
+                                                                    Immediate="true"
+                                                                    TextUpdateSuppression="false"
+                                                                    OnBlur="UpdatePermanentSporeInfestation" />
                                 </MudItem>
                             </MudStack>
                         </MudStack>
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText Typo="Typo.h6">Fleshwounds</MudText>
-                            <MudRating @bind-SelectedValue="@Character.FleshWounds"
+                            <MudRating SelectedValue="@Character.FleshWounds"
+                                       SelectedValueChanged="UpdateFleshWounds"
                                        MaxValue="@Character.MaxFleshWounds"
                                        FullIcon="@Icons.Material.Filled.Square"
                                        EmptyIcon="@Icons.Material.Outlined.Square"
@@ -182,7 +238,8 @@ else
                         </MudStack>
                         <MudStack AlignItems="AlignItems.Center">
                             <MudText Typo="Typo.h6">Traumas</MudText>
-                            <MudRating @bind-SelectedValue="@Character.Trauma"
+                            <MudRating SelectedValue="@Character.Trauma"
+                                       SelectedValueChanged="UpdateTrauma"
                                        MaxValue="@Character.MaxTrauma"
                                        FullIcon="@Icons.Material.Filled.Square"
                                        EmptyIcon="@Icons.Material.Outlined.Square"
@@ -204,21 +261,59 @@ else
                               Elevation="0"
                               Breakpoint="Breakpoint.None">
 
+                        <ToolBarContent>
+                            <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="OpenAddPotentialDialog">
+                                Add a potential
+                            </MudButton>
+                        </ToolBarContent>
+
                         <RowTemplate>
                             <MudTd>
                                 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                                    <MudText Typo="Typo.h6">@context.Name</MudText>
-                                    <MudRating @bind-SelectedValue="@context.Level"
-                                               FullIcon="@Icons.Material.Filled.Square"
-                                               EmptyIcon="@Icons.Material.Outlined.Square"
-                                               FullIconColor="Color.Error"
-                                               EmptyIconColor="Color.Error"
-                                               Size="Size.Small" />
+                                    <MudTooltip Placement="Placement.Right">
+                                        <ChildContent>
+                                            <MudText Typo="Typo.h6">@context.Name</MudText>
+                                        </ChildContent>
+                                        <TooltipContent>
+                                            <MudText Align="Align.Left" Typo="Typo.h6">
+                                               <MudText>@context.Description</MudText>
+                                            </MudText>
+                                        </TooltipContent>
+                                    </MudTooltip>
+
+
+                                    <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                                        <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Remove"
+                                                           Disabled="@(@context.Level <= 0)"
+                                                           OnClick="() => ChangeBackgroundLevel(context, -1)"
+                                                           Size="Size.Small"
+                                                           Color="Color.Error" />
+
+                                            <MudRating @bind-SelectedValue="@context.Level"
+                                                       FullIcon="@Icons.Material.Filled.Square"
+                                                       EmptyIcon="@Icons.Material.Outlined.Square"
+                                                       FullIconColor="Color.Error"
+                                                       EmptyIconColor="Color.Error"
+                                                       Size="Size.Small" />
+
+                                            <MudIconButton Icon="@Icons.Material.Filled.Add"
+                                                           Disabled="@(@context.Level >= 6)"
+                                                           OnClick="() => ChangeBackgroundLevel(context, 1)"
+                                                           Size="Size.Small"
+                                                           Color="Color.Success" />
+
+                                            <MudButton Variant="Variant.Outlined"
+                                                       Size="Size.Small"
+                                                       OnClick="() => DeleteCharacterPotential(context.PotentialId)">
+                                                Delete
+                                            </MudButton>
+                                        </MudStack>
+                                    </MudStack>
                                 </MudStack>
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
-                    <MudText Align="Align.Right"><MudButton Style="margin-top:10px" Variant="Variant.Outlined" Size="Size.Small">Edit potentials</MudButton></MudText>
                 </MudPaper>
             </MudStack>
         </MudPaper>

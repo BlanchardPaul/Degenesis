@@ -1,0 +1,27 @@
+﻿<MudDialog>
+    <DialogContent>
+        @if (Ranks.Count == 0)
+        {
+            <MudText Color="Color.Error">Loading ranks...</MudText>
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        }
+        else
+        {
+            <MudStack Row AlignItems="AlignItems.Center">
+                @foreach (var root in Ranks.Where(r => r.ParentRankId == null))
+                {
+                    <RankBranchForEdit Rank="root"
+                                          AllRanks="Ranks"
+                                          Character="Character"
+                                          SelectedRankId="SelectedRankId"
+                                          OnRankSelected="OnRankSelected" />
+                }
+            </MudStack>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="ConfirmSelection" Color="Color.Primary">Confirm</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

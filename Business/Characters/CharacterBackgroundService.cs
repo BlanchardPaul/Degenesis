@@ -24,15 +24,11 @@ public class CharacterBackgroundService : ICharacterBackgroundService
         try
         {
             var existingCharacterBackground = await _context.CharacterBackgrounds
-                .Include(a => a.Background)
-                .Include(a => a.Character)
-            .FirstOrDefaultAsync(cb => cb.CharacterId == characterBackground.CharacterId && cb.BackgroundId == characterBackground.BackgroundId) ?? throw new Exception("CharacterBackground not found"); ;
+                .FirstOrDefaultAsync(cb => cb.CharacterId == characterBackground.CharacterId && cb.BackgroundId == characterBackground.BackgroundId) 
+                ?? throw new Exception("CharacterBackground not found"); ;
 
-            // We ignore the Attribute and character in the mapper, it will never be changed from here
-            _mapper.Map(characterBackground, existingCharacterBackground);
-
-            existingCharacterBackground.Background = await _context.Backgrounds.FirstOrDefaultAsync(a => a.Id == characterBackground.BackgroundId) ?? throw new Exception("Background not found");
-            existingCharacterBackground.Character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == characterBackground.CharacterId) ?? throw new Exception("Character not found");
+            existingCharacterBackground.Level = characterBackground.Level;
+             
             await _context.SaveChangesAsync();
             return true;
         }

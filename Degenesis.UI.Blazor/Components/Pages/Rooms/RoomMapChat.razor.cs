@@ -9,7 +9,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
 public partial class RoomMapChat : ComponentBase, IAsyncDisposable
 {
-    [Parameter] public Guid RoomId { get; set; }
+    [Parameter] public Guid IdRoom { get; set; }
 
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
@@ -43,7 +43,7 @@ public partial class RoomMapChat : ComponentBase, IAsyncDisposable
         userName = user.FindFirst("unique_name")?.Value;
 
         _client = await AuthenticatedHttpClientService.GetClientAsync();
-        room = await _client.GetFromJsonAsync<RoomDisplayDto>($"/rooms/{RoomId}");
+        room = await _client.GetFromJsonAsync<RoomDisplayDto>($"/rooms/{IdRoom}");
 
         if (room is null || string.IsNullOrEmpty(userName) || !room.Players.Contains(userName) && room.GMName != userName)
         {
@@ -70,14 +70,14 @@ public partial class RoomMapChat : ComponentBase, IAsyncDisposable
         });
 
         await hubConnection.StartAsync();
-        await hubConnection.SendAsync("JoinRoom", RoomId.ToString());
+        await hubConnection.SendAsync("JoinRoom", IdRoom.ToString());
     }
 
     private async Task SendMessage()
     {
         if (!string.IsNullOrWhiteSpace(currentMessage))
         {
-            await hubConnection!.SendAsync("SendMessage", RoomId.ToString(), userName, currentMessage);
+            await hubConnection!.SendAsync("SendMessage", IdRoom.ToString(), userName, currentMessage);
             currentMessage = "";
             StateHasChanged();
         }
@@ -87,7 +87,7 @@ public partial class RoomMapChat : ComponentBase, IAsyncDisposable
     {
         if (hubConnection is not null)
         {
-            await hubConnection.SendAsync("LeaveRoom", RoomId.ToString());
+            await hubConnection.SendAsync("LeaveRoom", IdRoom.ToString());
             await hubConnection.DisposeAsync();
             GC.SuppressFinalize(this);
         }

@@ -9,13 +9,14 @@
 else
 {
     <MudTabs Class="d-flex flex-column" Style="height: 100%;">
-        <!-- adjust 64px if navbar exists -->
         <MudTabPanel Text="Map and Chat">
-            <RoomMapChat RoomId="IdRoom" />
+            <RoomMapChat IdRoom="IdRoom" />
         </MudTabPanel>
 
         <MudTabPanel Text="Character">
-            <RoomCharacterSheet Character="Character" />
+            <RoomCharacterSheet IdRoom="IdRoom"
+                                Character="Character"
+                                OnRequestParentReload="ReloadCharacter" />
         </MudTabPanel>
     </MudTabs>
 }

@@ -3,12 +3,14 @@
 </MudStack>
 
 <MudForm @ref="_formStepRank">
-    <MudStack Row AlignItems="AlignItems.Start" Spacing="4">
+    <MudStack Row AlignItems="AlignItems.Center">
         @foreach (var rank in Ranks.Where(r => r.ParentRankId == null))
         {
             <RankBranch Rank="rank"
                         AllRanks="Ranks"
-                        Character="Character" />
+                        Character="Character"
+                        SelectedRankId="SelectedRankId"
+                        OnRankSelected="OnRankSelected" />
         }
     </MudStack>
 </MudForm>

@@ -81,6 +81,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Backgrounds, opt => opt.MapFrom(src => src.CharacterBackgrounds))
             .ForMember(dest => dest.Potentials, opt => opt.MapFrom(src => src.CharacterPontentials));
 
+        CreateMap<CharacterBasicInfosEditDto, Character>();
+
         CreateMap<CharacterArtifactCreateDto, CharacterArtifact>()
              .ForMember(dest => dest.Character, opt => opt.Ignore())
              .ForMember(dest => dest.Artifact, opt => opt.Ignore());
@@ -117,7 +119,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Potential, opt => opt.Ignore());
         CreateMap<CharacterPotential, CharacterPotentialDto>();
         CreateMap<CharacterPotential, CharacterPotentialDisplayDto>()
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Potential.Name));
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Potential.Name))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Potential.Description));
 
         CreateMap<ConceptCreateDto, Concept>()
             .ForMember(dest => dest.BonusAttribute, opt => opt.Ignore())

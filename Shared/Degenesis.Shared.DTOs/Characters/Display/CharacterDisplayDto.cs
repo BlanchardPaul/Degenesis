@@ -11,16 +11,16 @@ public class CharacterDisplayDto
     public string Sex { get; set; } = string.Empty;
     public int DinarMoney { get; set; }
     public int ChroniclerMoney { get; set; }
-    public int MaxEgo { get; set; } = 2;
-    public int Ego { get; set; } = 2;
-    public int CurrentSporeInfestation { get; set; } = 0;
-    public int MaxSporeInfestation { get; set; } = 2;
-    public int PermanentSporeInfestation { get; set; } = 0;
-    public int MaxFleshWounds { get; set; } = 2;
-    public int FleshWounds { get; set; } = 2;
-    public int MaxTrauma { get; set; } = 2;
-    public int Trauma { get; set; } = 2;
-    public int PassiveDefense { get; set; } = 1;
+    public int MaxEgo { get; set; }
+    public int Ego { get; set; }
+    public int CurrentSporeInfestation { get; set; }
+    public int MaxSporeInfestation { get; set; }
+    public int PermanentSporeInfestation { get; set; }
+    public int MaxFleshWounds { get; set; }
+    public int FleshWounds { get; set; }
+    public int MaxTrauma { get; set; }
+    public int Trauma { get; set; }
+    public int PassiveDefense { get; set; }
     public int Experience { get; set; }
     public string Notes { get; set; } = string.Empty;
     public bool IsFocusOriented { get; set; }
