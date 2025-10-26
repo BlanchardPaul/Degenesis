@@ -19,6 +19,7 @@ public interface ICharacterService
     Task<bool> UpdateCharacterEgoAsync(CharacterIntValueEditDto characterEgo); 
     Task<bool> UpdateCharacterFleshWoundsAsync(CharacterIntValueEditDto characterFleshWounds);
     Task<bool> UpdateCharacterDinarAsync(CharacterIntValueEditDto characterDinar);
+    Task<bool> UpdateCharacterNotesAsync(CharacterStringValueEditDto characterNotes);
     Task<bool> UpdateCharacterPermanentSporeInfestationAsync(CharacterIntValueEditDto characterPermanentSporeInfestation);
     Task<bool> UpdateCharacterRankAsync(CharacterGuidValueEditDto characterRank);
     Task<bool> UpdateCharacterTraumaAsync(CharacterIntValueEditDto characterTrauma);
@@ -281,6 +282,24 @@ public class CharacterService : ICharacterService
                 .FirstOrDefaultAsync(c => c.Id == characterFleshWounds.Id) ?? throw new Exception("Character not found");
 
             existingCharacter.FleshWounds = characterFleshWounds.Value;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> UpdateCharacterNotesAsync(CharacterStringValueEditDto characterNotes)
+    {
+        try
+        {
+            var existingCharacter = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == characterNotes.Id) ?? throw new Exception("Character not found");
+
+            existingCharacter.Notes = characterNotes.Value;
 
             await _context.SaveChangesAsync();
             return true;

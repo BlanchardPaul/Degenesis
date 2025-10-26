@@ -394,6 +394,19 @@ public partial class RoomCharacterSheet
         }
     }
 
+    private async Task UpdateCharacterNotes()
+    {
+        if (Character is null)
+            return;
+
+        var result = await _client.PutAsJsonAsync($"/characters/notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.Notes });
+
+        if (!result.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Error while updating notes", Severity.Error);
+        }
+    }
+
     private async Task ChangeBackgroundLevel(CharacterPotentialDisplayDto potential, int direction)
     {
         if (Character is null)

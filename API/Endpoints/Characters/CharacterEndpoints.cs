@@ -64,6 +64,12 @@ public static class CharacterEndpoints
             return success ? Results.Ok() : Results.BadRequest();
         });
 
+        group.MapPut("/notes", async (CharacterStringValueEditDto characterNotes, ICharacterService service) =>
+        {
+            var success = await service.UpdateCharacterNotesAsync(characterNotes);
+            return success ? Results.Ok() : Results.BadRequest();
+        });
+
         group.MapPut("/permanent-spore-infestation", async (CharacterIntValueEditDto characterPermanentSporeInfestation, ICharacterService service) =>
         {
             var success = await service.UpdateCharacterPermanentSporeInfestationAsync(characterPermanentSporeInfestation);

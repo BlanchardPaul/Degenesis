@@ -21,3 +21,10 @@ public class CharacterGuidValueEditDto
     public Guid Id { get; set; }
     public Guid Value { get; set; }
 }
+
+
+public class CharacterStringValueEditDto
+{
+    public Guid Id { get; set; }
+    public string Value { get; set; } = string.Empty;
+}
