@@ -27,12 +27,14 @@ public class RoomService : IRoomService
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ICharacterService _characterService;
 
-    public RoomService(ApplicationDbContext context, IMapper mapper, UserManager<ApplicationUser> userManager)
+    public RoomService(ApplicationDbContext context, IMapper mapper, UserManager<ApplicationUser> userManager, ICharacterService characterService)
     {
         _context = context;
         _mapper = mapper;
         _userManager = userManager;
+        _characterService = characterService;
     }
 
     public async Task<List<RoomDisplayDto>> GetAllAsync(string userName)
@@ -221,6 +223,15 @@ public class RoomService : IRoomService
 
             var dbUserRoom = await _context.UserRooms.FirstOrDefaultAsync(ur => ur.IdRoom == idRoom && ur.IdApplicationUser == user.Id)
                 ?? throw new Exception("UserRoom not found");
+
+            //If user had a character delete it
+            var character = await _context.Characters.FirstOrDefaultAsync(c => c.IdRoom == idRoom && c.IdApplicationUser == user.Id);
+            if (character is not null)
+            {
+                var characterDeletion = await _characterService.DeleteCharacterAsync(idRoom, userName);
+                if (!characterDeletion)
+                    throw new Exception("Error during characterDeletion");
+            }
 
             _context.UserRooms.Remove(dbUserRoom);
             await _context.SaveChangesAsync();

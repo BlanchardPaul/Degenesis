@@ -94,9 +94,9 @@ public static class CharacterEndpoints
             return success ? Results.Ok() : Results.BadRequest();
         });
 
-        group.MapDelete("/{id:guid}", async (Guid id, ICharacterService service) =>
+        group.MapDelete("/{roomId:guid}", async (Guid roomId, ICharacterService service, ClaimsPrincipal user) =>
         {
-            var success = await service.DeleteCharacterAsync(id);
+            var success = await service.DeleteCharacterAsync(roomId, user?.Identity?.Name ?? string.Empty);
             return success ? Results.NoContent() : Results.NotFound();
         });
     }

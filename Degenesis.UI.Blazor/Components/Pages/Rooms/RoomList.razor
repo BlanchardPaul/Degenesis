@@ -41,14 +41,15 @@ else
                                 <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="() => ShowInviteDialog(room.Id)">Invite Player</MudButton>
                                 <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => DeleteRoom(room.Id)">Delete</MudButton>
                             }else{
-                                <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => DeclineInvitation(room.Id)">Leave Room</MudButton>
+                                <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="() => ConfirmLeaveRoom(room.Id)">Leave Room</MudButton>
                                 @if (!room.HasCharacter)
                                 {
                                     <MudButton Variant="Variant.Text" Color="Color.Info" OnClick="() => CreateCharacter(room.Id)">Create Character</MudButton>
                                 }
                                 else
                                 {
-                                    <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="() => JoinRoom(room.Id)">Join</MudButton>
+                                    <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="() => JoinRoom(room.Id)">Join</MudButton>
+                                    <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => ConfirmDeleteCharacter(room.Id)">Delete Character</MudButton>
                                 }
                             }
                         </MudCardActions>

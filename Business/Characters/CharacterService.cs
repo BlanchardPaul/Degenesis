@@ -24,7 +24,7 @@ public interface ICharacterService
     Task<bool> UpdateCharacterRankAsync(CharacterGuidValueEditDto characterRank);
     Task<bool> UpdateCharacterTraumaAsync(CharacterIntValueEditDto characterTrauma);
     Task<bool> UpdateCharacterXpAsync(CharacterIntValueEditDto characterXp);
-    Task<bool> DeleteCharacterAsync(Guid id);
+    Task<bool> DeleteCharacterAsync(Guid roomId, string userName);
 }
 
 public class CharacterService : ICharacterService
@@ -57,7 +57,7 @@ public class CharacterService : ICharacterService
                 .ThenInclude(cb => cb.Background)
             .Include(c => c.CharacterPontentials)
                 .ThenInclude(cp => cp.Potential)
-            .FirstOrDefaultAsync(c => c.IdRoom == roomId && c.IdApplicationUser == user.Id);
+            .FirstOrDefaultAsync(c => c.IdRoom == roomId && c.IdApplicationUser == user.Id) ?? throw new Exception("Character not found");
         return _mapper.Map<CharacterDisplayDto>(character);
     }
 
@@ -388,14 +388,16 @@ public class CharacterService : ICharacterService
 
     }
 
-    public async Task<bool> DeleteCharacterAsync(Guid id)
+    public async Task<bool> DeleteCharacterAsync(Guid roomId, string userName)
     {
+        var user = await _userManager.FindByNameAsync(userName) ?? throw new Exception("User not found");
         var character = await _context.Characters
                .Include(c => c.CharacterAttributes)
                .Include(c => c.CharacterSkills)
                .Include(c => c.CharacterBackgrounds)
                .Include(c => c.CharacterPontentials)
-               .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Character not found");
+               .FirstOrDefaultAsync(c => c.IdRoom == roomId && c.IdApplicationUser == user.Id) 
+               ?? throw new Exception("Character not found");
 
         // Here we have to delete the CharacterAttributes manually because we can't put an OnDelete.Cascade in the configuration
         _context.CharacterAttributes.RemoveRange(character.CharacterAttributes);
