@@ -12,7 +12,7 @@ public class Vehicle
     public int StructureTrauma { get; set; } = 1;
     public int TechLevel { get; set; } = 0;
     public int Slots { get; set; } = 0;
-    public int Value { get; set; } = 0;
+    public string Value { get; set; } = string.Empty;
 
     // Whatever you want, food/fuel cumsuption, ...)
     public string Resources { get; set; } = string.Empty;

@@ -18,6 +18,6 @@ public class ProtectionCreateDto
     public string Attack { get; set; } = string.Empty;
     public int Encumbrance { get; set; } = 0;
     public int TechLevel { get; set; } = 1;
-    public int Value { get; set; } = 0;
+    public string Value { get; set; } = string.Empty;
     public string Resources { get; set; } = string.Empty;
 }

@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Equipments;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Equipments;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -9,7 +10,9 @@ public partial class EquipmentModal
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public EquipmentDto Equipment { get; set; } = new();
-    [Parameter] public List<EquipmentTypeDto> EquipmentTypes { get; set; } = new();
+    [Parameter] public List<EquipmentTypeDto> EquipmentTypes { get; set; } = [];
+    [Parameter] public List<CultDto> Cults { get; set; } = [];
+    private List<Guid> SelectedCultIds { get; set; } = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -19,10 +22,19 @@ public partial class EquipmentModal
 
     protected override void OnParametersSet()
     {
+        SelectedCultIds = [.. Equipment.Cults.Select(c => c.Id)];
+
         if (Equipment.EquipmentTypeId == Guid.Empty && EquipmentTypes.Any())
         {
             Equipment.EquipmentTypeId = EquipmentTypes.First().Id;
         }
+    }
+
+    private Task OnCultsChanged(IEnumerable<Guid> selectedValues)
+    {
+        SelectedCultIds = [.. selectedValues];
+        Equipment.Cults = [.. Cults.Where(c => SelectedCultIds.Contains(c.Id))];
+        return Task.CompletedTask;
     }
 
     private async Task SaveEquipment()

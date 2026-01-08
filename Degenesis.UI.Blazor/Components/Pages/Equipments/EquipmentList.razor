@@ -2,24 +2,37 @@
 
 <h3>Equipments</h3>
 
-@if (equipments is null)
+@if (Equipments is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Equipment</MudButton>
-    <MudTable Items="@equipments" Hover="true">
+    <MudTable Items="@Equipments" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Description</MudTh>
             <MudTh>Equipment Type</MudTh>
+            <MudTh>Cults</MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>@context.Name</MudTd>
             <MudTd>@context.Description</MudTd>
             <MudTd>@context.EquipmentType.Name</MudTd>
+            <MudTd>
+                <MudTd DataLabel="Bonus Skills">
+                    @if (context.Cults != null && context.Cults.Any())
+                    {
+                        @string.Join(", ", context.Cults.Select(bs => bs.Name))
+                    }
+                    else
+                    {
+                        <span>No cults</span>
+                    }
+                </MudTd>
+            </MudTd>
             <MudTd>
                 <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
                 <MudButton OnClick="() => DeleteEquipment(context.Id)" Color="Color.Error">Delete</MudButton>

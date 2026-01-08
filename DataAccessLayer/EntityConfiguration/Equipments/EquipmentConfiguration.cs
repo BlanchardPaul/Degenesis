@@ -37,5 +37,7 @@ internal class EquipmentConfiguration : IEntityTypeConfiguration<Equipment>
             .HasForeignKey(e => e.EquipmentTypeId)
             .IsRequired();
 
+        builder.HasMany(e => e.Cults)
+            .WithMany();
     }
 }

@@ -43,6 +43,11 @@ internal class WeaponConfiguration : IEntityTypeConfiguration<Weapon>
             .IsRequired(false)
             .HasForeignKey(w => w.AttributeId);
 
+        builder.HasOne(w => w.Skill)
+            .WithMany()
+            .IsRequired(false)
+            .HasForeignKey(w => w.SkillId);
+
         builder.Property(w => w.CharacterAttributeModifier);
         builder.Property(w => w.Magazine);
         builder.Property(w => w.Encumbrance);
@@ -57,6 +62,9 @@ internal class WeaponConfiguration : IEntityTypeConfiguration<Weapon>
            .HasForeignKey(w => w.WeaponTypeId);
 
         builder.HasMany(w => w.Qualities)
+            .WithMany();
+
+        builder.HasMany(w => w.Cults)
             .WithMany();
     }
 }

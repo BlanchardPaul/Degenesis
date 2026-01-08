@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251011104521_InitialMigration")]
+    [Migration("20260105172640_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -55,6 +55,21 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("CultCulture");
                 });
 
+            modelBuilder.Entity("CultEquipment", b =>
+                {
+                    b.Property<Guid>("CultsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EquipmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CultsId", "EquipmentId");
+
+                    b.HasIndex("EquipmentId");
+
+                    b.ToTable("CultEquipment");
+                });
+
             modelBuilder.Entity("CultSkill", b =>
                 {
                     b.Property<Guid>("BonusSkillsId")
@@ -68,6 +83,21 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("CultId");
 
                     b.ToTable("CultSkill");
+                });
+
+            modelBuilder.Entity("CultWeapon", b =>
+                {
+                    b.Property<Guid>("CultsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("WeaponId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CultsId", "WeaponId");
+
+                    b.HasIndex("WeaponId");
+
+                    b.ToTable("CultWeapon");
                 });
 
             modelBuilder.Entity("CultureSkill", b =>
@@ -729,8 +759,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("TechLevel")
                         .HasColumnType("int");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -983,8 +1014,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("TechLevel")
                         .HasColumnType("int");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -1228,8 +1260,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("TechLevel")
                         .HasColumnType("int");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("VehicleTypeId")
                         .HasColumnType("uniqueidentifier");
@@ -1341,8 +1374,8 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<float?>("CharacterAttributeModifier")
-                        .HasColumnType("real");
+                    b.Property<int?>("CharacterAttributeModifier")
+                        .HasColumnType("int");
 
                     b.Property<int?>("Damage")
                         .HasColumnType("int");
@@ -1376,14 +1409,18 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("SkillId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Slots")
                         .HasColumnType("int");
 
                     b.Property<int>("TechLevel")
                         .HasColumnType("int");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("WeaponTypeId")
                         .HasColumnType("uniqueidentifier");
@@ -1391,6 +1428,8 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AttributeId");
+
+                    b.HasIndex("SkillId");
 
                     b.HasIndex("WeaponTypeId");
 
@@ -1468,8 +1507,9 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -1715,6 +1755,21 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CultEquipment", b =>
+                {
+                    b.HasOne("Domain.Characters.Cult", null)
+                        .WithMany()
+                        .HasForeignKey("CultsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Equipments.Equipment", null)
+                        .WithMany()
+                        .HasForeignKey("EquipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CultSkill", b =>
                 {
                     b.HasOne("Domain.Characters.Skill", null)
@@ -1726,6 +1781,21 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Characters.Cult", null)
                         .WithMany()
                         .HasForeignKey("CultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("CultWeapon", b =>
+                {
+                    b.HasOne("Domain.Characters.Cult", null)
+                        .WithMany()
+                        .HasForeignKey("CultsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Weapons.Weapon", null)
+                        .WithMany()
+                        .HasForeignKey("WeaponId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -2270,6 +2340,10 @@ namespace DataAccessLayer.Migrations
                         .WithMany()
                         .HasForeignKey("AttributeId");
 
+                    b.HasOne("Domain.Characters.Skill", "Skill")
+                        .WithMany()
+                        .HasForeignKey("SkillId");
+
                     b.HasOne("Domain.Weapons.WeaponType", "WeaponType")
                         .WithMany()
                         .HasForeignKey("WeaponTypeId")
@@ -2277,6 +2351,8 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Attribute");
+
+                    b.Navigation("Skill");
 
                     b.Navigation("WeaponType");
                 });

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
-using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Equipments;
 using Domain.Equipments;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +29,7 @@ public class EquipmentService : IEquipmentService
     {
         var equipments = await _context.Equipments
             .Include(e => e.EquipmentType)
+            .Include(e => e.Cults)
             .ToListAsync();
         return _mapper.Map<List<EquipmentDto>>(equipments);
     }
@@ -40,6 +40,7 @@ public class EquipmentService : IEquipmentService
         {
             var equipment = await _context.Equipments
                 .Include(e => e.EquipmentType)
+                .Include(e => e.Cults)
                 .FirstOrDefaultAsync(e => e.Id == id) 
                 ?? throw new Exception("Equipment not found");
             return _mapper.Map<EquipmentDto>(equipment);
@@ -58,6 +59,13 @@ public class EquipmentService : IEquipmentService
             equipment.EquipmentType = await _context.EquipmentTypes
                 .FirstOrDefaultAsync(et => et.Id == equipmentCreate.EquipmentTypeId) 
                 ?? throw new Exception("EquipmentType not found");
+
+            foreach (var cultDto in equipmentCreate.Cults)
+            {
+                var cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                equipment.Cults.Add(cult);
+            }
 
             _context.Equipments.Add(equipment);
             await _context.SaveChangesAsync();
@@ -83,6 +91,14 @@ public class EquipmentService : IEquipmentService
                 .FirstOrDefaultAsync(et => et.Id == equipmentDto.EquipmentType.Id) 
                 ?? throw new Exception("EquipmentType not found");
 
+            existingEquipment.Cults.Clear();
+            foreach (var cultDto in equipmentDto.Cults)
+            {
+                var cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                existingEquipment.Cults.Add(cult);
+            }
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -97,7 +113,6 @@ public class EquipmentService : IEquipmentService
         try
         {
             var equipment = await _context.Equipments
-                .Include(e => e.EquipmentType)
                 .FirstOrDefaultAsync(e => e.Id == id)
                 ?? throw new Exception("Equipment not found");
             if (equipment is null)

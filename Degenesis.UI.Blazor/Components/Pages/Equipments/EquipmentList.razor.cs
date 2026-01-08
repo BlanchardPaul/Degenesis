@@ -1,12 +1,14 @@
-﻿using Degenesis.Shared.DTOs.Equipments;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Equipments;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Equipments;
 
 public partial class EquipmentList
 {
-    private List<EquipmentDto>? equipments;
-    private List<EquipmentTypeDto> equipmentTypes = [];
+    private List<EquipmentDto>? Equipments;
+    private List<EquipmentTypeDto> EquipmentTypes = [];
+    private List<CultDto> Cults = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -17,8 +19,9 @@ public partial class EquipmentList
 
     private async Task LoadEquipments()
     {
-        equipments = await _client.GetFromJsonAsync<List<EquipmentDto>>("/equipments") ?? [];
-        equipmentTypes = await _client.GetFromJsonAsync<List<EquipmentTypeDto>>("/equipment-types") ?? [];
+        Equipments = await _client.GetFromJsonAsync<List<EquipmentDto>>("/equipments") ?? [];
+        EquipmentTypes = await _client.GetFromJsonAsync<List<EquipmentTypeDto>>("/equipment-types") ?? [];
+        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -26,7 +29,8 @@ public partial class EquipmentList
         var parameters = new DialogParameters
             {
                 { "Equipment", new EquipmentDto() },
-                { "EquipmentTypes", equipmentTypes }
+                { "EquipmentTypes", EquipmentTypes },
+                { "Cults", Cults }
             };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
@@ -42,13 +46,14 @@ public partial class EquipmentList
 
     private async Task ShowEditDialog(Guid equipmentId)
     {
-        var equipment = equipments?.FirstOrDefault(e => e.Id == equipmentId);
+        var equipment = Equipments?.FirstOrDefault(e => e.Id == equipmentId);
         if (equipment != null)
         {
             var parameters = new DialogParameters
                 {
                     { "Equipment", equipment },
-                    { "EquipmentTypes", equipmentTypes }
+                    { "EquipmentTypes", EquipmentTypes },
+                    { "Cults", Cults }
                 };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };

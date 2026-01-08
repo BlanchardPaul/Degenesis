@@ -1,4 +1,6 @@
-﻿namespace Degenesis.Shared.DTOs.Equipments;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+
+namespace Degenesis.Shared.DTOs.Equipments;
 public class EquipmentDto : EquipmentCreateDto
 {
     public Guid Id { get; set; }
@@ -14,8 +16,9 @@ public class EquipmentCreateDto
     public int Encumbrance { get; set; } = 0;
     public int TechLevel { get; set; } = 1;
     public int Slots { get; set; } = 0;
-    public int Value { get; set; } = 0;
+    public string Value { get; set; } = string.Empty;
     public string Resources { get; set; } = string.Empty;
     public string EnergyStorage { get; set; } = string.Empty;
     public Guid EquipmentTypeId { get; set; }
+    public List<CultDto> Cults { get; set; } = [];
 }

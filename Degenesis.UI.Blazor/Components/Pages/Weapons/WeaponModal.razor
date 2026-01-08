@@ -6,6 +6,26 @@
         <MudTextField Label="Handling" @bind-Value="Weapon.Handling" />
         <MudTextField Label="Distance" @bind-Value="Weapon.Distance" />
         <MudNumericField Label="Damage" @bind-Value="Weapon.Damage" />
+
+        <MudSelect T="Guid?" Label="Attribute" @bind-Value="Weapon.AttributeId">
+            <MudSelectItem T="Guid?" Value="null">None</MudSelectItem>
+            @foreach (var cattribute in Attributes)
+            {
+                <MudSelectItem T="Guid?" Value="@cattribute.Id">@cattribute.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="Guid?" Label="Skill" @bind-Value="Weapon.SkillId">
+            <MudSelectItem T="Guid?" Value="null">None</MudSelectItem>
+            @foreach (var skill in Skills)
+            {
+                <MudSelectItem T="Guid?" Value="@skill.Id">@skill.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudNumericField T="int?" Label="Character attribute modifier"
+                            @bind-Value="Weapon.CharacterAttributeModifier" />
+
         <MudNumericField Label="Magazine" @bind-Value="Weapon.Magazine" />
         <MudNumericField Label="Encumbrance" @bind-Value="Weapon.Encumbrance" />
         <MudNumericField Label="Tech Level" @bind-Value="Weapon.TechLevel" />
@@ -20,24 +40,24 @@
             }
         </MudSelect>
 
-        <MudSelect T="Guid?" Label="Attribute" @bind-Value="Weapon.AttributeId">
-            <MudSelectItem T="Guid?" Value="null">None</MudSelectItem>
-            @foreach (var cattribute in Attributes)
-            {
-                <MudSelectItem T="Guid?" Value="@cattribute.Id">@cattribute.Name</MudSelectItem>
-            }
-        </MudSelect>
-
-        <MudNumericField T="float?" Label="Character attribute modifier"
-                         @bind-Value="Weapon.CharacterAttributeModifier"
-                         Format="0.##" />
-
         <MudSelect T="Guid" Label="Qualities" MultiSelection="true"
                    SelectedValues="SelectedQualityIds" SelectedValuesChanged="OnQualitiesChanged"
                    ToStringFunc="@(id => WeaponQualities.FirstOrDefault(q => q.Id == id)?.Name ?? "Unknown")">
             @foreach (var quality in WeaponQualities)
             {
                 <MudSelectItem T="Guid" Value="@quality.Id">@quality.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="Guid"
+                   Label="Cults"
+                   MultiSelection="true"
+                   SelectedValues="SelectedCultIds"
+                   SelectedValuesChanged="OnCultsChanged"
+                   ToStringFunc="@(id => Cults.FirstOrDefault(c => c.Id == id)?.Name ?? "Unknown")">
+            @foreach (var cult in Cults)
+            {
+                <MudSelectItem T="Guid" Value="@cult.Id">@cult.Name</MudSelectItem>
             }
         </MudSelect>
 

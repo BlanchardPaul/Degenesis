@@ -12,13 +12,16 @@ public partial class WeaponModal
     [Parameter] public WeaponDto Weapon { get; set; } = new();
     [Parameter] public List<WeaponTypeDto> WeaponTypes { get; set; } = [];
     [Parameter] public List<AttributeDto> Attributes { get; set; } = [];
+    [Parameter] public List<SkillDto> Skills { get; set; } = [];
     [Parameter] public List<WeaponQualityDto> WeaponQualities { get; set; } = [];
-
+    [Parameter] public List<CultDto> Cults { get; set; } = [];
+    private List<Guid> SelectedCultIds { get; set; } = [];
     private HashSet<Guid> SelectedQualityIds { get; set; } = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
+        SelectedCultIds = [.. Weapon.Cults.Select(c => c.Id)];
         _client = await HttpClientService.GetClientAsync();
     }
 
@@ -29,12 +32,12 @@ public partial class WeaponModal
             Weapon.WeaponTypeId = WeaponTypes[0].Id;
         }
 
-        SelectedQualityIds = new HashSet<Guid>(Weapon.Qualities.Select(q => q.Id));
+        SelectedQualityIds = [.. Weapon.Qualities.Select(q => q.Id)];
     }
 
     private Task OnQualitiesChanged(IEnumerable<Guid> selectedValues)
     {
-        SelectedQualityIds = new HashSet<Guid>(selectedValues);
+        SelectedQualityIds = [.. selectedValues];
         Weapon.Qualities = WeaponQualities.Where(q => SelectedQualityIds.Contains(q.Id)).ToList();
         return Task.CompletedTask;
     }
@@ -64,6 +67,13 @@ public partial class WeaponModal
             }
         }
         MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private Task OnCultsChanged(IEnumerable<Guid> selectedValues)
+    {
+        SelectedCultIds = [.. selectedValues];
+        Weapon.Cults = [.. Cults.Where(c => SelectedCultIds.Contains(c.Id))];
+        return Task.CompletedTask;
     }
 
     private void Cancel() => MudDialog.Cancel();

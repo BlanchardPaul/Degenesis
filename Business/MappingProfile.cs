@@ -153,11 +153,14 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.BonusSkills, opt => opt.MapFrom(src => src.BonusSkills));
 
         CreateMap<EquipmentCreateDto, Equipment>()
-            .ForMember(dest => dest.EquipmentType, opt => opt.Ignore());
+            .ForMember(dest => dest.EquipmentType, opt => opt.Ignore())
+            .ForMember(dest => dest.Cults, opt => opt.Ignore());
         CreateMap<EquipmentDto, Equipment>()
-            .ForMember(dest => dest.EquipmentType, opt => opt.Ignore());
+            .ForMember(dest => dest.EquipmentType, opt => opt.Ignore())
+            .ForMember(dest => dest.Cults, opt => opt.Ignore());
         CreateMap<Equipment, EquipmentDto>()
-            .ForMember(dest => dest.EquipmentType, opt => opt.MapFrom(src => src.EquipmentType));
+            .ForMember(dest => dest.EquipmentType, opt => opt.MapFrom(src => src.EquipmentType))
+            .ForMember(dest => dest.Cults, opt => opt.MapFrom(src => src.Cults));
 
         CreateMap<EquipmentTypeCreateDto, EquipmentType>();
         CreateMap<EquipmentTypeDto, EquipmentType>();
@@ -264,15 +267,21 @@ public class MappingProfile : Profile
         CreateMap<WeaponCreateDto, Weapon>()
             .ForMember(dest => dest.WeaponType, opt => opt.Ignore())
             .ForMember(dest => dest.Attribute, opt => opt.Ignore())
-            .ForMember(dest => dest.Qualities, opt => opt.Ignore());
+            .ForMember(dest => dest.Skill, opt => opt.Ignore())
+            .ForMember(dest => dest.Qualities, opt => opt.Ignore())
+            .ForMember(dest => dest.Cults, opt => opt.Ignore());
         CreateMap<WeaponDto, Weapon>()
             .ForMember(dest => dest.WeaponType, opt => opt.Ignore())
             .ForMember(dest => dest.Attribute, opt => opt.Ignore())
-            .ForMember(dest => dest.Qualities, opt => opt.Ignore());
+            .ForMember(dest => dest.Skill, opt => opt.Ignore())
+            .ForMember(dest => dest.Qualities, opt => opt.Ignore())
+            .ForMember(dest => dest.Cults, opt => opt.Ignore());
         CreateMap<Weapon, WeaponDto>()
             .ForMember(dest => dest.WeaponType, opt => opt.MapFrom(src => src.WeaponType))
             .ForMember(dest => dest.Attribute, opt => opt.MapFrom(src => src.Attribute))
-            .ForMember(dest => dest.Qualities, opt => opt.MapFrom(src => src.Qualities));
+            .ForMember(dest => dest.Skill, opt => opt.MapFrom(src => src.Skill))
+            .ForMember(dest => dest.Qualities, opt => opt.MapFrom(src => src.Qualities))
+            .ForMember(dest => dest.Cults, opt => opt.MapFrom(src => src.Cults));
 
         CreateMap<WeaponQualityCreateDto, WeaponQuality>();
         CreateMap<WeaponQualityDto, WeaponQuality>();

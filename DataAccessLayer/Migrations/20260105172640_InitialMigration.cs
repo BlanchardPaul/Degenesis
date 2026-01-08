@@ -22,7 +22,7 @@ namespace DataAccessLayer.Migrations
                     Magazine = table.Column<int>(type: "int", nullable: false),
                     Encumbrance = table.Column<int>(type: "int", nullable: false),
                     Activation = table.Column<int>(type: "int", nullable: false),
-                    Value = table.Column<int>(type: "int", nullable: false)
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -201,7 +201,7 @@ namespace DataAccessLayer.Migrations
                     Attack = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
                     Encumbrance = table.Column<int>(type: "int", nullable: false),
                     TechLevel = table.Column<int>(type: "int", nullable: false),
-                    Value = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Resources = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -516,7 +516,7 @@ namespace DataAccessLayer.Migrations
                     Encumbrance = table.Column<int>(type: "int", nullable: false),
                     TechLevel = table.Column<int>(type: "int", nullable: false),
                     Slots = table.Column<int>(type: "int", nullable: false),
-                    Value = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Resources = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EnergyStorage = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EquipmentTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
@@ -701,7 +701,7 @@ namespace DataAccessLayer.Migrations
                     StructureTrauma = table.Column<int>(type: "int", nullable: false),
                     TechLevel = table.Column<int>(type: "int", nullable: false),
                     Slots = table.Column<int>(type: "int", nullable: false),
-                    Value = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Resources = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     VehicleTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -712,43 +712,6 @@ namespace DataAccessLayer.Migrations
                         name: "FK_Vehicles_VehicleTypes_VehicleTypeId",
                         column: x => x.VehicleTypeId,
                         principalTable: "VehicleTypes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Weapons",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Caliber = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Handling = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Distance = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Damage = table.Column<int>(type: "int", nullable: true),
-                    AttributeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CharacterAttributeModifier = table.Column<float>(type: "real", nullable: true),
-                    Magazine = table.Column<int>(type: "int", nullable: false),
-                    Encumbrance = table.Column<int>(type: "int", nullable: false),
-                    TechLevel = table.Column<int>(type: "int", nullable: false),
-                    Slots = table.Column<int>(type: "int", nullable: false),
-                    Value = table.Column<int>(type: "int", nullable: false),
-                    Resources = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    WeaponTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Weapons", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Weapons_Attributes_AttributeId",
-                        column: x => x.AttributeId,
-                        principalTable: "Attributes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Weapons_WeaponTypes_WeaponTypeId",
-                        column: x => x.WeaponTypeId,
-                        principalTable: "WeaponTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -879,6 +842,49 @@ namespace DataAccessLayer.Migrations
                         column: x => x.SkillRequiredId,
                         principalTable: "Skills",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Weapons",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Caliber = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Handling = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                    Distance = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Damage = table.Column<int>(type: "int", nullable: true),
+                    AttributeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SkillId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    CharacterAttributeModifier = table.Column<int>(type: "int", nullable: true),
+                    Magazine = table.Column<int>(type: "int", nullable: false),
+                    Encumbrance = table.Column<int>(type: "int", nullable: false),
+                    TechLevel = table.Column<int>(type: "int", nullable: false),
+                    Slots = table.Column<int>(type: "int", nullable: false),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Resources = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    WeaponTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Weapons", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Weapons_Attributes_AttributeId",
+                        column: x => x.AttributeId,
+                        principalTable: "Attributes",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Weapons_Skills_SkillId",
+                        column: x => x.SkillId,
+                        principalTable: "Skills",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Weapons_WeaponTypes_WeaponTypeId",
+                        column: x => x.WeaponTypeId,
+                        principalTable: "WeaponTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1021,6 +1027,30 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CultEquipment",
+                columns: table => new
+                {
+                    CultsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EquipmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CultEquipment", x => new { x.CultsId, x.EquipmentId });
+                    table.ForeignKey(
+                        name: "FK_CultEquipment_Cults_CultsId",
+                        column: x => x.CultsId,
+                        principalTable: "Cults",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CultEquipment_Equipments_EquipmentId",
+                        column: x => x.EquipmentId,
+                        principalTable: "Equipments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "NPCEquipments",
                 columns: table => new
                 {
@@ -1042,6 +1072,54 @@ namespace DataAccessLayer.Migrations
                         name: "FK_NPCEquipments_NPCs_NPCId",
                         column: x => x.NPCId,
                         principalTable: "NPCs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RankRankPrerequisite",
+                columns: table => new
+                {
+                    PrerequisitesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RankRankPrerequisite", x => new { x.PrerequisitesId, x.RankId });
+                    table.ForeignKey(
+                        name: "FK_RankRankPrerequisite_RankPrerequisites_PrerequisitesId",
+                        column: x => x.PrerequisitesId,
+                        principalTable: "RankPrerequisites",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RankRankPrerequisite_Ranks_RankId",
+                        column: x => x.RankId,
+                        principalTable: "Ranks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CultWeapon",
+                columns: table => new
+                {
+                    CultsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    WeaponId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CultWeapon", x => new { x.CultsId, x.WeaponId });
+                    table.ForeignKey(
+                        name: "FK_CultWeapon_Cults_CultsId",
+                        column: x => x.CultsId,
+                        principalTable: "Cults",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CultWeapon_Weapons_WeaponId",
+                        column: x => x.WeaponId,
+                        principalTable: "Weapons",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1094,30 +1172,6 @@ namespace DataAccessLayer.Migrations
                         name: "FK_WeaponWeaponQuality_Weapons_WeaponId",
                         column: x => x.WeaponId,
                         principalTable: "Weapons",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "RankRankPrerequisite",
-                columns: table => new
-                {
-                    PrerequisitesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RankId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_RankRankPrerequisite", x => new { x.PrerequisitesId, x.RankId });
-                    table.ForeignKey(
-                        name: "FK_RankRankPrerequisite_RankPrerequisites_PrerequisitesId",
-                        column: x => x.PrerequisitesId,
-                        principalTable: "RankPrerequisites",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_RankRankPrerequisite_Ranks_RankId",
-                        column: x => x.RankId,
-                        principalTable: "Ranks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1564,6 +1618,11 @@ namespace DataAccessLayer.Migrations
                 column: "CultureId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CultEquipment_EquipmentId",
+                table: "CultEquipment",
+                column: "EquipmentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CultSkill_CultId",
                 table: "CultSkill",
                 column: "CultId");
@@ -1572,6 +1631,11 @@ namespace DataAccessLayer.Migrations
                 name: "IX_CultureSkill_CultureId",
                 table: "CultureSkill",
                 column: "CultureId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CultWeapon_WeaponId",
+                table: "CultWeapon",
+                column: "WeaponId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Equipments_EquipmentTypeId",
@@ -1729,6 +1793,11 @@ namespace DataAccessLayer.Migrations
                 column: "AttributeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Weapons_SkillId",
+                table: "Weapons",
+                column: "SkillId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Weapons_WeaponTypeId",
                 table: "Weapons",
                 column: "WeaponTypeId");
@@ -1797,10 +1866,16 @@ namespace DataAccessLayer.Migrations
                 name: "CultCulture");
 
             migrationBuilder.DropTable(
+                name: "CultEquipment");
+
+            migrationBuilder.DropTable(
                 name: "CultSkill");
 
             migrationBuilder.DropTable(
                 name: "CultureSkill");
+
+            migrationBuilder.DropTable(
+                name: "CultWeapon");
 
             migrationBuilder.DropTable(
                 name: "NPCArtifacts");

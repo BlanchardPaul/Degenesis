@@ -7,7 +7,7 @@
         <MudNumericField Label="Encumbrance" @bind-Value="Equipment.Encumbrance" />
         <MudNumericField Label="Tech Level" @bind-Value="Equipment.TechLevel" />
         <MudNumericField Label="Slots" @bind-Value="Equipment.Slots" />
-        <MudNumericField Label="Value" @bind-Value="Equipment.Value" />
+        <MudTextField Label="Value" @bind-Value="Equipment.Value" />
         <MudTextField Label="Resources" @bind-Value="Equipment.Resources" />
         <MudTextField Label="Energy Storage" @bind-Value="Equipment.EnergyStorage" />
 
@@ -15,6 +15,18 @@
             @foreach (var type in EquipmentTypes)
             {
                 <MudSelectItem T="Guid" Value="@type.Id">@type.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudSelect T="Guid"
+                   Label="Cults"
+                   MultiSelection="true"
+                   SelectedValues="SelectedCultIds"
+                   SelectedValuesChanged="OnCultsChanged"
+                   ToStringFunc="@(id => Cults.FirstOrDefault(c => c.Id == id)?.Name ?? "Unknown")">
+            @foreach (var cult in Cults)
+            {
+                <MudSelectItem T="Guid" Value="@cult.Id">@cult.Name</MudSelectItem>
             }
         </MudSelect>
 

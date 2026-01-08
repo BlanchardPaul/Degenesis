@@ -6,10 +6,12 @@ namespace Degenesis.UI.Blazor.Components.Pages.Weapons;
 
 public partial class WeaponList
 {
-    private List<WeaponDto>? weapons;
-    private List<WeaponTypeDto> weaponTypes = [];
-    private List<WeaponQualityDto> weaponQualities = [];
-    private List<AttributeDto> attributes = [];
+    private List<WeaponDto>? Weapons;
+    private List<WeaponTypeDto> WeaponTypes = [];
+    private List<WeaponQualityDto> WeaponQualities = [];
+    private List<AttributeDto> Attributes = [];
+    private List<SkillDto> Skills = [];
+    private List<CultDto> Cults = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -20,10 +22,12 @@ public partial class WeaponList
 
     private async Task LoadWeapons()
     {
-        weapons = await _client.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
-        weaponTypes = await _client.GetFromJsonAsync<List<WeaponTypeDto>>("/weapon-types") ?? [];
-        weaponQualities = await _client.GetFromJsonAsync<List<WeaponQualityDto>>("/weapon-qualities") ?? [];
-        attributes =  await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        Weapons = await _client.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
+        WeaponTypes = await _client.GetFromJsonAsync<List<WeaponTypeDto>>("/weapon-types") ?? [];
+        WeaponQualities = await _client.GetFromJsonAsync<List<WeaponQualityDto>>("/weapon-qualities") ?? [];
+        Attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        Skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -31,9 +35,11 @@ public partial class WeaponList
         var parameters = new DialogParameters
             {
                 { "Weapon", new WeaponDto() },
-                { "WeaponTypes", weaponTypes },
-                { "WeaponQualities", weaponQualities },
-                { "Attributes", attributes }
+                { "WeaponTypes", WeaponTypes },
+                { "WeaponQualities", WeaponQualities },
+                { "Attributes", Attributes },
+                { "Skills", Skills },
+                { "Cults", Cults }
             };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
@@ -49,15 +55,17 @@ public partial class WeaponList
 
     private async Task ShowEditDialog(Guid weaponId)
     {
-        var weapon = weapons?.FirstOrDefault(w => w.Id == weaponId);
+        var weapon = Weapons?.FirstOrDefault(w => w.Id == weaponId);
         if (weapon != null)
         {
             var parameters = new DialogParameters
                 {
                     { "Weapon", weapon },
-                    { "WeaponTypes", weaponTypes },
-                    { "WeaponQualities", weaponQualities },
-                    { "Attributes", attributes }
+                    { "WeaponTypes", WeaponTypes },
+                    { "WeaponQualities", WeaponQualities },
+                    { "Attributes", Attributes },
+                    { "Skills", Skills },
+                    { "Cults", Cults }
                 };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };

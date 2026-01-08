@@ -1,4 +1,6 @@
-﻿namespace Domain.Equipments;
+﻿using Domain.Characters;
+
+namespace Domain.Equipments;
 public class Equipment
 {
     public Guid Id { get; set; }
@@ -9,9 +11,10 @@ public class Equipment
     public int Encumbrance { get; set; } = 0;
     public int TechLevel { get; set; } = 1;
     public int Slots { get; set; } = 0;
-    public int Value { get; set; } = 0;
+    public string Value { get; set; } = string.Empty;
     public string Resources { get; set; } = string.Empty;
     public string EnergyStorage { get; set; } = string.Empty;
     public Guid EquipmentTypeId { get; set; }
     public EquipmentType EquipmentType { get; set; } = new();
+    public List<Cult> Cults { get; set; } = [];
 }

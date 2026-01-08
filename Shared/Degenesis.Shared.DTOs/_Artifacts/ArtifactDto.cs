@@ -12,5 +12,5 @@ public class ArtifactCreateDto
     public int Magazine { get; set; } = 0;
     public int Encumbrance { get; set; } = 0;
     public int Activation { get; set; } = 0;
-    public int Value { get; set; } = 0;
+    public string Value { get; set; } = string.Empty;
 }

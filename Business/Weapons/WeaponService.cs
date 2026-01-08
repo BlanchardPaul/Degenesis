@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs.Weapons;
+using Domain.Equipments;
 using Domain.Weapons;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,6 +33,7 @@ public class WeaponService : IWeaponService
             .Include(w => w.WeaponType)
             .Include(w => w.Attribute)
             .Include(w => w.Qualities)
+            .Include(e => e.Cults)
             .ToListAsync();
         return _mapper.Map<List<WeaponDto>>(weapons);
     }
@@ -44,6 +46,7 @@ public class WeaponService : IWeaponService
                 .Include(w => w.WeaponType)
                 .Include(w => w.Attribute)
                 .Include(w => w.Qualities)
+                .Include(e => e.Cults)
                 .FirstOrDefaultAsync(w => w.Id == id)
                 ?? throw new Exception("Weapon not found");
             return _mapper.Map<WeaponDto>(weapon);
@@ -68,11 +71,22 @@ public class WeaponService : IWeaponService
                 weapon.Attribute = await _context.Attributes.FindAsync(weaponCreate.AttributeId.Value)
                     ?? throw new Exception("WeaponAttribute not found");
 
-            foreach(var quality in weaponCreate.Qualities)
+            if (weaponCreate.SkillId is not null)
+                weapon.Skill = await _context.Skills.FindAsync(weaponCreate.SkillId.Value)
+                    ?? throw new Exception("WeaponSkill not found");
+
+            foreach (var quality in weaponCreate.Qualities)
             {
                 var existingQuality = _context.WeaponQualities.Find(quality.Id)
                     ?? throw new Exception("WeaponQuality not found");
                 weapon.Qualities.Add(existingQuality);
+            }
+
+            foreach (var cultDto in weaponCreate.Cults)
+            {
+                var cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                weapon.Cults.Add(cult);
             }
 
             _context.Weapons.Add(weapon);
@@ -93,6 +107,7 @@ public class WeaponService : IWeaponService
                 .Include(w => w.WeaponType)
                 .Include(w => w.Attribute)
                 .Include(w => w.Qualities)
+                .Include(e => e.Cults)
                 .FirstOrDefaultAsync(w => w.Id == weaponDto.Id)
                 ?? throw new Exception("Weapon not found");
 
@@ -104,14 +119,16 @@ public class WeaponService : IWeaponService
 
 
             if (weaponDto.AttributeId is not null)
-            {
                 existingWeapon.Attribute = await _context.Attributes.FindAsync(weaponDto.AttributeId)
                     ?? throw new Exception("WeaponAttribute not found");
-            }
             else
-            {
                 existingWeapon.Attribute = null;
-            }
+
+            if (weaponDto.SkillId is not null)
+                existingWeapon.Skill = await _context.Skills.FindAsync(weaponDto.SkillId)
+                    ?? throw new Exception("WeaponSkill not found");
+            else
+                existingWeapon.Skill = null;
 
             existingWeapon.Qualities.Clear();
             foreach (var quality in weaponDto.Qualities)
@@ -119,6 +136,14 @@ public class WeaponService : IWeaponService
                 var existingQuality = _context.WeaponQualities.Find(quality.Id)
                     ?? throw new Exception("WeaponQuality not found");
                 existingWeapon.Qualities.Add(existingQuality);
+            }
+
+            existingWeapon.Cults.Clear();
+            foreach (var cultDto in weaponDto.Cults)
+            {
+                var cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                existingWeapon.Cults.Add(cult);
             }
 
             await _context.SaveChangesAsync();
