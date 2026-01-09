@@ -18,6 +18,21 @@
                 <MudSelectItem T="Guid" Value="@type.Id">@type.Name</MudSelectItem>
             }
         </MudSelect>
+        <MudSelect T="Guid" Label="Qualities" MultiSelection="true"
+                   SelectedValues="SelectedQualityIds" SelectedValuesChanged="OnQualitiesChanged"
+                   ToStringFunc="@(id => VehicleQualities.FirstOrDefault(q => q.Id == id)?.Name ?? "Unknown")">
+            @foreach (var quality in VehicleQualities)
+            {
+                <MudSelectItem T="Guid" Value="@quality.Id">@quality.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <MudSelect T="Guid?" Label="Cult (Optional)" @bind-Value="Vehicle.CultId">
+            <MudSelectItem T="Guid?" Value="null">- None -</MudSelectItem>
+            @foreach (var cult in Cults)
+            {
+                <MudSelectItem T="Guid?" Value="@cult.Id">@cult.Name</MudSelectItem>
+            }
+        </MudSelect>
     </DialogContent>
 
     <DialogActions>

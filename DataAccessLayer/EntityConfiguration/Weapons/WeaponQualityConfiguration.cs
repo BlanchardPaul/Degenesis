@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.EntityConfiguration.Weapons;
-internal class WeaponQualitiesConfiguration : IEntityTypeConfiguration<WeaponQuality>
+internal class WeaponQualityConfiguration : IEntityTypeConfiguration<WeaponQuality>
 {
     public void Configure(EntityTypeBuilder<WeaponQuality> builder)
     {

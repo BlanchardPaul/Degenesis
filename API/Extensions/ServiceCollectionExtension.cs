@@ -54,6 +54,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IProtectionQualityService, ProtectionQualityService>();
         //services.AddScoped<ICharacterVehicleService, CharacterVehicleService>();
         services.AddScoped<IVehicleService, VehicleService>();
+        services.AddScoped<IVehicleQualityService, VehicleQualityService>();
         services.AddScoped<IVehicleTypeService, VehicleTypeService>();
         //services.AddScoped<ICharacterWeaponService, CharacterWeaponService>();
         //services.AddScoped<INPCWeaponService, NPCWeaponService>();

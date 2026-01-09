@@ -1,10 +1,11 @@
-﻿namespace Degenesis.Shared.DTOs._Artifacts;
+﻿namespace Degenesis.Shared.DTOs.Vehicles;
 
-public class ArtifactDto : ArtifactCreateDto
+public class VehicleQualityDto : VehicleQualityCreateDto
 {
     public Guid Id { get; set; }
 }
-public class ArtifactCreateDto
+
+public class VehicleQualityCreateDto
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;

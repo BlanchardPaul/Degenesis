@@ -17,14 +17,5 @@ internal class ArtifactConfiguration : IEntityTypeConfiguration<Artifact>
 
         builder.Property(p => p.Description)
             .IsRequired();
-
-        builder.Property(p => p.EnergyStorage)
-            .IsRequired()
-            .HasMaxLength(1000);
-
-        builder.Property(p => p.Magazine);
-        builder.Property(p => p.Encumbrance);
-        builder.Property(p => p.Activation);
-        builder.Property(p => p.Value);
     }
 }

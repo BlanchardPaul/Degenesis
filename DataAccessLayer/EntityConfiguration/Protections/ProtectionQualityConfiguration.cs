@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.EntityConfiguration.Protections;
-internal class ProtectionQualitiesConfiguration : IEntityTypeConfiguration<ProtectionQuality>
+internal class ProtectionQualityConfiguration : IEntityTypeConfiguration<ProtectionQuality>
 {
     public void Configure(EntityTypeBuilder<ProtectionQuality> builder)
     {

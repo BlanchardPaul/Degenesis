@@ -2,14 +2,14 @@
 
 <h3>Vehicles</h3>
 
-@if (vehicles is null)
+@if (Vehicle is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Vehicle</MudButton>
-    <MudTable Items="@vehicles" Hover="true">
+    <MudTable Items="@Vehicle" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Type</MudTh>

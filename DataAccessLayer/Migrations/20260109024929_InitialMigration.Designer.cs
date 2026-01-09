@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260105172640_InitialMigration")]
+    [Migration("20260109024929_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -1234,6 +1234,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<int>("Brake")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("CultId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -1269,9 +1272,32 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CultId");
+
                     b.HasIndex("VehicleTypeId");
 
                     b.ToTable("Vehicles", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Vehicles.VehicleQuality", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VehicleQualities", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Vehicles.VehicleType", b =>
@@ -1484,32 +1510,14 @@ namespace DataAccessLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Activation")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Encumbrance")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EnergyStorage")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("Magazine")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -1708,6 +1716,21 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("RankId");
 
                     b.ToTable("RankRankPrerequisite");
+                });
+
+            modelBuilder.Entity("VehicleVehicleQuality", b =>
+                {
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("VehicleQualitiesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("VehicleId", "VehicleQualitiesId");
+
+                    b.HasIndex("VehicleQualitiesId");
+
+                    b.ToTable("VehicleVehicleQuality");
                 });
 
             modelBuilder.Entity("WeaponWeaponQuality", b =>
@@ -2277,7 +2300,7 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Vehicles.Vehicle", "Vehicle")
                         .WithMany()
                         .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Character");
@@ -2287,11 +2310,18 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("Domain.Vehicles.Vehicle", b =>
                 {
+                    b.HasOne("Domain.Characters.Cult", "Cult")
+                        .WithMany()
+                        .HasForeignKey("CultId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.HasOne("Domain.Vehicles.VehicleType", "VehicleType")
                         .WithMany()
                         .HasForeignKey("VehicleTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Cult");
 
                     b.Navigation("VehicleType");
                 });
@@ -2487,6 +2517,21 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Characters.Rank", null)
                         .WithMany()
                         .HasForeignKey("RankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("VehicleVehicleQuality", b =>
+                {
+                    b.HasOne("Domain.Vehicles.Vehicle", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Vehicles.VehicleQuality", null)
+                        .WithMany()
+                        .HasForeignKey("VehicleQualitiesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

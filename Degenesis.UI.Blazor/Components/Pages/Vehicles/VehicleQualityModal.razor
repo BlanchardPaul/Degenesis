@@ -1,0 +1,11 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="VehicleQuality.Name" Required="true" />
+        <MudTextField Label="Description" @bind-Value="VehicleQuality.Description" Required="true" />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="SaveVehicleQuality" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

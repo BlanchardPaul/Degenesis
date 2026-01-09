@@ -1,11 +1,6 @@
 ﻿using Domain.Vehicles;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataAccessLayer.EntityConfiguration.Vehicles;
 internal class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
@@ -38,12 +33,20 @@ internal class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
         builder.Property(v => v.Slots).IsRequired();
         builder.Property(v => v.Value).IsRequired();
 
-        builder.Property(v => v.Resources)
-            .IsRequired();
+        builder.Property(v => v.Resources);
 
         builder.HasOne(v => v.VehicleType)
             .WithMany()
             .HasForeignKey(v => v.VehicleTypeId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(v => v.Cult)
+            .WithMany()
+            .IsRequired(false)
+            .HasForeignKey(v => v.CultId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(v => v.VehicleQualities)
+            .WithMany();
     }
 }

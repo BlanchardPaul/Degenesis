@@ -14,20 +14,10 @@ else
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Description</MudTh>
-            <MudTh>Energy Storage</MudTh>
-            <MudTh>Magazine</MudTh>
-            <MudTh>Encumbrance</MudTh>
-            <MudTh>Activation</MudTh>
-            <MudTh>Value</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Name">@context.Name</MudTd>
             <MudTd DataLabel="Description">@context.Description</MudTd>
-            <MudTd DataLabel="Energy Storage">@context.EnergyStorage</MudTd>
-            <MudTd DataLabel="Magazine">@context.Magazine</MudTd>
-            <MudTd DataLabel="Encumbrance">@context.Encumbrance</MudTd>
-            <MudTd DataLabel="Activation">@context.Activation</MudTd>
-            <MudTd DataLabel="Value">@context.Value</MudTd>
             <MudTd>
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
                 <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteArtifact(context.Id)">Delete</MudButton>

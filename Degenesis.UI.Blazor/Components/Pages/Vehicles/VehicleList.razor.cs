@@ -1,12 +1,15 @@
-﻿using Degenesis.Shared.DTOs.Vehicles;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Vehicles;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Vehicles;
 
 public partial class VehicleList
 {
-    private List<VehicleDto>? vehicles;
-    private List<VehicleTypeDto> vehicleTypes = [];
+    private List<VehicleDto>? Vehicle;
+    private List<VehicleQualityDto> VehicleQualities = [];
+    private List<VehicleTypeDto> VehicleTypes = [];
+    private List<CultDto> Cults = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -17,8 +20,10 @@ public partial class VehicleList
 
     private async Task LoadVehicles()
     {
-        vehicles = await _client.GetFromJsonAsync<List<VehicleDto>>("/vehicles") ?? [];
-        vehicleTypes = await _client.GetFromJsonAsync<List<VehicleTypeDto>>("/vehicle-types") ?? [];
+        Vehicle = await _client.GetFromJsonAsync<List<VehicleDto>>("/vehicles") ?? [];
+        VehicleQualities = await _client.GetFromJsonAsync<List<VehicleQualityDto>>("/vehicle-qualities") ?? [];
+        VehicleTypes = await _client.GetFromJsonAsync<List<VehicleTypeDto>>("/vehicle-types") ?? [];
+        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -26,7 +31,9 @@ public partial class VehicleList
         var parameters = new DialogParameters
             {
                 { "Vehicle", new VehicleDto() },
-                { "VehicleTypes", vehicleTypes }
+                { "VehicleQualities", VehicleQualities },
+                { "VehicleTypes", VehicleTypes },
+                { "Cults", Cults }
             };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
@@ -42,13 +49,15 @@ public partial class VehicleList
 
     private async Task ShowEditDialog(Guid vehicleId)
     {
-        var vehicle = vehicles?.FirstOrDefault(v => v.Id == vehicleId);
+        var vehicle = Vehicle?.FirstOrDefault(v => v.Id == vehicleId);
         if (vehicle != null)
         {
             var parameters = new DialogParameters
                 {
                     { "Vehicle", vehicle },
-                    { "VehicleTypes", vehicleTypes }
+                    { "VehicleQualities", VehicleQualities },
+                    { "VehicleTypes", VehicleTypes },
+                    { "Cults", Cults }
                 };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };

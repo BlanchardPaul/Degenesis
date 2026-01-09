@@ -1,8 +1,7 @@
-﻿namespace Domain._Artifacts;
-
-public class Artifact
+﻿namespace Domain.Vehicles;
+public class VehicleQuality
 {
-    public Guid Id { get; set; } = new Guid();
+    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 }

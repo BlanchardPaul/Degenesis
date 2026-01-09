@@ -29,6 +29,8 @@ public class VehicleService : IVehicleService
     {
         var vehicles = await _context.Vehicles
             .Include(v => v.VehicleType)
+            .Include(v => v.VehicleQualities)
+            .Include(p => p.Cult)
             .ToListAsync();
         return _mapper.Map<List<VehicleDto>>(vehicles);
     }
@@ -39,6 +41,8 @@ public class VehicleService : IVehicleService
         {
             var vehicle = await _context.Vehicles
             .Include(v => v.VehicleType)
+            .Include(v => v.VehicleQualities)
+            .Include(p => p.Cult)
             .FirstOrDefaultAsync(v => v.Id == id)
             ?? throw new Exception("Vehicle not found");
 
@@ -59,6 +63,24 @@ public class VehicleService : IVehicleService
                 .FirstOrDefaultAsync(vt => vt.Id == vehicleCreate.VehicleTypeId)
                 ?? throw new Exception("VehicleType not found");
 
+            foreach (var quality in vehicleCreate.VehicleQualities)
+            {
+                var existingQuality = _context.VehicleQualities.Find(quality.Id)
+                    ?? throw new Exception("VehicleQuality not found");
+                vehicle.VehicleQualities.Add(existingQuality);
+            }
+
+            if (vehicleCreate.CultId is not null && vehicleCreate.CultId != Guid.Empty)
+            {
+                vehicle.Cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == vehicleCreate.CultId)
+                    ?? throw new Exception("Cult not found");
+            }
+            else
+            {
+                vehicle.Cult = null;
+            }
+
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();
             return _mapper.Map<VehicleDto>(vehicle);
@@ -75,6 +97,8 @@ public class VehicleService : IVehicleService
         {
             var existingVehicle = await _context.Vehicles
                 .Include(v => v.VehicleType)
+                .Include(v => v.VehicleQualities)
+                .Include(p => p.Cult)
                 .FirstOrDefaultAsync(v => v.Id == vehicleDto.Id)
                 ?? throw new Exception("Vehicle not found");
 
@@ -82,6 +106,26 @@ public class VehicleService : IVehicleService
             existingVehicle.VehicleType = await _context.VehicleTypes
                 .FirstOrDefaultAsync(vt => vt.Id == vehicleDto.VehicleType.Id)
                 ?? throw new Exception("VehicleType not found");
+
+            existingVehicle.VehicleQualities.Clear();
+            foreach (var quality in vehicleDto.VehicleQualities)
+            {
+                var existingQuality = _context.VehicleQualities.Find(quality.Id)
+                    ?? throw new Exception("VehicleQuality not found");
+                existingVehicle.VehicleQualities.Add(existingQuality);
+            }
+
+            if (vehicleDto.CultId is not null)
+            {
+                existingVehicle.Cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == vehicleDto.CultId)
+                    ?? throw new Exception("Cult not found");
+            }
+            else
+            {
+                existingVehicle.Cult = null;
+                existingVehicle.CultId = null;
+            }
 
             await _context.SaveChangesAsync();
             return true;
@@ -97,6 +141,8 @@ public class VehicleService : IVehicleService
         {
             var vehicle = await _context.Vehicles
                 .Include(v => v.VehicleType)
+                .Include(v => v.VehicleQualities)
+                .Include(p => p.Cult)
                 .FirstOrDefaultAsync(v => v.Id == id)
                 ?? throw new Exception("Vehicle not found");
 

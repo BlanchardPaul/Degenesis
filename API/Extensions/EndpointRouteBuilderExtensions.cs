@@ -50,6 +50,7 @@ public static class EndpointRouteBuilderExtensions
 
         //endpoints.MapCharacterVehicleEndpoints();
         endpoints.MapVehicleEndpoints();
+        endpoints.MapVehicleQualityEndpoints();
         endpoints.MapVehicleTypeEndpoints();
 
         //endpoints.MapCharacterWeaponEndpoints();

@@ -31,6 +31,6 @@ internal class CharacterVehicleConfiguration : IEntityTypeConfiguration<Characte
         builder.HasOne(cv => cv.Vehicle)
             .WithMany()
             .HasForeignKey(cv => cv.VehicleId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

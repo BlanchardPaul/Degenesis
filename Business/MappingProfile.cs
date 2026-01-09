@@ -254,15 +254,25 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.UserRooms, opt => opt.Ignore());
 
         CreateMap<VehicleCreateDto, Vehicle>()
-            .ForMember(dest => dest.VehicleType, opt => opt.Ignore());
+            .ForMember(dest => dest.VehicleQualities, opt => opt.Ignore())
+            .ForMember(dest => dest.VehicleType, opt => opt.Ignore())
+            .ForMember(dest => dest.Cult, opt => opt.Ignore());
         CreateMap<VehicleDto, Vehicle>()
-            .ForMember(dest => dest.VehicleType, opt => opt.Ignore());
+            .ForMember(dest => dest.VehicleQualities, opt => opt.Ignore())
+            .ForMember(dest => dest.VehicleType, opt => opt.Ignore())
+            .ForMember(dest => dest.Cult, opt => opt.Ignore());
         CreateMap<Vehicle, VehicleDto>()
-            .ForMember(dest => dest.VehicleType, opt => opt.MapFrom(src => src.VehicleType));
+            .ForMember(dest => dest.VehicleQualities, opt => opt.MapFrom(src => src.VehicleQualities))
+            .ForMember(dest => dest.VehicleType, opt => opt.MapFrom(src => src.VehicleType))
+            .ForMember(dest => dest.Cult, opt => opt.MapFrom(src => src.Cult));
 
         CreateMap<VehicleTypeCreateDto, VehicleType>();
         CreateMap<VehicleTypeDto, VehicleType>();
         CreateMap<VehicleType, VehicleTypeDto>();
+
+        CreateMap<VehicleQualityCreateDto, VehicleQuality>();
+        CreateMap<VehicleQualityDto, VehicleQuality>();
+        CreateMap<VehicleQuality, VehicleQualityDto>();
 
         CreateMap<WeaponCreateDto, Weapon>()
             .ForMember(dest => dest.WeaponType, opt => opt.Ignore())

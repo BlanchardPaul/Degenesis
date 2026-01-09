@@ -17,12 +17,7 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EnergyStorage = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
-                    Magazine = table.Column<int>(type: "int", nullable: false),
-                    Encumbrance = table.Column<int>(type: "int", nullable: false),
-                    Activation = table.Column<int>(type: "int", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -220,6 +215,19 @@ namespace DataAccessLayer.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Rooms", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VehicleQualities",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VehicleQualities", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -703,11 +711,18 @@ namespace DataAccessLayer.Migrations
                     Slots = table.Column<int>(type: "int", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Resources = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     VehicleTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Vehicles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Vehicles_Cults_CultId",
+                        column: x => x.CultId,
+                        principalTable: "Cults",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Vehicles_VehicleTypes_VehicleTypeId",
                         column: x => x.VehicleTypeId,
@@ -1077,6 +1092,30 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "VehicleVehicleQuality",
+                columns: table => new
+                {
+                    VehicleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    VehicleQualitiesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VehicleVehicleQuality", x => new { x.VehicleId, x.VehicleQualitiesId });
+                    table.ForeignKey(
+                        name: "FK_VehicleVehicleQuality_VehicleQualities_VehicleQualitiesId",
+                        column: x => x.VehicleQualitiesId,
+                        principalTable: "VehicleQualities",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VehicleVehicleQuality_Vehicles_VehicleId",
+                        column: x => x.VehicleId,
+                        principalTable: "Vehicles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RankRankPrerequisite",
                 columns: table => new
                 {
@@ -1402,8 +1441,7 @@ namespace DataAccessLayer.Migrations
                         name: "FK_CharacterVehicles_Vehicles_VehicleId",
                         column: x => x.VehicleId,
                         principalTable: "Vehicles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1783,9 +1821,19 @@ namespace DataAccessLayer.Migrations
                 column: "IdRoom");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Vehicles_CultId",
+                table: "Vehicles",
+                column: "CultId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Vehicles_VehicleTypeId",
                 table: "Vehicles",
                 column: "VehicleTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VehicleVehicleQuality_VehicleQualitiesId",
+                table: "VehicleVehicleQuality",
+                column: "VehicleQualitiesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Weapons_AttributeId",
@@ -1914,13 +1962,13 @@ namespace DataAccessLayer.Migrations
                 name: "UserRooms");
 
             migrationBuilder.DropTable(
+                name: "VehicleVehicleQuality");
+
+            migrationBuilder.DropTable(
                 name: "WeaponWeaponQuality");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "Vehicles");
 
             migrationBuilder.DropTable(
                 name: "Characters");
@@ -1953,13 +2001,16 @@ namespace DataAccessLayer.Migrations
                 name: "RankPrerequisites");
 
             migrationBuilder.DropTable(
+                name: "VehicleQualities");
+
+            migrationBuilder.DropTable(
+                name: "Vehicles");
+
+            migrationBuilder.DropTable(
                 name: "WeaponQualities");
 
             migrationBuilder.DropTable(
                 name: "Weapons");
-
-            migrationBuilder.DropTable(
-                name: "VehicleTypes");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
@@ -1981,6 +2032,9 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Backgrounds");
+
+            migrationBuilder.DropTable(
+                name: "VehicleTypes");
 
             migrationBuilder.DropTable(
                 name: "Skills");

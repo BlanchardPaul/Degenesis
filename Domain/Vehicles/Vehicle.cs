@@ -1,4 +1,6 @@
-﻿namespace Domain.Vehicles;
+﻿using Domain.Characters;
+
+namespace Domain.Vehicles;
 public class Vehicle
 {
     public Guid Id { get; set; }
@@ -14,9 +16,12 @@ public class Vehicle
     public int Slots { get; set; } = 0;
     public string Value { get; set; } = string.Empty;
 
-    // Whatever you want, food/fuel cumsuption, ...)
+    // Necessary ressource to acquire said vehicle
     public string Resources { get; set; } = string.Empty;
 
+    public Guid? CultId { get; set; }
+    public Cult? Cult { get; set; } = new();
     public Guid VehicleTypeId { get; set; }
     public VehicleType VehicleType { get; set; } = new();
+    public List<VehicleQuality> VehicleQualities { get; set; } = [];
 }

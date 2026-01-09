@@ -60,6 +60,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, Gui
     public DbSet<Skill> Skills { get; set; } = null!;
     public DbSet<UserRoom> UserRooms { get; set; } = null!;
     public DbSet<Vehicle> Vehicles { get; set; } = null!;
+    public DbSet<VehicleQuality> VehicleQualities { get; set; } = null!;
     public DbSet<VehicleType> VehicleTypes { get; set; } = null!;
     public DbSet<Weapon> Weapons { get; set; } = null!;
     public DbSet<WeaponQuality> WeaponQualities { get; set; } = null!;
