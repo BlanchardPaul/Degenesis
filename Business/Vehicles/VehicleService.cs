@@ -31,6 +31,7 @@ public class VehicleService : IVehicleService
             .Include(v => v.VehicleType)
             .Include(v => v.VehicleQualities)
             .Include(p => p.Cult)
+            .OrderBy(v => v.Name)
             .ToListAsync();
         return _mapper.Map<List<VehicleDto>>(vehicles);
     }

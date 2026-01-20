@@ -27,7 +27,7 @@ public class ProtectionQualityService : IProtectionQualityService
 
     public async Task<List<ProtectionQualityDto>> GetAllProtectionQualitiesAsync()
     {
-        var qualities = await _context.ProtectionQualities.ToListAsync();
+        var qualities = await _context.ProtectionQualities.OrderBy(p => p.Name).ToListAsync();
         return _mapper.Map<List<ProtectionQualityDto>>(qualities);
     }
 

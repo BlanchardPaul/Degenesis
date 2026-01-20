@@ -33,6 +33,7 @@ public class ConceptService : IConceptService
             var concept = await _context.Concepts
             .Include(c => c.BonusAttribute)
             .Include(c => c.BonusSkills)
+            .OrderBy(c => c.Name)
             .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Concept not found");
             return _mapper.Map<ConceptDto>(concept);
         }

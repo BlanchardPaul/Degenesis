@@ -30,6 +30,7 @@ public class EquipmentService : IEquipmentService
         var equipments = await _context.Equipments
             .Include(e => e.EquipmentType)
             .Include(e => e.Cults)
+            .OrderBy(e => e.Name)
             .ToListAsync();
         return _mapper.Map<List<EquipmentDto>>(equipments);
     }

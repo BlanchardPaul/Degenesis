@@ -28,7 +28,7 @@ public class VehicleQualityService : IVehicleQualityService
 
     public async Task<IEnumerable<VehicleQualityDto>> GetAllVehicleQualitiesAsync()
     {
-        var vehicleQualities = await _context.VehicleQualities.ToListAsync();
+        var vehicleQualities = await _context.VehicleQualities.OrderBy(v => v.Name).ToListAsync();
         return _mapper.Map<IEnumerable<VehicleQualityDto>>(vehicleQualities);
     }
 

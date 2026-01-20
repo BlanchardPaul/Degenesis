@@ -40,6 +40,7 @@ public class PotentialService : IPotentialService
                 .ThenInclude(pr => pr.RankRequired)
             .Include(p => p.Prerequisites)
             .Include(p => p.Cult)
+            .OrderBy(p => p.Name)
             .ToListAsync();
 
         return _mapper.Map<List<PotentialDto>>(potentials);

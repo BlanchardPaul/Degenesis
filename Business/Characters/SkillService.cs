@@ -27,6 +27,7 @@ public class SkillService : ISkillService
     {
         var skills = await _context.Skills
             .Include(s => s.CAttribute)
+            .OrderBy(s => s.Name)
             .ToListAsync();
         return _mapper.Map<List<SkillDto>>(skills);
     }

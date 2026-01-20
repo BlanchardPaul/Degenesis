@@ -35,6 +35,7 @@ public class CultureService : ICultureService
             .Include(c => c.BonusSkills)
             .Include(c => c.AvailableCults)
                 .ThenInclude(ac => ac.BonusSkills)
+            .OrderBy(c => c.Name)
             .ToListAsync();
         return _mapper.Map<IEnumerable<CultureDto>>(cultures);
     }

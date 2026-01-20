@@ -40,7 +40,7 @@ public class BackgroundService : IBackgroundService
 
     public async Task<List<BackgroundDto>> GetAllBackgroundsAsync()
     {
-        var backgrounds = await _context.Backgrounds.ToListAsync();
+        var backgrounds = await _context.Backgrounds.OrderBy(b => b.Name).ToListAsync();
         return _mapper.Map<List<BackgroundDto>>(backgrounds);
     }
 

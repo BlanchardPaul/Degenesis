@@ -15,12 +15,10 @@ public interface ICharacterPotentialService
 public class CharacterPotentialService : ICharacterPotentialService
 {
     private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
 
     public CharacterPotentialService(ApplicationDbContext context, IMapper mapper)
     {
         _context = context;
-        _mapper = mapper;
     }
 
     public async Task<bool> CreateCharacterPotentialAsync(CharacterGuidValueEditDto potentialToCreate)

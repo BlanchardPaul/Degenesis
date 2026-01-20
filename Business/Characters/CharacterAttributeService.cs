@@ -1,6 +1,5 @@
 ﻿using DataAccessLayer;
 using Degenesis.Shared.DTOs.Characters.CRUD;
-using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;

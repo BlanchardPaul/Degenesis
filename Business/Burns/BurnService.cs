@@ -26,7 +26,7 @@ public class BurnService : IBurnService
 
     public async Task<List<BurnDto>> GetAllAsync()
     {
-        var burns = await _context.Burns.ToListAsync();
+        var burns = await _context.Burns.OrderBy(b => b.Name).ToListAsync();
         return _mapper.Map<List<BurnDto>>(burns);
     }
 

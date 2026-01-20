@@ -31,6 +31,7 @@ public class CultService : ICultService
         {
             var cult = await _context.Cults
                 .Include(c => c.BonusSkills)
+                .OrderBy(c => c.Name)
                 .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Cult not found");
             return _mapper.Map<CultDto>(cult);
         }

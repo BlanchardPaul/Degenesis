@@ -33,7 +33,8 @@ public class WeaponService : IWeaponService
             .Include(w => w.WeaponType)
             .Include(w => w.Attribute)
             .Include(w => w.Qualities)
-            .Include(e => e.Cults)
+            .Include(w => w.Cults)
+            .OrderBy(w => w.Name)
             .ToListAsync();
         return _mapper.Map<List<WeaponDto>>(weapons);
     }

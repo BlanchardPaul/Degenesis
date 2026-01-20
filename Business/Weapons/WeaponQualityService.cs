@@ -27,7 +27,7 @@ public class WeaponQualityService : IWeaponQualityService
 
     public async Task<IEnumerable<WeaponQualityDto>> GetAllWeaponQualitiesAsync()
     {
-        var weaponQualities = await _context.WeaponQualities.ToListAsync();
+        var weaponQualities = await _context.WeaponQualities.OrderBy(w => w.Name).ToListAsync();
         return _mapper.Map<IEnumerable<WeaponQualityDto>>(weaponQualities);
     }
 

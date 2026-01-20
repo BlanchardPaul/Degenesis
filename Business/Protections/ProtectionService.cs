@@ -29,6 +29,7 @@ public class ProtectionService : IProtectionService
     {
         var protections = await _context.Protections
             .Include(p => p.Qualities)
+            .OrderBy(p => p.Name)
             .ToListAsync();
         return _mapper.Map<List<ProtectionDto>>(protections);
     }

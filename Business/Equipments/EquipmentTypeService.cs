@@ -27,7 +27,7 @@ public class EquipmentTypeService : IEquipmentTypeService
 
     public async Task<List<EquipmentTypeDto>> GetAllEquipmentTypesAsync()
     {
-        var equipmentTypes = await _context.EquipmentTypes.ToListAsync();
+        var equipmentTypes = await _context.EquipmentTypes.OrderBy(e => e.Name).ToListAsync();
         return _mapper.Map<List<EquipmentTypeDto>>(equipmentTypes);
     }
 

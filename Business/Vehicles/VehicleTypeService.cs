@@ -28,7 +28,7 @@ public class VehicleTypeService : IVehicleTypeService
 
     public async Task<List<VehicleTypeDto>> GetAllVehicleTypesAsync()
     {
-        var vehicleTypes = await _context.VehicleTypes.ToListAsync();
+        var vehicleTypes = await _context.VehicleTypes.OrderBy(v => v.Name).ToListAsync();
         return _mapper.Map<List<VehicleTypeDto>>(vehicleTypes);
     }
 

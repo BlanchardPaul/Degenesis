@@ -31,6 +31,7 @@ public class AttributeService : IAttributeService
         {
             var attribute = await _context.Attributes
                 .Include(a => a.Skills)
+                .OrderBy(a => a.Name)
                 .FirstOrDefaultAsync(a => a.Id == id) ?? throw new Exception("Attribute not found");
             return _mapper.Map<AttributeDto>(attribute);
         }

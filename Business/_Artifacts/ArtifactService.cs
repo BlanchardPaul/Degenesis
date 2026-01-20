@@ -30,7 +30,7 @@ public class ArtifactService : IArtifactService
 
     public async Task<List<ArtifactDto>> GetAllAsync()
     {
-        var artifacts = await _context.Artifacts.ToListAsync();
+        var artifacts = await _context.Artifacts.OrderBy(a=>a.Name).ToListAsync();
         return _mapper.Map<List<ArtifactDto>>(artifacts);
     }
 

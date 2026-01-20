@@ -39,6 +39,7 @@ public class RankService : IRankService
                 .ThenInclude(p => p.BackgroundRequired)
             .Include(r => r.Cult)
             .Include(r => r.ParentRank)
+            .OrderBy(r => r.Name)
             .ToListAsync();
         
         return ranks.Select(rank => _mapper.Map<RankDto>(rank)).ToList();

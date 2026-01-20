@@ -27,7 +27,7 @@ public class WeaponTypeService : IWeaponTypeService
 
     public async Task<List<WeaponTypeDto>> GetAllWeaponTypesAsync()
     {
-        var weaponTypes = await _context.WeaponTypes.ToListAsync();
+        var weaponTypes = await _context.WeaponTypes.OrderBy(w => w.Name).ToListAsync();
         return _mapper.Map<List<WeaponTypeDto>>(weaponTypes);
     }
 
