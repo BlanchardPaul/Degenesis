@@ -23,7 +23,11 @@ else
                 </MudTableSortLabel>
             </MudTh>
             <MudTh>Description</MudTh>
-            <MudTh>Attribute</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<SkillDto, object>(x => x.CAttribute.Name)">
+                    Attribute
+                </MudTableSortLabel>
+            </MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>

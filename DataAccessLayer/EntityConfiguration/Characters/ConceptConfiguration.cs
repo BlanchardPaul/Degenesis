@@ -19,8 +19,7 @@ internal sealed class ConceptConfiguration : IEntityTypeConfiguration<Concept>
             .HasMaxLength(100);
 
         builder.Property(c => c.Description)
-            .IsRequired()
-            .HasMaxLength(1000);
+            .IsRequired();
 
         builder.HasOne(c => c.BonusAttribute)
             .WithMany()

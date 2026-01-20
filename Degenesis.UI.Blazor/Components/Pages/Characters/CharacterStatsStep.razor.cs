@@ -138,22 +138,19 @@ public partial class CharacterStatsStep
     {
         var total = GetTotalSkillsUsed();
         var current = GetSkillLevel(skillId);
+
+        if (skillId == FocusSkillId && !IsFocusOrientied)
+            return true;
+
+        if (skillId == PrimalSkillId && IsFocusOrientied)
+            return true;
+
         return total >= MaxSkillPoints && current <= 0;
     }
 
     private void OnSkillValueChanged(Guid skillId, int newValue)
     {
         SetSkillLevel(skillId, newValue);
-
-        if (skillId == FaithSkillId && newValue > 0)
-            SetSkillLevel(WillpowerSkillId, 0);
-        else if (skillId == WillpowerSkillId && newValue > 0)
-            SetSkillLevel(FaithSkillId, 0);
-
-        if (skillId == FocusSkillId && newValue > 0)
-            SetSkillLevel(PrimalSkillId, 0);
-        else if (skillId == PrimalSkillId && newValue > 0)
-            SetSkillLevel(FocusSkillId, 0);
     }
 
     private void ComputeCharacterDerivedStats()
@@ -173,9 +170,13 @@ public partial class CharacterStatsStep
         int toughness = GetSkill(ToughnessSkillId);
 
         if (IsFocusOrientied)
+        {
             MaxEgo = (intellect + focus) * 2;
+        }
         else
+        {
             MaxEgo = (instinct + primal) * 2;
+        }
 
         MaxSporeInfestation = (psyche + Math.Max(faith, willpower)) * 2;
         MaxFleshWounds = (body + toughness) * 2;

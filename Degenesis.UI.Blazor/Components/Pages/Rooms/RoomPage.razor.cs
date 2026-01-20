@@ -1,6 +1,5 @@
 ﻿using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 

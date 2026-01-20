@@ -20,8 +20,7 @@ internal class CultConfiguration : IEntityTypeConfiguration<Cult>
             .HasMaxLength(100);
 
         builder.Property(c => c.Description)
-            .IsRequired()
-            .HasMaxLength(1000);
+            .IsRequired();
 
         builder.HasMany(c => c.BonusSkills)
             .WithMany();

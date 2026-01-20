@@ -34,6 +34,7 @@ public class CultureService : ICultureService
             .Include(c => c.BonusAttributes)
             .Include(c => c.BonusSkills)
             .Include(c => c.AvailableCults)
+                .ThenInclude(ac => ac.BonusSkills)
             .ToListAsync();
         return _mapper.Map<IEnumerable<CultureDto>>(cultures);
     }
@@ -43,9 +44,10 @@ public class CultureService : ICultureService
         try
         {
             var culture = await _context.Cultures
-                .Include(c => c.AvailableCults)
                 .Include(c => c.BonusAttributes)
                 .Include(c => c.BonusSkills)
+                .Include(c => c.AvailableCults)
+                    .ThenInclude(ac => ac.BonusSkills)
                 .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Culture not found");
             return _mapper.Map<CultureDto>(culture);
         }

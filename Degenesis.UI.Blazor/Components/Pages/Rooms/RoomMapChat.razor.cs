@@ -3,7 +3,6 @@ using Degenesis.UI.Blazor.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.JSInterop;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 

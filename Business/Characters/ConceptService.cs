@@ -129,6 +129,9 @@ public class ConceptService : IConceptService
             if (concept is null)
                 return false;
 
+            var conceptSkills = _context.Set<ConceptSkill>().Where(cs => cs.ConceptId == id);
+            _context.Set<ConceptSkill>().RemoveRange(conceptSkills);
+
             _context.Concepts.Remove(concept);
             await _context.SaveChangesAsync();
             return true;
