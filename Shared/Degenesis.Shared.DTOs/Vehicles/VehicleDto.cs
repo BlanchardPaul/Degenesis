@@ -5,7 +5,7 @@ public class VehicleDto : VehicleCreateDto
 {
     public Guid Id { get; set; }
     public VehicleTypeDto VehicleType { get; set; } = new();
-    public CultDto? Cult { get; set; } = new();
+    public CultDto? Cult { get; set; }
 }
 
 public class VehicleCreateDto
@@ -24,5 +24,4 @@ public class VehicleCreateDto
     public string Resources { get; set; } = string.Empty;
     public Guid VehicleTypeId { get; set; }
     public Guid? CultId { get; set; }
-    public List<VehicleQualityDto> VehicleQualities { get; set; } = [];
 }

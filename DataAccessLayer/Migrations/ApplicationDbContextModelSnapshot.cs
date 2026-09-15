@@ -67,6 +67,21 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("CultEquipment");
                 });
 
+            modelBuilder.Entity("CultProtection", b =>
+                {
+                    b.Property<Guid>("CultsId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ProtectionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CultsId", "ProtectionId");
+
+                    b.HasIndex("ProtectionId");
+
+                    b.ToTable("CultProtection");
+                });
+
             modelBuilder.Entity("CultSkill", b =>
                 {
                     b.Property<Guid>("BonusSkillsId")
@@ -152,24 +167,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Burns", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Burns.CharacterBurn", b =>
-                {
-                    b.Property<Guid>("CharacterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BurnId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("CharacterId", "BurnId");
-
-                    b.HasIndex("BurnId");
-
-                    b.ToTable("CharacterBurns", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Burns.NPCBurn", b =>
@@ -505,6 +502,189 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Cultures", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterArtifact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ArtifactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ChargeInMagazine")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArtifactId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("CharacterArtifacts", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterBurn", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BurnId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BurnId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("CharacterBurns", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterEquipment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("EquipmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("EquipmentId");
+
+                    b.ToTable("CharacterEquipments", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterProtection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Encumbrance")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ProtectionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Qualities")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Slots")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsedSlots")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("ProtectionId");
+
+                    b.ToTable("CharacterProtections", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterVehicle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("BodyFlesh")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BodyFleshLost")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Qualities")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Slots")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StructureTrauma")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StructureTraumaLost")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsedSlots")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("VehicleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("VehicleId");
+
+                    b.ToTable("CharacterVehicles", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterWeapon", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("BulletsInMagazine")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Encumbrance")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Qualities")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Slots")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsedSlots")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WeaponId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("WeaponId");
+
+                    b.ToTable("CharacterWeapons", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Characters.Potential", b =>
                 {
                     b.Property<Guid>("Id")
@@ -684,30 +864,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Skills", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Equipments.CharacterEquipment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CharacterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("EquipmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("UsedSlots")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacterId");
-
-                    b.HasIndex("EquipmentId");
-
-                    b.ToTable("CharacterEquipments", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Equipments.Equipment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -715,11 +871,6 @@ namespace DataAccessLayer.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnOrder(1)
                         .HasDefaultValueSql("NEWID()");
-
-                    b.Property<string>("Capacity")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -731,10 +882,6 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<int>("Encumbrance")
                         .HasColumnType("int");
-
-                    b.Property<string>("EnergyStorage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("EquipmentTypeId")
                         .HasColumnType("uniqueidentifier");
@@ -748,7 +895,7 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Slots")
+                    b.Property<int>("SlotsTaken")
                         .HasColumnType("int");
 
                     b.Property<int>("TechLevel")
@@ -770,10 +917,6 @@ namespace DataAccessLayer.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -901,33 +1044,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("NPCSkills", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Protections.CharacterProtection", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CharacterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ProtectionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("UsedConnectors")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsedSlots")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacterId");
-
-                    b.HasIndex("ProtectionId");
-
-                    b.ToTable("CharacterProtections", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Protections.NPCProtection", b =>
                 {
                     b.Property<Guid>("Id")
@@ -971,14 +1087,6 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<int>("Connectors")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Consuption")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
                     b.Property<string>("Defense")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -996,14 +1104,15 @@ namespace DataAccessLayer.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Qualities")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Resources")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Slots")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Stockage")
                         .HasColumnType("int");
 
                     b.Property<int>("TechLevel")
@@ -1016,26 +1125,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Protections", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Protections.ProtectionQuality", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProtectionQualities", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Rooms.Room", b =>
@@ -1180,36 +1269,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Vehicles.CharacterVehicle", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CharacterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("FleshLost")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TraumaLost")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsedSlots")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("VehicleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacterId");
-
-                    b.HasIndex("VehicleId");
-
-                    b.ToTable("CharacterVehicles", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Vehicles.Vehicle", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1274,27 +1333,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Vehicles", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Vehicles.VehicleQuality", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("VehicleQualities", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Vehicles.VehicleType", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1315,37 +1353,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("VehicleTypes", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Weapons.CharacterWeapon", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("BulletsInMagazine")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("CharacterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SlotAttachments")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UsedSlots")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("WeaponId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CharacterId");
-
-                    b.HasIndex("WeaponId");
-
-                    b.ToTable("CharacterWeapons", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Weapons.NPCWeapon", b =>
@@ -1398,7 +1405,7 @@ namespace DataAccessLayer.Migrations
                     b.Property<int?>("CharacterAttributeModifier")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Damage")
+                    b.Property<int>("Damage")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -1425,6 +1432,10 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Qualities")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Resources")
                         .IsRequired()
@@ -1455,27 +1466,6 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("WeaponTypeId");
 
                     b.ToTable("Weapons", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Weapons.WeaponQuality", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("WeaponQualities", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Weapons.WeaponType", b =>
@@ -1517,27 +1507,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Artifacts", (string)null);
-                });
-
-            modelBuilder.Entity("Domain._Artifacts.CharacterArtifact", b =>
-                {
-                    b.Property<Guid>("CharacterId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ArtifactId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ChargeInMagazine")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CharacterId", "ArtifactId");
-
-                    b.HasIndex("ArtifactId");
-
-                    b.ToTable("CharacterArtifacts", (string)null);
                 });
 
             modelBuilder.Entity("Domain._Artifacts.NPCArtifact", b =>
@@ -1683,21 +1652,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("PotentialPotentialPrerequisite");
                 });
 
-            modelBuilder.Entity("ProtectionProtectionQuality", b =>
-                {
-                    b.Property<Guid>("ProtectionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("QualitiesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("ProtectionId", "QualitiesId");
-
-                    b.HasIndex("QualitiesId");
-
-                    b.ToTable("ProtectionProtectionQuality");
-                });
-
             modelBuilder.Entity("RankRankPrerequisite", b =>
                 {
                     b.Property<Guid>("PrerequisitesId")
@@ -1711,36 +1665,6 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("RankId");
 
                     b.ToTable("RankRankPrerequisite");
-                });
-
-            modelBuilder.Entity("VehicleVehicleQuality", b =>
-                {
-                    b.Property<Guid>("VehicleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("VehicleQualitiesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("VehicleId", "VehicleQualitiesId");
-
-                    b.HasIndex("VehicleQualitiesId");
-
-                    b.ToTable("VehicleVehicleQuality");
-                });
-
-            modelBuilder.Entity("WeaponWeaponQuality", b =>
-                {
-                    b.Property<Guid>("QualitiesId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("WeaponId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("QualitiesId", "WeaponId");
-
-                    b.HasIndex("WeaponId");
-
-                    b.ToTable("WeaponWeaponQuality");
                 });
 
             modelBuilder.Entity("CAttributeCulture", b =>
@@ -1788,6 +1712,21 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CultProtection", b =>
+                {
+                    b.HasOne("Domain.Characters.Cult", null)
+                        .WithMany()
+                        .HasForeignKey("CultsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Protections.Protection", null)
+                        .WithMany()
+                        .HasForeignKey("ProtectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("CultSkill", b =>
                 {
                     b.HasOne("Domain.Characters.Skill", null)
@@ -1831,25 +1770,6 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("CultureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Burns.CharacterBurn", b =>
-                {
-                    b.HasOne("Domain.Burns.Burn", "Burn")
-                        .WithMany()
-                        .HasForeignKey("BurnId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Characters.Character", "Character")
-                        .WithMany("CharacterBurns")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Burn");
-
-                    b.Navigation("Character");
                 });
 
             modelBuilder.Entity("Domain.Burns.NPCBurn", b =>
@@ -2028,6 +1948,120 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterArtifact", b =>
+                {
+                    b.HasOne("Domain._Artifacts.Artifact", "Artifact")
+                        .WithMany()
+                        .HasForeignKey("ArtifactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Characters.Character", "Character")
+                        .WithMany("CharacterArtifacts")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Artifact");
+
+                    b.Navigation("Character");
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterBurn", b =>
+                {
+                    b.HasOne("Domain.Burns.Burn", "Burn")
+                        .WithMany()
+                        .HasForeignKey("BurnId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Characters.Character", "Character")
+                        .WithMany("CharacterBurns")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Burn");
+
+                    b.Navigation("Character");
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterEquipment", b =>
+                {
+                    b.HasOne("Domain.Characters.Character", "Character")
+                        .WithMany("CharacterEquipments")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Equipments.Equipment", "Equipment")
+                        .WithMany()
+                        .HasForeignKey("EquipmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Equipment");
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterProtection", b =>
+                {
+                    b.HasOne("Domain.Characters.Character", "Character")
+                        .WithMany("CharacterProtections")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Protections.Protection", "Protection")
+                        .WithMany()
+                        .HasForeignKey("ProtectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Protection");
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterVehicle", b =>
+                {
+                    b.HasOne("Domain.Characters.Character", "Character")
+                        .WithMany("CharacterVehicles")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Vehicles.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("Domain.Characters.Inventory.CharacterWeapon", b =>
+                {
+                    b.HasOne("Domain.Characters.Character", "Character")
+                        .WithMany("CharacterWeapons")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Weapons.Weapon", "Weapon")
+                        .WithMany()
+                        .HasForeignKey("WeaponId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Weapon");
+                });
+
             modelBuilder.Entity("Domain.Characters.Potential", b =>
                 {
                     b.HasOne("Domain.Characters.Cult", "Cult")
@@ -2121,25 +2155,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("CAttribute");
                 });
 
-            modelBuilder.Entity("Domain.Equipments.CharacterEquipment", b =>
-                {
-                    b.HasOne("Domain.Characters.Character", "Character")
-                        .WithMany("CharacterEquipments")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Equipments.Equipment", "Equipment")
-                        .WithMany()
-                        .HasForeignKey("EquipmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Character");
-
-                    b.Navigation("Equipment");
-                });
-
             modelBuilder.Entity("Domain.Equipments.Equipment", b =>
                 {
                     b.HasOne("Domain.Equipments.EquipmentType", "EquipmentType")
@@ -2227,25 +2242,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Skill");
                 });
 
-            modelBuilder.Entity("Domain.Protections.CharacterProtection", b =>
-                {
-                    b.HasOne("Domain.Characters.Character", "Character")
-                        .WithMany("CharacterProtections")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Protections.Protection", "Protection")
-                        .WithMany()
-                        .HasForeignKey("ProtectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Character");
-
-                    b.Navigation("Protection");
-                });
-
             modelBuilder.Entity("Domain.Protections.NPCProtection", b =>
                 {
                     b.HasOne("Domain.NPCs.NPC", "NPC")
@@ -2284,25 +2280,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Room");
                 });
 
-            modelBuilder.Entity("Domain.Vehicles.CharacterVehicle", b =>
-                {
-                    b.HasOne("Domain.Characters.Character", "Character")
-                        .WithMany("CharacterVehicles")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Vehicles.Vehicle", "Vehicle")
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Character");
-
-                    b.Navigation("Vehicle");
-                });
-
             modelBuilder.Entity("Domain.Vehicles.Vehicle", b =>
                 {
                     b.HasOne("Domain.Characters.Cult", "Cult")
@@ -2319,25 +2296,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Cult");
 
                     b.Navigation("VehicleType");
-                });
-
-            modelBuilder.Entity("Domain.Weapons.CharacterWeapon", b =>
-                {
-                    b.HasOne("Domain.Characters.Character", "Character")
-                        .WithMany("CharacterWeapons")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Weapons.Weapon", "Weapon")
-                        .WithMany()
-                        .HasForeignKey("WeaponId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Character");
-
-                    b.Navigation("Weapon");
                 });
 
             modelBuilder.Entity("Domain.Weapons.NPCWeapon", b =>
@@ -2380,25 +2338,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Skill");
 
                     b.Navigation("WeaponType");
-                });
-
-            modelBuilder.Entity("Domain._Artifacts.CharacterArtifact", b =>
-                {
-                    b.HasOne("Domain._Artifacts.Artifact", "Artifact")
-                        .WithMany()
-                        .HasForeignKey("ArtifactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Characters.Character", "Character")
-                        .WithMany("CharacterArtifacts")
-                        .HasForeignKey("CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Artifact");
-
-                    b.Navigation("Character");
                 });
 
             modelBuilder.Entity("Domain._Artifacts.NPCArtifact", b =>
@@ -2486,21 +2425,6 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProtectionProtectionQuality", b =>
-                {
-                    b.HasOne("Domain.Protections.Protection", null)
-                        .WithMany()
-                        .HasForeignKey("ProtectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Protections.ProtectionQuality", null)
-                        .WithMany()
-                        .HasForeignKey("QualitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("RankRankPrerequisite", b =>
                 {
                     b.HasOne("Domain.Characters.RankPrerequisite", null)
@@ -2512,36 +2436,6 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Characters.Rank", null)
                         .WithMany()
                         .HasForeignKey("RankId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("VehicleVehicleQuality", b =>
-                {
-                    b.HasOne("Domain.Vehicles.Vehicle", null)
-                        .WithMany()
-                        .HasForeignKey("VehicleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Vehicles.VehicleQuality", null)
-                        .WithMany()
-                        .HasForeignKey("VehicleQualitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WeaponWeaponQuality", b =>
-                {
-                    b.HasOne("Domain.Weapons.WeaponQuality", null)
-                        .WithMany()
-                        .HasForeignKey("QualitiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Weapons.Weapon", null)
-                        .WithMany()
-                        .HasForeignKey("WeaponId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -32,7 +32,7 @@ public class WeaponService : IWeaponService
         var weapons = await _context.Weapons
             .Include(w => w.WeaponType)
             .Include(w => w.Attribute)
-            .Include(w => w.Qualities)
+            .Include(w => w.Skill)
             .Include(w => w.Cults)
             .OrderBy(w => w.Name)
             .ToListAsync();
@@ -46,7 +46,7 @@ public class WeaponService : IWeaponService
             var weapon = await _context.Weapons
                 .Include(w => w.WeaponType)
                 .Include(w => w.Attribute)
-                .Include(w => w.Qualities)
+                .Include(w => w.Skill)
                 .Include(e => e.Cults)
                 .FirstOrDefaultAsync(w => w.Id == id)
                 ?? throw new Exception("Weapon not found");
@@ -76,13 +76,6 @@ public class WeaponService : IWeaponService
                 weapon.Skill = await _context.Skills.FindAsync(weaponCreate.SkillId.Value)
                     ?? throw new Exception("WeaponSkill not found");
 
-            foreach (var quality in weaponCreate.Qualities)
-            {
-                var existingQuality = _context.WeaponQualities.Find(quality.Id)
-                    ?? throw new Exception("WeaponQuality not found");
-                weapon.Qualities.Add(existingQuality);
-            }
-
             foreach (var cultDto in weaponCreate.Cults)
             {
                 var cult = await _context.Cults
@@ -107,7 +100,7 @@ public class WeaponService : IWeaponService
             var existingWeapon = await _context.Weapons
                 .Include(w => w.WeaponType)
                 .Include(w => w.Attribute)
-                .Include(w => w.Qualities)
+                .Include(w => w.Skill)
                 .Include(e => e.Cults)
                 .FirstOrDefaultAsync(w => w.Id == weaponDto.Id)
                 ?? throw new Exception("Weapon not found");
@@ -131,14 +124,6 @@ public class WeaponService : IWeaponService
             else
                 existingWeapon.Skill = null;
 
-            existingWeapon.Qualities.Clear();
-            foreach (var quality in weaponDto.Qualities)
-            {
-                var existingQuality = _context.WeaponQualities.Find(quality.Id)
-                    ?? throw new Exception("WeaponQuality not found");
-                existingWeapon.Qualities.Add(existingQuality);
-            }
-
             existingWeapon.Cults.Clear();
             foreach (var cultDto in weaponDto.Cults)
             {
@@ -161,9 +146,6 @@ public class WeaponService : IWeaponService
         try
         {
             var weapon = await _context.Weapons
-                .Include(w => w.WeaponType)
-                .Include(w => w.Attribute)
-                .Include(w => w.Qualities)
                 .FirstOrDefaultAsync(w => w.Id == id)
                 ?? throw new Exception("Weapon not found");
 

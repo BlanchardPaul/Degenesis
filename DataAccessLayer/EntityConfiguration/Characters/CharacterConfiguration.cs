@@ -58,6 +58,7 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
 
         builder.Property(a => a.IsFocusOriented);
 
+        // For workflow
         builder.HasOne(c => c.Room)
             .WithMany(r => r.Characters)
             .HasForeignKey(c => c.IdRoom);
@@ -66,6 +67,7 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
             .WithMany(u => u.Characters)
             .HasForeignKey(c => c.IdApplicationUser);
 
+        // For Character stats
         builder.HasOne(c => c.Cult)
             .WithMany()
             .HasForeignKey(c => c.CultId)
@@ -85,6 +87,37 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
            .WithMany()
            .HasForeignKey(c => c.RankId)
            .IsRequired()
-           .OnDelete(DeleteBehavior.Restrict); ;
+           .OnDelete(DeleteBehavior.Restrict);
+
+        //For Character Inventory
+        builder.HasMany(c => c.CharacterWeapons)
+            .WithOne(cw => cw.Character)
+            .HasForeignKey(cw => cw.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(c => c.CharacterEquipments)
+            .WithOne(ce => ce.Character)
+            .HasForeignKey(ce => ce.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(c => c.CharacterProtections)
+            .WithOne(cp => cp.Character)
+            .HasForeignKey(cp => cp.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(c => c.CharacterArtifacts)
+            .WithOne(ca => ca.Character)
+            .HasForeignKey(ca => ca.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(c => c.CharacterVehicles)
+            .WithOne(cv => cv.Character)
+            .HasForeignKey(cv => cv.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(c => c.CharacterBurns)
+            .WithOne(cb => cb.Character)
+            .HasForeignKey(cb => cb.CharacterId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

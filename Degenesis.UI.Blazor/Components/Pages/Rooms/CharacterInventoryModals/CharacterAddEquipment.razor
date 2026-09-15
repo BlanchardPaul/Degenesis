@@ -1,0 +1,53 @@
+﻿<MudDialog>
+    <DialogContent>
+        @if (!EquipmentsLoaded)
+        {
+            <MudText Color="Color.Primary">Loading Equipments.</MudText>
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        }
+        else
+        {
+            <MudTable Bordered Items="@Equipments" Hover="true" LoadingProgressColor="Color.Info">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Equipment Type</MudTh>
+                    <MudTh>Description</MudTh>
+                    <MudTh>Effect</MudTh>
+                    <MudTh>Encumbrance</MudTh>
+                    <MudTh>TechLevel</MudTh>
+                    <MudTh>Value</MudTh>
+                    <MudTh>Resources</MudTh>
+                    <MudTh>Cults</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>@context.EquipmentType.Name</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Description) ? "-" : context.Description)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Effect) ? "-" : context.Effect)</MudTd>
+                    <MudTd>@(context.Encumbrance == 0 ? "-" : context.Encumbrance)</MudTd>
+                    <MudTd>@(context.TechLevel == 0 ? "-" : context.TechLevel)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Value) ? "-" : context.Value)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Resources) ? "-" : context.Resources)</MudTd>
+                    <MudTd>
+                        <MudTd DataLabel="Cults">
+                            @if (context.Cults != null && context.Cults.Any())
+                            {
+                                @string.Join(", ", context.Cults.Select(bs => bs.Name))
+                            }
+                            else
+                            {
+                                <span> - </span>
+                            }
+                        </MudTd>
+                    </MudTd>
+                    <MudTd>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => AddCharacterEquipment(context.Id)">Add to Character</MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

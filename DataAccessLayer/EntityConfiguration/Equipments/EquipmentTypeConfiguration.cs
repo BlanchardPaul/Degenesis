@@ -18,8 +18,5 @@ internal class EquipmentTypeConfiguration : IEntityTypeConfiguration<EquipmentTy
         builder.Property(et => et.Name)
             .IsRequired()
             .HasMaxLength(100);
-
-        builder.Property(et => et.Description)
-            .IsRequired();
     }
 }

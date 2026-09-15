@@ -2,6 +2,7 @@
 using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Equipments;
 using Degenesis.Shared.DTOs.Protections;
@@ -12,6 +13,7 @@ using Degenesis.Shared.DTOs.Weapons;
 using Domain._Artifacts;
 using Domain.Burns;
 using Domain.Characters;
+using Domain.Characters.Inventory;
 using Domain.Equipments;
 using Domain.Protections;
 using Domain.Rooms;
@@ -79,9 +81,13 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src.CharacterAttributes))
             .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.CharacterSkills))
             .ForMember(dest => dest.Backgrounds, opt => opt.MapFrom(src => src.CharacterBackgrounds))
-            .ForMember(dest => dest.Potentials, opt => opt.MapFrom(src => src.CharacterPontentials));
-
-        CreateMap<CharacterBasicInfosEditDto, Character>();
+            .ForMember(dest => dest.Potentials, opt => opt.MapFrom(src => src.CharacterPontentials))
+            .ForMember(dest => dest.Protections, opt => opt.MapFrom(src => src.CharacterProtections))
+            .ForMember(dest => dest.Equipments, opt => opt.MapFrom(src => src.CharacterEquipments))
+            .ForMember(dest => dest.Artifacts, opt => opt.MapFrom(src => src.CharacterArtifacts))
+            .ForMember(dest => dest.Burns, opt => opt.MapFrom(src => src.CharacterBurns))
+            .ForMember(dest => dest.Vehicles, opt => opt.MapFrom(src => src.CharacterVehicles))
+            .ForMember(dest => dest.Weapons, opt => opt.MapFrom(src => src.CharacterWeapons));
 
         CreateMap<CharacterArtifactCreateDto, CharacterArtifact>()
              .ForMember(dest => dest.Character, opt => opt.Ignore())
@@ -99,13 +105,16 @@ public class MappingProfile : Profile
         CreateMap<CharacterAttribute, CharacterAttributeDisplayDto>()
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Attribute.Name));
 
-        CreateMap<CharacterSkillDto, CharacterSkill>()
+        CreateMap<CharacterBasicInfosEditDto, Character>();
+
+        CreateMap<CharacterBurnCreateDto, CharacterBurn>()
             .ForMember(dest => dest.Character, opt => opt.Ignore())
-            .ForMember(dest => dest.Skill, opt => opt.Ignore());
-        CreateMap<CharacterSkill, CharacterSkillDto>();
-        CreateMap<CharacterSkill, CharacterSkillDisplayDto>()
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Skill.Name))
-            .ForMember(dest => dest.AttributeId, opt => opt.MapFrom(src => src.Skill.CAttributeId));
+            .ForMember(dest => dest.Burn, opt => opt.Ignore());
+        CreateMap<CharacterBurnDto, CharacterBurn>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Burn, opt => opt.Ignore());
+        CreateMap<CharacterBurn, CharacterBurnDto>()
+            .ForMember(dest => dest.Burn, opt => opt.MapFrom(ca => ca.Burn));
 
         CreateMap<CharacterBackgroundDto, CharacterBackground>()
             .ForMember(dest => dest.Character, opt => opt.Ignore())
@@ -114,6 +123,15 @@ public class MappingProfile : Profile
         CreateMap<CharacterBackground, CharacterBackgroundDisplayDto>()
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Background.Name));
 
+        CreateMap<CharacterEquipmentCreateDto, CharacterEquipment>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Equipment, opt => opt.Ignore());
+        CreateMap<CharacterEquipmentDto, CharacterEquipment>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Equipment, opt => opt.Ignore());
+        CreateMap<CharacterEquipment, CharacterEquipmentDto>()
+            .ForMember(dest => dest.Equipment, opt => opt.MapFrom(src => src.Equipment));
+
         CreateMap<CharacterPotentialDto, CharacterPotential>()
             .ForMember(dest => dest.Character, opt => opt.Ignore())
             .ForMember(dest => dest.Potential, opt => opt.Ignore());
@@ -121,6 +139,41 @@ public class MappingProfile : Profile
         CreateMap<CharacterPotential, CharacterPotentialDisplayDto>()
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Potential.Name))
             .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Potential.Description));
+
+        CreateMap<CharacterProtectionCreateDto, CharacterProtection>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Protection, opt => opt.Ignore());
+        CreateMap<CharacterProtectionDto, CharacterProtection>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Protection, opt => opt.Ignore());
+        CreateMap<CharacterProtection, CharacterProtectionDto>()
+            .ForMember(dest => dest.Protection, opt => opt.MapFrom(src => src.Protection));
+
+        CreateMap<CharacterSkillDto, CharacterSkill>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Skill, opt => opt.Ignore());
+        CreateMap<CharacterSkill, CharacterSkillDto>();
+        CreateMap<CharacterSkill, CharacterSkillDisplayDto>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Skill.Name))
+            .ForMember(dest => dest.AttributeId, opt => opt.MapFrom(src => src.Skill.CAttributeId));
+
+        CreateMap<CharacterVehicleCreateDto, CharacterVehicle>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Vehicle, opt => opt.Ignore());
+        CreateMap<CharacterVehicleDto, CharacterVehicle>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Vehicle, opt => opt.Ignore());
+        CreateMap<CharacterVehicle, CharacterVehicleDto>()
+            .ForMember(dest => dest.Vehicle, opt => opt.MapFrom(src => src.Vehicle));
+
+        CreateMap<CharacterWeaponCreateDto, CharacterWeapon>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Weapon, opt => opt.Ignore());
+        CreateMap<CharacterWeaponDto, CharacterWeapon>()
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Weapon, opt => opt.Ignore());
+        CreateMap<CharacterWeapon, CharacterWeaponDto>()
+            .ForMember(dest => dest.Weapon, opt => opt.MapFrom(src => src.Weapon));
 
         CreateMap<ConceptCreateDto, Concept>()
             .ForMember(dest => dest.BonusAttribute, opt => opt.Ignore())
@@ -197,16 +250,11 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.RankRequired, opt => opt.MapFrom(src => src.RankRequired));
 
         CreateMap<ProtectionCreateDto, Protection>()
-            .ForMember(dest => dest.Qualities, opt => opt.Ignore()); 
+            .ForMember(dest => dest.Cults, opt => opt.Ignore());
         CreateMap<ProtectionDto, Protection>()
-            .ForMember(dest => dest.Qualities, opt => opt.Ignore());
+            .ForMember(dest => dest.Cults, opt => opt.Ignore());
         CreateMap<Protection, ProtectionDto>()
-            .ForMember(dest => dest.Qualities, opt => opt.MapFrom(src => src.Qualities));
-
-
-        CreateMap<ProtectionQualityCreateDto, ProtectionQuality>();
-        CreateMap<ProtectionQualityDto, ProtectionQuality>();
-        CreateMap<ProtectionQuality, ProtectionQualityDto>();
+            .ForMember(dest => dest.Cults, opt => opt.MapFrom(src => src.Cults));
 
         CreateMap<RankCreateDto, Rank>()
             .ForMember(dest => dest.Prerequisites, opt => opt.Ignore())
@@ -254,15 +302,12 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.UserRooms, opt => opt.Ignore());
 
         CreateMap<VehicleCreateDto, Vehicle>()
-            .ForMember(dest => dest.VehicleQualities, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleType, opt => opt.Ignore())
             .ForMember(dest => dest.Cult, opt => opt.Ignore());
         CreateMap<VehicleDto, Vehicle>()
-            .ForMember(dest => dest.VehicleQualities, opt => opt.Ignore())
             .ForMember(dest => dest.VehicleType, opt => opt.Ignore())
             .ForMember(dest => dest.Cult, opt => opt.Ignore());
         CreateMap<Vehicle, VehicleDto>()
-            .ForMember(dest => dest.VehicleQualities, opt => opt.MapFrom(src => src.VehicleQualities))
             .ForMember(dest => dest.VehicleType, opt => opt.MapFrom(src => src.VehicleType))
             .ForMember(dest => dest.Cult, opt => opt.MapFrom(src => src.Cult));
 
@@ -270,32 +315,21 @@ public class MappingProfile : Profile
         CreateMap<VehicleTypeDto, VehicleType>();
         CreateMap<VehicleType, VehicleTypeDto>();
 
-        CreateMap<VehicleQualityCreateDto, VehicleQuality>();
-        CreateMap<VehicleQualityDto, VehicleQuality>();
-        CreateMap<VehicleQuality, VehicleQualityDto>();
-
         CreateMap<WeaponCreateDto, Weapon>()
             .ForMember(dest => dest.WeaponType, opt => opt.Ignore())
             .ForMember(dest => dest.Attribute, opt => opt.Ignore())
             .ForMember(dest => dest.Skill, opt => opt.Ignore())
-            .ForMember(dest => dest.Qualities, opt => opt.Ignore())
             .ForMember(dest => dest.Cults, opt => opt.Ignore());
         CreateMap<WeaponDto, Weapon>()
             .ForMember(dest => dest.WeaponType, opt => opt.Ignore())
             .ForMember(dest => dest.Attribute, opt => opt.Ignore())
             .ForMember(dest => dest.Skill, opt => opt.Ignore())
-            .ForMember(dest => dest.Qualities, opt => opt.Ignore())
             .ForMember(dest => dest.Cults, opt => opt.Ignore());
         CreateMap<Weapon, WeaponDto>()
             .ForMember(dest => dest.WeaponType, opt => opt.MapFrom(src => src.WeaponType))
             .ForMember(dest => dest.Attribute, opt => opt.MapFrom(src => src.Attribute))
             .ForMember(dest => dest.Skill, opt => opt.MapFrom(src => src.Skill))
-            .ForMember(dest => dest.Qualities, opt => opt.MapFrom(src => src.Qualities))
             .ForMember(dest => dest.Cults, opt => opt.MapFrom(src => src.Cults));
-
-        CreateMap<WeaponQualityCreateDto, WeaponQuality>();
-        CreateMap<WeaponQualityDto, WeaponQuality>();
-        CreateMap<WeaponQuality, WeaponQualityDto>();
 
         CreateMap<WeaponTypeCreateDto, WeaponType>();
         CreateMap<WeaponTypeDto, WeaponType>();

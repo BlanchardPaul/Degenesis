@@ -21,16 +21,12 @@ internal class EquipmentConfiguration : IEntityTypeConfiguration<Equipment>
         builder.Property(e => e.Description)
             .IsRequired();
 
-        builder.Property(e => e.Capacity)
-            .HasMaxLength(1000);
-
         builder.Property(e => e.Effect);
         builder.Property(e => e.Encumbrance);
         builder.Property(e => e.TechLevel);
-        builder.Property(e => e.Slots);
+        builder.Property(e => e.SlotsTaken);
         builder.Property(e => e.Value);
         builder.Property(e => e.Resources);
-        builder.Property(e => e.EnergyStorage);
 
         builder.HasOne(e => e.EquipmentType)
             .WithMany()

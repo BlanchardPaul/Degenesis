@@ -16,9 +16,6 @@ internal class NPCEquipmentConfiguration : IEntityTypeConfiguration<NPCEquipment
 
         builder.HasKey(ne => ne.Id);
 
-        builder.Property(ne => ne.UsedSlots)
-            .IsRequired();
-
         builder.HasOne(ne => ne.NPC)
             .WithMany(n => n.NPCEquipments)
             .HasForeignKey(ne => ne.NPCId);

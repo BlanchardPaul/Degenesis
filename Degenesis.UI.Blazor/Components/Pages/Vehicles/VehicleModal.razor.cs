@@ -13,13 +13,10 @@ public partial class VehicleModal
     [Parameter] public VehicleDto Vehicle { get; set; } = new();
     [Parameter] public List<CultDto> Cults { get; set; } = [];
     [Parameter] public List<VehicleTypeDto> VehicleTypes { get; set; } = new();
-    [Parameter] public List<VehicleQualityDto> VehicleQualities { get; set; } = [];
-    private List<Guid> SelectedQualityIds { get; set; } = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
     {
-        SelectedQualityIds = [.. Vehicle.VehicleQualities.Select(v => v.Id)];
         _client = await HttpClientService.GetClientAsync();
     }
 
@@ -29,14 +26,6 @@ public partial class VehicleModal
         {
             Vehicle.VehicleTypeId = VehicleTypes[0].Id;
         }
-        SelectedQualityIds = [.. Vehicle.VehicleQualities.Select(v => v.Id)];
-    }
-
-    private Task OnQualitiesChanged(IEnumerable<Guid> selectedValues)
-    {
-        SelectedQualityIds = [.. selectedValues];
-        Vehicle.VehicleQualities = VehicleQualities.Where(q => SelectedQualityIds.Contains(q.Id)).ToList();
-        return Task.CompletedTask;
     }
 
     private async Task SaveVehicle()

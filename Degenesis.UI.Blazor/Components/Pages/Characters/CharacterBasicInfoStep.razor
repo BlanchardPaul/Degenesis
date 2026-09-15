@@ -28,11 +28,11 @@
                 <MudStack Justify="Justify.SpaceBetween" Style="min-height: 200px;">
 
                     <MudStack>
-                        <MudText Typo="Typo.h6">@culture.Name</MudText>
+                        <MudText Typo="Typo.h6" >@culture.Name</MudText>
                     </MudStack>
 
                     <MudStack>
-                        <MudText Typo="Typo.body2" Class="text-secondary" Style="white-space:normal; text-align:left;">
+                        <MudText Typo="Typo.body2" Class="text-secondary" Style="white-space:normal; text-align:left; color: white;">
                             @culture.Description
                         </MudText>
                     </MudStack>
@@ -40,10 +40,10 @@
                     <MudDivider />
 
                     <MudStack Row="true" Spacing="2" Justify="Justify.SpaceEvenly">
-                        <MudText>
+                        <MudText Style="color: white;">
                             Bonus Attribute: @string.Join(", ", culture.BonusAttributes.Select(ba => ba.Name))
-                        </MudText>
-                        <MudText>
+                        </MudText Color="Color.Default">
+                        <MudText Style="color: white;">
                             Bonus Skills: @string.Join(", ", culture.BonusSkills.Select(bs => bs.Name))
                         </MudText>
                     </MudStack>
@@ -76,14 +76,14 @@
                 </MudStack>
 
                     <MudStack Class="flex-grow-1 justify-center">
-                        <MudText Typo="Typo.body2" Class="text-secondary" Style="white-space:normal; text-align:center; width: 100%;">
+                        <MudText Typo="Typo.body2" Class="text-secondary" Style="white-space:normal; text-align:center; width: 100%; color: white;">
                             @cult.Description
                         </MudText>
                     </MudStack>
 
                     <MudStack>
                         <MudDivider Class="my-2" />
-                        <MudText>
+                        <MudText Style="color: white;">
                             Bonus Skills: @string.Join(", ", cult.BonusSkills.Select(bs => bs.Name))
                         </MudText>
                     </MudStack>
@@ -115,7 +115,7 @@
                     </MudStack>
 
                     <MudStack Class="flex-grow-1 justify-center">
-                        <MudText Typo="Typo.body2" Class="text-secondary" Style="white-space:normal; text-align:center; width: 100%;">
+                        <MudText Typo="Typo.body2" Class="text-secondary" Style="white-space:normal; text-align:center; width: 100%; color: white;">
                             @concept.Description
                         </MudText>
                     </MudStack>
@@ -123,10 +123,10 @@
                     <MudStack>
                         <MudDivider Class="my-2" />
                         <MudStack Row="true" Spacing="2" Justify="Justify.SpaceEvenly">
-                            <MudText>
+                            <MudText Style="color: white;">
                                 Bonus Attribute: @concept.BonusAttribute.Name
                             </MudText>
-                            <MudText>
+                            <MudText Style="color: white;">
                                 Bonus Skills: @string.Join(", ", concept.BonusSkills.Select(bs => bs.Name))
                             </MudText>
                         </MudStack>

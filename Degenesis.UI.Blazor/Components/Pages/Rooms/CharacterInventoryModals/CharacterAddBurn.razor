@@ -1,0 +1,38 @@
+﻿<MudDialog>
+    <DialogContent>
+        @if (!BurnsLoaded)
+        {
+            <MudText Color="Color.Primary">Loading Burns.</MudText>
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        }
+        else
+        {
+            <MudTable Bordered Items="@Burns" Hover="true" LoadingProgressColor="Color.Info">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Description</MudTh>
+                    <MudTh>Chakra</MudTh>
+                    <MudTh>Earth Chakra</MudTh>
+                    <MudTh>Effect</MudTh>
+                    <MudTh>Weak Cost</MudTh>
+                    <MudTh>Potent Cost</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Name">@context.Name</MudTd>
+                    <MudTd DataLabel="Description">@context.Description</MudTd>
+                    <MudTd DataLabel="Chakra">@context.Chakra</MudTd>
+                    <MudTd DataLabel="Earth Chakra">@context.EarthChakra</MudTd>
+                    <MudTd DataLabel="Effect">@context.Effect</MudTd>
+                    <MudTd DataLabel="Weak Cost">@context.WeakCost</MudTd>
+                    <MudTd DataLabel="Potent Cost">@context.PotentCost</MudTd>
+                    <MudTd>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => AddCharacterBurn(context.Id)">Add to Character</MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

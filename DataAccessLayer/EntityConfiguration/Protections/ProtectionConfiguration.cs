@@ -1,11 +1,5 @@
-﻿using Domain.Characters;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Domain.Protections;
 
 namespace DataAccessLayer.EntityConfiguration.Protections;
@@ -28,12 +22,7 @@ internal sealed class ProtectionConfiguration : IEntityTypeConfiguration<Protect
             .IsRequired();
 
         builder.Property(p => p.Armor);
-        builder.Property(p => p.Stockage);
         builder.Property(p => p.Slots);
-        builder.Property(p => p.Connectors);
-
-        builder.Property(p => p.Consuption)
-            .HasMaxLength(1000);
 
         builder.Property(p => p.Defense)
             .HasMaxLength(1000);
@@ -45,8 +34,10 @@ internal sealed class ProtectionConfiguration : IEntityTypeConfiguration<Protect
         builder.Property(p => p.TechLevel);
         builder.Property(p => p.Value);
         builder.Property(p => p.Resources);
+        builder.Property(p => p.Qualities);
 
-        builder.HasMany(p => p.Qualities)
+        builder.HasMany(p => p.Cults)
             .WithMany();
+
     }
 }

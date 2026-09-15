@@ -16,7 +16,7 @@ public class WeaponCreateDto
     public string Caliber { get; set; } = string.Empty;
     public string Handling { get; set; } = string.Empty;
     public string Distance { get; set; } = string.Empty;
-    public int? Damage { get; set; }
+    public int Damage { get; set; } = 0;
     public Guid? AttributeId { get; set; }
     public Guid? SkillId { get; set; }
     public int? CharacterAttributeModifier { get; set; }
@@ -26,7 +26,7 @@ public class WeaponCreateDto
     public int Slots { get; set; } = 0;
     public string Value { get; set; } = string.Empty;
     public string Resources { get; set; } = string.Empty;
-    public List<WeaponQualityDto> Qualities { get; set; } = [];
+    public string Qualities { get; set; } = string.Empty;
     public Guid WeaponTypeId { get; set; }
     public List<CultDto> Cults { get; set; } = [];
 }

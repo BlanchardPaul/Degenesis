@@ -45,8 +45,5 @@ internal class VehicleConfiguration : IEntityTypeConfiguration<Vehicle>
             .IsRequired(false)
             .HasForeignKey(v => v.CultId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(v => v.VehicleQualities)
-            .WithMany();
     }
 }

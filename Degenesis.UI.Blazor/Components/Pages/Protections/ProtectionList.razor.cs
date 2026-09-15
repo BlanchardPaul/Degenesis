@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Protections;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Protections;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Protections;
@@ -7,7 +8,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Protections;
 public partial class ProtectionList
 {
     private List<ProtectionDto>? protections;
-    private List<ProtectionQualityDto> protectionQualities = [];
+    private List<CultDto> Cults = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -19,7 +20,7 @@ public partial class ProtectionList
     private async Task LoadProtections()
     {
         protections = await _client.GetFromJsonAsync<List<ProtectionDto>>("/protections") ?? [];
-        protectionQualities =  await _client.GetFromJsonAsync<List<ProtectionQualityDto>>("/protection-qualities") ?? [];
+        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -27,7 +28,7 @@ public partial class ProtectionList
         var parameters = new DialogParameters
             {
                 { "Protection", new ProtectionDto() },
-                { "ProtectionQualities", protectionQualities }
+                { "Cults", Cults }
             };
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
@@ -49,7 +50,7 @@ public partial class ProtectionList
             var parameters = new DialogParameters
                 {
                     { "Protection", protection },
-                    { "ProtectionQualities", protectionQualities }
+                    { "Cults", Cults }
                 };
 
             var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };

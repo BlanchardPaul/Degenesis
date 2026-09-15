@@ -1,15 +1,13 @@
 ﻿<MudDialog>
     <DialogContent>
         <MudTextField Label="Name" @bind-Value="Equipment.Name" Required="true" />
-        <MudTextField Label="Description" @bind-Value="Equipment.Description" Required="true" />
-        <MudTextField Label="Capacity" @bind-Value="Equipment.Capacity" />
+        <MudTextField Label="Description" @bind-Value="Equipment.Description"/>
         <MudTextField Label="Effect" @bind-Value="Equipment.Effect" />
         <MudNumericField Label="Encumbrance" @bind-Value="Equipment.Encumbrance" />
         <MudNumericField Label="Tech Level" @bind-Value="Equipment.TechLevel" />
-        <MudNumericField Label="Slots" @bind-Value="Equipment.Slots" />
         <MudTextField Label="Value" @bind-Value="Equipment.Value" />
+        <MudNumericField Label="Slots Taken" @bind-Value="Equipment.SlotsTaken" />
         <MudTextField Label="Resources" @bind-Value="Equipment.Resources" />
-        <MudTextField Label="Energy Storage" @bind-Value="Equipment.EnergyStorage" />
 
         <MudSelect T="Guid" Label="Equipment Type" @bind-Value="Equipment.EquipmentTypeId">
             @foreach (var type in EquipmentTypes)

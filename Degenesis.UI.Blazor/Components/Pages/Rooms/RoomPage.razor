@@ -14,8 +14,11 @@ else
         </MudTabPanel>
 
         <MudTabPanel Text="Character">
-            <RoomCharacterSheet IdRoom="IdRoom"
-                                Character="Character"
+            <RoomCharacterSheet Character="Character"
+                                OnRequestParentReload="ReloadCharacter" />
+        </MudTabPanel>
+        <MudTabPanel Text="Inventory">
+            <RoomCharacterInventory Character="Character"
                                 OnRequestParentReload="ReloadCharacter" />
         </MudTabPanel>
     </MudTabs>

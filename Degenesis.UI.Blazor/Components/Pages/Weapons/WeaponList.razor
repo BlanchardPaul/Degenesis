@@ -9,19 +9,41 @@
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Weapon</MudButton>
-    <MudTable Items="@Weapons" Hover="true">
+    <MudTable Bordered Items="@Weapons" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
+            <MudTh>Description</MudTh>
             <MudTh>Type</MudTh>
             <MudTh>Caliber</MudTh>
+            <MudTh>Handling</MudTh>
+            <MudTh>Distance</MudTh>
             <MudTh>Damage</MudTh>
+            <MudTh>Magazine</MudTh>
+            <MudTh>Encumbrance</MudTh>
+            <MudTh>Tech</MudTh>
+            <MudTh>Slots</MudTh>
+            <MudTh>Value</MudTh>
+            <MudTh>Resources</MudTh>
+            <MudTh>Qualities</MudTh>
+            <MudTh>Cults</MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>@context.Name</MudTd>
+            <MudTd>@(string.IsNullOrEmpty(context.Description) ? "-" : context.Description)</MudTd>
             <MudTd>@context.WeaponType.Name</MudTd>
-            <MudTd>@context.Caliber</MudTd>
-            <MudTd>@context.Damage</MudTd>
+            <MudTd>@(string.IsNullOrEmpty(context.Caliber) ? "-" : context.Caliber)</MudTd>
+            <MudTd>@(string.IsNullOrEmpty(context.Handling) ? "-" : context.Handling)</MudTd>
+            <MudTd>@(string.IsNullOrEmpty(context.Distance) ? "-" : context.Distance)</MudTd>
+            <MudTd>@FormatDamage(context)</MudTd>
+            <MudTd>@(context.Magazine == 0 ? "-" : context.Magazine.ToString())</MudTd>
+            <MudTd>@(context.Encumbrance == 0 ? "-" : context.Encumbrance.ToString())</MudTd>
+            <MudTd>@(context.TechLevel == 0 ? "-" : context.TechLevel.ToString())</MudTd>
+            <MudTd>@(context.Slots == 0 ? "-" : context.Slots.ToString())</MudTd>
+            <MudTd>@(string.IsNullOrEmpty(context.Value) ? "-" : context.Value)</MudTd>
+            <MudTd>@(string.IsNullOrEmpty(context.Resources) ? "-" : context.Resources)</MudTd>
+            <MudTd>@(string.IsNullOrEmpty(context.Qualities) ? "-" : context.Qualities)</MudTd>
+            <MudTd>@(context.Cults == null || !context.Cults.Any() ? "-" : string.Join(", ", context.Cults.Select(c => c.Name)))</MudTd>
             <MudTd>
                 <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
                 <MudButton OnClick="() => DeleteWeapon(context.Id)" Color="Color.Error">Delete</MudButton>

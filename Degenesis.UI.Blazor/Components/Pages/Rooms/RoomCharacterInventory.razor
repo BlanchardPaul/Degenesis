@@ -1,0 +1,480 @@
+﻿@if (Character is null)
+{
+    <MudText Color="Color.Primary">Loading Character data.</MudText>
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    // Artifacts
+    <MudPaper Outlined Class="d-flex flex-column pa-4 mb-4">
+        <MudStack>
+            <MudText Typo="Typo.h6" Class="mb-3">Artifacts</MudText>
+        </MudStack>
+        <MudStack>
+            @if (!Character.Artifacts.Any())
+            {
+                <MudText Class="mb-3">None</MudText>
+            }
+            else
+            {
+                <MudTable Bordered Items="Character.Artifacts" Hover="true" LoadingProgressColor="Color.Info" Class="mb-3">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Remaining Charges</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Artifact.Name</MudTd>
+                        <MudTd DataLabel="Description">@context.Artifact.Description</MudTd>
+                        <MudTd DataLabel="Remaining Charges">
+                            <MudNumericField HideSpinButtons @bind-Value="@context.ChargeInMagazine"
+                                             Immediate="true"
+                                             TextUpdateSuppression="false"
+                                             OnBlur="() => UpdateCharacterArtifact(context)" />
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterArtifact(context.Id)">Delete</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudStack>
+        <MudStack>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Error" OnClick="OpenAddCharacterArtifactDialog" Class="align-self-start">Add</MudButton>
+        </MudStack>
+    </MudPaper>
+
+    // Burn
+    <MudPaper Outlined Class="d-flex flex-column pa-4 mb-4">
+        <MudStack>
+            <MudText Typo="Typo.h6" Class="mb-3">Burn</MudText>
+        </MudStack>
+        <MudStack>
+            @if (!Character.Burns.Any())
+            {
+                <MudText Class="mb-3">None</MudText>
+            }
+            else
+            {
+                <MudTable Bordered Items="@Character.Burns" Hover="true" LoadingProgressColor="Color.Info">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Chakra</MudTh>
+                        <MudTh>Earth Chakra</MudTh>
+                        <MudTh>Effect</MudTh>
+                        <MudTh>Weak Cost</MudTh>
+                        <MudTh>Potent Cost</MudTh>
+                        <MudTh>Qty</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd DataLabel="Name">@context.Burn.Name</MudTd>
+                        <MudTd DataLabel="Description">@context.Burn.Description</MudTd>
+                        <MudTd DataLabel="Chakra">@context.Burn.Chakra</MudTd>
+                        <MudTd DataLabel="Earth Chakra">@context.Burn.EarthChakra</MudTd>
+                        <MudTd DataLabel="Effect">@context.Burn.Effect</MudTd>
+                        <MudTd DataLabel="Weak Cost">@context.Burn.WeakCost</MudTd>
+                        <MudTd DataLabel="Potent Cost">@context.Burn.PotentCost</MudTd>
+                        <MudTd DataLabel="Qty">
+                            <MudNumericField HideSpinButtons @bind-Value="@context.Quantity"
+                                             Immediate="true"
+                                             TextUpdateSuppression="false"
+                                             OnBlur="() => UpdateCharacterBurn(context)" />
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterBurn(context.Id)">Delete</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudStack>
+        <MudStack>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Error" OnClick="OpenAddCharacterBurnDialog" Class="align-self-start">Add</MudButton>
+        </MudStack>
+    </MudPaper>
+
+    // Equipments
+    <MudPaper Outlined Class="d-flex flex-column pa-4 mb-4">
+        <MudStack>
+            <MudText Typo="Typo.h6" Class="mb-3">Equipments</MudText>
+        </MudStack>
+        <MudStack>
+            @if (!Character.Equipments.Any())
+            {
+                <MudText Class="mb-3">None</MudText>
+            }
+            else
+            {
+                <MudTable Bordered Items="@Character.Equipments" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Equipment Type</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Effect</MudTh>
+                        <MudTh>Encumbrance</MudTh>
+                        <MudTh>TechLevel</MudTh>
+                        <MudTh>Slots Taken</MudTh>
+                        <MudTh>Value</MudTh>
+                        <MudTh>Resources</MudTh>
+                        <MudTh>Cults</MudTh>
+                        <MudTh></MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Equipment.Name</MudTd>
+                        <MudTd>@context.Equipment.EquipmentType.Name</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Equipment.Description) ? "-" : context.Equipment.Description)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Equipment.Effect) ? "-" : context.Equipment.Effect)</MudTd>
+                        <MudTd>@(context.Equipment.Encumbrance == 0 ? "-" : context.Equipment.Encumbrance)</MudTd>
+                        <MudTd>@(context.Equipment.TechLevel == 0 ? "-" : context.Equipment.TechLevel)</MudTd>
+                        <MudTd>@(context.Equipment.SlotsTaken == 0 ? "-" : context.Equipment.SlotsTaken)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Equipment.Value) ? "-" : context.Equipment.Value)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Equipment.Resources) ? "-" : context.Equipment.Resources)</MudTd>
+                        <MudTd>
+                            @if (context.Equipment.Cults != null && context.Equipment.Cults.Any())
+                            {
+                                @string.Join(", ", context.Equipment.Cults.Select(bs => bs.Name))
+                            }
+                            else
+                            {
+                                <span> - </span>
+                            }
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterEquipment(context.Id)">Delete</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudStack>
+        <MudStack>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Error" OnClick="OpenAddCharacterEquipmentDialog" Class="align-self-start">Add</MudButton>
+        </MudStack>
+    </MudPaper>
+
+    // Protections
+    <MudPaper Outlined Class="d-flex flex-column pa-4 mb-4">
+        <MudStack>
+            <MudText Typo="Typo.h6" Class="mb-3">Protections</MudText>
+        </MudStack>
+        <MudStack>
+            @if (!Character.Protections.Any())
+            {
+                <MudText Class="mb-3">None</MudText>
+            }
+            else
+            {
+                <MudTable Bordered Items="@Character.Protections" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Armor</MudTh>
+                        <MudTh>Defense</MudTh>
+                        <MudTh>Attack</MudTh>
+                        <MudTh>Qualities</MudTh>
+                        <MudTh>Slots</MudTh>
+                        <MudTh>Encumbrance</MudTh>
+                        <MudTh>TechLevel</MudTh>
+                        <MudTh>Value</MudTh>
+                        <MudTh>Resources</MudTh>
+                        <MudTh>Cults</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Protection.Name</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Protection.Description) ? "-" : context.Protection.Description)</MudTd>
+                        <MudTd>@(context.Protection.Armor.HasValue? context.Protection.Armor: "-")</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Protection.Defense) ? "-" : context.Protection.Defense)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Protection.Attack) ? "-" : context.Protection.Attack)</MudTd>
+
+                        <MudTd>
+                            <MudTextField @bind-Value="@context.Qualities"
+                                          Immediate="true" TextUpdateSuppression="false"
+                                          OnBlur="() => UpdateCharacterProtection(context)" />
+                        </MudTd>
+                        <MudTd>
+                            @if (context.Slots == 0)
+                            {
+                                <span> - </span>
+                            }
+                            else
+                            {
+                                <MudStack Row="true" Justify="Justify.FlexStart" Spacing="1">
+                                    <div style="width:30px">
+                                        @{
+                                            <MudNumericField HideSpinButtons @bind-Value="@context.UsedSlots"
+                                                                Immediate="true" TextUpdateSuppression="false"
+                                                                OnBlur="() => UpdateCharacterProtection(context)" />
+                                        }
+                                    </div>
+                                    <span> / </span>
+                                    <div style="width:30px">
+                                        @{
+                                            <MudNumericField HideSpinButtons @bind-Value="@context.Slots"
+                                                                Immediate="true" TextUpdateSuppression="false"
+                                                                OnBlur="() => UpdateCharacterProtection(context)" />
+                                        }
+                                    </div>
+                                </MudStack>
+                            }
+                        </MudTd>
+                        <MudTd>
+                            <MudNumericField HideSpinButtons @bind-Value="@context.Encumbrance"
+                                             Immediate="true" TextUpdateSuppression="false"
+                                             OnBlur="() => UpdateCharacterProtection(context)"/>
+                        </MudTd>
+
+                        <MudTd>@(context.Protection.TechLevel == 0 ? "-" : context.Protection.TechLevel)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Protection.Value) ? "-" : context.Protection.Value)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Protection.Resources) ? "-" : context.Protection.Resources)</MudTd>
+                        <MudTd>
+                            @if (context.Protection.Cults != null && context.Protection.Cults.Any())
+                            {
+                                @string.Join(", ", context.Protection.Cults.Select(bs => bs.Name))
+                            }
+                            else
+                            {
+                                <span> - </span>
+                            }
+                        </MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterProtection(context.Id)">Delete</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudStack>
+        <MudStack>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Error" OnClick="OpenAddCharacterProtectionDialog" Class="align-self-start">Add</MudButton>
+        </MudStack>
+    </MudPaper>
+
+    // Vehicles
+    <MudPaper Outlined Class="d-flex flex-column pa-4 mb-4">
+        <MudStack>
+            <MudText Typo="Typo.h6" Class="mb-3">Vehicles</MudText>
+        </MudStack>
+        <MudStack>
+            @if (!Character.Vehicles.Any())
+            {
+                <MudText Class="mb-3">None</MudText>
+            }
+            else
+            {
+                <MudTable Bordered Items="@Character.Vehicles" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Max Speed</MudTh>
+                        <MudTh>Acc.</MudTh>
+                        <MudTh>Brake</MudTh>
+                        <MudTh>Armor</MudTh>
+                        <MudTh>Qualities</MudTh>
+                        <MudTh>Body|Flesh</MudTh>
+                        <MudTh>Structure|Trauma</MudTh>
+                        <MudTh>Slots</MudTh>
+                        <MudTh>TechLevel</MudTh>
+                        <MudTh>Value</MudTh>
+                        <MudTh>Resources</MudTh>
+                        <MudTh>Cult</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Vehicle.Name</MudTd>
+                        <MudTd>@context.Vehicle.VehicleType.Name</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Vehicle.Description) ? "-" : context.Vehicle.Description)</MudTd>
+                        <MudTd>@context.Vehicle.MaxSpeed</MudTd>
+                        <MudTd>@context.Vehicle.Acceleration</MudTd>
+                        <MudTd>@context.Vehicle.Brake</MudTd>
+                        <MudTd>@(context.Vehicle.Armor == 0 ? "-" : context.Vehicle.Armor)</MudTd>
+                        <MudTd>
+                            <MudTextField @bind-Value="@context.Qualities"
+                                          Immediate="true" TextUpdateSuppression="false"
+                                          OnBlur="() => UpdateCharacterVehicle(context)" />
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Justify="Justify.FlexStart" Spacing="1">
+                                <div style="width:30px">
+                                    @{
+                                        <MudNumericField HideSpinButtons @bind-Value="@context.BodyFleshLost"
+                                                           Immediate="true" TextUpdateSuppression="false"
+                                                           OnBlur="() => UpdateCharacterVehicle(context)" />
+                                    }
+                                </div>
+                                <span> / </span>
+                                <div style="width:30px">
+                                    @{
+                                        <MudNumericField HideSpinButtons @bind-Value="@context.BodyFlesh"
+                                                           Immediate="true" TextUpdateSuppression="false"
+                                                           OnBlur="() => UpdateCharacterVehicle(context)" />
+                                    }
+                                </div>
+                            </MudStack>
+                        </MudTd>
+                        <MudTd>
+                            <MudStack Row="true" Justify="Justify.FlexStart" Spacing="1">
+                            <div style="width:30px">
+                                @{<MudNumericField HideSpinButtons @bind-Value="@context.StructureTraumaLost"
+                                                 Immediate="true" TextUpdateSuppression="false"
+                                                 OnBlur="() => UpdateCharacterVehicle(context)"/>}
+                            </div>
+                            <span> / </span>
+                            <div style="width:30px">
+                                @{<MudNumericField HideSpinButtons @bind-Value="@context.StructureTrauma"
+                                                    Immediate="true" TextUpdateSuppression="false"
+                                                    OnBlur="() => UpdateCharacterVehicle(context)"/>}
+                            </div>
+                            </MudStack>
+                        </MudTd>
+                        <MudTd>
+                            @if(context.Slots == 0)
+                            {
+                                <span> - </span>
+                            }
+                            else
+                            {
+                                <MudStack Row="true" Justify="Justify.FlexStart" Spacing="1">
+                                    <div style="width:30px">
+                                        @{
+                                            <MudNumericField HideSpinButtons @bind-Value="@context.UsedSlots"
+                                                             Immediate="true" TextUpdateSuppression="false"
+                                                             OnBlur="() => UpdateCharacterVehicle(context)" />
+                                        }
+                                    </div>
+                                    <span> / </span>
+                                    <div style="width:30px">
+                                        @{
+                                            <MudNumericField HideSpinButtons @bind-Value="@context.Slots"
+                                                             Immediate="true" TextUpdateSuppression="false"
+                                                             OnBlur="() => UpdateCharacterVehicle(context)" />
+                                        }
+                                    </div>
+                                </MudStack>
+                            }
+                        </MudTd>
+                        <MudTd>@(context.Vehicle.TechLevel == 0 ? "-" : context.Vehicle.TechLevel)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Vehicle.Value) ? "-" : context.Vehicle.Value)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Vehicle.Resources) ? "-" : context.Vehicle.Resources)</MudTd>
+                        <MudTd>@(context.Vehicle.Cult != null ? context.Vehicle.Cult.Name : "-")</MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterVehicle(context.Id)">Delete</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudStack>
+        <MudStack>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Error" OnClick="OpenAddCharacterVehicleDialog" Class="align-self-start">Add</MudButton>
+        </MudStack>
+    </MudPaper>
+
+    // Weapons
+    <MudPaper Outlined Class="d-flex flex-column pa-4 mb-4">
+        <MudStack>
+            <MudText Typo="Typo.h6" Class="mb-3">Weapons</MudText>
+        </MudStack>
+        <MudStack>
+            @if (!Character.Weapons.Any())
+            {
+                <MudText Class="mb-3">None</MudText>
+            }
+            else
+            {
+                <MudTable Bordered Items="@Character.Weapons" Hover="true">
+                    <HeaderContent>
+                        <MudTh>Name</MudTh>
+                        <MudTh>Description</MudTh>
+                        <MudTh>Type</MudTh>
+                        <MudTh>Caliber</MudTh>
+                        <MudTh>Handling</MudTh>
+                        <MudTh>Distance</MudTh>
+                        <MudTh>Damage</MudTh>
+                        <MudTh>Qualities</MudTh>
+                        <MudTh>Magazine</MudTh>
+                        <MudTh>Encumbrance</MudTh>
+                        <MudTh>Tech</MudTh>
+                        <MudTh>Slots</MudTh>
+                        <MudTh>Value</MudTh>
+                        <MudTh>Resources</MudTh>
+                        <MudTh>Cults</MudTh>
+                        <MudTh>Actions</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.Weapon.Name</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Weapon.Description) ? "-" : context.Weapon.Description)</MudTd>
+                        <MudTd>@context.Weapon.WeaponType.Name</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Weapon.Caliber) ? "-" : context.Weapon.Caliber)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Weapon.Handling) ? "-" : context.Weapon.Handling)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Weapon.Distance) ? "-" : context.Weapon.Distance)</MudTd>
+                        <MudTd>@FormatDamage(context.Weapon)</MudTd>
+                        <MudTd>
+                            <MudTextField @bind-Value="@context.Qualities"
+                                          Immediate="true" TextUpdateSuppression="false"
+                                          OnBlur="() => UpdateCharacterWeapon(context)" />
+                        </MudTd>
+                        <MudTd>
+                            @if (context.Weapon.Magazine == 0)
+                            {
+                                <span> - </span>
+                            }
+                            else
+                            {
+                                <MudStack Row="true" Justify="Justify.FlexStart" Spacing="1">
+                                    <div style="width:30px">
+                                        @{
+                                            <MudNumericField HideSpinButtons @bind-Value="@context.BulletsInMagazine"
+                                                             Immediate="true" TextUpdateSuppression="false"
+                                                             OnBlur="() => UpdateCharacterWeapon(context)" />
+                                        }
+                                    </div>
+                                    <span> / </span>
+                                    <div style="width:30px">@context.Weapon.Magazine</div>
+                                </MudStack>
+                            }
+                        </MudTd>
+                        <MudTd>
+                            <MudNumericField HideSpinButtons @bind-Value="@context.Encumbrance"
+                                             Immediate="true" TextUpdateSuppression="false"
+                                             OnBlur="() => UpdateCharacterWeapon(context)" />
+                        </MudTd>
+                        <MudTd>@(context.Weapon.TechLevel == 0 ? "-" : context.Weapon.TechLevel.ToString())</MudTd>
+                        <MudTd>
+                            @if (context.Slots == 0)
+                            {
+                                <span> - </span>
+                            }
+                            else
+                            {
+                                <MudStack Row="true" Justify="Justify.FlexStart" Spacing="1">
+                                    <div style="width:30px">
+                                        @{
+                                            <MudNumericField HideSpinButtons @bind-Value="@context.UsedSlots"
+                                                             Immediate="true" TextUpdateSuppression="false"
+                                                             OnBlur="() => UpdateCharacterWeapon(context)" />
+                                        }
+                                    </div>
+                                    <span> / </span>
+                                    <div style="width:30px">
+                                        @{
+                                            <MudNumericField HideSpinButtons @bind-Value="@context.Slots"
+                                                             Immediate="true" TextUpdateSuppression="false"
+                                                             OnBlur="() => UpdateCharacterWeapon(context)" />
+                                        }
+                                    </div>
+                                </MudStack>
+                            }
+                        </MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Weapon.Value) ? "-" : context.Weapon.Value)</MudTd>
+                        <MudTd>@(string.IsNullOrEmpty(context.Weapon.Resources) ? "-" : context.Weapon.Resources)</MudTd>
+                        <MudTd>@(context.Weapon.Cults == null || !context.Weapon.Cults.Any() ? "-" : string.Join(", ", context.Weapon.Cults.Select(c => c.Name)))</MudTd>
+                        <MudTd>
+                            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterWeapon(context.Id)">Delete</MudButton>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudStack>
+        <MudStack>
+            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Error" Class="align-self-start" OnClick="OpenAddCharacterWeaponDialog">Add</MudButton>
+        </MudStack>
+    </MudPaper>
+}

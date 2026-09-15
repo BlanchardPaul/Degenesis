@@ -1,6 +1,7 @@
 ﻿using Domain._Artifacts;
 using Domain.Burns;
 using Domain.Characters;
+using Domain.Characters.Inventory;
 using Domain.Equipments;
 using Domain.NPCs;
 using Domain.Protections;
@@ -53,17 +54,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, Gui
     public DbSet<Potential> Potentials { get; set; } = null!;
     public DbSet<PotentialPrerequisite> PotentialPrerequisites { get; set; } = null!;
     public DbSet<Protection> Protections { get; set; } = null!;
-    public DbSet<ProtectionQuality> ProtectionQualities { get; set; } = null!;
     public DbSet<Rank> Ranks { get; set; } = null!;
     public DbSet<RankPrerequisite> RankPrerequisites { get; set; } = null!;
     public DbSet<Room> Rooms { get; set; } = null!;
     public DbSet<Skill> Skills { get; set; } = null!;
     public DbSet<UserRoom> UserRooms { get; set; } = null!;
     public DbSet<Vehicle> Vehicles { get; set; } = null!;
-    public DbSet<VehicleQuality> VehicleQualities { get; set; } = null!;
     public DbSet<VehicleType> VehicleTypes { get; set; } = null!;
     public DbSet<Weapon> Weapons { get; set; } = null!;
-    public DbSet<WeaponQuality> WeaponQualities { get; set; } = null!;
     public DbSet<WeaponType> WeaponTypes { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)

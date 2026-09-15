@@ -1,0 +1,52 @@
+﻿<MudDialog>
+    <DialogContent>
+        @if (!VehiclesLoaded)
+        {
+            <MudText Color="Color.Primary">Loading Vehicles.</MudText>
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        }
+        else
+        {
+            <MudTable Bordered Items="@Vehicles" Hover="true">
+                <HeaderContent>
+                    <MudTh>Name</MudTh>
+                    <MudTh>Type</MudTh>
+                    <MudTh>Description</MudTh>
+                    <MudTh>Max Speed</MudTh>
+                    <MudTh>Acc.</MudTh>
+                    <MudTh>Brake (in rounds for boats)</MudTh>
+                    <MudTh>Armor</MudTh>
+                    <MudTh>Body/Flesh</MudTh>
+                    <MudTh>Structure/Trauma</MudTh>
+                    <MudTh>TechLevel</MudTh>
+                    <MudTh>Slots</MudTh>
+                    <MudTh>Value</MudTh>
+                    <MudTh>Resources</MudTh>
+                    <MudTh>Cult</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>@context.VehicleType.Name</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Description) ? "-" : context.Description)</MudTd>
+                    <MudTd>@context.MaxSpeed</MudTd>
+                    <MudTd>@context.Acceleration</MudTd>
+                    <MudTd>@context.Brake</MudTd>
+                    <MudTd>@(context.Armor == 0 ? "-" : context.Armor)</MudTd>
+                    <MudTd>@context.BodyFlesh</MudTd>
+                    <MudTd>@context.StructureTrauma</MudTd>
+                    <MudTd>@(context.TechLevel == 0 ? "-" : context.TechLevel)</MudTd>
+                    <MudTd>@(context.Slots == 0 ? "-" : context.Slots)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Value) ? "-" : context.Value)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Resources) ? "-" : context.Resources)</MudTd>
+                    <MudTd>@(context.Cult != null ? context.Cult.Name : "-")</MudTd>
+                    <MudTd>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => AddCharacterVehicle(context.Id)">Add to Character</MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

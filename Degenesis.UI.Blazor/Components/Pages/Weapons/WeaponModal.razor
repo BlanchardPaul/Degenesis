@@ -1,7 +1,7 @@
 ﻿<MudDialog>
     <DialogContent>
         <MudTextField Label="Name" @bind-Value="Weapon.Name" Required="true" />
-        <MudTextField Label="Description" @bind-Value="Weapon.Description" Required="true" />
+        <MudTextField Label="Description" @bind-Value="Weapon.Description" />
         <MudTextField Label="Caliber" @bind-Value="Weapon.Caliber" />
         <MudTextField Label="Handling" @bind-Value="Weapon.Handling" />
         <MudTextField Label="Distance" @bind-Value="Weapon.Distance" />
@@ -40,14 +40,7 @@
             }
         </MudSelect>
 
-        <MudSelect T="Guid" Label="Qualities" MultiSelection="true"
-                   SelectedValues="SelectedQualityIds" SelectedValuesChanged="OnQualitiesChanged"
-                   ToStringFunc="@(id => WeaponQualities.FirstOrDefault(q => q.Id == id)?.Name ?? "Unknown")">
-            @foreach (var quality in WeaponQualities)
-            {
-                <MudSelectItem T="Guid" Value="@quality.Id">@quality.Name</MudSelectItem>
-            }
-        </MudSelect>
+        <MudTextField Label="Qualities" @bind-Value="Weapon.Qualities" />
 
         <MudSelect T="Guid"
                    Label="Cults"

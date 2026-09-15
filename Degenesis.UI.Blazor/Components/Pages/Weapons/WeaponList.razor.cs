@@ -8,7 +8,6 @@ public partial class WeaponList
 {
     private List<WeaponDto>? Weapons;
     private List<WeaponTypeDto> WeaponTypes = [];
-    private List<WeaponQualityDto> WeaponQualities = [];
     private List<AttributeDto> Attributes = [];
     private List<SkillDto> Skills = [];
     private List<CultDto> Cults = [];
@@ -24,7 +23,6 @@ public partial class WeaponList
     {
         Weapons = await _client.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
         WeaponTypes = await _client.GetFromJsonAsync<List<WeaponTypeDto>>("/weapon-types") ?? [];
-        WeaponQualities = await _client.GetFromJsonAsync<List<WeaponQualityDto>>("/weapon-qualities") ?? [];
         Attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
         Skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
         Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
@@ -36,7 +34,6 @@ public partial class WeaponList
             {
                 { "Weapon", new WeaponDto() },
                 { "WeaponTypes", WeaponTypes },
-                { "WeaponQualities", WeaponQualities },
                 { "Attributes", Attributes },
                 { "Skills", Skills },
                 { "Cults", Cults }
@@ -62,7 +59,6 @@ public partial class WeaponList
                 {
                     { "Weapon", weapon },
                     { "WeaponTypes", WeaponTypes },
-                    { "WeaponQualities", WeaponQualities },
                     { "Attributes", Attributes },
                     { "Skills", Skills },
                     { "Cults", Cults }
@@ -88,5 +84,33 @@ public partial class WeaponList
         else
             Snackbar.Add("Deleted");
         await LoadWeapons();
+    }
+
+    private static string FormatDamage(WeaponDto weapon)
+    {
+        if(weapon.Damage == 0 && weapon.Attribute is null && weapon.Skill is null)
+            return " - ";
+
+        string damageString = string.Empty;
+
+        if (weapon.Damage > 0) damageString += weapon.Damage.ToString();
+
+        if (weapon.Attribute is not null || weapon.Skill is not null)
+        {
+            damageString += $" + (";
+            if(weapon.Attribute is not null) damageString += $"{weapon.Attribute.Abbreviation}";
+            if(weapon.Skill is not null)
+            {
+                if(weapon.Attribute is not null) damageString += " + ";
+                damageString += $"{weapon.Skill.Abbreviation}";
+            }
+            damageString += $")";
+            if (weapon.CharacterAttributeModifier.HasValue && weapon.CharacterAttributeModifier > 0)
+            {
+                damageString += $"/{weapon.CharacterAttributeModifier}";
+            }
+        }
+
+        return damageString;
     }
 }

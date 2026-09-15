@@ -15,13 +15,9 @@ public class Vehicle
     public int TechLevel { get; set; } = 0;
     public int Slots { get; set; } = 0;
     public string Value { get; set; } = string.Empty;
-
-    // Necessary ressource to acquire said vehicle
     public string Resources { get; set; } = string.Empty;
-
     public Guid? CultId { get; set; }
-    public Cult? Cult { get; set; } = new();
+    public Cult? Cult { get; set; }
     public Guid VehicleTypeId { get; set; }
     public VehicleType VehicleType { get; set; } = new();
-    public List<VehicleQuality> VehicleQualities { get; set; } = [];
 }

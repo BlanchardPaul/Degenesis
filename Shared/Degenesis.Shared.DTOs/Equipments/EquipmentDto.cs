@@ -11,14 +11,12 @@ public class EquipmentCreateDto
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public string Capacity { get; set; } = string.Empty;
     public string Effect { get; set; } = string.Empty;
     public int Encumbrance { get; set; } = 0;
     public int TechLevel { get; set; } = 1;
-    public int Slots { get; set; } = 0;
+    public int SlotsTaken { get; set; } = 0;
     public string Value { get; set; } = string.Empty;
     public string Resources { get; set; } = string.Empty;
-    public string EnergyStorage { get; set; } = string.Empty;
     public Guid EquipmentTypeId { get; set; }
     public List<CultDto> Cults { get; set; } = [];
 }

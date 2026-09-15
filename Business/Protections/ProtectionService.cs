@@ -28,7 +28,7 @@ public class ProtectionService : IProtectionService
     public async Task<List<ProtectionDto>> GetAllProtectionsAsync()
     {
         var protections = await _context.Protections
-            .Include(p => p.Qualities)
+            .Include(p => p.Cults)
             .OrderBy(p => p.Name)
             .ToListAsync();
         return _mapper.Map<List<ProtectionDto>>(protections);
@@ -39,7 +39,7 @@ public class ProtectionService : IProtectionService
         try
         {
             var protection = await _context.Protections
-                .Include(p => p.Qualities)
+                .Include(p => p.Cults)
                 .FirstOrDefaultAsync(p => p.Id == id) ?? throw new Exception("Protection not found");
 
             return _mapper.Map<ProtectionDto>(protection);
@@ -57,11 +57,11 @@ public class ProtectionService : IProtectionService
         {
             var protection = _mapper.Map<Protection>(protectionCreate);
 
-            foreach(var quality in protectionCreate.Qualities)
+            foreach (var cultDto in protectionCreate.Cults)
             {
-                var existingQuality = await _context.ProtectionQualities.FindAsync(quality.Id)
-                    ?? throw new Exception("ProtectionQuality not found");
-                protection.Qualities.Add(existingQuality);
+                var cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                protection.Cults.Add(cult);
             }
 
             _context.Protections.Add(protection);
@@ -79,19 +79,20 @@ public class ProtectionService : IProtectionService
         try
         {
             var existingProtection = await _context.Protections
-                .Include(p => p.Qualities)
+                .Include(p => p.Cults)
                 .FirstOrDefaultAsync(p => p.Id == protectionDto.Id)
                 ?? throw new Exception("Protection not found");
 
-            _mapper.Map(protectionDto, existingProtection);
-
-            existingProtection.Qualities.Clear();
-            foreach (var quality in protectionDto.Qualities)
+            existingProtection.Cults.Clear();
+            foreach (var cultDto in protectionDto.Cults)
             {
-                var existingQuality = await _context.ProtectionQualities.FindAsync(quality.Id)
-                    ?? throw new Exception("ProtectionQuality not found");
-                existingProtection.Qualities.Add(existingQuality);
+                var cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                existingProtection.Cults.Add(cult);
             }
+
+
+            _mapper.Map(protectionDto, existingProtection);
 
             await _context.SaveChangesAsync();
             return true;
@@ -107,9 +108,8 @@ public class ProtectionService : IProtectionService
         try
         {
             var protection = await _context.Protections
-                .Include(p => p.Qualities)
                 .FirstOrDefaultAsync(p => p.Id == id)
-                ?? throw new Exception("ProtectionQuality not found");
+                ?? throw new Exception("Protection not found");
 
             _context.Protections.Remove(protection);
             await _context.SaveChangesAsync();

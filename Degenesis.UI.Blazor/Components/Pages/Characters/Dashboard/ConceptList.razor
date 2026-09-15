@@ -10,18 +10,13 @@
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Concept</MudButton>
-    <MudTable Items="@concepts" 
+    <MudTable Bordered Items="@concepts" 
               Hover="true"
               SortLabel="Sort By"
               Dense="true"
               LoadingProgressColor="Color.Info">
         <HeaderContent>
-            <MudTh>
-                <MudTableSortLabel SortBy="new Func<ConceptDto, object>(x => x.Name)"
-                                   InitialDirection="SortDirection.Ascending">
-                    Name
-                </MudTableSortLabel>
-            </MudTh>
+            <MudTh>Name</MudTh>
             <MudTh>Description</MudTh>
             <MudTh>Bonus Attribute</MudTh>
             <MudTh>Bonus Skills</MudTh>

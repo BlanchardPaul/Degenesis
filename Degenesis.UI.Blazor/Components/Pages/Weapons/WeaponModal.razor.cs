@@ -13,7 +13,6 @@ public partial class WeaponModal
     [Parameter] public List<WeaponTypeDto> WeaponTypes { get; set; } = [];
     [Parameter] public List<AttributeDto> Attributes { get; set; } = [];
     [Parameter] public List<SkillDto> Skills { get; set; } = [];
-    [Parameter] public List<WeaponQualityDto> WeaponQualities { get; set; } = [];
     [Parameter] public List<CultDto> Cults { get; set; } = [];
     private List<Guid> SelectedCultIds { get; set; } = [];
     private List<Guid> SelectedQualityIds { get; set; } = [];
@@ -23,7 +22,6 @@ public partial class WeaponModal
     protected override async Task OnInitializedAsync()
     {
         SelectedCultIds = [.. Weapon.Cults.Select(c => c.Id)];
-        SelectedQualityIds = [.. Weapon.Qualities.Select(c => c.Id)];
         _client = await HttpClientService.GetClientAsync();
     }
 
@@ -33,15 +31,6 @@ public partial class WeaponModal
         {
             Weapon.WeaponTypeId = WeaponTypes[0].Id;
         }
-
-        SelectedQualityIds = [.. Weapon.Qualities.Select(q => q.Id)];
-    }
-
-    private Task OnQualitiesChanged(IEnumerable<Guid> selectedValues)
-    {
-        SelectedQualityIds = [.. selectedValues];
-        Weapon.Qualities = [.. WeaponQualities.Where(c => SelectedQualityIds.Contains(c.Id))];
-        return Task.CompletedTask;
     }
 
     private Task OnCultsChanged(IEnumerable<Guid> selectedValues)

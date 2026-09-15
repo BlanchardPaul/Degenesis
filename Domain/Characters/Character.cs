@@ -1,11 +1,6 @@
-﻿using Domain._Artifacts;
-using Domain.Burns;
-using Domain.Equipments;
-using Domain.Protections;
+﻿using Domain.Characters.Inventory;
 using Domain.Rooms;
 using Domain.Users;
-using Domain.Vehicles;
-using Domain.Weapons;
 
 namespace Domain.Characters;
 

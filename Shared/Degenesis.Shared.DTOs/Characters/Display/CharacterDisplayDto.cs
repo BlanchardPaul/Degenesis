@@ -1,4 +1,6 @@
 ﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
+using System.Threading;
 
 namespace Degenesis.Shared.DTOs.Characters.Display;
 public class CharacterDisplayDto
@@ -33,4 +35,10 @@ public class CharacterDisplayDto
     public List<CharacterSkillDisplayDto> Skills { get; set; } = [];
     public List<CharacterBackgroundDisplayDto> Backgrounds { get; set; } = [];
     public List<CharacterPotentialDisplayDto> Potentials { get; set; } = [];
+    public List<CharacterArtifactDto> Artifacts { get; set; } = [];
+    public List<CharacterBurnDto> Burns { get; set; } = [];
+    public List<CharacterEquipmentDto> Equipments { get; set; } = [];
+    public List<CharacterProtectionDto> Protections { get; set; } = [];
+    public List<CharacterVehicleDto> Vehicles { get; set; } = [];
+    public List<CharacterWeaponDto> Weapons { get; set; } = [];
 }

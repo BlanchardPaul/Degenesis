@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Protections;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Protections;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -9,9 +10,8 @@ public partial class ProtectionModal
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public ProtectionDto Protection { get; set; } = new();
-    [Parameter] public List<ProtectionQualityDto> ProtectionQualities { get; set; } = new();
-
-    private List<Guid> SelectedQualityIds { get; set; } = [];
+    [Parameter] public List<CultDto> Cults { get; set; } = [];
+    private List<Guid> SelectedCultIds { get; set; } = [];
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()
@@ -21,14 +21,12 @@ public partial class ProtectionModal
 
     protected override void OnParametersSet()
     {
-        Protection.Qualities ??= [];
-        SelectedQualityIds = [.. Protection.Qualities.Select(bs => bs.Id)];
+        SelectedCultIds = [.. Protection.Cults.Select(c => c.Id)];
     }
-
-    private Task OnQualitiesChanged(IEnumerable<Guid> selectedValues)
+    private Task OnCultsChanged(IEnumerable<Guid> selectedValues)
     {
-        SelectedQualityIds = [.. selectedValues];
-        Protection.Qualities = [.. ProtectionQualities.Where(s => SelectedQualityIds.Contains(s.Id))]; ;
+        SelectedCultIds = [.. selectedValues];
+        Protection.Cults = [.. Cults.Where(c => SelectedCultIds.Contains(c.Id))];
         return Task.CompletedTask;
     }
 

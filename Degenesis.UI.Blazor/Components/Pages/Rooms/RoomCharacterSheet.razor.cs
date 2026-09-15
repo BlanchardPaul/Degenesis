@@ -1,6 +1,6 @@
 ﻿using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.Display;
-using Degenesis.UI.Blazor.Components.Pages.Rooms.CharactersSheetModals;
+using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterSheetModals;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -8,7 +8,6 @@ namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
 public partial class RoomCharacterSheet
 {
-    [Parameter] public Guid? IdRoom { get; set; }
     [Parameter] public CharacterDisplayDto? Character { get; set; }
     [Parameter] public EventCallback OnRequestParentReload { get; set; }
     private HttpClient _client = new();

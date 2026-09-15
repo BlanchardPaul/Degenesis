@@ -1,6 +1,7 @@
 ﻿using API.Endpoints._Artifacts;
 using API.Endpoints.Burns;
 using API.Endpoints.Characters;
+using API.Endpoints.Characters.Inventory;
 using API.Endpoints.Equipments;
 using API.Endpoints.Protections;
 using API.Endpoints.Rooms;
@@ -35,28 +36,25 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapSkillEndpoints();
 
         endpoints.MapBurnEndpoints();
-        //endpoints.MapCharacterBurnEndpoints();
+        endpoints.MapCharacterBurnEndpoints();
         //endpoints.MapNPCBurnEndpoints();
 
-        //endpoints.MapCharacterEquipmentEndpoints();
+        endpoints.MapCharacterEquipmentEndpoints();
         endpoints.MapEquipmentEndpoints();
         endpoints.MapEquipmentTypeEndpoints();
         //endpoints.MapNPCEquipmentEndpoints();
         
-        //endpoints.MapCharacterProtectionEndpoints();
+        endpoints.MapCharacterProtectionEndpoints();
         //endpoints.MapNPCProtectionEndpoints();
         endpoints.MapProtectionEndpoints();
-        endpoints.MapProtectionQualityEndpoints();
 
-        //endpoints.MapCharacterVehicleEndpoints();
+        endpoints.MapCharacterVehicleEndpoints();
         endpoints.MapVehicleEndpoints();
-        endpoints.MapVehicleQualityEndpoints();
         endpoints.MapVehicleTypeEndpoints();
 
-        //endpoints.MapCharacterWeaponEndpoints();
+        endpoints.MapCharacterWeaponEndpoints();
         //endpoints.MapNPCWeaponEndpoints();
         endpoints.MapWeaponEndpoints();
-        endpoints.MapWeaponQualityEndpoints();
         endpoints.MapWeaponTypeEndpoints();
 
         //endpoints.MapNPCEndpoints();

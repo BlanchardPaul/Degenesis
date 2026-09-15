@@ -55,8 +55,7 @@ internal class WeaponConfiguration : IEntityTypeConfiguration<Weapon>
            .IsRequired()
            .HasForeignKey(w => w.WeaponTypeId);
 
-        builder.HasMany(w => w.Qualities)
-            .WithMany();
+        builder.Property(w => w.Qualities);
 
         builder.HasMany(w => w.Cults)
             .WithMany();

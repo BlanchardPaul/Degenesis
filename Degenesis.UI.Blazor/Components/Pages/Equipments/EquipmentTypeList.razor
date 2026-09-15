@@ -9,15 +9,13 @@
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Equipment Type</MudButton>
-    <MudTable Items="@equipmentTypes" Hover="true">
+    <MudTable Bordered Items="@equipmentTypes" Hover="true">
         <HeaderContent>
             <MudTh>Name</MudTh>
-            <MudTh>Description</MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd>@context.Name</MudTd>
-            <MudTd>@context.Description</MudTd>
             <MudTd>
                 <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
                 <MudButton OnClick="() => DeleteEquipmentType(context.Id)" Color="Color.Error">Delete</MudButton>

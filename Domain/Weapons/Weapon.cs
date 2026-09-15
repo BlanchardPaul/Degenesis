@@ -10,8 +10,8 @@ public class Weapon
     public string Handling { get; set; } = string.Empty;
     public string Distance { get; set; } = string.Empty;
 
-    // Used for static damages
-    public int? Damage { get; set; }
+    // Used for base damages
+    public int Damage { get; set; } = 0;
 
     // Used for damages that depends from character attributes and skills
     public Guid? AttributeId { get; set; }
@@ -26,8 +26,8 @@ public class Weapon
     public int TechLevel { get; set; } = 1;
     public int Slots { get; set; } = 0;
     public string Value { get; set; } = string.Empty;
+    public string Qualities { get; set; } = string.Empty;
     public string Resources { get; set; } = string.Empty;
-    public List<WeaponQuality> Qualities { get; set; } = [];
     public Guid WeaponTypeId { get; set; }
     public WeaponType WeaponType { get; set; } = new();
     public List<Cult> Cults { get; set; } = [];

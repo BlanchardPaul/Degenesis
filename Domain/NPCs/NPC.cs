@@ -16,7 +16,7 @@ public class NPC
     public int FleshWounds { get; set; } = 2;
     public int Trauma { get; set; } = 0;
     public int PassiveDefense { get; set; } = 1;
-    // For details like this enemy armor take -1 for each strike
+    // For details like enemy armor take -1 for each strike
     public string EnemySpec { get; set; } = string.Empty;
     // TODO => Gérer room puis mettre à jour la migration
     //public Guid IdRoom { get; set; }

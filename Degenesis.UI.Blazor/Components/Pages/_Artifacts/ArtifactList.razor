@@ -10,7 +10,7 @@
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Artifact</MudButton>
-    <MudTable Items="@artifacts" Hover="true" LoadingProgressColor="Color.Info">
+    <MudTable Bordered Items="@artifacts" Hover="true" LoadingProgressColor="Color.Info">
         <HeaderContent>
             <MudTh>Name</MudTh>
             <MudTh>Description</MudTh>
