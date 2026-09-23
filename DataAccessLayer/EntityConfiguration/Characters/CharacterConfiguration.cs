@@ -56,6 +56,8 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
 
         builder.Property(c => c.Notes);
 
+        builder.Property(c => c.InventoryNotes);
+
         builder.Property(a => a.IsFocusOriented);
 
         // For workflow

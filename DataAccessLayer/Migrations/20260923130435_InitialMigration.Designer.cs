@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260915141527_InitialMigration")]
+    [Migration("20260923130435_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -286,6 +286,10 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<Guid>("IdRoom")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("InventoryNotes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsFocusOriented")
                         .HasColumnType("bit");

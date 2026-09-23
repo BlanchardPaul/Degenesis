@@ -38,7 +38,7 @@ public class CharacterDto : CharacterCreateDto
     public int PassiveDefense { get; set; }
     public int Experience { get; set; }
     public string Notes { get; set; } = string.Empty;
-
+    public string InventoryNotes { get; set; } = string.Empty;
     public Guid IdApplicationUser { get; set; }
 
     public CultDto Cult { get; set; } = new();

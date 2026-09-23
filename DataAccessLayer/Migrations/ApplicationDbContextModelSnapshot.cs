@@ -284,6 +284,10 @@ namespace DataAccessLayer.Migrations
                     b.Property<Guid>("IdRoom")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("InventoryNotes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsFocusOriented")
                         .HasColumnType("bit");
 

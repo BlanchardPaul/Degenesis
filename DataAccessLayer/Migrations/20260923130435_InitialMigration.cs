@@ -908,6 +908,7 @@ namespace DataAccessLayer.Migrations
                     PassiveDefense = table.Column<int>(type: "int", nullable: false),
                     Experience = table.Column<int>(type: "int", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    InventoryNotes = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsFocusOriented = table.Column<bool>(type: "bit", nullable: false),
                     CultId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CultureId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),

@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
+﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Weapons;
 using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventoryModals;
@@ -294,6 +295,19 @@ public partial class RoomCharacterInventory
         {
             await OnRequestParentReload.InvokeAsync();
             StateHasChanged();
+        }
+    }
+
+    private async Task UpdateCharacterInventoryNotes()
+    {
+        if (Character is null)
+            return;
+
+        var result = await _client.PutAsJsonAsync($"/characters/inventory-notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.InventoryNotes });
+
+        if (!result.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Error while updating inventory notes", Severity.Error);
         }
     }
 }

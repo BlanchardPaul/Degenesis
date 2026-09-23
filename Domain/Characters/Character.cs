@@ -26,6 +26,7 @@ public class Character
     public int PassiveDefense { get; set; } = 1;
     public int Experience { get; set; }
     public string Notes { get; set; } = string.Empty;
+    public string InventoryNotes { get; set; } = string.Empty;
     public bool IsFocusOriented { get; set; }
     public Guid CultId { get; set; }
     public Cult Cult { get; set; } = new();

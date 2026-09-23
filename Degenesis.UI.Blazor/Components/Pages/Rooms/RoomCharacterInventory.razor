@@ -477,4 +477,12 @@ else
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Error" Class="align-self-start" OnClick="OpenAddCharacterWeaponDialog">Add</MudButton>
         </MudStack>
     </MudPaper>
+
+    // Notes
+    <MudPaper Outlined Class="d-flex flex-column pa-4 mb-4">
+        <MudText Typo="Typo.h5">Notes</MudText>
+        <MudTextField T="string" Variant="Variant.Outlined"
+                      @bind-Value="Character.InventoryNotes" AutoGrow Lines="3"
+                      Margin="Margin.Dense" OnBlur="UpdateCharacterInventoryNotes" Typo="Typo.h6" />
+    </MudPaper>
 }
