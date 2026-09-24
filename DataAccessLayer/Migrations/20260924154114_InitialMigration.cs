@@ -1207,7 +1207,8 @@ namespace DataAccessLayer.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CharacterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BurnId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
+                    WeakQuantity = table.Column<int>(type: "int", nullable: false),
+                    PotentQuantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

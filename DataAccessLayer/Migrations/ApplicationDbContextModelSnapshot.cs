@@ -542,7 +542,10 @@ namespace DataAccessLayer.Migrations
                     b.Property<Guid>("CharacterId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("PotentQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WeakQuantity")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

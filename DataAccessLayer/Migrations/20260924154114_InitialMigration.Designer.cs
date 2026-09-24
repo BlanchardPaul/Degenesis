@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260923130435_InitialMigration")]
+    [Migration("20260924154114_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -545,7 +545,10 @@ namespace DataAccessLayer.Migrations
                     b.Property<Guid>("CharacterId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int>("PotentQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WeakQuantity")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

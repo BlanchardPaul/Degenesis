@@ -6,7 +6,8 @@ public class CharacterBurnCreateDto
     public Guid Id { get; set; }
     public Guid CharacterId { get; set; }
     public Guid BurnId { get; set; }
-    public int Quantity { get; set; } = 1;
+    public int WeakQuantity { get; set; } = 0;
+    public int PotentQuantity { get; set; } = 0;
 }
 
 public class CharacterBurnDto : CharacterBurnCreateDto

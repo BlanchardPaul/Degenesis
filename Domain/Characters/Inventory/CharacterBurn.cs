@@ -8,5 +8,6 @@ public class CharacterBurn
     public Character Character { get; set; } = new();
     public Guid BurnId { get; set; }
     public Burn Burn { get; set; } = new();
-    public int Quantity { get; set; }
+    public int WeakQuantity { get; set; }
+    public int PotentQuantity { get; set; }
 }

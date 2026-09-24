@@ -67,7 +67,8 @@ else
                         <MudTh>Effect</MudTh>
                         <MudTh>Weak Cost</MudTh>
                         <MudTh>Potent Cost</MudTh>
-                        <MudTh>Qty</MudTh>
+                        <MudTh>Weak Qty</MudTh>
+                        <MudTh>Potent Qty</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd DataLabel="Name">@context.Burn.Name</MudTd>
@@ -77,8 +78,14 @@ else
                         <MudTd DataLabel="Effect">@context.Burn.Effect</MudTd>
                         <MudTd DataLabel="Weak Cost">@context.Burn.WeakCost</MudTd>
                         <MudTd DataLabel="Potent Cost">@context.Burn.PotentCost</MudTd>
-                        <MudTd DataLabel="Qty">
-                            <MudNumericField HideSpinButtons @bind-Value="@context.Quantity"
+                        <MudTd DataLabel="Weak Qty">
+                            <MudNumericField HideSpinButtons @bind-Value="@context.WeakQuantity"
+                                             Immediate="true"
+                                             TextUpdateSuppression="false"
+                                             OnBlur="() => UpdateCharacterBurn(context)" />
+                        </MudTd>
+                        <MudTd DataLabel="Potent Qty">
+                            <MudNumericField HideSpinButtons @bind-Value="@context.PotentQuantity"
                                              Immediate="true"
                                              TextUpdateSuppression="false"
                                              OnBlur="() => UpdateCharacterBurn(context)" />

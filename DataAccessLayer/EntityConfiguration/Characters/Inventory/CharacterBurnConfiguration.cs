@@ -25,6 +25,7 @@ class CharacterBurnConfiguration : IEntityTypeConfiguration<CharacterBurn>
             .HasForeignKey(b => b.BurnId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Property(cb => cb.Quantity);
+        builder.Property(cb => cb.WeakQuantity);
+        builder.Property(cb => cb.PotentQuantity);
     }
 }
