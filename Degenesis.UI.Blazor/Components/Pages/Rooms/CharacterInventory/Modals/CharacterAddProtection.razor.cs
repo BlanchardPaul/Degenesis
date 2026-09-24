@@ -5,7 +5,7 @@ using Degenesis.Shared.DTOs.Protections;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventoryModals;
+namespace Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory.Modals;
 
 public partial class CharacterAddProtection
 {

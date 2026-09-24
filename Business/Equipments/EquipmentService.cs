@@ -84,6 +84,7 @@ public class EquipmentService : IEquipmentService
         {
             var existingEquipment = await _context.Equipments
                 .Include(e => e.EquipmentType)
+                .Include(e => e.Cults)
                 .FirstOrDefaultAsync(e => e.Id == equipmentDto.Id)
                 ?? throw new Exception("Equipment not found");
 

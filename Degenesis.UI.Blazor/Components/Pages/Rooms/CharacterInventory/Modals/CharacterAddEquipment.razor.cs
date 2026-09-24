@@ -4,7 +4,7 @@ using Degenesis.Shared.DTOs.Equipments;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventoryModals;
+namespace Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory.Modals;
 
 public partial class CharacterAddEquipment
 {

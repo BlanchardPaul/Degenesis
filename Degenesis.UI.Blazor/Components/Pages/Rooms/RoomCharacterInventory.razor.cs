@@ -1,10 +1,12 @@
 ﻿using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
+using Degenesis.Shared.DTOs.Equipments;
 using Degenesis.Shared.DTOs.Weapons;
-using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventoryModals;
+using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory.Modals;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using static MudBlazor.CategoryTypes;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
@@ -114,6 +116,7 @@ public partial class RoomCharacterInventory
     }
 
     // Equipments
+    private EquipmentDto? SelectedEquipment { get; set; }
     private async Task OpenAddCharacterEquipmentDialog()
     {
         if (Character is null)
@@ -142,6 +145,16 @@ public partial class RoomCharacterInventory
             await OnRequestParentReload.InvokeAsync();
             StateHasChanged();
         }
+    }
+
+    private void OpenEquipmentPopover(EquipmentDto equipment)
+    {
+        SelectedEquipment = equipment;
+    }
+
+    private void CloseEquipmentPopover()
+    {
+        SelectedEquipment = null;
     }
 
     // Protections

@@ -1,4 +1,5 @@
-﻿@if (Character is null)
+﻿@using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory.Popovers
+@if (Character is null)
 {
     <MudText Color="Color.Primary">Loading Character data.</MudText>
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
@@ -113,11 +114,6 @@ else
                         <MudTh>Description</MudTh>
                         <MudTh>Effect</MudTh>
                         <MudTh>Encumbrance</MudTh>
-                        <MudTh>TechLevel</MudTh>
-                        <MudTh>Slots Taken</MudTh>
-                        <MudTh>Value</MudTh>
-                        <MudTh>Resources</MudTh>
-                        <MudTh>Cults</MudTh>
                         <MudTh></MudTh>
                     </HeaderContent>
                     <RowTemplate>
@@ -126,22 +122,9 @@ else
                         <MudTd>@(string.IsNullOrEmpty(context.Equipment.Description) ? "-" : context.Equipment.Description)</MudTd>
                         <MudTd>@(string.IsNullOrEmpty(context.Equipment.Effect) ? "-" : context.Equipment.Effect)</MudTd>
                         <MudTd>@(context.Equipment.Encumbrance == 0 ? "-" : context.Equipment.Encumbrance)</MudTd>
-                        <MudTd>@(context.Equipment.TechLevel == 0 ? "-" : context.Equipment.TechLevel)</MudTd>
-                        <MudTd>@(context.Equipment.SlotsTaken == 0 ? "-" : context.Equipment.SlotsTaken)</MudTd>
-                        <MudTd>@(string.IsNullOrEmpty(context.Equipment.Value) ? "-" : context.Equipment.Value)</MudTd>
-                        <MudTd>@(string.IsNullOrEmpty(context.Equipment.Resources) ? "-" : context.Equipment.Resources)</MudTd>
                         <MudTd>
-                            @if (context.Equipment.Cults != null && context.Equipment.Cults.Any())
-                            {
-                                @string.Join(", ", context.Equipment.Cults.Select(bs => bs.Name))
-                            }
-                            else
-                            {
-                                <span> - </span>
-                            }
-                        </MudTd>
-                        <MudTd>
-                            <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterEquipment(context.Id)">Delete</MudButton>
+                            <MudIconButton Icon="@Icons.Material.Filled.Search" Variant="Variant.Filled" Color="Color.Success" OnClick="() => OpenEquipmentPopover(context.Equipment)" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"  Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterEquipment(context.Id)" />
                         </MudTd>
                     </RowTemplate>
                 </MudTable>
@@ -150,6 +133,12 @@ else
         <MudStack>
             <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Add" Color="Color.Error" OnClick="OpenAddCharacterEquipmentDialog" Class="align-self-start">Add</MudButton>
         </MudStack>
+
+        
+    @if (SelectedEquipment != null)
+    {
+        <EquipmentPopover Equipment="SelectedEquipment" OnClose="CloseEquipmentPopover" />
+    }
     </MudPaper>
 
     // Protections

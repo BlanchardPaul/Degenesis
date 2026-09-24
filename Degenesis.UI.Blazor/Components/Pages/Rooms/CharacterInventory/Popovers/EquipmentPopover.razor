@@ -1,0 +1,65 @@
+﻿@using Degenesis.Shared.DTOs.Equipments
+<MudPopover Open="true" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
+    <MudPaper Class="pa-4 ma-2" Outlined>
+        <MudStack>
+            <MudStack Row="true" Justify="Justify.SpaceBetween">
+                <MudText HtmlTag="u" Typo="Typo.h6">@Equipment.Name</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Primary" OnClick="Close" Class="ml-auto" />
+            </MudStack>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Equipment Type</MudText>
+                <MudText Typo="Typo.body2">@Equipment.EquipmentType.Name</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Description</MudText>
+                <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Equipment.Description) ? "-" : Equipment.Description)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Effect</MudText>
+                <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Equipment.Effect) ? "-" : Equipment.Effect)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Encumbrance</MudText>
+                <MudText Typo="Typo.body2">@(Equipment.Encumbrance == 0 ? "-" : Equipment.Encumbrance)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Tech Level</MudText>
+                <MudText Typo="Typo.body2">@(Equipment.TechLevel == 0 ? "-" : Equipment.TechLevel)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Slots Taken</MudText>
+                <MudText Typo="Typo.body2">@(Equipment.SlotsTaken == 0 ? "-" : Equipment.SlotsTaken)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Value</MudText>
+                <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Equipment.Value) ? "-" : Equipment.Value)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Resources</MudText>
+                <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Equipment.Resources) ? "-" : Equipment.Resources)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Cults</MudText>
+                <MudText Typo="Typo.body2">
+                    @if (Equipment.Cults != null && Equipment.Cults.Any())
+                    {
+                        @string.Join(", ", Equipment.Cults.Select(bs => bs.Name))
+                    }
+                    else
+                    {
+                        <span> - </span>
+                    }
+                </MudText>
+            </div>
+        </MudStack>
+    </MudPaper>
+</MudPopover>
