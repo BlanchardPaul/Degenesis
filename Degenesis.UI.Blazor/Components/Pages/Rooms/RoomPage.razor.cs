@@ -6,7 +6,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 public partial class RoomPage
 {
     [Parameter] public Guid IdRoom { get; set; }
-    private CharacterDisplayDto? Character = new();
+    private CharacterDisplayDto? Character = null;
     private HttpClient _client = new();
 
     protected override async Task OnInitializedAsync()

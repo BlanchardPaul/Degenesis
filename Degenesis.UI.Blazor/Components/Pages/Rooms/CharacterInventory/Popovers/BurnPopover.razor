@@ -1,5 +1,42 @@
-﻿<h3>BurnPopover</h3>
+﻿<MudPopover Open="true" AnchorOrigin="Origin.CenterRight" TransformOrigin="Origin.CenterRight">
+    <MudPaper Class="pa-4 ma-2" Outlined>
+        <MudStack>
+            <MudStack Row="true" Justify="Justify.SpaceBetween">
+                <MudText HtmlTag="u" Typo="Typo.h6">@Burn.Name</MudText>
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Primary" OnClick="Close" Class="ml-auto" />
+            </MudStack>
 
-@code {
 
-}
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Description</MudText>
+                <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Burn.Description) ? "-" : Burn.Description)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Chakra</MudText>
+                <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Burn.Chakra) ? "-" : Burn.Chakra)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Earth Chakra</MudText>
+                <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Burn.EarthChakra) ? "-" : Burn.EarthChakra)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Effect</MudText>
+                <MudText Typo="Typo.body2">@(string.IsNullOrEmpty(Burn.Effect) ? "-" : Burn.Effect)</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Weak Cost</MudText>
+                <MudText Typo="Typo.body2">@Burn.WeakCost</MudText>
+            </div>
+
+            <div>
+                <MudText HtmlTag="u" Typo="Typo.caption">Potent Cost</MudText>
+                <MudText Typo="Typo.body2">@Burn.PotentCost</MudText>
+            </div>
+
+        </MudStack>
+    </MudPaper>
+</MudPopover>

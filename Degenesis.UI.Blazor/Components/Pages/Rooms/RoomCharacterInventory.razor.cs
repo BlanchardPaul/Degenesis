@@ -1,12 +1,14 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs.Burns;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Equipments;
+using Degenesis.Shared.DTOs.Protections;
+using Degenesis.Shared.DTOs.Vehicles;
 using Degenesis.Shared.DTOs.Weapons;
 using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory.Modals;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using static MudBlazor.CategoryTypes;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
@@ -22,6 +24,7 @@ public partial class RoomCharacterInventory
     }
 
     // Artifacts
+    bool ExpandedArtifact = true;
     private async Task OpenAddCharacterArtifactDialog()
     {
         if (Character is null)
@@ -70,6 +73,8 @@ public partial class RoomCharacterInventory
     }
 
     // Burns
+    private BurnDto? SelectedBurn { get; set; }
+    bool ExpandedBurn = true;
     private async Task OpenAddCharacterBurnDialog()
     {
         if (Character is null)
@@ -114,9 +119,19 @@ public partial class RoomCharacterInventory
             StateHasChanged();
         }
     }
+    private void OpenBurnPopover(BurnDto burn)
+    {
+        SelectedBurn = burn;
+    }
+
+    private void CloseBurnPopover()
+    {
+        SelectedBurn = null;
+    }
 
     // Equipments
     private EquipmentDto? SelectedEquipment { get; set; }
+    bool ExpandedEquipment = true;
     private async Task OpenAddCharacterEquipmentDialog()
     {
         if (Character is null)
@@ -158,6 +173,8 @@ public partial class RoomCharacterInventory
     }
 
     // Protections
+    private ProtectionDto? SelectedProtection { get; set; }
+    bool ExpandedProtection = true;
     private async Task OpenAddCharacterProtectionDialog()
     {
         if (Character is null)
@@ -199,7 +216,19 @@ public partial class RoomCharacterInventory
         }
     }
 
+    private void OpenProtectionPopover(ProtectionDto equipment)
+    {
+        SelectedProtection = equipment;
+    }
+
+    private void CloseProtectionPopover()
+    {
+        SelectedProtection = null;
+    }
+
     // Vehicles
+    private VehicleDto? SelectedVehicle { get; set; }
+    bool ExpandedVehicle = true;
     private async Task OpenAddCharacterVehicleDialog()
     {
         if (Character is null)
@@ -241,7 +270,19 @@ public partial class RoomCharacterInventory
         }
     }
 
+    private void OpenVehiclePopover(VehicleDto vehicleDto)
+    {
+        SelectedVehicle = vehicleDto;
+    }
+
+    private void CloseVehiclePopover()
+    {
+        SelectedVehicle = null;
+    }
+
     // Weapons
+    private WeaponDto? SelectedWeapon { get; set; }
+    bool ExpandedWeapon = true;
     private static string FormatDamage(WeaponDto weapon)
     {
         if (weapon.Damage == 0 && weapon.Attribute is null && weapon.Skill is null)
@@ -310,6 +351,19 @@ public partial class RoomCharacterInventory
             StateHasChanged();
         }
     }
+
+    private void OpenWeaponPopover(WeaponDto weaponDto)
+    {
+        SelectedWeapon = weaponDto;
+    }
+
+    private void CloseWeaponPopover()
+    {
+        SelectedWeapon = null;
+    }
+
+
+    // Free Notes area
 
     private async Task UpdateCharacterInventoryNotes()
     {

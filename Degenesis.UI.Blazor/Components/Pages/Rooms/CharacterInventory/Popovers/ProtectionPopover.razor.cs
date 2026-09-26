@@ -1,12 +1,12 @@
-﻿using Degenesis.Shared.DTOs.Burns;
+﻿using Degenesis.Shared.DTOs.Protections;
 using Microsoft.AspNetCore.Components;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory.Popovers;
 
-public partial class BurnPopover
+public partial class ProtectionPopover
 {
     [Parameter]
-    public BurnDto Burn { get; set; } = null!;
+    public ProtectionDto Protection { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnClose { get; set; }
