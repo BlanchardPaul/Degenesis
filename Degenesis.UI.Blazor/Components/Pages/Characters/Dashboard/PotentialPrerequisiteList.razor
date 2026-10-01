@@ -1,6 +1,5 @@
 ﻿@page "/dashboard/potentialprerequisites"
-
-<h3>Potential Prerequisites</h3>
+@using Degenesis.Shared.DTOs.Characters.CRUD
 
 @if (PotentialPrerequisites is null)
 {
@@ -12,14 +11,39 @@ else
         Create New Potential Prerequisite
     </MudButton>
 
-    <MudTable Bordered Items="@PotentialPrerequisites" Hover="true" Dense="true">
+    <MudTable Bordered 
+            Items="@PotentialPrerequisites"
+            Hover="true"
+            Filter="FilterFunc"
+            Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Potential Prerequisites</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <HeaderContent>
-            <MudTh>Attribute</MudTh>
-            <MudTh>Skill</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<PotentialPrerequisiteDto, object>(x => x.AttributeRequired?.Name ?? string.Empty)">
+                    Attribute
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<PotentialPrerequisiteDto, object>(x => x.SkillRequired?.Name ?? string.Empty)">
+                    Skill
+                </MudTableSortLabel>
+            </MudTh>
             <MudTh>Sum</MudTh>
-            <MudTh>Background</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<PotentialPrerequisiteDto, object>(x => x.BackgroundRequired?.Name ?? string.Empty)">
+                    Background required
+                </MudTableSortLabel>
+            </MudTh>
             <MudTh>Background Level</MudTh>
-            <MudTh>Rank Required</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<PotentialPrerequisiteDto, object>(x => x.RankRequired?.Name ?? string.Empty)">
+                    Rank Required
+                </MudTableSortLabel>
+            </MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
         <RowTemplate>

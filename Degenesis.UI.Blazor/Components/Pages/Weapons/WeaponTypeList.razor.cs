@@ -7,7 +7,7 @@ public partial class WeaponTypeList
 {
     private List<WeaponTypeDto>? weaponTypes;
     private HttpClient _client = new();
-
+    private string SearchString = "";
     protected override async Task OnInitializedAsync()
     {
         _client = await HttpClientService.GetClientAsync();
@@ -67,5 +67,14 @@ public partial class WeaponTypeList
         else
             Snackbar.Add("Deleted");
         await LoadWeaponTypes();
+    }
+
+    private bool FilterFunc(WeaponTypeDto weaponType)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (weaponType.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

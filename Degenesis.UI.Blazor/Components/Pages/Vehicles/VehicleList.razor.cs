@@ -10,6 +10,7 @@ public partial class VehicleList
     private List<VehicleTypeDto> VehicleTypes = [];
     private List<CultDto> Cults = [];
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,5 +77,14 @@ public partial class VehicleList
         else
             Snackbar.Add("Deleted");
         await LoadVehicles();
+    }
+
+    private bool FilterFunc(VehicleDto vehicle)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (vehicle.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

@@ -1,8 +1,6 @@
 ﻿@page "/dashboard/ranks"
 @using Degenesis.Shared.DTOs.Characters.CRUD
 
-<h3>Ranks</h3>
-
 @if (Ranks is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
@@ -10,15 +8,21 @@
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank</MudButton>
-    <MudTable Bordered Items="@Ranks"
-              Hover="true"
-              SortLabel="Sort By"
-              Dense="true"
-              LoadingProgressColor="Color.Info">
+    <MudTable Bordered 
+            Items="@Ranks"
+            Hover="true"
+            Filter="FilterFunc"
+            Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Ranks</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <HeaderContent>
             <MudTh>
-                <MudTableSortLabel SortBy="new Func<RankDto, object>(x => x.Name)"
-                                   InitialDirection="SortDirection.Ascending">
+                <MudTableSortLabel 
+                    SortBy="new Func<RankDto, object>(x => x.Name)"
+                    InitialDirection="SortDirection.Ascending">
                     Name
                 </MudTableSortLabel>
             </MudTh>

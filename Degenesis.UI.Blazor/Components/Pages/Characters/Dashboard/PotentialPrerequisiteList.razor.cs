@@ -10,8 +10,8 @@ public partial class PotentialPrerequisiteList
     private List<SkillDto> Skills = [];
     private List<BackgroundDto> Backgrounds = [];
     private List<RankDto> Ranks = [];
-    private List<CultDto> Cults = [];
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,5 +85,24 @@ public partial class PotentialPrerequisiteList
             Snackbar.Add("Deleted", Severity.Success);
 
         await LoadPotentialPrerequisites();
+    }
+
+    private bool FilterFunc(PotentialPrerequisiteDto potentialPrerequisite)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (potentialPrerequisite.AttributeRequired is not null)
+            if (potentialPrerequisite.AttributeRequired.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        if (potentialPrerequisite.SkillRequired is not null)
+            if (potentialPrerequisite.SkillRequired.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        if (potentialPrerequisite.BackgroundRequired is not null)
+            if (potentialPrerequisite.BackgroundRequired.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        if (potentialPrerequisite.RankRequired is not null)
+            if (potentialPrerequisite.RankRequired.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        return false;
     }
 }

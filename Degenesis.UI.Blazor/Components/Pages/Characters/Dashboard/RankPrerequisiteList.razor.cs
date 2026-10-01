@@ -10,6 +10,7 @@ public partial class RankPrerequisiteList
     private List<SkillDto> Skills = [];
     private List<BackgroundDto> Backgrounds  = [];
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,5 +80,21 @@ public partial class RankPrerequisiteList
         else
             Snackbar.Add("Deleted");
         await LoadRankPrerequisites();
+    }
+
+    private bool FilterFunc(RankPrerequisiteDto rankPrerequisite)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (rankPrerequisite.AttributeRequired is not null)
+            if (rankPrerequisite.AttributeRequired.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        if (rankPrerequisite.SkillRequired is not null)
+            if (rankPrerequisite.SkillRequired.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        if (rankPrerequisite.BackgroundRequired is not null)
+            if (rankPrerequisite.BackgroundRequired.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+                return true;
+        return false;
     }
 }

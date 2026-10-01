@@ -14,6 +14,7 @@ public partial class CharacterAddBurn
 
     private HttpClient _client = new();
     private bool BurnsLoaded;
+    private string SearchString { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -39,4 +40,13 @@ public partial class CharacterAddBurn
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+    private bool FilterFunc(BurnDto burn)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (burn.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
 }

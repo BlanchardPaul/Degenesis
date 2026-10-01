@@ -12,6 +12,7 @@ public partial class WeaponList
     private List<SkillDto> Skills = [];
     private List<CultDto> Cults = [];
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -112,5 +113,14 @@ public partial class WeaponList
         }
 
         return damageString;
+    }
+
+    private bool FilterFunc(WeaponDto weapon)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (weapon.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

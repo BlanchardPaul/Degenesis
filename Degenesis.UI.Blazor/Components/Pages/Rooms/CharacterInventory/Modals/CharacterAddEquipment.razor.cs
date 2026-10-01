@@ -14,6 +14,7 @@ public partial class CharacterAddEquipment
 
     private HttpClient _client = new();
     private bool EquipmentsLoaded;
+    private string SearchString { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,4 +39,13 @@ public partial class CharacterAddEquipment
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+    private bool FilterFunc(EquipmentDto equipment)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (equipment.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
 }

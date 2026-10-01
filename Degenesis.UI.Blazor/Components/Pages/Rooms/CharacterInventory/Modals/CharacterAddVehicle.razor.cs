@@ -13,6 +13,7 @@ public partial class CharacterAddVehicle
 
     private HttpClient _client = new();
     private bool VehiclesLoaded;
+    private string SearchString { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -37,4 +38,13 @@ public partial class CharacterAddVehicle
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+    private bool FilterFunc(VehicleDto vehicle)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (vehicle.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
 }

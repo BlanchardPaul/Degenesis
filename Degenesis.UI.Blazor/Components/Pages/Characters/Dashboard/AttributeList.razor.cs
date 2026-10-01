@@ -7,6 +7,7 @@ public partial class AttributeList
 {
     private List<AttributeDto>? attributes;
     private HttpClient _client = new();
+    string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,4 +62,12 @@ public partial class AttributeList
         await LoadAttributes();
     }
 
+    private bool FilterFunc(AttributeDto attribute)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (attribute.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
 }

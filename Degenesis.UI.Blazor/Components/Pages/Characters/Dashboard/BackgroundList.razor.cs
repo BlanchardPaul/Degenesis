@@ -7,6 +7,7 @@ public partial class BackgroundList
 {
     private List<BackgroundDto>? backgrounds;
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,4 +62,12 @@ public partial class BackgroundList
         await LoadBackgrounds();
     }
 
+    private bool FilterFunc(BackgroundDto background)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (background.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
 }

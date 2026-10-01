@@ -11,29 +11,27 @@ else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Attribute</MudButton>
 
-    <MudTable Bordered Items="@attributes"
-              Hover="true"
-              SortLabel="Sort By"
-              Dense="true"
-              LoadingProgressColor="Color.Info">
+    <MudTable Bordered 
+        Items="@attributes"
+        Hover="true"
+        Filter="FilterFunc"
+        Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Attributes</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <HeaderContent>
             <MudTh>
-                <MudTableSortLabel SortBy="new Func<AttributeDto, object>(x => x.Name)"
-                                   InitialDirection="SortDirection.Ascending">
+                <MudTableSortLabel 
+                    InitialDirection="SortDirection.Ascending" 
+                    SortBy="new Func<AttributeDto, object>(x => x.Name)">
                     Name
                 </MudTableSortLabel>
             </MudTh>
-            <MudTh>
-                <MudTableSortLabel SortBy="new Func<AttributeDto, object>(x => x.Abbreviation)">
-                    Abbreviation
-                </MudTableSortLabel>
-            </MudTh>
-            <MudTh>
-                Description
-            </MudTh>
-            <MudTh>
-                Focus/Primal Oriented
-            </MudTh>
+            <MudTh>Abbreviation</MudTh>
+            <MudTh>Description</MudTh>
+            <MudTh>Focus/Primal Oriented</MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>
 

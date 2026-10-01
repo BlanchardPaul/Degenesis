@@ -1,5 +1,6 @@
 ﻿using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
+using System;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -9,6 +10,7 @@ public partial class ConceptList
     private List<SkillDto> skills = [];
     private List<AttributeDto> attributes = [];
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,5 +78,14 @@ public partial class ConceptList
             Snackbar.Add("Deleted");
 
         await LoadConcepts();
+    }
+
+    private bool FilterFunc(ConceptDto concept)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (concept.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

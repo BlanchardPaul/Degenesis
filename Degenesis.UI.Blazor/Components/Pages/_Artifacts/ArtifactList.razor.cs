@@ -1,22 +1,23 @@
 ﻿using Degenesis.Shared.DTOs._Artifacts;
-using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages._Artifacts;
 
 public partial class ArtifactList
 {
-    private List<ArtifactDto>? artifacts;
+    private List<ArtifactDto>? Artifacts;
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
         _client = await HttpClientService.GetClientAsync();
         await LoadArtifacts();
     }
+
     private async Task LoadArtifacts()
     {
-        artifacts = await _client.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
+        Artifacts = await _client.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -35,7 +36,7 @@ public partial class ArtifactList
 
     private async Task ShowEditDialog(Guid artifactId)
     {
-        var artifact = artifacts?.FirstOrDefault(a => a.Id == artifactId);
+        var artifact = Artifacts?.FirstOrDefault(a => a.Id == artifactId);
         if (artifact != null)
         {
             var parameters = new DialogParameters { { "Artifact", artifact } };
@@ -60,6 +61,15 @@ public partial class ArtifactList
             Snackbar.Add("Deleted");
 
         await LoadArtifacts();
+    }
+
+    private bool FilterFunc(ArtifactDto artifact)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (artifact.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }
 

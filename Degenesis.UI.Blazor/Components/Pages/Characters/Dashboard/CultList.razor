@@ -1,8 +1,6 @@
 ﻿@page "/dashboard/cults"
 @using Degenesis.Shared.DTOs.Characters.CRUD
 
-<h3>Cults</h3>
-
 @if (cults is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
@@ -10,15 +8,21 @@
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Cult</MudButton>
-    <MudTable Bordered Items="@cults"
-              Hover="true"
-              SortLabel="Sort By"
-              Dense="true"
-              LoadingProgressColor="Color.Info">
+    <MudTable Bordered 
+        Items="@cults"
+        Hover="true"
+        Dense="true"
+        Filter="FilterFunc">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Cults</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <HeaderContent>
             <MudTh>
-                <MudTableSortLabel SortBy="new Func<CultDto, object>(x => x.Name)"
-                                   InitialDirection="SortDirection.Ascending">
+                <MudTableSortLabel 
+                    InitialDirection="SortDirection.Ascending" 
+                    SortBy="new Func<CultDto, object>(x => x.Name)">
                     Name
                 </MudTableSortLabel>
             </MudTh>

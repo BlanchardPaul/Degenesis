@@ -1,9 +1,6 @@
 ﻿@page "/dashboard/cultures"
 @using Degenesis.Shared.DTOs.Characters.CRUD
 
-<h3>Cultures</h3>
-
-
 @if (cultures is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
@@ -12,15 +9,21 @@ else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Culture</MudButton>
 
-    <MudTable Bordered Items="@cultures"
-              Hover="true"
-              SortLabel="Sort By"
-              Dense="true"
-              LoadingProgressColor="Color.Info">
+    <MudTable Bordered 
+            Items="@cultures"
+            Hover="true"
+            Dense="true"
+            Filter="FilterFunc">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Cultures</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <HeaderContent>
             <MudTh>
-                <MudTableSortLabel SortBy="new Func<CultureDto, object>(x => x.Name)"
-                                   InitialDirection="SortDirection.Ascending">
+                <MudTableSortLabel 
+                    SortBy="new Func<CultureDto, object>(x => x.Name)"
+                    InitialDirection="SortDirection.Ascending">
                     Name
                 </MudTableSortLabel>
             </MudTh>

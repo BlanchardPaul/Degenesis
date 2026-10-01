@@ -14,6 +14,7 @@ public partial class CharacterAddArtifact
 
     private HttpClient _client = new();
     private bool ArtifactsLoaded;
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -39,4 +40,13 @@ public partial class CharacterAddArtifact
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+    private bool FilterFunc(ArtifactDto artifact)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (artifact.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
 }

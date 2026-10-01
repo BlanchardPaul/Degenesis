@@ -1,5 +1,6 @@
 ﻿using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
+using System;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -10,7 +11,7 @@ public partial class CultureList
     private List<AttributeDto> attributes = [];
     private List<SkillDto> skills = [];
     private HttpClient _client = new();
-
+    private string SearchString = "";
     protected override async Task OnInitializedAsync()
     {
         _client = await HttpClientService.GetClientAsync();
@@ -79,5 +80,14 @@ public partial class CultureList
         else
             Snackbar.Add("Deleted");
         await LoadCultures();
+    }
+
+    private bool FilterFunc(CultureDto culture)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (culture.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

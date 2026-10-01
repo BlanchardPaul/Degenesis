@@ -8,6 +8,7 @@ public partial class RankList
     private List<CultDto> Cults = [];
     private List<RankPrerequisiteDto> RankPrerequisites = [];
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,5 +97,14 @@ public partial class RankList
         string sumPart = prerequisite.SumRequired.HasValue ? $" >= {prerequisite.SumRequired}" : "";
 
         return $"{attributePart}{skillPart}{sumPart}";
+    }
+
+    private bool FilterFunc(RankDto rank)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (rank.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

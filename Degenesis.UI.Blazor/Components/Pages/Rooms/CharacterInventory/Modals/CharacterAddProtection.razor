@@ -1,4 +1,5 @@
-﻿<MudDialog>
+﻿@using Degenesis.Shared.DTOs.Protections
+<MudDialog>
     <DialogContent>
         @if (!ProtectionsLoaded)
         {
@@ -7,9 +8,20 @@
         }
         else
         {
-            <MudTable Bordered Items="@Protections" Hover="true" LoadingProgressColor="Color.Info">
+            <MudTable Bordered Items="@Protections"
+                      Hover="true"
+                      Filter="FilterFunc"
+                      Dense="true">
+                <ToolBarContent>
+                    <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
                 <HeaderContent>
-                    <MudTh>Name</MudTh>
+                    <MudTh>
+                        <MudTableSortLabel InitialDirection="SortDirection.Ascending"
+                                           SortBy="@((ProtectionDto x) => x.Name)">
+                            Name
+                        </MudTableSortLabel>
+                    </MudTh>
                     <MudTh>Description</MudTh>
                     <MudTh>Armor</MudTh>
                     <MudTh>Defense</MudTh>

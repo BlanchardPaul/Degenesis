@@ -13,6 +13,7 @@ public partial class CharacterAddWeapon
 
     private HttpClient _client = new();
     private bool WeaponsLoaded;
+    private string SearchString { get; set; } = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -65,4 +66,13 @@ public partial class CharacterAddWeapon
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+    private bool FilterFunc(WeaponDto weapon)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (weapon.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
 }

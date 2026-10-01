@@ -1,8 +1,6 @@
 ﻿@page "/dashboard/concepts"
 @using Degenesis.Shared.DTOs.Characters.CRUD
 
-<h3>Concepts</h3>
-
 @if (concepts is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
@@ -10,13 +8,24 @@
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Concept</MudButton>
-    <MudTable Bordered Items="@concepts" 
-              Hover="true"
-              SortLabel="Sort By"
-              Dense="true"
-              LoadingProgressColor="Color.Info">
+    <MudTable Bordered 
+        Items="@concepts" 
+        Hover="true"
+        Filter="FilterFunc"
+        Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Concepts</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <HeaderContent>
-            <MudTh>Name</MudTh>
+            <MudTh>
+                <MudTableSortLabel 
+                    InitialDirection="SortDirection.Ascending" 
+                    SortBy="@((ConceptDto x) => x.Name)">
+                    Name
+                </MudTableSortLabel>
+            </MudTh>
             <MudTh>Description</MudTh>
             <MudTh>Bonus Attribute</MudTh>
             <MudTh>Bonus Skills</MudTh>

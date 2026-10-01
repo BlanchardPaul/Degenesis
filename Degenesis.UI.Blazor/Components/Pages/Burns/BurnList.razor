@@ -1,8 +1,6 @@
 ﻿@page "/dashboard/burns"
 @using Degenesis.Shared.DTOs.Burns
 
-<h3>Burns</h3>
-
 @if (Burns is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
@@ -11,9 +9,24 @@ else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowCreateDialog()">Create New Burn</MudButton>
 
-    <MudTable Bordered Items="@Burns" Hover="true" LoadingProgressColor="Color.Info">
+    <MudTable Bordered 
+        Items="@Burns" 
+        Hover="true" 
+        Filter="FilterFunc" 
+        Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Burns</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <HeaderContent>
-            <MudTh>Name</MudTh>
+            <MudTh>
+                <MudTableSortLabel 
+                    InitialDirection="SortDirection.Ascending" 
+                    SortBy="@((BurnDto x) => x.Name)">
+                Name
+                </MudTableSortLabel>
+            </MudTh>
             <MudTh>Description</MudTh>
             <MudTh>Chakra</MudTh>
             <MudTh>Earth Chakra</MudTh>
@@ -30,8 +43,8 @@ else
             <MudTd DataLabel="Weak Cost">@context.WeakCost</MudTd>
             <MudTd DataLabel="Potent Cost">@context.PotentCost</MudTd>
             <MudTd>
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
-                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteBurn(context.Id)">Delete</MudButton>
+                <MudButton Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                <MudButton Color="Color.Error" OnClick="() => DeleteBurn(context.Id)">Delete</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>

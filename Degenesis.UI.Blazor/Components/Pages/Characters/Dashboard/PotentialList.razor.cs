@@ -1,5 +1,6 @@
 ﻿using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
+using System;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -9,6 +10,7 @@ public partial class PotentialList
     private List<CultDto> Cults = [];
     private List<PotentialPrerequisiteDto> PotentialPrerequisites = [];
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,5 +99,14 @@ public partial class PotentialList
         string rankPart = prerequisite.RankRequired != null ? $" RANK: {prerequisite.RankRequired.Name}" : "";
 
         return $"{attributePart}{skillPart}{sumPart}{rankPart}".Trim();
+    }
+
+    private bool FilterFunc(PotentialDto potential)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (potential.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

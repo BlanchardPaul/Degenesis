@@ -10,6 +10,7 @@ public partial class ProtectionList
     private List<ProtectionDto>? protections;
     private List<CultDto> Cults = [];
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -73,5 +74,13 @@ public partial class ProtectionList
         else
             Snackbar.Add("Deleted");
         await LoadProtections();
+    }
+    private bool FilterFunc(ProtectionDto protection)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (protection.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase) == true)
+            return true;
+        return false;
     }
 }

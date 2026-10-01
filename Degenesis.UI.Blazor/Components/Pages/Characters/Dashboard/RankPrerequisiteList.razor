@@ -1,6 +1,5 @@
 ﻿@page "/dashboard/rankprerequisites"
-
-<h3>Rank Prerequisites</h3>
+@using Degenesis.Shared.DTOs.Characters.CRUD
 
 @if (RankPrerequisites is null)
 {
@@ -9,12 +8,33 @@
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Rank Prerequisite</MudButton>
-    <MudTable Bordered Items="@RankPrerequisites" Hover="true" Dense="true">
+    <MudTable Bordered 
+            Items="@RankPrerequisites"
+            Hover="true"
+            Filter="FilterFunc"
+            Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Rank Prerequisites</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <HeaderContent>
-            <MudTh>Attribute</MudTh>
-            <MudTh>Skill</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<RankPrerequisiteDto, object>(x => x.AttributeRequired?.Name ?? string.Empty)">
+                    Attribute
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<RankPrerequisiteDto, object>(x => x.SkillRequired?.Name ?? string.Empty)">
+                    Skill
+                </MudTableSortLabel>
+            </MudTh>
             <MudTh>Sum</MudTh>
-            <MudTh>Background</MudTh>
+            <MudTh>
+                <MudTableSortLabel SortBy="new Func<RankPrerequisiteDto, object>(x => x.BackgroundRequired?.Name ?? string.Empty)">
+                    Background
+                </MudTableSortLabel>
+            </MudTh>
             <MudTh>Background Level</MudTh>
             <MudTh>Actions</MudTh>
         </HeaderContent>

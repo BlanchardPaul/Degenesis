@@ -1,4 +1,5 @@
-﻿<MudDialog>
+﻿@using Degenesis.Shared.DTOs.Weapons
+<MudDialog>
     <DialogContent>
         @if (!WeaponsLoaded)
         {
@@ -7,9 +8,20 @@
         }
         else
         {
-            <MudTable Bordered Items="@Weapons" Hover="true">
+            <MudTable Bordered Items="@Weapons"
+                      Hover="true"
+                      Filter="FilterFunc"
+                      Dense="true">
+                <ToolBarContent>
+                    <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
                 <HeaderContent>
-                    <MudTh>Name</MudTh>
+                    <MudTh>
+                        <MudTableSortLabel InitialDirection="SortDirection.Ascending"
+                                           SortBy="@((WeaponDto x) => x.Name)">
+                            Name
+                        </MudTableSortLabel>
+                    </MudTh>
                     <MudTh>Description</MudTh>
                     <MudTh>Type</MudTh>
                     <MudTh>Caliber</MudTh>

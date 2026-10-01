@@ -1,4 +1,5 @@
 ﻿@page "/dashboard/protections"
+@using Degenesis.Shared.DTOs.Protections
 
 <h3>Protections</h3>
 
@@ -9,9 +10,23 @@
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Protection</MudButton>
-    <MudTable Bordered Items="@protections" Hover="true">
+    <MudTable Bordered
+              Items="@protections" 
+              Hover="true"
+              Filter="FilterFunc"
+              Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Protections</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
         <HeaderContent>
-            <MudTh>Name</MudTh>
+            <MudTh>
+                <MudTableSortLabel InitialDirection="SortDirection.Ascending"
+                                   SortBy="@((ProtectionDto x) => x.Name)">
+                    Name
+                </MudTableSortLabel>
+            </MudTh>
             <MudTh>Description</MudTh>
             <MudTh>Armor</MudTh>
             <MudTh>Defense</MudTh>

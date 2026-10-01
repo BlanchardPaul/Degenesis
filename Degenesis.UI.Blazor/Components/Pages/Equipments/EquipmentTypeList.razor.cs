@@ -7,6 +7,7 @@ public partial class EquipmentTypeList
 {
     private List<EquipmentTypeDto>? equipmentTypes;
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -67,5 +68,14 @@ public partial class EquipmentTypeList
         else
             Snackbar.Add("Deleted");
         await LoadEquipmentTypes();
+    }
+
+    private bool FilterFunc(EquipmentTypeDto equipmentType)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (equipmentType.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase) == true)
+            return true;
+        return false;
     }
 }

@@ -8,6 +8,7 @@ public partial class SkillList
     private List<SkillDto>? skills;
     private List<AttributeDto> attributes = [];
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -61,5 +62,14 @@ public partial class SkillList
         else
             Snackbar.Add("Deleted");
         await LoadSkills();
+    }
+
+    private bool FilterFunc(SkillDto skill)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (skill.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

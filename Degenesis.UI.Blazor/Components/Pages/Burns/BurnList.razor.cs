@@ -7,6 +7,7 @@ public partial class BurnList
 {
     private List<BurnDto>? Burns;
     private HttpClient _client = new();
+    private string SearchString = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,5 +60,14 @@ public partial class BurnList
         else
             Snackbar.Add("Deleted");
         await LoadBurns();
+    }
+
+    private bool FilterFunc(BurnDto burn)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (burn.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

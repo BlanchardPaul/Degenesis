@@ -1,6 +1,7 @@
 ﻿using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using System;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -9,7 +10,7 @@ public partial class CultList
     private List<CultDto>? cults;
     private List<SkillDto> skills = [];
     private HttpClient _client = new();
-
+    private string SearchString = "";
     protected override async Task OnInitializedAsync()
     {
         _client = await HttpClientService.GetClientAsync();
@@ -62,5 +63,14 @@ public partial class CultList
         else
             Snackbar.Add("Deleted");
         await LoadCults();
+    }
+
+    private bool FilterFunc(CultDto cult)
+    {
+        if (string.IsNullOrWhiteSpace(SearchString))
+            return true;
+        if (cult.Name.Contains(SearchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

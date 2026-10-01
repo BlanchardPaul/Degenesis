@@ -1,4 +1,5 @@
-﻿<MudDialog>
+﻿@using Degenesis.Shared.DTOs.Burns
+<MudDialog>
     <DialogContent>
         @if (!BurnsLoaded)
         {
@@ -7,9 +8,20 @@
         }
         else
         {
-            <MudTable Bordered Items="@Burns" Hover="true" LoadingProgressColor="Color.Info">
+            <MudTable Bordered Items="@Burns" 
+                      Hover="true"
+                      Filter="FilterFunc"
+                      Dense="true">
+                <ToolBarContent>
+                    <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+                </ToolBarContent>
                 <HeaderContent>
-                    <MudTh>Name</MudTh>
+                    <MudTh>
+                        <MudTableSortLabel InitialDirection="SortDirection.Ascending"
+                                           SortBy="@((BurnDto x) => x.Name)">
+                            Name
+                        </MudTableSortLabel>
+                    </MudTh>
                     <MudTh>Description</MudTh>
                     <MudTh>Chakra</MudTh>
                     <MudTh>Earth Chakra</MudTh>
