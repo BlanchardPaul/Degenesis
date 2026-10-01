@@ -10,12 +10,6 @@ public partial class ConceptModal
     [Parameter] public ConceptDto Concept { get; set; } = new();
     [Parameter] public List<SkillDto> Skills { get; set; } = new();
     [Parameter] public List<AttributeDto> Attributes { get; set; } = new();
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     private HashSet<Guid> SelectedBonusSkillIds { get; set; } = new();
 
@@ -41,7 +35,7 @@ public partial class ConceptModal
     {
         if (Concept.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/concepts", Concept);
+            var result = await Client!.PostAsJsonAsync("/concepts", Concept);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -53,7 +47,7 @@ public partial class ConceptModal
 
         else
         {
-            var result = await _client.PutAsJsonAsync($"/concepts", Concept);
+            var result = await Client!.PutAsJsonAsync($"/concepts", Concept);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

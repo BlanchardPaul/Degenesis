@@ -8,18 +8,12 @@ public partial class BackgroundModal
 {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public BackgroundDto Background { get; set; } = new();
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     private async Task SaveBackground()
     {
         if (Background.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/backgrounds", Background);
+            var result = await Client!.PostAsJsonAsync("/backgrounds", Background);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -31,7 +25,7 @@ public partial class BackgroundModal
 
         else
         {
-            var result = await _client.PutAsJsonAsync($"/backgrounds", Background);
+            var result = await Client!.PutAsJsonAsync($"/backgrounds", Background);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

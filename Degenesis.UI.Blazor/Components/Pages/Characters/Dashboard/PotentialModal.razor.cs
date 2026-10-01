@@ -13,12 +13,6 @@ public partial class PotentialModal
     [Parameter] public List<PotentialPrerequisiteDto> PotentialPrerequisites { get; set; } = [];
 
     private HashSet<Guid> SelectedPrerequisiteIds { get; set; } = [];
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     protected override void OnParametersSet()
     {
@@ -44,7 +38,7 @@ public partial class PotentialModal
     {
         if (Potential.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/potentials", Potential);
+            var result = await Client!.PostAsJsonAsync("/potentials", Potential);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -55,7 +49,7 @@ public partial class PotentialModal
         }
         else
         {
-            var result = await _client.PutAsJsonAsync($"/potentials", Potential);
+            var result = await Client!.PutAsJsonAsync($"/potentials", Potential);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

@@ -13,13 +13,6 @@ public partial class VehicleModal
     [Parameter] public VehicleDto Vehicle { get; set; } = new();
     [Parameter] public List<CultDto> Cults { get; set; } = [];
     [Parameter] public List<VehicleTypeDto> VehicleTypes { get; set; } = new();
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
-
     protected override void OnParametersSet()
     {
         if (Vehicle.VehicleTypeId == Guid.Empty && VehicleTypes.Count > 0)
@@ -32,7 +25,7 @@ public partial class VehicleModal
     {
         if (Vehicle.Id == Guid.Empty)
         {
-           var result = await _client.PostAsJsonAsync("/vehicles", Vehicle);
+           var result = await Client!.PostAsJsonAsync("/vehicles", Vehicle);
             if(!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -43,7 +36,7 @@ public partial class VehicleModal
 
         else
         {
-            var result = await _client.PutAsJsonAsync($"/vehicles", Vehicle);
+            var result = await Client!.PutAsJsonAsync($"/vehicles", Vehicle);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

@@ -10,12 +10,6 @@ public partial class RoomCharacterSheet
 {
     [Parameter] public CharacterDisplayDto? Character { get; set; }
     [Parameter] public EventCallback OnRequestParentReload { get; set; }
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     private bool IsSkillDisabled(CharacterSkillDisplayDto characterSkill)
     {
@@ -122,7 +116,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await _client.PutAsJsonAsync($"/characters/xp/", new CharacterIntValueEditDto {Id = Character.Id, Value = Character.Experience });
+        var result = await Client!.PutAsJsonAsync($"/characters/xp/", new CharacterIntValueEditDto {Id = Character.Id, Value = Character.Experience });
 
         if (!result.IsSuccessStatusCode)
         {
@@ -135,7 +129,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await _client.PutAsJsonAsync($"/characters/chroniclermoney/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.ChroniclerMoney });
+        var result = await Client!.PutAsJsonAsync($"/characters/chroniclermoney/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.ChroniclerMoney });
 
         if (!result.IsSuccessStatusCode)
         {
@@ -148,7 +142,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await _client.PutAsJsonAsync($"/characters/dinar/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.DinarMoney });
+        var result = await Client!.PutAsJsonAsync($"/characters/dinar/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.DinarMoney });
 
         if (!result.IsSuccessStatusCode)
         {
@@ -161,7 +155,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await _client.PutAsJsonAsync($"/characters/permanent-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.PermanentSporeInfestation });
+        var result = await Client!.PutAsJsonAsync($"/characters/permanent-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.PermanentSporeInfestation });
 
         if (!result.IsSuccessStatusCode)
         {
@@ -176,7 +170,7 @@ public partial class RoomCharacterSheet
 
         Character.Ego = newValue;
 
-        var result = await _client.PutAsJsonAsync($"/characters/ego/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Ego });
+        var result = await Client!.PutAsJsonAsync($"/characters/ego/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Ego });
 
         if (!result.IsSuccessStatusCode)
         {
@@ -191,7 +185,7 @@ public partial class RoomCharacterSheet
 
         Character.CurrentSporeInfestation = newValue;
 
-        var result = await _client.PutAsJsonAsync($"/characters/current-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.CurrentSporeInfestation });
+        var result = await Client!.PutAsJsonAsync($"/characters/current-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.CurrentSporeInfestation });
 
         if (!result.IsSuccessStatusCode)
         {
@@ -206,7 +200,7 @@ public partial class RoomCharacterSheet
 
         Character.FleshWounds = newValue;
 
-        var result = await _client.PutAsJsonAsync($"/characters/fleshwounds/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.FleshWounds });
+        var result = await Client!.PutAsJsonAsync($"/characters/fleshwounds/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.FleshWounds });
 
         if (!result.IsSuccessStatusCode)
         {
@@ -221,7 +215,7 @@ public partial class RoomCharacterSheet
 
         Character.Trauma = newValue;
 
-        var result = await _client.PutAsJsonAsync($"/characters/trauma/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Trauma });
+        var result = await Client!.PutAsJsonAsync($"/characters/trauma/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Trauma });
 
         if (!result.IsSuccessStatusCode)
         {
@@ -243,7 +237,7 @@ public partial class RoomCharacterSheet
             Level = newValue
         };
 
-        var result = await _client.PutAsJsonAsync("/character-backgrounds/", updateDto);
+        var result = await Client!.PutAsJsonAsync("/character-backgrounds/", updateDto);
 
         if (!result.IsSuccessStatusCode)
         {
@@ -342,7 +336,7 @@ public partial class RoomCharacterSheet
             Level = attribute.Level
         };
 
-        var result = await _client.PutAsJsonAsync("/character-attributes/", updateDto);
+        var result = await Client!.PutAsJsonAsync("/character-attributes/", updateDto);
 
         if (!result.IsSuccessStatusCode)
             Snackbar.Add($"Error while updating {attribute.Name}", Severity.Error);
@@ -362,7 +356,7 @@ public partial class RoomCharacterSheet
             Level = skill.Level
         };
 
-        var result = await _client.PutAsJsonAsync("/character-skills/", updateDto);
+        var result = await Client!.PutAsJsonAsync("/character-skills/", updateDto);
 
         if (!result.IsSuccessStatusCode)
             Snackbar.Add($"Error while updating {skill.Name}", Severity.Error);
@@ -382,7 +376,7 @@ public partial class RoomCharacterSheet
             Level = potential.Level
         };
 
-        var result = await _client.PutAsJsonAsync("/character-potentials/", updateDto);
+        var result = await Client!.PutAsJsonAsync("/character-potentials/", updateDto);
 
         if (!result.IsSuccessStatusCode)
             Snackbar.Add($"Error while updating {potential.Name}", Severity.Error);
@@ -398,7 +392,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await _client.PutAsJsonAsync($"/characters/notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.Notes });
+        var result = await Client!.PutAsJsonAsync($"/characters/notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.Notes });
 
         if (!result.IsSuccessStatusCode)
         {
@@ -482,7 +476,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await _client.DeleteAsync($"/character-potentials/{Character.Id}/{characterPotentialId}");
+        var result = await Client!.DeleteAsync($"/character-potentials/{Character.Id}/{characterPotentialId}");
 
         if (!result.IsSuccessStatusCode)
         {

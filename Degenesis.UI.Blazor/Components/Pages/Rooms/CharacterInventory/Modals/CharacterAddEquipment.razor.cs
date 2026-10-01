@@ -16,7 +16,7 @@ public partial class CharacterAddEquipment
     private bool EquipmentsLoaded;
     private string SearchString { get; set; } = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
         _client = await HttpClientService.GetClientAsync();
         Equipments = await _client.GetFromJsonAsync<List<EquipmentDto>>("/equipments") ?? [];

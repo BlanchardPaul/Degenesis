@@ -14,13 +14,6 @@ public partial class PotentialPrerequisiteModal
     [Parameter] public List<BackgroundDto> Backgrounds { get; set; } = [];
     [Parameter] public List<RankDto> Ranks { get; set; } = [];
 
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
-
     private async Task SavePotentialPrerequisite()
     {
         // enforce flags and clear fields depending on type
@@ -52,7 +45,7 @@ public partial class PotentialPrerequisiteModal
 
         if (PotentialPrerequisite.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/potential-prerequisites", PotentialPrerequisite);
+            var result = await Client!.PostAsJsonAsync("/potential-prerequisites", PotentialPrerequisite);
             if (!result.IsSuccessStatusCode)
             {
                 Snackbar.Add("Error during creation", Severity.Error);
@@ -65,7 +58,7 @@ public partial class PotentialPrerequisiteModal
         }
         else
         {
-            var result = await _client.PutAsJsonAsync("/potential-prerequisites", PotentialPrerequisite);
+            var result = await Client!.PutAsJsonAsync("/potential-prerequisites", PotentialPrerequisite);
             if (!result.IsSuccessStatusCode)
             {
                 Snackbar.Add("Error during edition", Severity.Error);

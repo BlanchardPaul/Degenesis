@@ -19,7 +19,7 @@ public partial class WeaponModal
 
     private HttpClient _client = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
         SelectedCultIds = [.. Weapon.Cults.Select(c => c.Id)];
         _client = await HttpClientService.GetClientAsync();

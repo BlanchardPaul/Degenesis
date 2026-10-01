@@ -12,12 +12,6 @@ public partial class ProtectionModal
     [Parameter] public ProtectionDto Protection { get; set; } = new();
     [Parameter] public List<CultDto> Cults { get; set; } = [];
     private List<Guid> SelectedCultIds { get; set; } = [];
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     protected override void OnParametersSet()
     {
@@ -34,7 +28,7 @@ public partial class ProtectionModal
     {
         if (Protection.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/protections", Protection);
+            var result = await Client!.PostAsJsonAsync("/protections", Protection);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -45,7 +39,7 @@ public partial class ProtectionModal
         }
         else
         {
-            var result = await _client.PutAsJsonAsync("/protections", Protection);
+            var result = await Client!.PutAsJsonAsync("/protections", Protection);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

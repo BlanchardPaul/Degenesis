@@ -12,7 +12,7 @@ public partial class PotentialList
     private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
         _client = await HttpClientService.GetClientAsync();
         await LoadPotentials();

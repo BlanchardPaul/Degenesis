@@ -10,15 +10,9 @@ public partial class CultModal
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public CultDto Cult { get; set; } = new();
-    [Parameter] public List<SkillDto> Skills { get; set; } = new();
-    private HttpClient _client = new();
+    [Parameter] public List<SkillDto> Skills { get; set; } = [];
 
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
-
-    private List<Guid> SelectedBonusSkillIds { get; set; } = new();
+    private List<Guid> SelectedBonusSkillIds { get; set; } = [];
 
     protected override void OnParametersSet()
     {
@@ -37,7 +31,7 @@ public partial class CultModal
     {
         if (Cult.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/cults", Cult);
+            var result = await Client!.PostAsJsonAsync("/cults", Cult);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -49,7 +43,7 @@ public partial class CultModal
 
         else
         {
-            var result = await _client.PutAsJsonAsync($"/cults", Cult);
+            var result = await Client!.PutAsJsonAsync($"/cults", Cult);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

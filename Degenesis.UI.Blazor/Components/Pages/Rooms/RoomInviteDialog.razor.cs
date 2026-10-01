@@ -9,15 +9,9 @@ public partial class RoomInviteDialog
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public InvitationDto InvitationDto { get; set; } = new();
 
-    private HttpClient _client = new();
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
-
     private async Task Invite()
     {
-        var result = await _client.PostAsJsonAsync("/rooms/invite", InvitationDto);
+        var result = await Client!.PostAsJsonAsync("/rooms/invite", InvitationDto);
         if (result.IsSuccessStatusCode)
         {
             Snackbar.Add("Invitation sent", Severity.Success);

@@ -9,18 +9,12 @@ public partial class WeaponTypeModal
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public WeaponTypeDto WeaponType { get; set; } = new();
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     private async Task SaveWeaponType()
     {
         if (WeaponType.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync($"/weapon-types", WeaponType);
+            var result = await Client!.PostAsJsonAsync($"/weapon-types", WeaponType);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -31,7 +25,7 @@ public partial class WeaponTypeModal
         }
         else
         {
-            var result = await _client.PutAsJsonAsync($"/weapon-types", WeaponType);
+            var result = await Client!.PutAsJsonAsync($"/weapon-types", WeaponType);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

@@ -11,15 +11,12 @@ public partial class CharacterAddArtifact
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public CharacterDisplayDto Character { get; set; } = new();
     public List<ArtifactDto> Artifacts { get; set; } = [];
-
-    private HttpClient _client = new();
     private bool ArtifactsLoaded;
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
-        Artifacts = await _client.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
+        Artifacts = await Client!.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
         ArtifactsLoaded = true;
     }
 
@@ -31,7 +28,7 @@ public partial class CharacterAddArtifact
             return;
         }
 
-        var result = await _client.PostAsJsonAsync($"/character-artifacts/", new CharacterArtifactCreateDto {Id = Guid.NewGuid(), CharacterId = Character.Id, ArtifactId = artifactId });
+        var result = await Client!.PostAsJsonAsync($"/character-artifacts/", new CharacterArtifactCreateDto {Id = Guid.NewGuid(), CharacterId = Character.Id, ArtifactId = artifactId });
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error while adding character artifact", Severity.Error);
         else

@@ -9,17 +9,12 @@ public partial class VehicleTypeModal
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public VehicleTypeDto VehicleType { get; set; } = new();
-    private HttpClient _client = new();
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     private async Task SaveVehicleType()
     {
         if (VehicleType.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync($"/vehicle-types", VehicleType);
+            var result = await Client!.PostAsJsonAsync($"/vehicle-types", VehicleType);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -30,7 +25,7 @@ public partial class VehicleTypeModal
 
         else
         {
-            var result = await _client.PutAsJsonAsync($"/vehicle-types", VehicleType);
+            var result = await Client!.PutAsJsonAsync($"/vehicle-types", VehicleType);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

@@ -38,7 +38,7 @@ public partial class CreateCharacter
     private CharacterPotentialStep _potentialStep = default!;
     private CharacterBackgroundStep _characterBackgroundStep = default!;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
         Character.IdRoom = RoomId;
         _client = await HttpClientService.GetClientAsync();

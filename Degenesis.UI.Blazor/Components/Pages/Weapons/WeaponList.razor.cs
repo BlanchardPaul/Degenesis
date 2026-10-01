@@ -11,22 +11,20 @@ public partial class WeaponList
     private List<AttributeDto> Attributes = [];
     private List<SkillDto> Skills = [];
     private List<CultDto> Cults = [];
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadWeapons();
     }
 
     private async Task LoadWeapons()
     {
-        Weapons = await _client.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
-        WeaponTypes = await _client.GetFromJsonAsync<List<WeaponTypeDto>>("/weapon-types") ?? [];
-        Attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        Skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
-        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        Weapons = await Client!.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
+        WeaponTypes = await Client!.GetFromJsonAsync<List<WeaponTypeDto>>("/weapon-types") ?? [];
+        Attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        Skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -79,7 +77,7 @@ public partial class WeaponList
 
     private async Task DeleteWeapon(Guid weaponId)
     {
-        var result = await _client.DeleteAsync($"/weapons/{weaponId}");
+        var result = await Client!.DeleteAsync($"/weapons/{weaponId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

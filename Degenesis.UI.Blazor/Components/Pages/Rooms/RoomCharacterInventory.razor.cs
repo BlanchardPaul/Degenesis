@@ -16,12 +16,6 @@ public partial class RoomCharacterInventory
 {
     [Parameter] public CharacterDisplayDto? Character { get; set; }
     [Parameter] public EventCallback OnRequestParentReload { get; set; }
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     // Artifacts
     bool ExpandedArtifact = true;
@@ -52,7 +46,7 @@ public partial class RoomCharacterInventory
         if (Character is null)
             return;
 
-        var result = await _client.PutAsJsonAsync($"/character-artifacts/", CharacterArtifact);
+        var result = await Client!.PutAsJsonAsync($"/character-artifacts/", CharacterArtifact);
 
         if (!result.IsSuccessStatusCode)
         {
@@ -62,7 +56,7 @@ public partial class RoomCharacterInventory
 
     private async Task DeleteCharacterArtifact(Guid artifactId)
     {
-        var result = await _client.DeleteAsync($"/character-artifacts/{artifactId}");
+        var result = await Client!.DeleteAsync($"/character-artifacts/{artifactId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion", Severity.Error);
         else
@@ -101,7 +95,7 @@ public partial class RoomCharacterInventory
     {
         if (Character is null)
             return;
-        var result = await _client.PutAsJsonAsync($"/character-burns/", CharacterBurn);
+        var result = await Client!.PutAsJsonAsync($"/character-burns/", CharacterBurn);
         if (!result.IsSuccessStatusCode)
         {
             Snackbar.Add("Error while updating Burn", Severity.Error);
@@ -110,7 +104,7 @@ public partial class RoomCharacterInventory
 
     private async Task DeleteCharacterBurn(Guid burnId)
     {
-        var result = await _client.DeleteAsync($"/character-burns/{burnId}");
+        var result = await Client!.DeleteAsync($"/character-burns/{burnId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion", Severity.Error);
         else
@@ -152,7 +146,7 @@ public partial class RoomCharacterInventory
 
     private async Task DeleteCharacterEquipment(Guid equipmentId)
     {
-        var result = await _client.DeleteAsync($"/character-equipments/{equipmentId}");
+        var result = await Client!.DeleteAsync($"/character-equipments/{equipmentId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion", Severity.Error);
         else
@@ -197,7 +191,7 @@ public partial class RoomCharacterInventory
     {
         if (Character is null)
             return;
-        var result = await _client.PutAsJsonAsync($"/character-protections/", CharacterProtection);
+        var result = await Client!.PutAsJsonAsync($"/character-protections/", CharacterProtection);
         if (!result.IsSuccessStatusCode)
         {
             Snackbar.Add("Error while updating Protection", Severity.Error);
@@ -206,7 +200,7 @@ public partial class RoomCharacterInventory
 
     private async Task DeleteCharacterProtection(Guid protectionId)
     {
-        var result = await _client.DeleteAsync($"/character-protections/{protectionId}");
+        var result = await Client!.DeleteAsync($"/character-protections/{protectionId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion", Severity.Error);
         else
@@ -251,7 +245,7 @@ public partial class RoomCharacterInventory
     {
         if (Character is null)
             return;
-        var result = await _client.PutAsJsonAsync($"/character-vehicles/", CharacterVehicle);
+        var result = await Client!.PutAsJsonAsync($"/character-vehicles/", CharacterVehicle);
         if (!result.IsSuccessStatusCode)
         {
             Snackbar.Add("Error while updating Vehicle", Severity.Error);
@@ -260,7 +254,7 @@ public partial class RoomCharacterInventory
 
     private async Task DeleteCharacterVehicle(Guid vehicleId)
     {
-        var result = await _client.DeleteAsync($"/character-vehicles/{vehicleId }");
+        var result = await Client!.DeleteAsync($"/character-vehicles/{vehicleId }");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion", Severity.Error);
         else
@@ -333,7 +327,7 @@ public partial class RoomCharacterInventory
     {
         if (Character is null)
             return;
-        var result = await _client.PutAsJsonAsync($"/character-weapons/", CharacterWeapon);
+        var result = await Client!.PutAsJsonAsync($"/character-weapons/", CharacterWeapon);
         if (!result.IsSuccessStatusCode)
         {
             Snackbar.Add("Error while updating Weapon", Severity.Error);
@@ -342,7 +336,7 @@ public partial class RoomCharacterInventory
 
     private async Task DeleteCharacterWeapon(Guid weaponId)
     {
-        var result = await _client.DeleteAsync($"/character-weapons/{weaponId}");
+        var result = await Client!.DeleteAsync($"/character-weapons/{weaponId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion", Severity.Error);
         else
@@ -370,7 +364,7 @@ public partial class RoomCharacterInventory
         if (Character is null)
             return;
 
-        var result = await _client.PutAsJsonAsync($"/characters/inventory-notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.InventoryNotes });
+        var result = await Client!.PutAsJsonAsync($"/characters/inventory-notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.InventoryNotes });
 
         if (!result.IsSuccessStatusCode)
         {

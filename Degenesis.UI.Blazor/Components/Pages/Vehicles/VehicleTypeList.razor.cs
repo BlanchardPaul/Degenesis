@@ -6,18 +6,16 @@ namespace Degenesis.UI.Blazor.Components.Pages.Vehicles;
 public partial class VehicleTypeList
 {
     private List<VehicleTypeDto>? vehicleTypes;
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadVehicleTypes();
     }
 
     private async Task LoadVehicleTypes()
     {
-        vehicleTypes = await _client.GetFromJsonAsync<List<VehicleTypeDto>>("/vehicle-types") ?? [];
+        vehicleTypes = await Client!.GetFromJsonAsync<List<VehicleTypeDto>>("/vehicle-types") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -62,7 +60,7 @@ public partial class VehicleTypeList
 
     private async Task DeleteVehicleType(Guid vehicleTypeId)
     {
-        var result = await _client.DeleteAsync($"/vehicle-types/{vehicleTypeId}");
+        var result = await Client!.DeleteAsync($"/vehicle-types/{vehicleTypeId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

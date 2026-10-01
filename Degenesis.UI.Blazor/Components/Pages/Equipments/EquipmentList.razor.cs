@@ -9,20 +9,18 @@ public partial class EquipmentList
     private List<EquipmentDto>? Equipments;
     private List<EquipmentTypeDto> EquipmentTypes = [];
     private List<CultDto> Cults = [];
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadEquipments();
     }
 
     private async Task LoadEquipments()
     {
-        Equipments = await _client.GetFromJsonAsync<List<EquipmentDto>>("/equipments") ?? [];
-        EquipmentTypes = await _client.GetFromJsonAsync<List<EquipmentTypeDto>>("/equipment-types") ?? [];
-        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        Equipments = await Client!.GetFromJsonAsync<List<EquipmentDto>>("/equipments") ?? [];
+        EquipmentTypes = await Client!.GetFromJsonAsync<List<EquipmentTypeDto>>("/equipment-types") ?? [];
+        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -71,7 +69,7 @@ public partial class EquipmentList
 
     private async Task DeleteEquipment(Guid equipmentId)
     {
-        var result = await _client.DeleteAsync($"/equipments/{equipmentId}");
+        var result = await Client!.DeleteAsync($"/equipments/{equipmentId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
-public partial class RoomMapChat : ComponentBase, IAsyncDisposable
+public partial class RoomMapChat : IAsyncDisposable
 {
     [Parameter] public Guid IdRoom { get; set; }
 
@@ -18,7 +18,6 @@ public partial class RoomMapChat : ComponentBase, IAsyncDisposable
     private HubConnection? hubConnection;
     private string currentMessage = "";
     private string? userName;
-    private HttpClient _client = new();
 
     private class ChatMessage
     {
@@ -28,7 +27,7 @@ public partial class RoomMapChat : ComponentBase, IAsyncDisposable
 
     private List<ChatMessage> Messages = [];
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -41,8 +40,7 @@ public partial class RoomMapChat : ComponentBase, IAsyncDisposable
 
         userName = user.FindFirst("unique_name")?.Value;
 
-        _client = await AuthenticatedHttpClientService.GetClientAsync();
-        room = await _client.GetFromJsonAsync<RoomDisplayDto>($"/rooms/{IdRoom}");
+        room = await Client!.GetFromJsonAsync<RoomDisplayDto>($"/rooms/{IdRoom}");
 
         if (room is null || string.IsNullOrEmpty(userName) || !room.Players.Contains(userName) && room.GMName != userName)
         {

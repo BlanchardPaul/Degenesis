@@ -8,18 +8,12 @@ public partial class BurnModal
 {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public BurnDto Burn { get; set; } = new();
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     private async Task SaveBurn()
     {
         if (Burn.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/burns", Burn);
+            var result = await Client!.PostAsJsonAsync("/burns", Burn);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -31,7 +25,7 @@ public partial class BurnModal
 
         else
         {
-            var result = await _client.PutAsJsonAsync($"/burns", Burn);
+            var result = await Client!.PutAsJsonAsync($"/burns", Burn);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

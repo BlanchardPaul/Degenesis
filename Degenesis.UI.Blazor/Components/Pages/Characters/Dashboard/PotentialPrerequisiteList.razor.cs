@@ -10,22 +10,20 @@ public partial class PotentialPrerequisiteList
     private List<SkillDto> Skills = [];
     private List<BackgroundDto> Backgrounds = [];
     private List<RankDto> Ranks = [];
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadPotentialPrerequisites();
     }
 
     private async Task LoadPotentialPrerequisites()
     {
-        PotentialPrerequisites = await _client.GetFromJsonAsync<List<PotentialPrerequisiteDto>>("/potential-prerequisites") ?? [];
-        Attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        Skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
-        Backgrounds = await _client.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
-        Ranks = await _client.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
+        PotentialPrerequisites = await Client!.GetFromJsonAsync<List<PotentialPrerequisiteDto>>("/potential-prerequisites") ?? [];
+        Attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        Skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        Backgrounds = await Client!.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
+        Ranks = await Client!.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -78,7 +76,7 @@ public partial class PotentialPrerequisiteList
 
     private async Task DeletePotentialPrerequisite(Guid potentialPrerequisiteId)
     {
-        var result = await _client.DeleteAsync($"/potential-prerequisites/{potentialPrerequisiteId}");
+        var result = await Client!.DeleteAsync($"/potential-prerequisites/{potentialPrerequisiteId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion", Severity.Error);
         else

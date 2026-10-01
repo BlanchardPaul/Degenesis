@@ -9,18 +9,16 @@ public partial class CultList
 {
     private List<CultDto>? cults;
     private List<SkillDto> skills = [];
-    private HttpClient _client = new();
     private string SearchString = "";
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadCults();
     }
 
     private async Task LoadCults()
     {
-        cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
-        skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -57,7 +55,7 @@ public partial class CultList
 
     private async Task DeleteCult(Guid cultId)
     {
-        var result = await _client.DeleteAsync($"/cults/{cultId}");
+        var result = await Client!.DeleteAsync($"/cults/{cultId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

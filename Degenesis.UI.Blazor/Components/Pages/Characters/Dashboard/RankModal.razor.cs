@@ -14,12 +14,6 @@ public partial class RankModal
     [Parameter] public List<RankDto> Ranks { get; set; } = [];
     public List<RankDto> SortedRanks { get; set; } = [];
     private HashSet<Guid> SelectedPrerequisiteIds { get; set; } = [];
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     protected override void OnParametersSet()
     {
@@ -53,7 +47,7 @@ public partial class RankModal
     {
         if (Rank.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/ranks", Rank);
+            var result = await Client!.PostAsJsonAsync("/ranks", Rank);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -65,7 +59,7 @@ public partial class RankModal
 
         else
         {
-            var result = await _client.PutAsJsonAsync($"/ranks", Rank);
+            var result = await Client!.PutAsJsonAsync($"/ranks", Rank);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

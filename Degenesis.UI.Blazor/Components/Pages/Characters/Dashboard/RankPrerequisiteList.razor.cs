@@ -9,21 +9,19 @@ public partial class RankPrerequisiteList
     private List<AttributeDto> Attributes = [];
     private List<SkillDto> Skills = [];
     private List<BackgroundDto> Backgrounds  = [];
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadRankPrerequisites();
     }
 
     private async Task LoadRankPrerequisites()
     {
-        RankPrerequisites = await _client.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
-        Attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        Skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
-        Backgrounds = await _client.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
+        RankPrerequisites = await Client!.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
+        Attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        Skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        Backgrounds = await Client!.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -74,7 +72,7 @@ public partial class RankPrerequisiteList
 
     private async Task DeleteRankPrerequisite(Guid rankPrerequisiteId)
     {
-        var result = await _client.DeleteAsync($"/rank-prerequisites/{rankPrerequisiteId}");
+        var result = await Client!.DeleteAsync($"/rank-prerequisites/{rankPrerequisiteId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

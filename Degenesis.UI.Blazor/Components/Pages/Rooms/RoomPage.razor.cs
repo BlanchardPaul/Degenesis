@@ -7,17 +7,15 @@ public partial class RoomPage
 {
     [Parameter] public Guid IdRoom { get; set; }
     private CharacterDisplayDto? Character = null;
-    private HttpClient _client = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await ReloadCharacter();
     }
 
     private async Task ReloadCharacter()
     {
-        Character = await _client.GetFromJsonAsync<CharacterDisplayDto>($"/characters/{IdRoom}");
+        Character = await Client!.GetFromJsonAsync<CharacterDisplayDto>($"/characters/{IdRoom}");
         StateHasChanged();
     }
 }

@@ -9,20 +9,18 @@ public partial class VehicleList
     private List<VehicleDto>? Vehicle;
     private List<VehicleTypeDto> VehicleTypes = [];
     private List<CultDto> Cults = [];
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadVehicles();
     }
 
     private async Task LoadVehicles()
     {
-        Vehicle = await _client.GetFromJsonAsync<List<VehicleDto>>("/vehicles") ?? [];
-        VehicleTypes = await _client.GetFromJsonAsync<List<VehicleTypeDto>>("/vehicle-types") ?? [];
-        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        Vehicle = await Client!.GetFromJsonAsync<List<VehicleDto>>("/vehicles") ?? [];
+        VehicleTypes = await Client!.GetFromJsonAsync<List<VehicleTypeDto>>("/vehicle-types") ?? [];
+        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -71,7 +69,7 @@ public partial class VehicleList
 
     private async Task DeleteVehicle(Guid vehicleId)
     {
-        var result = await _client.DeleteAsync($"/vehicles/{vehicleId}");
+        var result = await Client!.DeleteAsync($"/vehicles/{vehicleId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

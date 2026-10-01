@@ -7,20 +7,18 @@ public partial class RankList
     private List<RankDto>? Ranks;
     private List<CultDto> Cults = [];
     private List<RankPrerequisiteDto> RankPrerequisites = [];
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadRanks();
     }
 
     private async Task LoadRanks()
     {
-        Ranks = await _client.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
-        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
-        RankPrerequisites = await _client.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
+        Ranks = await Client!.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
+        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        RankPrerequisites = await Client!.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -73,7 +71,7 @@ public partial class RankList
 
     private async Task DeleteRank(Guid rankId)
     {
-        var result = await _client.DeleteAsync($"/ranks/{rankId}");
+        var result = await Client!.DeleteAsync($"/ranks/{rankId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

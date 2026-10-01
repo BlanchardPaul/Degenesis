@@ -12,14 +12,12 @@ public partial class CharacterAddPotentialModal
     public List<PotentialDto> Potentials { get; set; } = [];
 
     private Guid SelectedPotentialId;
-    private HttpClient _client = new();
     private bool potentialsLoaded;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         List<Guid> ownedPotentialIds = [.. Character.Potentials.Select(p => p.PotentialId)];
-        Potentials = await _client.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
+        Potentials = await Client!.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
         Potentials = Potentials = [.. Potentials
         .Where(p => (p.CultId == Character.Cult.Id || p.CultId is null)
                     && !ownedPotentialIds.Contains(p.Id))];
@@ -95,7 +93,7 @@ public partial class CharacterAddPotentialModal
             return;
         }
 
-        var result = await _client.PostAsJsonAsync($"/character-potentials/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedPotentialId });
+        var result = await Client!.PostAsJsonAsync($"/character-potentials/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedPotentialId });
 
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error while adding character potential", Severity.Error);

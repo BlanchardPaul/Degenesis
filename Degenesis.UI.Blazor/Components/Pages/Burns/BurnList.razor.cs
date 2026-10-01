@@ -1,23 +1,22 @@
 ﻿using Degenesis.Shared.DTOs.Burns;
+using Degenesis.UI.Blazor.Extensions;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Burns;
 
-public partial class BurnList
+public partial class BurnList : AuthenticatedComponentBase
 {
     private List<BurnDto>? Burns;
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadBurns();
     }
 
     private async Task LoadBurns()
     {
-        Burns = await _client.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
+        Burns = await Client!.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -54,7 +53,7 @@ public partial class BurnList
 
     private async Task DeleteBurn(Guid burnId)
     {
-        var result = await _client.DeleteAsync($"/burns/{burnId}");
+        var result = await Client!.DeleteAsync($"/burns/{burnId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

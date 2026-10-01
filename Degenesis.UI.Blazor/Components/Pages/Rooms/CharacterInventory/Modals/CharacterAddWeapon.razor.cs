@@ -11,14 +11,12 @@ public partial class CharacterAddWeapon
     [Parameter] public CharacterDisplayDto Character { get; set; } = new();
     public List<WeaponDto> Weapons { get; set; } = [];
 
-    private HttpClient _client = new();
     private bool WeaponsLoaded;
     private string SearchString { get; set; } = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
-        Weapons = await _client.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
+        Weapons = await Client!.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
         WeaponsLoaded = true;
     }
 
@@ -29,7 +27,7 @@ public partial class CharacterAddWeapon
             Snackbar.Add("Please select a weapon first.", Severity.Warning);
             return;
         }
-        var result = await _client.PostAsJsonAsync($"/character-weapons/", new { CharacterId = Character.Id, WeaponId = weaponId });
+        var result = await Client!.PostAsJsonAsync($"/character-weapons/", new { CharacterId = Character.Id, WeaponId = weaponId });
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error while adding character weapon", Severity.Error);
         else

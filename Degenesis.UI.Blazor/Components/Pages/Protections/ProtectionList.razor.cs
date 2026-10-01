@@ -9,19 +9,17 @@ public partial class ProtectionList
 {
     private List<ProtectionDto>? protections;
     private List<CultDto> Cults = [];
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadProtections();
     }
 
     private async Task LoadProtections()
     {
-        protections = await _client.GetFromJsonAsync<List<ProtectionDto>>("/protections") ?? [];
-        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        protections = await Client!.GetFromJsonAsync<List<ProtectionDto>>("/protections") ?? [];
+        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -68,7 +66,7 @@ public partial class ProtectionList
 
     private async Task DeleteProtection(Guid protectionId)
     {
-        var result = await _client.DeleteAsync($"/protections/{protectionId}");
+        var result = await Client!.DeleteAsync($"/protections/{protectionId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

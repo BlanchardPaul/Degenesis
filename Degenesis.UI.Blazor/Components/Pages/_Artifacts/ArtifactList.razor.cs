@@ -1,23 +1,22 @@
 ﻿using Degenesis.Shared.DTOs._Artifacts;
+using Degenesis.UI.Blazor.Extensions;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages._Artifacts;
 
-public partial class ArtifactList
+public partial class ArtifactList : AuthenticatedComponentBase
 {
     private List<ArtifactDto>? Artifacts;
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadArtifacts();
     }
 
     private async Task LoadArtifacts()
     {
-        Artifacts = await _client.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
+        Artifacts = await Client!.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -54,7 +53,7 @@ public partial class ArtifactList
 
     private async Task DeleteArtifact(Guid artifactId)
     {
-        var result = await _client.DeleteAsync($"/artifacts/{artifactId}");
+        var result = await Client!.DeleteAsync($"/artifacts/{artifactId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else
@@ -72,4 +71,3 @@ public partial class ArtifactList
         return false;
     }
 }
-

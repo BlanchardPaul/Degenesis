@@ -13,13 +13,6 @@ public partial class RankPrerequisiteModal
     [Parameter] public List<SkillDto> Skills { get; set; } = [];
     [Parameter] public List<BackgroundDto> Backgrounds { get; set; } = [];
 
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
-
     protected override void OnParametersSet()
     {
         if (RankPrerequisite.AttributeRequiredId == Guid.Empty && Attributes.Count != 0)
@@ -44,7 +37,7 @@ public partial class RankPrerequisiteModal
 
         if (RankPrerequisite.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/rank-prerequisites", RankPrerequisite);
+            var result = await Client!.PostAsJsonAsync("/rank-prerequisites", RankPrerequisite);
             if (!result.IsSuccessStatusCode)
             {
                 Snackbar.Add("Error during creation", Severity.Error);
@@ -57,7 +50,7 @@ public partial class RankPrerequisiteModal
         }
         else
         {
-            var result = await _client.PutAsJsonAsync("/rank-prerequisites", RankPrerequisite);
+            var result = await Client!.PutAsJsonAsync("/rank-prerequisites", RankPrerequisite);
             if (!result.IsSuccessStatusCode)
             {
                 Snackbar.Add("Error during edition", Severity.Error);

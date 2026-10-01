@@ -1,6 +1,4 @@
-﻿using Degenesis.Shared.DTOs.Burns;
-using Degenesis.Shared.DTOs.Rooms;
-using Degenesis.UI.Blazor.Components.Pages.Burns;
+﻿using Degenesis.Shared.DTOs.Rooms;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -9,16 +7,14 @@ namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 public partial class RoomList
 {
     private List<RoomDisplayDto>? rooms;
-    private HttpClient _client = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadRooms();
     }
     private async Task LoadRooms()
     {
-        rooms = await _client.GetFromJsonAsync<List<RoomDisplayDto>>("/rooms") ?? [];
+        rooms = await Client!.GetFromJsonAsync<List<RoomDisplayDto>>("/rooms") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -69,7 +65,7 @@ public partial class RoomList
 
     private async Task AcceptInvitation(Guid roomId)
     {
-        var acceptResult = await _client.GetAsync($"/rooms/acceptinvite/{roomId}");
+        var acceptResult = await Client!.GetAsync($"/rooms/acceptinvite/{roomId}");
         if (!acceptResult.IsSuccessStatusCode)
         {
             Snackbar.Add("Acceptation failed", Severity.Error);
@@ -101,7 +97,7 @@ public partial class RoomList
 
     private async Task DeclineInvitation(Guid roomId)
     {
-        var acceptResult = await _client.GetAsync($"/rooms/declineinvite/{roomId}");
+        var acceptResult = await Client!.GetAsync($"/rooms/declineinvite/{roomId}");
         if (!acceptResult.IsSuccessStatusCode)
         {
             Snackbar.Add("Decline failed", Severity.Error);
@@ -115,7 +111,7 @@ public partial class RoomList
 
     private async Task DeleteRoom(Guid roomId)
     {
-        var deleteResult = await _client.DeleteAsync($"/rooms/{roomId}");
+        var deleteResult = await Client!.DeleteAsync($"/rooms/{roomId}");
         if (!deleteResult.IsSuccessStatusCode) {
             Snackbar.Add("Delete failed", Severity.Error);
             return;
@@ -155,7 +151,7 @@ public partial class RoomList
 
     private async Task DeleteCharacter(Guid roomId)
     {
-        var deleteResult = await _client.DeleteAsync($"/characters/{roomId}");
+        var deleteResult = await Client!.DeleteAsync($"/characters/{roomId}");
 
         if (!deleteResult.IsSuccessStatusCode)
         {

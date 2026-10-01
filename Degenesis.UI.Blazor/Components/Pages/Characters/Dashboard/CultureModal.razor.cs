@@ -16,12 +16,7 @@ public partial class CultureModal
     private HashSet<Guid> SelectedCultIds { get; set; } = [];
     private HashSet<Guid> SelectedAttributeIds { get; set; } = [];
     private HashSet<Guid> SelectedSkillIds { get; set; } = [];
-    private HttpClient _client = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
     protected override void OnParametersSet()
     {
         Culture.AvailableCults ??= [];
@@ -58,7 +53,7 @@ public partial class CultureModal
     {
         if (Culture.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/cultures", Culture);
+            var result = await Client!.PostAsJsonAsync("/cultures", Culture);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -70,7 +65,7 @@ public partial class CultureModal
 
         else
         {
-            var result = await _client.PutAsJsonAsync($"/cultures", Culture);
+            var result = await Client!.PutAsJsonAsync($"/cultures", Culture);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

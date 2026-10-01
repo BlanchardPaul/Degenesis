@@ -13,12 +13,6 @@ public partial class EquipmentModal
     [Parameter] public List<EquipmentTypeDto> EquipmentTypes { get; set; } = [];
     [Parameter] public List<CultDto> Cults { get; set; } = [];
     private List<Guid> SelectedCultIds { get; set; } = [];
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     protected override void OnParametersSet()
     {
@@ -41,7 +35,7 @@ public partial class EquipmentModal
     {
         if (Equipment.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/equipments", Equipment);
+            var result = await Client!.PostAsJsonAsync("/equipments", Equipment);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -52,7 +46,7 @@ public partial class EquipmentModal
         }
         else
         {
-            var result = await _client.PutAsJsonAsync("/equipments", Equipment);
+            var result = await Client!.PutAsJsonAsync("/equipments", Equipment);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

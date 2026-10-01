@@ -7,7 +7,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 @code {
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
         await ProtectedLocalStorage.DeleteAsync("authToken");
         var authStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;

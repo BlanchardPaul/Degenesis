@@ -8,17 +8,12 @@ public partial class ArtifactModal
 {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public ArtifactDto Artifact { get; set; } = new();
-    private HttpClient _client = new();
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     private async Task SaveArtifact()
     {
         if (Artifact.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/artifacts", Artifact);
+            var result = await Client!.PostAsJsonAsync("/artifacts", Artifact);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -29,7 +24,7 @@ public partial class ArtifactModal
         }
         else
         {
-            var result = await _client.PutAsJsonAsync($"/artifacts", Artifact);
+            var result = await Client!.PutAsJsonAsync($"/artifacts", Artifact);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

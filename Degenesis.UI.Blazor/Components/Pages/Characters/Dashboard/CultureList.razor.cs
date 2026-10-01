@@ -10,20 +10,18 @@ public partial class CultureList
     private List<CultDto> cults = [];
     private List<AttributeDto> attributes = [];
     private List<SkillDto> skills = [];
-    private HttpClient _client = new();
     private string SearchString = "";
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadCultures();
     }
 
     private async Task LoadCultures()
     {
-        cultures = await _client.GetFromJsonAsync<List<CultureDto>>("/cultures") ?? [];
-        cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
-        attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        cultures = await Client!.GetFromJsonAsync<List<CultureDto>>("/cultures") ?? [];
+        cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -74,7 +72,7 @@ public partial class CultureList
 
     private async Task DeleteCulture(Guid cultureId)
     {
-        var result = await _client.DeleteAsync($"/cultures/{cultureId}");
+        var result = await Client!.DeleteAsync($"/cultures/{cultureId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

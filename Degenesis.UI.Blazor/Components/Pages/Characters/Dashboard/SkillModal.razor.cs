@@ -10,12 +10,7 @@ public partial class SkillModal
 
     [Parameter] public SkillDto Skill { get; set; } = new();
     [Parameter] public List<AttributeDto> Attributes { get; set; } = [];
-    private HttpClient _client = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
     protected override void OnParametersSet()
     {
         if (Attributes.Count != 0 && Skill.CAttributeId == Guid.Empty)
@@ -28,7 +23,7 @@ public partial class SkillModal
     {
         if (Skill.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/skills", Skill);
+            var result = await Client!.PostAsJsonAsync("/skills", Skill);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -39,7 +34,7 @@ public partial class SkillModal
         }
         else
         {
-            var result = await _client.PutAsJsonAsync("/skills", Skill);
+            var result = await Client!.PutAsJsonAsync("/skills", Skill);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

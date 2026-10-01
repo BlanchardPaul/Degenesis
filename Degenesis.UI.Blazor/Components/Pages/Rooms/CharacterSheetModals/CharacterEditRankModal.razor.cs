@@ -12,12 +12,9 @@ public partial class CharacterEditRankModal
     private Guid SelectedRankId;
     public List<RankDto> Ranks { get; set; } = [];
 
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
-        Ranks = await _client.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
+        Ranks = await Client!.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
         Ranks = [.. Ranks.Where(r => r.CultId == Character.Cult.Id)];
     }
 
@@ -37,7 +34,7 @@ public partial class CharacterEditRankModal
             return;
         }
 
-        var result = await _client.PutAsJsonAsync($"/characters/rank/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedRankId });
+        var result = await Client!.PutAsJsonAsync($"/characters/rank/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedRankId });
 
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error while updating rank", Severity.Error);

@@ -12,14 +12,12 @@ public partial class CharacterAddBurn
     [Parameter] public CharacterDisplayDto Character { get; set; } = new();
     public List<BurnDto> Burns { get; set; } = [];
 
-    private HttpClient _client = new();
     private bool BurnsLoaded;
     private string SearchString { get; set; } = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
-        Burns = await _client.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
+        Burns = await Client!.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
         BurnsLoaded = true;
     }
 
@@ -31,7 +29,7 @@ public partial class CharacterAddBurn
             return;
         }
 
-        var result = await _client.PostAsJsonAsync($"/character-burns/", new CharacterBurnCreateDto { Id = Guid.NewGuid(), CharacterId = Character.Id, BurnId = burnId });
+        var result = await Client!.PostAsJsonAsync($"/character-burns/", new CharacterBurnCreateDto { Id = Guid.NewGuid(), CharacterId = Character.Id, BurnId = burnId });
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error while adding character burn", Severity.Error);
         else

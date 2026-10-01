@@ -6,18 +6,16 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 public partial class BackgroundList
 {
     private List<BackgroundDto>? backgrounds;
-    private HttpClient _client = new();
     private string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadBackgrounds();
     }
 
     private async Task LoadBackgrounds()
     {
-        backgrounds = await _client.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
+        backgrounds = await Client!.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -54,7 +52,7 @@ public partial class BackgroundList
 
     private async Task DeleteBackground(Guid backgroundId)
     {
-        var result = await _client.DeleteAsync($"/backgrounds/{backgroundId}");
+        var result = await Client!.DeleteAsync($"/backgrounds/{backgroundId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else

@@ -10,16 +10,9 @@ public partial class CharacterEditInfosModal
 
     [Parameter] public CharacterBasicInfosEditDto CharacterInfos { get; set; } = new();
 
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
-
     private async Task SaveCharacterInfos()
     {
-        var result = await _client.PutAsJsonAsync("/characters/basic-infos", CharacterInfos);
+        var result = await Client!.PutAsJsonAsync("/characters/basic-infos", CharacterInfos);
 
         if (!result.IsSuccessStatusCode)
         {

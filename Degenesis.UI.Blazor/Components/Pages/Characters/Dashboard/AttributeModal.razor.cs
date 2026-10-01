@@ -8,18 +8,12 @@ public partial class AttributeModal
 {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public AttributeDto Attribute { get; set; } = new();
-    private HttpClient _client = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     private async Task SaveAttribute()
     {
         if (Attribute.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/attributes", Attribute);
+            var result = await Client!.PostAsJsonAsync("/attributes", Attribute);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -31,7 +25,7 @@ public partial class AttributeModal
 
         else
         {
-            var result = await _client.PutAsJsonAsync($"/attributes", Attribute);
+            var result = await Client!.PutAsJsonAsync($"/attributes", Attribute);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

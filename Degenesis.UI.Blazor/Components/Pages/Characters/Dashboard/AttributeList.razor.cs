@@ -6,18 +6,16 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 public partial class AttributeList
 {
     private List<AttributeDto>? attributes;
-    private HttpClient _client = new();
     string SearchString = "";
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadAttributes();
     }
 
     private async Task LoadAttributes()
     {
-        attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -54,7 +52,7 @@ public partial class AttributeList
 
     private async Task DeleteAttribute(Guid attributeId)
     {
-        var result = await _client.DeleteAsync($"/attributes/{attributeId}");
+        var result = await Client!.DeleteAsync($"/attributes/{attributeId}");
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else
