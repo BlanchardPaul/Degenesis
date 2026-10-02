@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <DialogContent>
-        @if (!potentialsLoaded)
+        @if (Potentials is null)
         {
             <MudText Color="Color.Error">Loading potentials...</MudText>
             <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />

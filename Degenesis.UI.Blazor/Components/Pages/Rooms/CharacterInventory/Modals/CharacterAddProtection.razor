@@ -1,7 +1,7 @@
 ﻿@using Degenesis.Shared.DTOs.Protections
 <MudDialog>
     <DialogContent>
-        @if (!ProtectionsLoaded)
+        @if (Protections is null)
         {
             <MudText Color="Color.Primary">Loading Protections.</MudText>
             <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />

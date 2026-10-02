@@ -9,15 +9,13 @@ public partial class CharacterAddWeapon
 {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public CharacterDisplayDto Character { get; set; } = new();
-    public List<WeaponDto> Weapons { get; set; } = [];
+    public List<WeaponDto>? Weapons { get; set; }
 
-    private bool WeaponsLoaded;
     private string SearchString { get; set; } = "";
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         Weapons = await Client!.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
-        WeaponsLoaded = true;
     }
 
     private async Task AddCharacterWeapon(Guid weaponId)

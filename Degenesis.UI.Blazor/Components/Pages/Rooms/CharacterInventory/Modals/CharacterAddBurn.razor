@@ -1,7 +1,7 @@
 ﻿@using Degenesis.Shared.DTOs.Burns
 <MudDialog>
     <DialogContent>
-        @if (!BurnsLoaded)
+        @if (Burns is null)
         {
             <MudText Color="Color.Primary">Loading Burns.</MudText>
             <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />

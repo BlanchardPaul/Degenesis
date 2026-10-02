@@ -9,10 +9,9 @@ public partial class CharacterAddPotentialModal
 {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public CharacterDisplayDto Character { get; set; } = new();
-    public List<PotentialDto> Potentials { get; set; } = [];
+    public List<PotentialDto>? Potentials { get; set; }
 
     private Guid SelectedPotentialId;
-    private bool potentialsLoaded;
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
@@ -21,7 +20,6 @@ public partial class CharacterAddPotentialModal
         Potentials = Potentials = [.. Potentials
         .Where(p => (p.CultId == Character.Cult.Id || p.CultId is null)
                     && !ownedPotentialIds.Contains(p.Id))];
-        potentialsLoaded = true;
     }
 
     private bool IsPotentialDisabled(PotentialDto potential)

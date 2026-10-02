@@ -1,7 +1,7 @@
 ﻿@using Degenesis.Shared.DTOs._Artifacts
 <MudDialog>
     <DialogContent>
-        @if (!ArtifactsLoaded)
+        @if (Artifacts is null)
         {
             <MudText Color="Color.Primary">Loading Artifacts.</MudText>
             <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />

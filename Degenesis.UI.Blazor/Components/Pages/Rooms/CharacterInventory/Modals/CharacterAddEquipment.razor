@@ -1,7 +1,7 @@
 ﻿@using Degenesis.Shared.DTOs.Equipments
 <MudDialog>
     <DialogContent>
-        @if (!EquipmentsLoaded)
+        @if (Equipments is null)
         {
             <MudText Color="Color.Primary">Loading Equipments.</MudText>
             <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />

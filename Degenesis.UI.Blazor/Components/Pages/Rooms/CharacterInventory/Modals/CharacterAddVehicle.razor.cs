@@ -12,14 +12,12 @@ public partial class CharacterAddVehicle
     public List<VehicleDto> Vehicles { get; set; } = [];
 
     private HttpClient _client = new();
-    private bool VehiclesLoaded;
     private string SearchString { get; set; } = "";
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         _client = await HttpClientService.GetClientAsync();
         Vehicles = await _client.GetFromJsonAsync<List<VehicleDto>>("/vehicles") ?? [];
-        VehiclesLoaded = true;
     }
 
     private async Task AddCharacterVehicle(Guid vehicleId)

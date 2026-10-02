@@ -10,14 +10,12 @@ public partial class CharacterAddArtifact
 {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public CharacterDisplayDto Character { get; set; } = new();
-    public List<ArtifactDto> Artifacts { get; set; } = [];
-    private bool ArtifactsLoaded;
+    public List<ArtifactDto>? Artifacts { get; set; }
     private string SearchString = "";
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         Artifacts = await Client!.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
-        ArtifactsLoaded = true;
     }
 
     private async Task AddCharacterArtifact(Guid artifactId)

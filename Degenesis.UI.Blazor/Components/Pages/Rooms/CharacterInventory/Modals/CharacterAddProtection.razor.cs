@@ -10,14 +10,12 @@ public partial class CharacterAddProtection
 {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public CharacterDisplayDto Character { get; set; } = new();
-    public List<ProtectionDto> Protections { get; set; } = [];
-    private bool ProtectionsLoaded;
+    public List<ProtectionDto>? Protections { get; set; }
     private string SearchString { get; set; } = "";
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         Protections = await Client!.GetFromJsonAsync<List<ProtectionDto>>("/protections") ?? [];
-        ProtectionsLoaded = true;
     }
 
     private async Task AddCharacterProtection(Guid protectionId)

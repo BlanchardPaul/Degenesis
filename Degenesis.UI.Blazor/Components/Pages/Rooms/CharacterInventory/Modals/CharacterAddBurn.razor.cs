@@ -10,15 +10,12 @@ public partial class CharacterAddBurn
 {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public CharacterDisplayDto Character { get; set; } = new();
-    public List<BurnDto> Burns { get; set; } = [];
-
-    private bool BurnsLoaded;
+    public List<BurnDto>? Burns { get; set; }
     private string SearchString { get; set; } = "";
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         Burns = await Client!.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
-        BurnsLoaded = true;
     }
 
     private async Task AddCharacterBurn(Guid burnId)
