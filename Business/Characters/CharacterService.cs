@@ -45,6 +45,7 @@ public class CharacterService : ICharacterService
     {
         var user = await _userManager.FindByNameAsync(userName) ?? throw new Exception("User not found");
         var character = await _context.Characters
+            .AsSplitQuery()
             .Include(c => c.Cult)
             .Include(c => c.Culture)
             .Include(c => c.Concept)
