@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Weapons;
 using MudBlazor;
 
@@ -20,11 +21,50 @@ public partial class WeaponList
 
     private async Task LoadWeapons()
     {
-        Weapons = await Client!.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
-        WeaponTypes = await Client!.GetFromJsonAsync<List<WeaponTypeDto>>("/weapon-types") ?? [];
-        Attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        Skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
-        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        var weaponResult = await Client!.GetFromJsonAsync<Result<List<WeaponDto>>>("/weapons") ?? new Result<List<WeaponDto>> { IsError = true, Error = "Unknown error" };
+        if (weaponResult.IsError)
+        {
+            Snackbar.Add($"Error loading weapons : {weaponResult.Error}", Severity.Error);
+            Weapons = [];
+        }
+        else
+            Weapons = weaponResult.Value ?? [];
+
+        var weaponTypeResult = await Client!.GetFromJsonAsync<Result<List<WeaponTypeDto>>>("/weapon-types") ?? new Result<List<WeaponTypeDto>> { IsError = true, Error = "Unknown error" };
+        if (weaponTypeResult.IsError)
+        {
+            Snackbar.Add($"Error loading weapon types: {weaponTypeResult.Error}", Severity.Error);
+            WeaponTypes = [];
+        }
+        else
+            WeaponTypes = weaponTypeResult.Value ?? [];
+
+        var attributeResult = await Client!.GetFromJsonAsync<Result<List<AttributeDto>>>("/attributes") ?? new Result<List<AttributeDto>> { IsError = true, Error = "Unknown error" };
+        if (attributeResult.IsError)
+        {
+            Snackbar.Add($"Error loading attributes: {attributeResult.Error}", Severity.Error);
+            Attributes = [];
+        }
+        else
+            Attributes = attributeResult.Value ?? [];
+
+        var skillResult = await Client!.GetFromJsonAsync<Result<List<SkillDto>>>("/skills") ?? new Result<List<SkillDto>> { IsError = true, Error = "Unknown error" };
+        if (skillResult.IsError)
+        {
+            Snackbar.Add($"Error loading skills: {skillResult.Error}", Severity.Error);
+            Skills = [];
+        }
+        else
+            Skills = skillResult.Value ?? [];
+
+        var cultResult = await Client!.GetFromJsonAsync<Result<List<CultDto>>>("/cults") ?? new Result<List<CultDto>> { IsError = true, Error = "Unknown error" };
+        if (cultResult.IsError)
+        {
+            Snackbar.Add($"Error loading cults: {cultResult.Error}", Severity.Error);
+            Cults = [];
+        }
+        else
+            Cults = cultResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -77,9 +117,12 @@ public partial class WeaponList
 
     private async Task DeleteWeapon(Guid weaponId)
     {
-        var result = await Client!.DeleteAsync($"/weapons/{weaponId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/weapons/{weaponId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
             Snackbar.Add("Deleted", Severity.Success);
         await LoadWeapons();

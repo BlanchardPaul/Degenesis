@@ -1,4 +1,5 @@
 ﻿using Business.Vehicles;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Vehicles;
 
 namespace API.Endpoints.Vehicles;
@@ -11,32 +12,32 @@ public static class VehicleEndpoints
 
         group.MapGet("/", async (IVehicleService service) =>
         {
-            var vehicles = await service.GetAllVehiclesAsync();
-            return Results.Ok(vehicles);
+            var result = await service.GetAllVehiclesAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IVehicleService service) =>
         {
-            var vehicle = await service.GetVehicleByIdAsync(id);
-            return vehicle is not null ? Results.Ok(vehicle) : Results.NotFound();
+            var result = await service.GetVehicleByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (VehicleCreateDto vehicle, IVehicleService service) =>
         {
-            var created = await service.CreateVehicleAsync(vehicle);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateVehicleAsync(vehicle);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (VehicleDto vehicle, IVehicleService service) =>
         {
-            var success = await service.UpdateVehicleAsync(vehicle);
-            return success ? Results.Ok() : Results.NotFound();
+            var result = await service.UpdateVehicleAsync(vehicle);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IVehicleService service) =>
         {
-            var success = await service.DeleteVehicleAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteVehicleAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

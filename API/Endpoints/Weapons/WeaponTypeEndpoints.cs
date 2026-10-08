@@ -1,4 +1,5 @@
 ﻿using Business.Weapons;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Weapons;
 
 namespace API.Endpoints.Weapons;
@@ -11,32 +12,32 @@ public static class WeaponTypeEndpoints
 
         group.MapGet("/{id}", async (IWeaponTypeService service, Guid id) =>
         {
-            var weaponType = await service.GetWeaponTypeByIdAsync(id);
-            return weaponType is not null ? Results.Ok(weaponType) : Results.NotFound();
+            var result = await service.GetWeaponTypeByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/", async (IWeaponTypeService service) =>
         {
-            var weaponTypes = await service.GetAllWeaponTypesAsync();
-            return Results.Ok(weaponTypes);
+            var result = await service.GetAllWeaponTypesAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (IWeaponTypeService service, WeaponTypeCreateDto weaponType) =>
         {
-            var created = await service.CreateWeaponTypeAsync(weaponType);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateWeaponTypeAsync(weaponType);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (IWeaponTypeService service, WeaponTypeDto weaponType) =>
         {
-            var updatedWeaponType = await service.UpdateWeaponTypeAsync(weaponType);
-            return updatedWeaponType ? Results.NoContent() : Results.NotFound();
+            var result = await service.UpdateWeaponTypeAsync(weaponType);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id}", async (IWeaponTypeService service, Guid id) =>
         {
-            var success = await service.DeleteWeaponTypeAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteWeaponTypeAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

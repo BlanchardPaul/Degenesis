@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Weapons;
-using Domain.Equipments;
 using Domain.Weapons;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,37 +9,39 @@ namespace Business.Weapons;
 
 public interface IWeaponService
 {
-    Task<List<WeaponDto>> GetAllWeaponsAsync();
-    Task<WeaponDto?> GetWeaponByIdAsync(Guid id);
-    Task<WeaponDto?> CreateWeaponAsync(WeaponCreateDto weaponCreate);
-    Task<bool> UpdateWeaponAsync(WeaponDto weapon);
-    Task<bool> DeleteWeaponAsync(Guid id);
+    Task<Result<List<WeaponDto>>> GetAllWeaponsAsync();
+    Task<Result<WeaponDto>> GetWeaponByIdAsync(Guid id);
+    Task<Result<object>> CreateWeaponAsync(WeaponCreateDto weaponCreate);
+    Task<Result<object>> UpdateWeaponAsync(WeaponDto weapon);
+    Task<Result<object>> DeleteWeaponAsync(Guid id);
 }
 
-public class WeaponService : IWeaponService
+public class WeaponService(ApplicationDbContext context, IMapper mapper) : IWeaponService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
-    public WeaponService(ApplicationDbContext context, IMapper mapper)
+    public async Task<Result<List<WeaponDto>>> GetAllWeaponsAsync()
     {
-        _context = context;
-        _mapper = mapper;
+        try
+        {
+            var weapons = await _context.Weapons
+                .Include(w => w.WeaponType)
+                .Include(w => w.Attribute)
+                .Include(w => w.Skill)
+                .Include(w => w.Cults)
+                .OrderBy(w => w.Name)
+                .ToListAsync();
+            return new Result<List<WeaponDto>> { Value = _mapper.Map<List<WeaponDto>>(weapons) };
+        }
+        catch (Exception)
+        {
+            return new Result<List<WeaponDto>> { IsError = true, Error = "A server error occurred" };
+        }
+
     }
 
-    public async Task<List<WeaponDto>> GetAllWeaponsAsync()
-    {
-        var weapons = await _context.Weapons
-            .Include(w => w.WeaponType)
-            .Include(w => w.Attribute)
-            .Include(w => w.Skill)
-            .Include(w => w.Cults)
-            .OrderBy(w => w.Name)
-            .ToListAsync();
-        return _mapper.Map<List<WeaponDto>>(weapons);
-    }
-
-    public async Task<WeaponDto?> GetWeaponByIdAsync(Guid id)
+    public async Task<Result<WeaponDto>> GetWeaponByIdAsync(Guid id)
     {
         try
         {
@@ -48,52 +50,67 @@ public class WeaponService : IWeaponService
                 .Include(w => w.Attribute)
                 .Include(w => w.Skill)
                 .Include(e => e.Cults)
-                .FirstOrDefaultAsync(w => w.Id == id)
-                ?? throw new Exception("Weapon not found");
-            return _mapper.Map<WeaponDto>(weapon);
+                .FirstOrDefaultAsync(w => w.Id == id);
+            if (weapon is null)
+                return new Result<WeaponDto> { IsError = true, Error = "Weapon not found" };
+
+            return new Result<WeaponDto> { Value = _mapper.Map<WeaponDto>(weapon) };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<WeaponDto> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<WeaponDto?> CreateWeaponAsync(WeaponCreateDto weaponCreate)
+    public async Task<Result<object>> CreateWeaponAsync(WeaponCreateDto weaponCreate)
     {
         try
         {
             var weapon = _mapper.Map<Weapon>(weaponCreate);
 
-            weapon.WeaponType = await _context.WeaponTypes
-                .FirstOrDefaultAsync(wt => wt.Id == weaponCreate.WeaponTypeId)
-                ?? throw new Exception("WeaponType not found");
+            var weaponType = await _context.WeaponTypes
+                .FirstOrDefaultAsync(wt => wt.Id == weaponCreate.WeaponTypeId);
+            if (weaponType is null)
+                return new Result<object> { IsError = true, Error = "Weapon Type not found" };
+            weapon.WeaponType = weaponType;
 
             if(weaponCreate.AttributeId is not null)
-                weapon.Attribute = await _context.Attributes.FindAsync(weaponCreate.AttributeId.Value)
-                    ?? throw new Exception("WeaponAttribute not found");
+            {
+                var attribute = await _context.Attributes.FindAsync(weaponCreate.AttributeId.Value);
+                if (attribute is null)
+                    return new Result<object> { IsError = true, Error = "Attribute not found" };
+                weapon.Attribute = attribute;
+            }
 
             if (weaponCreate.SkillId is not null)
-                weapon.Skill = await _context.Skills.FindAsync(weaponCreate.SkillId.Value)
-                    ?? throw new Exception("WeaponSkill not found");
+            {
+                var skill = await _context.Skills.FindAsync(weaponCreate.SkillId.Value);
+                if (skill is null)
+                    return new Result<object> { IsError = true, Error = "Attribute not found" };
+                weapon.Skill = skill;
+            }
+
 
             foreach (var cultDto in weaponCreate.Cults)
             {
                 var cult = await _context.Cults
-                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id);
+                if (cult is null)
+                    return new Result<object> { IsError = true, Error = "Cult not found" };
                 weapon.Cults.Add(cult);
             }
 
             _context.Weapons.Add(weapon);
             await _context.SaveChangesAsync();
-            return _mapper.Map<WeaponDto>(weapon);
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> UpdateWeaponAsync(WeaponDto weaponDto)
+    public async Task<Result<object>> UpdateWeaponAsync(WeaponDto weaponDto)
     {
         try
         {
@@ -102,60 +119,74 @@ public class WeaponService : IWeaponService
                 .Include(w => w.Attribute)
                 .Include(w => w.Skill)
                 .Include(e => e.Cults)
-                .FirstOrDefaultAsync(w => w.Id == weaponDto.Id)
-                ?? throw new Exception("Weapon not found");
+                .FirstOrDefaultAsync(w => w.Id == weaponDto.Id);
+            if (existingWeapon is null)
+                return new Result<object> { IsError = true, Error = "Weapon not found" };
 
             _mapper.Map(weaponDto, existingWeapon);
 
-            existingWeapon.WeaponType = await _context.WeaponTypes
-                .FirstOrDefaultAsync(wt => wt.Id == weaponDto.WeaponTypeId)
-                ?? throw new Exception("WeaponType not found");
-
+            var weaponType = await _context.WeaponTypes
+                .FirstOrDefaultAsync(wt => wt.Id == weaponDto.WeaponTypeId);
+            if (weaponType is null)
+                return new Result<object> { IsError = true, Error = "Weapon Type not found" };
+            existingWeapon.WeaponType = weaponType;
 
             if (weaponDto.AttributeId is not null)
-                existingWeapon.Attribute = await _context.Attributes.FindAsync(weaponDto.AttributeId)
-                    ?? throw new Exception("WeaponAttribute not found");
+            {
+                var attribute = await _context.Attributes.FindAsync(weaponDto.AttributeId.Value);
+                if (attribute is null)
+                    return new Result<object> { IsError = true, Error = "Attribute not found" };
+                existingWeapon.Attribute = attribute;
+            }
             else
                 existingWeapon.Attribute = null;
 
             if (weaponDto.SkillId is not null)
-                existingWeapon.Skill = await _context.Skills.FindAsync(weaponDto.SkillId)
-                    ?? throw new Exception("WeaponSkill not found");
+            {
+                var skill = await _context.Skills.FindAsync(weaponDto.SkillId.Value);
+                if (skill is null)
+                    return new Result<object> { IsError = true, Error = "Attribute not found" };
+                existingWeapon.Skill = skill;
+            }
             else
                 existingWeapon.Skill = null;
+
 
             existingWeapon.Cults.Clear();
             foreach (var cultDto in weaponDto.Cults)
             {
                 var cult = await _context.Cults
-                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                  .FirstOrDefaultAsync(c => c.Id == cultDto.Id);
+                if (cult is null)
+                    return new Result<object> { IsError = true, Error = "Cult not found" };
                 existingWeapon.Cults.Add(cult);
             }
 
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> DeleteWeaponAsync(Guid id)
+    public async Task<Result<object>> DeleteWeaponAsync(Guid id)
     {
         try
         {
             var weapon = await _context.Weapons
-                .FirstOrDefaultAsync(w => w.Id == id)
-                ?? throw new Exception("Weapon not found");
+                .FirstOrDefaultAsync(w => w.Id == id);
+            if (weapon is null)
+                return new Result<object> { IsError = true, Error = "Weapon not found" };
 
             _context.Weapons.Remove(weapon);
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

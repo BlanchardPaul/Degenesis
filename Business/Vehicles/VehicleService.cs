@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Vehicles;
 using Domain.Vehicles;
 using Microsoft.EntityFrameworkCore;
@@ -7,102 +9,116 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Vehicles;
 public interface IVehicleService
 {
-    Task<List<VehicleDto>> GetAllVehiclesAsync();
-    Task<VehicleDto?> GetVehicleByIdAsync(Guid id);
-    Task<VehicleDto?> CreateVehicleAsync(VehicleCreateDto vehicleCreate);
-    Task<bool> UpdateVehicleAsync(VehicleDto vehicle);
-    Task<bool> DeleteVehicleAsync(Guid id);
+    Task<Result<List<VehicleDto>>> GetAllVehiclesAsync();
+    Task<Result<VehicleDto>> GetVehicleByIdAsync(Guid id);
+    Task<Result<object>> CreateVehicleAsync(VehicleCreateDto vehicleCreate);
+    Task<Result<object>> UpdateVehicleAsync(VehicleDto vehicle);
+    Task<Result<object>> DeleteVehicleAsync(Guid id);
 }
 
-public class VehicleService : IVehicleService
+public class VehicleService(ApplicationDbContext context, IMapper mapper) : IVehicleService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
-    public VehicleService(ApplicationDbContext context, IMapper mapper)
+    public async Task<Result<List<VehicleDto>>> GetAllVehiclesAsync()
     {
-        _context = context;
-        _mapper = mapper;
+        try
+        {
+            var vehicles = await _context.Vehicles
+                .Include(v => v.VehicleType)
+                .Include(p => p.Cult)
+                .OrderBy(v => v.Name)
+                .ToListAsync();
+            return new Result<List<VehicleDto>> { Value = _mapper.Map<List<VehicleDto>>(vehicles) };
+        }
+        catch (Exception)
+        {
+            return new Result<List<VehicleDto>> { IsError = true, Error = "A server error occurred" };
+        }
+
     }
 
-    public async Task<List<VehicleDto>> GetAllVehiclesAsync()
-    {
-        var vehicles = await _context.Vehicles
-            .Include(v => v.VehicleType)
-            .Include(p => p.Cult)
-            .OrderBy(v => v.Name)
-            .ToListAsync();
-        return _mapper.Map<List<VehicleDto>>(vehicles);
-    }
-
-    public async Task<VehicleDto?> GetVehicleByIdAsync(Guid id)
+    public async Task<Result<VehicleDto>> GetVehicleByIdAsync(Guid id)
     {
         try
         {
             var vehicle = await _context.Vehicles
             .Include(v => v.VehicleType)
             .Include(p => p.Cult)
-            .FirstOrDefaultAsync(v => v.Id == id)
-            ?? throw new Exception("Vehicle not found");
+            .FirstOrDefaultAsync(v => v.Id == id);
+            if (vehicle is null)
+                return new Result<VehicleDto> { IsError = true , Error = "Vehicle not found" };
 
-            return _mapper.Map<VehicleDto>(vehicle);
+            return new Result<VehicleDto> { Value = _mapper.Map<VehicleDto>(vehicle) };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<VehicleDto> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<VehicleDto?> CreateVehicleAsync(VehicleCreateDto vehicleCreate)
+    public async Task<Result<object>> CreateVehicleAsync(VehicleCreateDto vehicleCreate)
     {
         try
         {
             var vehicle = _mapper.Map<Vehicle>(vehicleCreate);
-            vehicle.VehicleType = await _context.VehicleTypes
-                .FirstOrDefaultAsync(vt => vt.Id == vehicleCreate.VehicleTypeId)
-                ?? throw new Exception("VehicleType not found");
+
+            var vehicleType = await _context.VehicleTypes
+                .FirstOrDefaultAsync(vt => vt.Id == vehicleCreate.VehicleTypeId);
+            if (vehicleType is null)
+                return new Result<object> { IsError = true , Error = "Vehicle Type not found"};
+
+            vehicle.VehicleType = vehicleType;
 
             if (vehicleCreate.CultId is not null && vehicleCreate.CultId != Guid.Empty)
             {
-                vehicle.Cult = await _context.Cults
-                    .FirstOrDefaultAsync(c => c.Id == vehicleCreate.CultId)
-                    ?? throw new Exception("Cult not found");
+                var cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == vehicleCreate.CultId);
+                if (cult is null)
+                    return new Result<object> { IsError = true, Error = "Cult not found" };
+                vehicle.Cult = cult;
             }
             else
-            {
                 vehicle.Cult = null;
-            }
 
             _context.Vehicles.Add(vehicle);
             await _context.SaveChangesAsync();
-            return _mapper.Map<VehicleDto>(vehicle);
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> UpdateVehicleAsync(VehicleDto vehicleDto)
+    public async Task<Result<object>> UpdateVehicleAsync(VehicleDto vehicleDto)
     {
         try
         {
             var existingVehicle = await _context.Vehicles
                 .Include(v => v.VehicleType)
                 .Include(p => p.Cult)
-                .FirstOrDefaultAsync(v => v.Id == vehicleDto.Id)
-                ?? throw new Exception("Vehicle not found");
+                .FirstOrDefaultAsync(v => v.Id == vehicleDto.Id);
+            if (existingVehicle is null)
+                return new Result<object> { IsError = true, Error = "Vehicle not found" };
 
             _mapper.Map(vehicleDto, existingVehicle);
-            existingVehicle.VehicleType = await _context.VehicleTypes
-                .FirstOrDefaultAsync(vt => vt.Id == vehicleDto.VehicleType.Id)
-                ?? throw new Exception("VehicleType not found");
+
+            var vehicleType = await _context.VehicleTypes
+                .FirstOrDefaultAsync(vt => vt.Id == vehicleDto.VehicleType.Id);
+            if (vehicleType is null)
+                return new Result<object> { IsError = true, Error = "Vehicle Type not found" };
+            existingVehicle.VehicleType = vehicleType;
+
 
             if (vehicleDto.CultId is not null)
             {
-                existingVehicle.Cult = await _context.Cults
-                    .FirstOrDefaultAsync(c => c.Id == vehicleDto.CultId)
-                    ?? throw new Exception("Cult not found");
+                var cult = await _context.Cults
+                    .FirstOrDefaultAsync(c => c.Id == vehicleDto.CultId);
+                if (cult is null)
+                    return new Result<object> { IsError = true, Error = "Cult not found" };
+                existingVehicle.Cult = cult;
             }
             else
             {
@@ -111,30 +127,31 @@ public class VehicleService : IVehicleService
             }
 
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception) {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> DeleteVehicleAsync(Guid id)
+    public async Task<Result<object>> DeleteVehicleAsync(Guid id)
     {
         try
         {
             var vehicle = await _context.Vehicles
                 .Include(v => v.VehicleType)
                 .Include(p => p.Cult)
-                .FirstOrDefaultAsync(v => v.Id == id)
-                ?? throw new Exception("Vehicle not found");
+                .FirstOrDefaultAsync(v => v.Id == id);
+            if (vehicle is null)
+                return new Result<object> { IsError = true, Error = "Vehicle not found" };
 
             _context.Vehicles.Remove(vehicle);
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value  = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

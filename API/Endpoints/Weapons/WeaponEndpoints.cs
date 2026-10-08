@@ -1,4 +1,5 @@
 ﻿using Business.Weapons;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Weapons;
 
 namespace API.Endpoints.Weapons;
@@ -11,32 +12,32 @@ public static class WeaponEndpoints
 
         group.MapGet("/{id}", async (IWeaponService service, Guid id) =>
         {
-            var weapon = await service.GetWeaponByIdAsync(id);
-            return weapon is not null ? Results.Ok(weapon) : Results.NotFound();
+            var result = await service.GetWeaponByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/", async (IWeaponService service) =>
         {
-            var weapons = await service.GetAllWeaponsAsync();
-            return Results.Ok(weapons);
+            var result = await service.GetAllWeaponsAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (IWeaponService service, WeaponCreateDto weapon) =>
         {
-            var created = await service.CreateWeaponAsync(weapon);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateWeaponAsync(weapon);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (IWeaponService service, WeaponDto weapon) =>
         {
-            var success = await service.UpdateWeaponAsync(weapon);
-            return success ? Results.Ok() : Results.NotFound();
+            var result = await service.UpdateWeaponAsync(weapon);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id}", async (IWeaponService service, Guid id) =>
         {
-            var success = await service.DeleteWeaponAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteWeaponAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NotFound();
         });
     }
 }

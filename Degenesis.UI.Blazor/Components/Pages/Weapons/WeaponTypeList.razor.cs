@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Weapons;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Weapons;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Weapons;
@@ -14,7 +15,14 @@ public partial class WeaponTypeList
 
     private async Task LoadWeaponTypes()
     {
-        weaponTypes = await Client!.GetFromJsonAsync<List<WeaponTypeDto>>("/weapon-types") ?? [];
+        var weaponTypeResult = await Client!.GetFromJsonAsync<Result<List<WeaponTypeDto>>>("/weapon-types") ?? new Result<List<WeaponTypeDto>> { IsError = true, Error = "Unknown error" };
+        if (weaponTypeResult.IsError)
+        {
+            Snackbar.Add($"Error loading weapon types: {weaponTypeResult.Error}", Severity.Error);
+            weaponTypes = [];
+        }
+        else
+            weaponTypes = weaponTypeResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -59,9 +67,12 @@ public partial class WeaponTypeList
 
     private async Task DeleteWeaponType(Guid weaponTypeId)
     {
-        var result = await Client!.DeleteAsync($"/weapon-types/{weaponTypeId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/weapon-types/{weaponTypeId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
             Snackbar.Add("Deleted", Severity.Success);
         await LoadWeaponTypes();

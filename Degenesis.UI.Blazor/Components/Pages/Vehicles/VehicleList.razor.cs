@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Vehicles;
 using MudBlazor;
 
@@ -6,7 +7,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Vehicles;
 
 public partial class VehicleList
 {
-    private List<VehicleDto>? Vehicle;
+    private List<VehicleDto>? Vehicles;
     private List<VehicleTypeDto> VehicleTypes = [];
     private List<CultDto> Cults = [];
     private string SearchString = "";
@@ -18,9 +19,32 @@ public partial class VehicleList
 
     private async Task LoadVehicles()
     {
-        Vehicle = await Client!.GetFromJsonAsync<List<VehicleDto>>("/vehicles") ?? [];
-        VehicleTypes = await Client!.GetFromJsonAsync<List<VehicleTypeDto>>("/vehicle-types") ?? [];
-        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        var vehicleResult = await Client!.GetFromJsonAsync<Result<List<VehicleDto>>>("/vehicles") ?? new Result<List<VehicleDto>> { IsError = true, Error = "Unknown error" };
+        if (vehicleResult.IsError)
+        {
+            Snackbar.Add($"Error loading vehicles: {vehicleResult.Error}", Severity.Error);
+            Vehicles = [];
+        }
+        else
+            Vehicles = vehicleResult.Value ?? [];
+
+        var vehicleTypeResult = await Client!.GetFromJsonAsync<Result<List<VehicleTypeDto>>>("/vehicle-types") ?? new Result<List<VehicleTypeDto>> { IsError = true , Error = "Unknown error" };
+        if (vehicleTypeResult.IsError)
+        {
+            Snackbar.Add($"Error loading vehicle types: {vehicleTypeResult.Error}", Severity.Error);
+            VehicleTypes = [];
+        }
+        else
+            VehicleTypes = vehicleTypeResult.Value ?? [];
+
+        var cultResult = await Client!.GetFromJsonAsync<Result<List<CultDto>>>("/cults") ?? new Result<List<CultDto>> { IsError = true, Error = "Unknown error" };
+        if (cultResult.IsError)
+        {
+            Snackbar.Add($"Error loading cults: {cultResult.Error}", Severity.Error);
+            Cults = [];
+        }
+        else
+            Cults = cultResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -45,7 +69,7 @@ public partial class VehicleList
 
     private async Task ShowEditDialog(Guid vehicleId)
     {
-        var vehicle = Vehicle?.FirstOrDefault(v => v.Id == vehicleId);
+        var vehicle = Vehicles?.FirstOrDefault(v => v.Id == vehicleId);
         if (vehicle != null)
         {
             var parameters = new DialogParameters
@@ -69,9 +93,12 @@ public partial class VehicleList
 
     private async Task DeleteVehicle(Guid vehicleId)
     {
-        var result = await Client!.DeleteAsync($"/vehicles/{vehicleId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/vehicles/{vehicleId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
             Snackbar.Add("Deleted", Severity.Success);
         await LoadVehicles();

@@ -1,14 +1,14 @@
 ﻿@page "/dashboard/vehicles"
 @using Degenesis.Shared.DTOs.Vehicles
 
-@if (Vehicle is null)
+@if (Vehicles is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Vehicle</MudButton>
-    <MudTable Bordered Items="@Vehicle"
+    <MudTable Bordered Items="@Vehicles"
               Hover="true"
               Filter="FilterFunc"
               Dense="true">

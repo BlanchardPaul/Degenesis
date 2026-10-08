@@ -1,4 +1,5 @@
 ﻿using Business.Vehicles;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Vehicles;
 using Domain.Vehicles;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -14,32 +15,32 @@ public static class VehicleTypeEndpoints
 
         group.MapGet("/", async (IVehicleTypeService service) =>
         {
-            var vehicleTypes = await service.GetAllVehicleTypesAsync();
-            return Results.Ok(vehicleTypes);
+            var result = await service.GetAllVehicleTypesAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IVehicleTypeService service) =>
         {
-            var vehicleType = await service.GetVehicleTypeByIdAsync(id);
-            return vehicleType is not null ? Results.Ok(vehicleType) : Results.NotFound();
+            var result = await service.GetVehicleTypeByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (VehicleTypeCreateDto vehicleType, IVehicleTypeService service) =>
         {
-            var created = await service.CreateVehicleTypeAsync(vehicleType);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateVehicleTypeAsync(vehicleType);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (VehicleTypeDto vehicleType, IVehicleTypeService service) =>
         {
-            var success = await service.UpdateVehicleTypeAsync(vehicleType);
-            return success ? Results.Ok() : Results.NotFound();
+            var result = await service.UpdateVehicleTypeAsync(vehicleType);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IVehicleTypeService service) =>
         {
-            var success = await service.DeleteVehicleTypeAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteVehicleTypeAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

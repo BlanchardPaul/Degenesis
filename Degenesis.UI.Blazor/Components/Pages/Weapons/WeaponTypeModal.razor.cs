@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Weapons;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Weapons;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -12,28 +13,21 @@ public partial class WeaponTypeModal
 
     private async Task SaveWeaponType()
     {
+        HttpResponseMessage response;
         if (WeaponType.Id == Guid.Empty)
-        {
-            var result = await Client!.PostAsJsonAsync($"/weapon-types", WeaponType);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+            response = await Client!.PostAsJsonAsync($"/weapon-types", WeaponType);
         else
+            response = await Client!.PutAsJsonAsync($"/weapon-types", WeaponType);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PutAsJsonAsync($"/weapon-types", WeaponType);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
+
+        Snackbar.Add(WeaponType.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

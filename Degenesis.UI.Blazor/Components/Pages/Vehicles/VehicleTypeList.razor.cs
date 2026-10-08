@@ -1,11 +1,13 @@
-﻿using Degenesis.Shared.DTOs.Vehicles;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Vehicles;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Vehicles;
 
 public partial class VehicleTypeList
 {
-    private List<VehicleTypeDto>? vehicleTypes;
+    private List<VehicleTypeDto>? VehicleTypes;
     private string SearchString = "";
 
     protected override async Task OnAuthenticatedInitializedAsync()
@@ -15,7 +17,14 @@ public partial class VehicleTypeList
 
     private async Task LoadVehicleTypes()
     {
-        vehicleTypes = await Client!.GetFromJsonAsync<List<VehicleTypeDto>>("/vehicle-types") ?? [];
+        var vehicleResult = await Client!.GetFromJsonAsync<Result<List<VehicleTypeDto>>>("/vehicle-types") ?? new Result<List<VehicleTypeDto>> { IsError = true, Error = "Unknown error" };
+        if (vehicleResult.IsError)
+        {
+            Snackbar.Add($"Error loading potentials: {vehicleResult.Error}", Severity.Error);
+            VehicleTypes = [];
+        }
+        else
+            VehicleTypes = vehicleResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -38,7 +47,7 @@ public partial class VehicleTypeList
 
     private async Task ShowEditDialog(Guid vehicleTypeId)
     {
-        var vehicleType = vehicleTypes?.FirstOrDefault(v => v.Id == vehicleTypeId);
+        var vehicleType = VehicleTypes?.FirstOrDefault(v => v.Id == vehicleTypeId);
         if (vehicleType != null)
         {
             var parameters = new DialogParameters
@@ -60,9 +69,12 @@ public partial class VehicleTypeList
 
     private async Task DeleteVehicleType(Guid vehicleTypeId)
     {
-        var result = await Client!.DeleteAsync($"/vehicle-types/{vehicleTypeId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/vehicle-types/{vehicleTypeId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
             Snackbar.Add("Deleted", Severity.Success);
         await LoadVehicleTypes();
