@@ -73,7 +73,7 @@
 
             <div>
                 <MudText HtmlTag="u" Typo="Typo.caption">Cults</MudText>
-                <MudText Typo="Typo.body2">@(Weapon.Cults == null || !Weapon.Cults.Any() ? "-" : string.Join(", ", Weapon.Cults.Select(c => c.Name)))</MudText>
+                <MudText Typo="Typo.body2">@(Weapon.Cults is null || !Weapon.Cults.Any() ? "-" : string.Join(", ", Weapon.Cults.Select(c => c.Name)))</MudText>
             </div>
         </MudStack>
     </MudPaper>

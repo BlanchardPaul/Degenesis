@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Equipments;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Equipments;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Equipments;
@@ -15,7 +16,14 @@ public partial class EquipmentTypeList
 
     private async Task LoadEquipmentTypes()
     {
-        equipmentTypes = await Client!.GetFromJsonAsync<List<EquipmentTypeDto>>("/equipment-types") ?? [];
+        var equipmentTypeResult = await Client!.GetFromJsonAsync<Result<List<EquipmentTypeDto>>>("/equipment-types") ?? new Result<List<EquipmentTypeDto>> { IsError = true, Error = "Unknown error" };
+        if (equipmentTypeResult.IsError)
+        {
+            Snackbar.Add($"Error loading equipment types: {equipmentTypeResult.Error}", Severity.Error);
+            equipmentTypes = [];
+        }
+        else
+            equipmentTypes = equipmentTypeResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -60,11 +68,15 @@ public partial class EquipmentTypeList
 
     private async Task DeleteEquipmentType(Guid equipmentTypeId)
     {
-        var result = await Client!.DeleteAsync($"/equipment-types/{equipmentTypeId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/equipment-types/{equipmentTypeId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
+
         await LoadEquipmentTypes();
     }
 

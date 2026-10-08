@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs._Artifacts;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
@@ -15,7 +16,16 @@ public partial class CharacterAddArtifact
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        Artifacts = await Client!.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
+        var result = await Client!.GetFromJsonAsync<Result<List<ArtifactDto>>>("/artifacts") ?? new Result<List<ArtifactDto>> { IsError = true, Error = "Unknown error" };
+        if (result.IsError)
+        {
+            Snackbar.Add("Error loading artifacts: " + result.Error);
+            Artifacts = [];
+        }
+        else
+        {
+            Artifacts = result.Value;
+        }
     }
 
     private async Task AddCharacterArtifact(Guid artifactId)
@@ -26,11 +36,16 @@ public partial class CharacterAddArtifact
             return;
         }
 
-        var result = await Client!.PostAsJsonAsync($"/character-artifacts/", new CharacterArtifactCreateDto {Id = Guid.NewGuid(), CharacterId = Character.Id, ArtifactId = artifactId });
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error while adding character artifact", Severity.Error);
+        var response = await Client!.PostAsJsonAsync($"/character-artifacts/", new CharacterArtifactCreateDto {Id = Guid.NewGuid(), CharacterId = Character.Id, ArtifactId = artifactId });
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
             Snackbar.Add("Character artifact added successfully.", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

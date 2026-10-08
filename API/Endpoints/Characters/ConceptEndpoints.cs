@@ -11,32 +11,32 @@ public static class ConceptEndpoints
 
         group.MapGet("/", async (IConceptService service) =>
         {
-            var concepts = await service.GetAllConceptsAsync();
-            return Results.Ok(concepts);
+            var result = await service.GetAllConceptsAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IConceptService service) =>
         {
-            var concept = await service.GetConceptByIdAsync(id);
-            return concept is not null ? Results.Ok(concept) : Results.NotFound();
+            var result = await service.GetConceptByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (ConceptCreateDto concept, IConceptService service) =>
         {
-            var created = await service.CreateConceptAsync(concept);
-            return created is not null ? Results.Ok() : Results.BadRequest();
+            var result = await service.CreateConceptAsync(concept);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (ConceptDto concept, IConceptService service) =>
         {
-            var success = await service.UpdateConceptAsync(concept);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateConceptAsync(concept);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IConceptService service) =>
         {
-            var success = await service.DeleteConceptAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteConceptAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

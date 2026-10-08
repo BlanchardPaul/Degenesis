@@ -11,32 +11,32 @@ public static class BurnEndpoints
 
         group.MapGet("/", async (IBurnService service) =>
         {
-            var burns = await service.GetAllAsync();
-            return Results.Ok(burns);
+            var result = await service.GetAllAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IBurnService service) =>
         {
-            var burn = await service.GetByIdAsync(id);
-            return burn is not null ? Results.Ok(burn) : Results.NotFound();
+            var result = await service.GetByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (BurnCreateDto burn, IBurnService service) =>
         {
-            var createdBurn = await service.CreateAsync(burn);
-            return createdBurn is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateAsync(burn);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (BurnDto burn, IBurnService service) =>
         {
-            var success = await service.UpdateAsync(burn);
-            return success ? Results.Ok() : Results.NotFound();
+            var result = await service.UpdateAsync(burn);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IBurnService service) =>
         {
-            var success = await service.DeleteAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

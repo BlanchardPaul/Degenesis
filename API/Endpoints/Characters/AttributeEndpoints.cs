@@ -9,34 +9,34 @@ public static class AttributeEndpoints
     {
         var group = app.MapGroup("/attributes").WithTags("Attributes").RequireAuthorization();
 
-        group.MapGet("/{id:guid}", async (Guid id, IAttributeService service) =>
-        {
-            var attribute = await service.GetAttributeByIdAsync(id);
-            return attribute is not null ? Results.Ok(attribute) : Results.NotFound();
-        });
-
         group.MapGet("/", async (IAttributeService service) =>
         {
-            var attributes = await service.GetAllAttributesAsync();
-            return Results.Ok(attributes);
+            var result = await service.GetAllAttributesAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
+        group.MapGet("/{id:guid}", async (Guid id, IAttributeService service) =>
+        {
+            var result = await service.GetAttributeByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (AttributeCreateDto attribute, IAttributeService service) =>
         {
-            var created = await service.CreateAttributeAsync(attribute);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateAttributeAsync(attribute);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (AttributeDto attribute, IAttributeService service) =>
         {
-            var success = await service.UpdateAttributeAsync(attribute);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateAttributeAsync(attribute);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IAttributeService service) =>
         {
-            var success = await service.DeleteAttributeAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteAttributeAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

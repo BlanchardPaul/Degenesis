@@ -64,7 +64,7 @@ public partial class VehicleTypeList
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
         await LoadVehicleTypes();
     }
 

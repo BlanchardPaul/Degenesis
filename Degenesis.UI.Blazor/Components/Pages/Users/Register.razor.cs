@@ -1,5 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Users;
-using Degenesis.UI.Service.Features.Users;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Users;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -12,16 +12,17 @@ public partial class Register
 
     private async Task HandleRegister()
     {
-        var success = await UserService.RegisterAsync(RegisterModel);
-        if (success)
+        var response = await Client!.PostAsJsonAsync("/users/register", RegisterModel);
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Registration successful! Please log in.", Severity.Success);
-            NavigationManager.NavigateTo("/login");
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
-        else
-        {
-            Snackbar.Add("Registration failed. Please try again.", Severity.Error);
-        }
+
+        Snackbar.Add("Registration successful! Please log in.", Severity.Success);
+        NavigationManager.NavigateTo("/login");
+
     }
 
     private void Cancel()

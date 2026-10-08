@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -10,8 +11,6 @@ public partial class CreateCharacter
 
     private int _step = 0;
     private bool _saving = false;
-
-    private HttpClient _client = new();
 
     private CharacterCreateDto Character = new();
     private CultureDto SelectedCulture = new();
@@ -41,14 +40,13 @@ public partial class CreateCharacter
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         Character.IdRoom = RoomId;
-        _client = await HttpClientService.GetClientAsync();
-        Cultures = await _client.GetFromJsonAsync<List<CultureDto>>("/cultures") ?? [];
-        Concepts = await _client.GetFromJsonAsync<List<ConceptDto>>("/concepts") ?? [];
-        Attributes = await _client.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        Skills = await _client.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
-        Backgrounds = await _client.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
-        Ranks = await _client.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
-        Potentials = await _client.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
+        Cultures = await Client!.GetFromJsonAsync<List<CultureDto>>("/cultures") ?? [];
+        Concepts = await Client!.GetFromJsonAsync<List<ConceptDto>>("/concepts") ?? [];
+        Attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        Skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        Backgrounds = await Client!.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
+        Ranks = await Client!.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
+        Potentials = await Client!.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
     }
 
     // Those are step 1 logic but it's here because we need some of the step 1 DTOs in step 2
@@ -117,18 +115,18 @@ public partial class CreateCharacter
     {
         try
         {
-            var response = await _client.PostAsJsonAsync("/characters", Character);
-            if (response.IsSuccessStatusCode)
+            var response = await Client!.PostAsJsonAsync("/characters", Character);
+            if (!response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+                Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+                return false;
+            }
+            else
             {
                 Snackbar.Add("Character successfully created!", Severity.Success);
                 Navigation.NavigateTo("/rooms");
                 return true;
-            }
-            else
-            {
-                var msg = await response.Content.ReadAsStringAsync();
-                Snackbar.Add($"Failed to save character: {response.StatusCode} - {msg}", Severity.Error);
-                return false;
             }
         }
         catch (Exception ex)

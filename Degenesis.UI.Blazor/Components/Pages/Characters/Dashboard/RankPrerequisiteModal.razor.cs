@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -35,32 +36,22 @@ public partial class RankPrerequisiteModal
             RankPrerequisite.BackgroundLevelRequired = null;
         }
 
+        HttpResponseMessage response;
         if (RankPrerequisite.Id == Guid.Empty)
-        {
-            var result = await Client!.PostAsJsonAsync("/rank-prerequisites", RankPrerequisite);
-            if (!result.IsSuccessStatusCode)
-            {
-                Snackbar.Add("Error during creation", Severity.Error);
-            }
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+            response = await Client!.PostAsJsonAsync("/rank-prerequisites", RankPrerequisite);
         else
+            response = await Client!.PutAsJsonAsync("/rank-prerequisites", RankPrerequisite);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PutAsJsonAsync("/rank-prerequisites", RankPrerequisite);
-            if (!result.IsSuccessStatusCode)
-            {
-                Snackbar.Add("Error during edition", Severity.Error);
-            }
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
+
+        Snackbar.Add(RankPrerequisite.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
+
+        MudDialog.Close(DialogResult.Ok(true));
     }
 
     private void Cancel() => MudDialog.Cancel();

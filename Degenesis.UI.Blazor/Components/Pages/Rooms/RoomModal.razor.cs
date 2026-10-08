@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Rooms;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Rooms;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -10,28 +11,21 @@ public partial class RoomModal
 
     private async Task SaveRoom()
     {
+        HttpResponseMessage response;
         if (Room.Id == Guid.Empty)
-        {
-            var result = await Client!.PostAsJsonAsync("/rooms", Room);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+            response = await Client!.PostAsJsonAsync("/rooms", Room);
         else
+            response = await Client!.PutAsJsonAsync("/rooms", Room);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PutAsJsonAsync("/rooms", Room);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
+
+        Snackbar.Add(Room.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
+        
         MudDialog.Close(DialogResult.Ok(true));
     }
 

@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
@@ -12,12 +13,26 @@ public partial class SkillList
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         await LoadSkills();
-        attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
     }
 
     private async Task LoadSkills()
     {
-        skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        var skillResult = await Client!.GetFromJsonAsync<Result<List<SkillDto>>>("/skills") ?? new Result<List<SkillDto>> { IsError = true, Error = "Unknown error" };
+        if (skillResult.IsError)
+        {
+            Snackbar.Add($"Error loading skills: {skillResult.Error}", Severity.Error);
+            skills = [];
+        }
+        else
+            skills = skillResult.Value ?? [];
+        var attributeResult = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        if (attributeResult is null)
+        {
+            Snackbar.Add($"Error loading attributes", Severity.Error);
+            attributes = [];
+        }
+        else
+            attributes = attributeResult;
     }
 
     private async Task ShowCreateDialog()
@@ -54,11 +69,15 @@ public partial class SkillList
 
     private async Task DeleteSkill(Guid skillId)
     {
-        var result = await Client!.DeleteAsync($"/skills/{skillId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/skills/{skillId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
+
         await LoadSkills();
     }
 

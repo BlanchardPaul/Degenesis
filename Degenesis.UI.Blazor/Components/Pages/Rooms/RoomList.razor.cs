@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Rooms;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Rooms;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -14,7 +15,14 @@ public partial class RoomList
     }
     private async Task LoadRooms()
     {
-        rooms = await Client!.GetFromJsonAsync<List<RoomDisplayDto>>("/rooms") ?? [];
+        var roomResult = await Client!.GetFromJsonAsync<Result<List<RoomDisplayDto>>>("/rooms") ?? new Result<List<RoomDisplayDto>> { IsError = true, Error = "Unknown error" };
+        if (roomResult.IsError)
+        {
+            Snackbar.Add($"Error loading rooms: {roomResult.Error}", Severity.Error);
+            rooms = [];
+        }
+        else
+            rooms = roomResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -65,13 +73,14 @@ public partial class RoomList
 
     private async Task AcceptInvitation(Guid roomId)
     {
-        var acceptResult = await Client!.GetAsync($"/rooms/acceptinvite/{roomId}");
-        if (!acceptResult.IsSuccessStatusCode)
+        var acceptResult = await Client!.GetFromJsonAsync<Result<object>>($"/rooms/acceptinvite/{roomId}") ?? new Result<object> { IsError = true, Error = "Unknown error" };
+        if (acceptResult.IsError)
         {
-            Snackbar.Add("Acceptation failed", Severity.Error);
-            return;
+            Snackbar.Add($"Error accepting invitation : {acceptResult.Error}", Severity.Error);
+            rooms = [];
         }
-        Snackbar.Add("Accepted", Severity.Success);
+        else
+            Snackbar.Add("Accepted", Severity.Success);
 
         await LoadRooms();
         return;
@@ -97,10 +106,10 @@ public partial class RoomList
 
     private async Task DeclineInvitation(Guid roomId)
     {
-        var acceptResult = await Client!.GetAsync($"/rooms/declineinvite/{roomId}");
-        if (!acceptResult.IsSuccessStatusCode)
+        var acceptResult = await Client!.GetFromJsonAsync<Result<object>>($"/rooms/declineinvite/{roomId}") ?? new Result<object> { IsError = true, Error = "Unknown error" };
+        if (acceptResult.IsError)
         {
-            Snackbar.Add("Decline failed", Severity.Error);
+            Snackbar.Add($"Error declining invitation : {acceptResult.Error}", Severity.Error);
             return;
         }
         Snackbar.Add("Declined", Severity.Success);
@@ -112,10 +121,13 @@ public partial class RoomList
     private async Task DeleteRoom(Guid roomId)
     {
         var deleteResult = await Client!.DeleteAsync($"/rooms/{roomId}");
-        if (!deleteResult.IsSuccessStatusCode) {
-            Snackbar.Add("Delete failed", Severity.Error);
-            return;
+        if (!deleteResult.IsSuccessStatusCode)
+        {
+            var result = await deleteResult.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
+        else
+            Snackbar.Add("Deleted", Severity.Success);
 
         Snackbar.Add("Deleted", Severity.Success);
         await LoadRooms();
@@ -151,15 +163,16 @@ public partial class RoomList
 
     private async Task DeleteCharacter(Guid roomId)
     {
-        var deleteResult = await Client!.DeleteAsync($"/characters/{roomId}");
+        var response = await Client!.DeleteAsync($"/characters/{roomId}");
 
-        if (!deleteResult.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Character deletion failed", Severity.Error);
-            return;
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
+        else
+            Snackbar.Add("Deleted", Severity.Success);
 
-        Snackbar.Add("Character deleted successfully", Severity.Success);
         await LoadRooms();
     }
 }

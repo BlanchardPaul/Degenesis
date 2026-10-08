@@ -1,7 +1,6 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
-using Microsoft.AspNetCore.Components;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
-using System;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -17,8 +16,23 @@ public partial class CultList
 
     private async Task LoadCults()
     {
-        cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
-        skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        var cultResult = await Client!.GetFromJsonAsync<Result<List<CultDto>>>("/cults") ?? new Result<List<CultDto>> { IsError = true, Error = "Unknown error" };
+        if (cultResult.IsError)
+        {
+            Snackbar.Add("Error loading cults: " + cultResult.Error);
+            cults = [];
+        }
+        else
+            cults = cultResult.Value ?? [];
+        
+        var skillResult = await Client!.GetFromJsonAsync<Result<List<SkillDto>>>("/skills") ?? new Result<List<SkillDto>> { IsError = true, Error = "Unknown error" };
+        if (skillResult.IsError)
+        {
+            Snackbar.Add("Error loading skills: " + skillResult.Error);
+            skills = [];
+        }
+        else
+            skills = skillResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -55,11 +69,14 @@ public partial class CultList
 
     private async Task DeleteCult(Guid cultId)
     {
-        var result = await Client!.DeleteAsync($"/cults/{cultId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/cults/{cultId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
         await LoadCults();
     }
 

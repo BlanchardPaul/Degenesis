@@ -15,18 +15,10 @@ public partial class WeaponModal
     [Parameter] public List<SkillDto> Skills { get; set; } = [];
     [Parameter] public List<CultDto> Cults { get; set; } = [];
     private List<Guid> SelectedCultIds { get; set; } = [];
-    private List<Guid> SelectedQualityIds { get; set; } = [];
-
-    private HttpClient _client = new();
-
-    protected override async Task OnAuthenticatedInitializedAsync()
-    {
-        SelectedCultIds = [.. Weapon.Cults.Select(c => c.Id)];
-        _client = await HttpClientService.GetClientAsync();
-    }
 
     protected override void OnParametersSet()
     {
+        SelectedCultIds = [.. Weapon.Cults.Select(c => c.Id)];
         if (Weapon.WeaponTypeId == Guid.Empty && WeaponTypes.Count > 0)
         {
             Weapon.WeaponTypeId = WeaponTypes[0].Id;
@@ -44,7 +36,7 @@ public partial class WeaponModal
     {
         if (Weapon.Id == Guid.Empty)
         {
-            var result = await _client.PostAsJsonAsync("/weapons", Weapon);
+            var result = await Client!.PostAsJsonAsync("/weapons", Weapon);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during creation", Severity.Error);
             else
@@ -55,7 +47,7 @@ public partial class WeaponModal
         }
         else
         {
-            var result = await _client.PutAsJsonAsync("/weapons", Weapon);
+            var result = await Client!.PutAsJsonAsync("/weapons", Weapon);
             if (!result.IsSuccessStatusCode)
                 Snackbar.Add("Error during edition", Severity.Error);
             else

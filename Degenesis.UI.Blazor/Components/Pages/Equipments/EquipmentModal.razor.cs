@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Equipments;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -18,7 +19,7 @@ public partial class EquipmentModal
     {
         SelectedCultIds = [.. Equipment.Cults.Select(c => c.Id)];
 
-        if (Equipment.EquipmentTypeId == Guid.Empty && EquipmentTypes.Any())
+        if (Equipment.EquipmentTypeId == Guid.Empty && EquipmentTypes.Count != 0)
         {
             Equipment.EquipmentTypeId = EquipmentTypes.First().Id;
         }
@@ -33,28 +34,20 @@ public partial class EquipmentModal
 
     private async Task SaveEquipment()
     {
+        HttpResponseMessage response;
         if (Equipment.Id == Guid.Empty)
+            response = await Client!.PostAsJsonAsync("/equipments", Equipment);
+        else
+            response = await Client!.PutAsJsonAsync("/equipments", Equipment);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PostAsJsonAsync("/equipments", Equipment);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
         else
-        {
-            var result = await Client!.PutAsJsonAsync("/equipments", Equipment);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+            Snackbar.Add("Deleted", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

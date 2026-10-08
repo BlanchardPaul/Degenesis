@@ -3,7 +3,7 @@
 
 <h3>Protections</h3>
 
-@if (protections is null)
+@if (Protections is null)
 {
     <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
@@ -11,7 +11,7 @@ else
 {
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ShowCreateDialog">Create New Protection</MudButton>
     <MudTable Bordered
-              Items="@protections" 
+              Items="@Protections" 
               Hover="true"
               Filter="FilterFunc"
               Dense="true">

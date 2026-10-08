@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -17,9 +18,9 @@ public partial class PotentialModal
     protected override void OnParametersSet()
     {
         Potential.Prerequisites ??= [];
-        SelectedPrerequisiteIds = Potential.Prerequisites.Select(pp => pp.Id).ToHashSet();
+        SelectedPrerequisiteIds = [.. Potential.Prerequisites.Select(pp => pp.Id)];
 
-        if (!Potential.CultId.HasValue && Cults.Any())
+        if (!Potential.CultId.HasValue && Cults.Count != 0)
         {
             Potential.CultId = Cults.First().Id;
         }
@@ -27,37 +28,29 @@ public partial class PotentialModal
 
     private Task OnPrerequisitesChanged(IEnumerable<Guid> selectedValues)
     {
-        SelectedPrerequisiteIds = selectedValues.ToHashSet();
-        Potential.Prerequisites = PotentialPrerequisites
-            .Where(pp => SelectedPrerequisiteIds.Contains(pp.Id))
-            .ToList();
+        SelectedPrerequisiteIds = [.. selectedValues];
+        Potential.Prerequisites = [.. PotentialPrerequisites.Where(pp => SelectedPrerequisiteIds.Contains(pp.Id))];
         return Task.CompletedTask;
     }
 
     private async Task SavePotential()
     {
+        HttpResponseMessage response;
         if (Potential.Id == Guid.Empty)
-        {
-            var result = await Client!.PostAsJsonAsync("/potentials", Potential);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+            response = await Client!.PostAsJsonAsync("/potentials", Potential);
         else
+            response = await Client!.PutAsJsonAsync($"/potentials", Potential);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PutAsJsonAsync($"/potentials", Potential);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
+
+        Snackbar.Add(Potential.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
+
+        MudDialog.Close(DialogResult.Ok(true));
     }
 
     private void Cancel() => MudDialog.Cancel();

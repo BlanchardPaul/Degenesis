@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -23,57 +24,49 @@ public partial class CultureModal
         Culture.BonusAttributes ??= [];
         Culture.BonusSkills ??= [];
 
-        SelectedCultIds = Culture.AvailableCults.Select(c => c.Id).ToHashSet();
-        SelectedAttributeIds = Culture.BonusAttributes.Select(a => a.Id).ToHashSet();
-        SelectedSkillIds = Culture.BonusSkills.Select(s => s.Id).ToHashSet();
+        SelectedCultIds = [.. Culture.AvailableCults.Select(c => c.Id)];
+        SelectedAttributeIds = [.. Culture.BonusAttributes.Select(a => a.Id)];
+        SelectedSkillIds = [.. Culture.BonusSkills.Select(s => s.Id)];
     }
 
     private Task OnCultsChanged(IEnumerable<Guid> selectedValues)
     {
-        SelectedCultIds = selectedValues.ToHashSet();
-        Culture.AvailableCults = Cults.Where(c => SelectedCultIds.Contains(c.Id)).ToList();
+        SelectedCultIds = [.. selectedValues];
+        Culture.AvailableCults = [.. Cults.Where(c => SelectedCultIds.Contains(c.Id))];
         return Task.CompletedTask;
     }
 
     private Task OnAttributesChanged(IEnumerable<Guid> selectedValues)
     {
-        SelectedAttributeIds = selectedValues.ToHashSet();
-        Culture.BonusAttributes = Attributes.Where(a => SelectedAttributeIds.Contains(a.Id)).ToList();
+        SelectedAttributeIds = [.. selectedValues];
+        Culture.BonusAttributes = [.. Attributes.Where(a => SelectedAttributeIds.Contains(a.Id))];
         return Task.CompletedTask;
     }
 
     private Task OnSkillsChanged(IEnumerable<Guid> selectedValues)
     {
-        SelectedSkillIds = selectedValues.ToHashSet();
-        Culture.BonusSkills = Skills.Where(s => SelectedSkillIds.Contains(s.Id)).ToList();
+        SelectedSkillIds = [.. selectedValues];
+        Culture.BonusSkills = [.. Skills.Where(s => SelectedSkillIds.Contains(s.Id))];
         return Task.CompletedTask;
     }
 
     private async Task SaveCulture()
     {
+        HttpResponseMessage response;
         if (Culture.Id == Guid.Empty)
+            response = await Client!.PostAsJsonAsync("/cultures", Culture);
+        else
+            response = await Client!.PutAsJsonAsync($"/cultures", Culture);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PostAsJsonAsync("/cultures", Culture);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
 
-        else
-        {
-            var result = await Client!.PutAsJsonAsync($"/cultures", Culture);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+        Snackbar.Add(Culture.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

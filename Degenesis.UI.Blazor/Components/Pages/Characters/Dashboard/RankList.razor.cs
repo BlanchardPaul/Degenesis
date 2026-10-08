@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -16,9 +17,32 @@ public partial class RankList
 
     private async Task LoadRanks()
     {
-        Ranks = await Client!.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
-        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
-        RankPrerequisites = await Client!.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
+        var rankResult = await Client!.GetFromJsonAsync<Result<List<RankDto>>>("/ranks") ?? new Result<List<RankDto>> { IsError = true, Error = "Unknown error" };
+        if(rankResult.IsError)
+        {
+            Snackbar.Add($"Error loading ranks: {rankResult.Error}", Severity.Error);
+            Ranks = [];
+        }
+        else
+            Ranks = rankResult.Value ?? [];
+        
+        var cultResult = await Client!.GetFromJsonAsync<Result<List<CultDto>>>("/cults") ?? new Result<List<CultDto>> { IsError = true, Error = "Unknown error" };
+        if(cultResult.IsError)
+        {
+            Snackbar.Add($"Error loading cults: {cultResult.Error}", Severity.Error);
+            Cults = [];
+        }
+        else
+            Cults = cultResult.Value ?? [];
+
+        var rankPrerequisiteResult = await Client!.GetFromJsonAsync<Result<List<RankPrerequisiteDto>>>("/rank-prerequisites") ?? new Result<List<RankPrerequisiteDto>> { IsError = true, Error = "Unknown error" };
+        if(rankPrerequisiteResult.IsError)
+        {
+            Snackbar.Add($"Error loading rank prerequisites: {rankPrerequisiteResult.Error}", Severity.Error);
+            RankPrerequisites = [];
+        }
+        else
+            RankPrerequisites = rankPrerequisiteResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -71,18 +95,22 @@ public partial class RankList
 
     private async Task DeleteRank(Guid rankId)
     {
-        var result = await Client!.DeleteAsync($"/ranks/{rankId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/ranks/{rankId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
+
         await LoadRanks();
         StateHasChanged();
     }
 
     private static string GetPrerequisiteLabel(RankPrerequisiteDto prerequisite)
     {
-        if (prerequisite == null)
+        if (prerequisite is null)
             return "Unknown";
 
         if (prerequisite.IsBackgroundPrerequisite && prerequisite.BackgroundRequired != null)

@@ -1,4 +1,5 @@
 ﻿using Business.Rooms;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Rooms;
 using System.Security.Claims;
 
@@ -13,50 +14,50 @@ public static class RoomEndpoints
 
         group.MapGet("/", async (IRoomService service, ClaimsPrincipal user) =>
         {
-            var rooms = await service.GetAllAsync(user?.Identity?.Name ?? string.Empty);
-            return Results.Ok(rooms);
+            var result = await service.GetAllAsync(user?.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IRoomService service) =>
         {
-            var room = await service.GetByIdAsync(id);
-            return room is not null ? Results.Ok(room) : Results.NotFound();
+            var result = await service.GetByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (RoomCreateDto room, IRoomService service, ClaimsPrincipal user) =>
         {
-            var createdRoomId = await service.CreateAsync(room, user?.Identity?.Name ?? string.Empty);
-            return createdRoomId is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateAsync(room, user?.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (RoomDto room, IRoomService service) =>
         {
-            var success = await service.UpdateAsync(room);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateAsync(room);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IRoomService service) =>
         {
-            var success = await service.DeleteRoomAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteRoomAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
 
         group.MapPost("/invite", async (InvitationDto invitationDto, IRoomService service) =>
         {
-            var success = await service.InviteUser(invitationDto);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.InviteUser(invitationDto);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapGet("/acceptinvite/{idRoom:guid}", async (Guid idRoom, IRoomService service, ClaimsPrincipal user) =>
         {
-            var success = await service.AccepteInvite(idRoom, user?.Identity?.Name ?? string.Empty);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.AccepteInvite(idRoom, user?.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapGet("/declineinvite/{idRoom:guid}", async (Guid idRoom, IRoomService service, ClaimsPrincipal user) =>
         {
-            var success = await service.DeclineInvite(idRoom, user?.Identity?.Name ?? string.Empty);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.DeclineInvite(idRoom, user?.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
     }
 }

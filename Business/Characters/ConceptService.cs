@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
@@ -8,83 +9,88 @@ namespace Business.Characters;
 
 public interface IConceptService
 {
-    Task<ConceptDto?> GetConceptByIdAsync(Guid id);
-    Task<List<ConceptDto>> GetAllConceptsAsync();
-    Task<ConceptDto?> CreateConceptAsync(ConceptCreateDto conceptCreate);
-    Task<bool> UpdateConceptAsync(ConceptDto conceptDto);
-    Task<bool> DeleteConceptAsync(Guid id);
+    Task<Result<ConceptDto>> GetConceptByIdAsync(Guid id);
+    Task<Result<List<ConceptDto>>> GetAllConceptsAsync();
+    Task<Result<object>> CreateConceptAsync(ConceptCreateDto conceptCreate);
+    Task<Result<object>> UpdateConceptAsync(ConceptDto conceptDto);
+    Task<Result<object>> DeleteConceptAsync(Guid id);
 }
 
-public class ConceptService : IConceptService
+public class ConceptService(ApplicationDbContext context, IMapper mapper) : IConceptService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
-    public ConceptService(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
-    public async Task<ConceptDto?> GetConceptByIdAsync(Guid id)
+    public async Task<Result<ConceptDto>> GetConceptByIdAsync(Guid id)
     {
         try
         {
             var concept = await _context.Concepts
-            .Include(c => c.BonusAttribute)
-            .Include(c => c.BonusSkills)
-            .OrderBy(c => c.Name)
-            .FirstOrDefaultAsync(c => c.Id == id) ?? throw new Exception("Concept not found");
-            return _mapper.Map<ConceptDto>(concept);
+                .Include(c => c.BonusAttribute)
+                .Include(c => c.BonusSkills)
+                .OrderBy(c => c.Name)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            if(concept is null)
+                return new Result<ConceptDto> { IsError = true, Error = "Concept not found" };
+
+            return new Result<ConceptDto> { Value = _mapper.Map<ConceptDto>(concept) };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<ConceptDto> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<List<ConceptDto>> GetAllConceptsAsync()
+    public async Task<Result<List<ConceptDto>>> GetAllConceptsAsync()
     {
-        var concepts = await _context.Concepts
-            .Include(c => c.BonusAttribute)
-            .Include(c => c.BonusSkills)
-            .ToListAsync();
-
-        return _mapper.Map<List<ConceptDto>>(concepts);
+        try
+        {
+            var concepts = await _context.Concepts
+                .Include(c => c.BonusAttribute)
+                .Include(c => c.BonusSkills)
+                .ToListAsync();
+            return new Result<List<ConceptDto>> { Value = _mapper.Map<List<ConceptDto>>(concepts) };
+        }
+        catch (Exception)
+        {
+            return new Result<List<ConceptDto>> { IsError = true, Error = "A server error occurred" };
+        }
     }
 
-    public async Task<ConceptDto?> CreateConceptAsync(ConceptCreateDto conceptCreate)
+    public async Task<Result<object>> CreateConceptAsync(ConceptCreateDto conceptCreate)
     {
         try
         {
             var concept = _mapper.Map<Concept>(conceptCreate);
 
             var attribute = await _context.Attributes
-                .FirstOrDefaultAsync(a => a.Id == conceptCreate.BonusAttributeId)
-                ?? throw new Exception("Attribute not found");
+                .FirstOrDefaultAsync(a => a.Id == conceptCreate.BonusAttributeId);
+            if (attribute is null)
+                return new Result<object> { IsError = true, Error = "Attribute not found" };
 
             concept.BonusAttribute = attribute;
 
             foreach (var skillDto in conceptCreate.BonusSkills)
             {
                 var existingSkill = await _context.Skills
-                    .FirstOrDefaultAsync(s => s.Id == skillDto.Id)
-                    ?? throw new Exception("Skill not found");
+                    .FirstOrDefaultAsync(s => s.Id == skillDto.Id);
+                if (existingSkill is null)
+                    return new Result<object> { IsError = true, Error = "Skill not found" };
 
                 concept.BonusSkills.Add(existingSkill);
             }
 
             _context.Concepts.Add(concept);
             await _context.SaveChangesAsync();
-            return _mapper.Map<ConceptDto>(concept);
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> UpdateConceptAsync(ConceptDto conceptDto)
+    public async Task<Result<object>> UpdateConceptAsync(ConceptDto conceptDto)
     {
 
         try
@@ -92,11 +98,14 @@ public class ConceptService : IConceptService
             var existingConcept = await _context.Concepts
                 .Include(c => c.BonusAttribute)
                 .Include(c => c.BonusSkills)
-                .FirstOrDefaultAsync(c => c.Id == conceptDto.Id) ?? throw new Exception("Concept not found");
+                .FirstOrDefaultAsync(c => c.Id == conceptDto.Id);
+            if (existingConcept is null)
+                return new Result<object> { IsError = true, Error = "Concept not found" };
 
             var attribute = await _context.Attributes
-                .FirstOrDefaultAsync(a => a.Id == conceptDto.BonusAttributeId)
-                ?? throw new Exception("Attribute not found");
+                .FirstOrDefaultAsync(a => a.Id == conceptDto.BonusAttributeId);
+            if (attribute is null)
+                return new Result<object> { IsError = true, Error = "Attribute not found" };
 
             existingConcept.BonusAttribute = attribute;
 
@@ -104,22 +113,23 @@ public class ConceptService : IConceptService
             foreach (var skillDto in conceptDto.BonusSkills)
             {
                 var existingSkill = await _context.Skills
-                    .FirstOrDefaultAsync(s => s.Id == skillDto.Id)
-                    ?? throw new Exception("Skill not found");
+                    .FirstOrDefaultAsync(s => s.Id == skillDto.Id);
+                if (existingSkill is null)
+                    return new Result<object> { IsError = true, Error = "Skill not found" };
 
                 existingConcept.BonusSkills.Add(existingSkill);
             }
 
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> DeleteConceptAsync(Guid id)
+    public async Task<Result<object>> DeleteConceptAsync(Guid id)
     {
         try
         {
@@ -128,18 +138,18 @@ public class ConceptService : IConceptService
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (concept is null)
-                return false;
+                return new Result<object> { IsError = true, Error = "Concept not found" };
 
             var conceptSkills = _context.Set<ConceptSkill>().Where(cs => cs.ConceptId == id);
             _context.Set<ConceptSkill>().RemoveRange(conceptSkills);
 
             _context.Concepts.Remove(concept);
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

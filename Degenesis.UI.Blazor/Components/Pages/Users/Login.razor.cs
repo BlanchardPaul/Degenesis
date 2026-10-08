@@ -1,6 +1,8 @@
-﻿using Degenesis.Shared.DTOs.Users;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Users;
 using Degenesis.UI.Blazor.Extensions;
 using MudBlazor;
+using System.Net.Http;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Users;
 
@@ -10,17 +12,24 @@ public partial class Login
 
     private async Task HandleLogin()
     {
-        var token = await UserService.LoginAsync(loginModel);
-        if (token is not null)
+        var response = await Client!.PostAsJsonAsync("/users/login", loginModel);
+        var result = await response.Content.ReadFromJsonAsync<Result<string>>();
+        if (!response.IsSuccessStatusCode)
         {
-            var authStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
-            await authStateProvider.SetToken(token);
-            NavigationManager.NavigateTo("/");
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
-        else
+        var token = result?.Value;
+        if (string.IsNullOrEmpty(token))
         {
-            Snackbar.Add("Login failed", Severity.Error);
+            Snackbar.Add("Token is null or empty.", Severity.Error);
+            return;
         }
+        var authStateProvider = (CustomAuthenticationStateProvider)AuthenticationStateProvider;
+        await authStateProvider.SetToken(token);
+        Snackbar.Add("Successfuly logged in.", Severity.Success);
+        NavigationManager.NavigateTo("/");
+
     }
 
     private void NavigateToRegister()

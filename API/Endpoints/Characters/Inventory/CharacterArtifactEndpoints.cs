@@ -11,32 +11,32 @@ public static class CharacterArtifactEndpoints
 
         group.MapGet("/{id:guid}", async (Guid id, ICharacterArtifactService service) =>
         {
-            var characterArtifact = await service.GetByIdAsync(id);
-            return characterArtifact is not null ? Results.Ok(characterArtifact) : Results.NotFound();
+            var result = await service.GetByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/character/{characterId:guid}", async (Guid characterId, ICharacterArtifactService service) =>
         {
-            var artifacts = await service.GetByCharacterIdAsync(characterId);
-            return artifacts.Any() ? Results.Ok(artifacts) : Results.NotFound();
+            var result = await service.GetByCharacterIdAsync(characterId);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (CharacterArtifactCreateDto characterArtifact, ICharacterArtifactService service) =>
         {
-            var created = await service.CreateAsync(characterArtifact);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateAsync(characterArtifact);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (CharacterArtifactDto characterArtifact, ICharacterArtifactService service) =>
         {
-            var success = await service.UpdateAsync(characterArtifact);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateAsync(characterArtifact);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, ICharacterArtifactService service) =>
         {
-            var success = await service.DeleteAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

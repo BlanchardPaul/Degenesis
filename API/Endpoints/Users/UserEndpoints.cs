@@ -11,14 +11,14 @@ public static class UserEndpoints
 
         group.MapPost("/register", async (UserCreateDto userCreateDto, IUserService userService) =>
         {
-            var success = await userService.RegisterAsync(userCreateDto);
-            return success ? Results.Ok("User registered successfully") : Results.BadRequest("Registration failed");
+            var result = await userService.RegisterAsync(userCreateDto);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/login", async (UserLoginDto userLoginDto, IUserService userService) =>
         {
-            var token = await userService.LoginAsync(userLoginDto);
-            return token is not null ? Results.Ok(token) : Results.Unauthorized();
+            var result = await userService.LoginAsync(userLoginDto);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
     }
 }

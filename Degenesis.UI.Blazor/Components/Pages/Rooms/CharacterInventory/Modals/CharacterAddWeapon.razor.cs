@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.Display;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Weapons;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -15,7 +16,16 @@ public partial class CharacterAddWeapon
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        Weapons = await Client!.GetFromJsonAsync<List<WeaponDto>>("/weapons") ?? [];
+        var result = await Client!.GetFromJsonAsync<Result<List<WeaponDto>>>("/weapons") ?? new Result<List<WeaponDto>> {IsError = true, Error = "Unknown error" };
+        if(result.IsError)
+        {
+            Snackbar.Add("Error loading weapons: " + result.Error);
+            Weapons = [];
+        }
+        else
+        {
+            Weapons = result.Value;
+        }
     }
 
     private async Task AddCharacterWeapon(Guid weaponId)
@@ -25,11 +35,17 @@ public partial class CharacterAddWeapon
             Snackbar.Add("Please select a weapon first.", Severity.Warning);
             return;
         }
-        var result = await Client!.PostAsJsonAsync($"/character-weapons/", new { CharacterId = Character.Id, WeaponId = weaponId });
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error while adding character weapon", Severity.Error);
+
+        var response = await Client!.PostAsJsonAsync($"/character-weapons/", new { CharacterId = Character.Id, WeaponId = weaponId });
+        if(response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
             Snackbar.Add("Character weapon added successfully.", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

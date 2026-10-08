@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -30,7 +31,7 @@ public partial class CharacterAddPotentialModal
             if (prereq.IsBackgroundPrerequisite)
             {
                 var bg = Character.Backgrounds.FirstOrDefault(b => b.BackgroundId == prereq.BackgroundRequiredId!.Value);
-                if (bg == null || bg.Level < (prereq.BackgroundLevelRequired ?? 0))
+                if (bg is null || bg.Level < (prereq.BackgroundLevelRequired ?? 0))
                     return true;
             }
 
@@ -63,7 +64,7 @@ public partial class CharacterAddPotentialModal
 
     private static string GetPotentialPrerequisiteLabel(PotentialPrerequisiteDto prerequisite)
     {
-        if (prerequisite == null)
+        if (prerequisite is null)
             return "Unknown";
 
         if (prerequisite.IsBackgroundPrerequisite && prerequisite.BackgroundRequired != null)
@@ -91,12 +92,16 @@ public partial class CharacterAddPotentialModal
             return;
         }
 
-        var result = await Client!.PostAsJsonAsync($"/character-potentials/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedPotentialId });
-
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error while adding character potential", Severity.Error);
+        var response = await Client!.PostAsJsonAsync($"/character-potentials/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedPotentialId });
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
             Snackbar.Add("Character potential added successfully.", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

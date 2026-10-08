@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Burns;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
@@ -15,7 +16,16 @@ public partial class CharacterAddBurn
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        Burns = await Client!.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
+        var result = await Client!.GetFromJsonAsync<Result<List<BurnDto>>>("/burns") ?? new Result<List<BurnDto>> { IsError = true, Error = "Unknown error" };
+        if (result.IsError)
+        {
+            Snackbar.Add("Error loading burns: " + result.Error);
+            Burns = [];
+        }
+        else
+        {
+            Burns = result.Value;
+        }
     }
 
     private async Task AddCharacterBurn(Guid burnId)
@@ -26,11 +36,16 @@ public partial class CharacterAddBurn
             return;
         }
 
-        var result = await Client!.PostAsJsonAsync($"/character-burns/", new CharacterBurnCreateDto { Id = Guid.NewGuid(), CharacterId = Character.Id, BurnId = burnId });
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error while adding character burn", Severity.Error);
+        var response = await Client!.PostAsJsonAsync($"/character-burns/", new CharacterBurnCreateDto { Id = Guid.NewGuid(), CharacterId = Character.Id, BurnId = burnId });
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
             Snackbar.Add("Character burn added successfully.", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

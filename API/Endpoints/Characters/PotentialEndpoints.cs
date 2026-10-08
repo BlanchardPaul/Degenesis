@@ -11,32 +11,32 @@ public static class PotentialEndpoints
 
         group.MapGet("/", async (IPotentialService potentialService) =>
         {
-            var potentials = await potentialService.GetAllPotentialsAsync();
-            return Results.Ok(potentials);
+            var result = await potentialService.GetAllPotentialsAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id}", async (Guid id, IPotentialService potentialService) =>
         {
-            var potential = await potentialService.GetPotentialByIdAsync(id);
-            return potential is not null ? Results.Ok(potential) : Results.NotFound();
+            var result = await potentialService.GetPotentialByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (PotentialCreateDto potential, IPotentialService potentialService) =>
         {
-            var created = await potentialService.CreatePotentialAsync(potential);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await potentialService.CreatePotentialAsync(potential);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (PotentialDto potential, IPotentialService potentialService) =>
         {
-            var success = await potentialService.UpdatePotentialAsync(potential);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await potentialService.UpdatePotentialAsync(potential);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id}", async (Guid id, IPotentialService potentialService) =>
         {
-            var success = await potentialService.DeletePotentialAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await potentialService.DeletePotentialAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

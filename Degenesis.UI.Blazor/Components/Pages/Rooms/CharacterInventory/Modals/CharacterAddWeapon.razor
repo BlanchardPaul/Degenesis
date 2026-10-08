@@ -52,7 +52,7 @@
                     <MudTd>@(string.IsNullOrEmpty(context.Value) ? "-" : context.Value)</MudTd>
                     <MudTd>@(string.IsNullOrEmpty(context.Resources) ? "-" : context.Resources)</MudTd>
                     <MudTd>@(string.IsNullOrEmpty(context.Qualities) ? "-" : context.Qualities)</MudTd>
-                    <MudTd>@(context.Cults == null || !context.Cults.Any() ? "-" : string.Join(", ", context.Cults.Select(c => c.Name)))</MudTd>
+                    <MudTd>@(context.Cults is null || !context.Cults.Any() ? "-" : string.Join(", ", context.Cults.Select(c => c.Name)))</MudTd>
                     <MudTd>
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => AddCharacterWeapon(context.Id)">Add to Character</MudButton>
                     </MudTd>

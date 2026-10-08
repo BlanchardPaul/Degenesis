@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Domain.Characters.Inventory;
 using Microsoft.EntityFrameworkCore;
@@ -8,91 +9,105 @@ namespace Business.Characters.Inventory;
 
 public interface ICharacterWeaponService
 {
-    Task<List<CharacterWeaponDto>> GetByCharacterIdAsync(Guid characterId);
-    Task<CharacterWeaponDto?> CreateAsync(CharacterWeaponCreateDto characterWeapon);
-    Task<bool> UpdateAsync(CharacterWeaponDto characterWeapon);
-    Task<bool> DeleteAsync(Guid id);
+    Task<Result<List<CharacterWeaponDto>>> GetByCharacterIdAsync(Guid characterId);
+    Task<Result<object>> CreateAsync(CharacterWeaponCreateDto characterWeapon);
+    Task<Result<object>> UpdateAsync(CharacterWeaponDto characterWeapon);
+    Task<Result<object>> DeleteAsync(Guid id);
 }
 
 
-public class CharacterWeaponService : ICharacterWeaponService
+public class CharacterWeaponService(ApplicationDbContext context, IMapper mapper) : ICharacterWeaponService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
-    public CharacterWeaponService(ApplicationDbContext context, IMapper mapper)
+    public async Task<Result<List<CharacterWeaponDto>>> GetByCharacterIdAsync(Guid characterId)
     {
-        _context = context;
-        _mapper = mapper;
+        try
+        {
+            var characterWeapons =
+                await _context.CharacterWeapons
+                .Where(cv => cv.CharacterId == characterId)
+                .Include(cv => cv.Weapon)
+                    .ThenInclude(v => v.WeaponType)
+                .Include(cv => cv.Weapon)
+                    .ThenInclude(v => v.Cults)
+                .ToListAsync();
+            return new Result<List<CharacterWeaponDto>> { Value = _mapper.Map<List<CharacterWeaponDto>>(characterWeapons) };
+        }
+        catch (Exception)
+        {
+            return new Result<List<CharacterWeaponDto>> { IsError = true, Error = "A server error occurred" };
+        }
     }
 
-    public async Task<List<CharacterWeaponDto>> GetByCharacterIdAsync(Guid characterId)
-    {
-        var characterWeapons =
-            await _context.CharacterWeapons
-            .Where(cv => cv.CharacterId == characterId)
-            .Include(cv => cv.Weapon)
-                .ThenInclude(v => v.WeaponType)
-            .Include(cv => cv.Weapon)
-                .ThenInclude(v => v.Cults)
-            .ToListAsync();
-        return _mapper.Map<List<CharacterWeaponDto>>(characterWeapons);
-    }
-
-    public async Task<CharacterWeaponDto?> CreateAsync(CharacterWeaponCreateDto characterWeaponCreate)
+    public async Task<Result<object>> CreateAsync(CharacterWeaponCreateDto characterWeaponCreate)
     {
         try
         {
             var characterWeapon = _mapper.Map<CharacterWeapon>(characterWeaponCreate);
-            characterWeapon.Character = await _context.Characters.FindAsync(characterWeaponCreate.CharacterId)
-                ?? throw new Exception("Character not found");
-            characterWeapon.Weapon = await _context.Weapons.FindAsync(characterWeaponCreate.WeaponId)
-                ?? throw new Exception("Weapon not found");
+
+            var existingCharacter = await _context.Characters.FindAsync(characterWeapon.CharacterId);
+            if (existingCharacter is null)
+                return new Result<object> { IsError = true, Error = "Character not found" };
+
+            var existingWeapon = await _context.Weapons.FindAsync(characterWeapon.WeaponId);
+            if (existingWeapon is null)
+                return new Result<object> { IsError = true, Error = "Weapon not found" };
+
+            characterWeapon.Character = existingCharacter;
+            characterWeapon.Weapon = existingWeapon;
+
             // Set the BulletsInMagazine, Slots, Encumbrance, Qualities based on the Weapon entity
             characterWeapon.BulletsInMagazine = characterWeapon.Weapon.Magazine;
             characterWeapon.UsedSlots = 0;
             characterWeapon.Slots = characterWeapon.Weapon.Slots;
             characterWeapon.Encumbrance = characterWeapon.Weapon.Encumbrance;
             characterWeapon.Qualities = characterWeapon.Weapon.Qualities;
+
             _context.CharacterWeapons.Add(characterWeapon);
             await _context.SaveChangesAsync();
-            return _mapper.Map<CharacterWeaponDto>(characterWeapon);
+
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> UpdateAsync(CharacterWeaponDto characterWeaponDto)
+    public async Task<Result<object>> UpdateAsync(CharacterWeaponDto characterWeaponDto)
     {
         try
         {
             var characterWeapon = await _context.CharacterWeapons.FindAsync(characterWeaponDto.Id);
-            if (characterWeapon == null) return false;
+            if (characterWeapon is null) 
+                return new Result<object> { IsError = true, Error = "CharacterWeapon not found" };
+
             _mapper.Map(characterWeaponDto, characterWeapon);
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<object>> DeleteAsync(Guid id)
     {
         try
         {
             var characterWeapon = await _context.CharacterWeapons.FindAsync(id);
-            if (characterWeapon  == null) return false;
+            if (characterWeapon  is null) 
+                return new Result<object> { IsError = true, Error = "CharacterWeapon not found" };
             _context.CharacterWeapons.Remove(characterWeapon);
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

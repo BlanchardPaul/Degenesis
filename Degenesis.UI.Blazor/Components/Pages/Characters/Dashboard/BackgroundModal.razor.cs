@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -11,29 +12,20 @@ public partial class BackgroundModal
 
     private async Task SaveBackground()
     {
+        HttpResponseMessage response;
         if (Background.Id == Guid.Empty)
+            response = await Client!.PostAsJsonAsync("/backgrounds", Background);
+        else
+            response = await Client!.PutAsJsonAsync($"/backgrounds", Background);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PostAsJsonAsync("/backgrounds", Background);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
 
-        else
-        {
-            var result = await Client!.PutAsJsonAsync($"/backgrounds", Background);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+        Snackbar.Add(Background.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
 
         MudDialog.Close(DialogResult.Ok(true));
     }

@@ -1,5 +1,6 @@
 ﻿using Business.Characters;
 using Degenesis.Shared.DTOs.Characters.CRUD;
+using Domain.Characters;
 
 namespace API.Endpoints.Characters;
 
@@ -11,8 +12,8 @@ public static class CharacterBackgroundEndpoints
 
         group.MapPut("/", async (CharacterBackgroundDto characterBackground, ICharacterBackgroundService service) =>
         {
-            var success = await service.UpdateCharacterBackgroundAsync(characterBackground);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateCharacterBackgroundAsync(characterBackground);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
     }
 }

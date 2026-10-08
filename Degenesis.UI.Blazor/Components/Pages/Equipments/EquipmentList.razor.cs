@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Equipments;
 using MudBlazor;
 
@@ -18,9 +19,33 @@ public partial class EquipmentList
 
     private async Task LoadEquipments()
     {
-        Equipments = await Client!.GetFromJsonAsync<List<EquipmentDto>>("/equipments") ?? [];
-        EquipmentTypes = await Client!.GetFromJsonAsync<List<EquipmentTypeDto>>("/equipment-types") ?? [];
-        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        var equipmentResult = await Client!.GetFromJsonAsync<Result<List<EquipmentDto>>>("/equipments") ?? new Result<List<EquipmentDto>> { IsError = true, Error = "Unknown error" };
+        if (equipmentResult.IsError)
+        {
+            Snackbar.Add($"Error loading equipments: {equipmentResult.Error}", Severity.Error);
+            Equipments = [];
+        }
+        else
+            Equipments = equipmentResult.Value ?? [];
+        
+        var equipmentTypesResult = await Client!.GetFromJsonAsync<Result<List<EquipmentTypeDto>>>("/equipment-types") ?? new Result<List<EquipmentTypeDto>> { IsError = true, Error = "Unknown error" };
+        if (equipmentTypesResult.IsError)
+        {
+            Snackbar.Add($"Error loading equipment types: {equipmentTypesResult.Error}", Severity.Error);
+            EquipmentTypes = [];
+        }
+        else
+            EquipmentTypes = equipmentTypesResult.Value ?? [];
+
+        var cultsResult = await Client!.GetFromJsonAsync<Result<List<CultDto>>>("/cults") ?? new Result<List<CultDto>> { IsError = true, Error = "Unknown error" };
+        if (cultsResult.IsError)
+        {
+            Snackbar.Add($"Error loading cults: {cultsResult.Error}", Severity.Error);
+            Cults = [];
+        }
+        else
+            Cults = cultsResult.Value ?? [];
+
     }
 
     private async Task ShowCreateDialog()
@@ -69,11 +94,15 @@ public partial class EquipmentList
 
     private async Task DeleteEquipment(Guid equipmentId)
     {
-        var result = await Client!.DeleteAsync($"/equipments/{equipmentId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/equipments/{equipmentId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
+
         await LoadEquipments();
     }
 

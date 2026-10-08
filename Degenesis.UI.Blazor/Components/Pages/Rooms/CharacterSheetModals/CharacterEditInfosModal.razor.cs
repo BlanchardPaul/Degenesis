@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -12,11 +13,11 @@ public partial class CharacterEditInfosModal
 
     private async Task SaveCharacterInfos()
     {
-        var result = await Client!.PutAsJsonAsync("/characters/basic-infos", CharacterInfos);
-
-        if (!result.IsSuccessStatusCode)
+        var response = await Client!.PutAsJsonAsync("/characters/basic-infos", CharacterInfos);
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while saving character infos", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
             return;
         }
 

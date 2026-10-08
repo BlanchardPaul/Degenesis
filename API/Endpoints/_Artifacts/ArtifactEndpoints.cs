@@ -1,4 +1,5 @@
 ﻿using Business._Artifacts;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs._Artifacts;
 
 namespace API.Endpoints._Artifacts;
@@ -11,31 +12,32 @@ public static class ArtifactEndpoints
 
         group.MapGet("/", async (IArtifactService service) =>
         {
-            return Results.Ok(await service.GetAllAsync());
+            var result = await service.GetAllAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IArtifactService service) =>
         {
-            var artifact = await service.GetByIdAsync(id);
-            return artifact is not null ? Results.Ok(artifact) : Results.NotFound();
+            var result = await service.GetByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (ArtifactCreateDto artifact, IArtifactService service) =>
         {
-            var created = await service.CreateAsync(artifact);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateAsync(artifact);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (ArtifactDto artifact, IArtifactService service) =>
         {
-            var success = await service.UpdateAsync(artifact);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateAsync(artifact);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IArtifactService service) =>
         {
-            var success = await service.DeleteAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

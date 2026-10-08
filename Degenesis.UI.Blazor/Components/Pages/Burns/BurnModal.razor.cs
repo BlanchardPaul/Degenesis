@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Burns;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Burns;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -11,26 +12,20 @@ public partial class BurnModal
 
     private async Task SaveBurn()
     {
+        HttpResponseMessage response;
         if (Burn.Id == Guid.Empty)
+            response = await Client!.PostAsJsonAsync("/burns", Burn);
+        else
+            response = await Client!.PutAsJsonAsync($"/burns", Burn);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PostAsJsonAsync("/burns", Burn);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
 
-        else
-        {
-            var result = await Client!.PutAsJsonAsync($"/burns", Burn);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-                Snackbar.Add("Edited", Severity.Success);
-        }
+        Snackbar.Add(Burn.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }
 

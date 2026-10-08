@@ -36,7 +36,7 @@ public partial class CharacterPotentialStep
             if (prereq.IsBackgroundPrerequisite)
             {
                 var bg = Character.Backgrounds.FirstOrDefault(b => b.BackgroundId == prereq.BackgroundRequiredId!.Value);
-                if (bg == null || bg.Level < (prereq.BackgroundLevelRequired ?? 0))
+                if (bg is null || bg.Level < (prereq.BackgroundLevelRequired ?? 0))
                     return true;
             }
 
@@ -69,7 +69,7 @@ public partial class CharacterPotentialStep
 
     private static string GetPotentialPrerequisiteLabel(PotentialPrerequisiteDto prerequisite)
     {
-        if (prerequisite == null)
+        if (prerequisite is null)
             return "Unknown";
 
         if (prerequisite.IsBackgroundPrerequisite && prerequisite.BackgroundRequired != null)

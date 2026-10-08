@@ -68,7 +68,7 @@
 
             <div>
                 <MudText HtmlTag="u" Typo="Typo.caption">Cults</MudText>
-                <MudText Typo="Typo.body2">@(Vehicle.Cult == null ? "-" : Vehicle.Cult.Name)</MudText>
+                <MudText Typo="Typo.body2">@(Vehicle.Cult is null ? "-" : Vehicle.Cult.Name)</MudText>
             </div>
         </MudStack>
     </MudPaper>

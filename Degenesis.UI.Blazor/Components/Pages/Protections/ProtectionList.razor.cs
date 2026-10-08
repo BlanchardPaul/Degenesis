@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Protections;
 using MudBlazor;
 
@@ -7,7 +8,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Protections;
 
 public partial class ProtectionList
 {
-    private List<ProtectionDto>? protections;
+    private List<ProtectionDto>? Protections;
     private List<CultDto> Cults = [];
     private string SearchString = "";
 
@@ -18,8 +19,25 @@ public partial class ProtectionList
 
     private async Task LoadProtections()
     {
-        protections = await Client!.GetFromJsonAsync<List<ProtectionDto>>("/protections") ?? [];
+        Protections = await Client!.GetFromJsonAsync<List<ProtectionDto>>("/protections") ?? [];
         Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
+        var protectionResult = await Client!.GetFromJsonAsync<Result<List<ProtectionDto>>>("/protections") ?? new Result<List<ProtectionDto>> { IsError = true, Error = "Unknown error" };
+        if (protectionResult.IsError)
+        {
+            Snackbar.Add($"Error loading potentials: {protectionResult.Error}", Severity.Error);
+            Protections = [];
+        }
+        else
+            Protections = protectionResult.Value ?? [];
+        
+        var cultResult = await Client!.GetFromJsonAsync<Result<List<CultDto>>>("/cults") ?? new Result<List<CultDto>> { IsError = true, Error = "Unknown error" };
+        if (cultResult.IsError)
+        {
+            Snackbar.Add($"Error loading cults: {cultResult.Error}", Severity.Error);
+            Cults = [];
+        }
+        else
+            Cults = cultResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -43,7 +61,7 @@ public partial class ProtectionList
 
     private async Task ShowEditDialog(Guid protectionId)
     {
-        var protection = protections?.FirstOrDefault(p => p.Id == protectionId);
+        var protection = Protections?.FirstOrDefault(p => p.Id == protectionId);
         if (protection != null)
         {
             var parameters = new DialogParameters
@@ -66,11 +84,14 @@ public partial class ProtectionList
 
     private async Task DeleteProtection(Guid protectionId)
     {
-        var result = await Client!.DeleteAsync($"/protections/{protectionId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/protections/{protectionId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
         await LoadProtections();
     }
     private bool FilterFunc(ProtectionDto protection)

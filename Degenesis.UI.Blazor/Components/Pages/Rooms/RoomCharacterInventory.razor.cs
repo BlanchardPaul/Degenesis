@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Burns;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
@@ -364,11 +365,12 @@ public partial class RoomCharacterInventory
         if (Character is null)
             return;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/inventory-notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.InventoryNotes });
+        var response = await Client!.PutAsJsonAsync($"/characters/inventory-notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.InventoryNotes });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating inventory notes", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
 }

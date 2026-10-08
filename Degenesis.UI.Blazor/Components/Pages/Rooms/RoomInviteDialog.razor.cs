@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Rooms;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Rooms;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -11,15 +12,18 @@ public partial class RoomInviteDialog
 
     private async Task Invite()
     {
-        var result = await Client!.PostAsJsonAsync("/rooms/invite", InvitationDto);
-        if (result.IsSuccessStatusCode)
+        var response = await Client!.PostAsJsonAsync("/rooms/invite", InvitationDto);
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
+        else
         {
             Snackbar.Add("Invitation sent", Severity.Success);
             MudDialog.Close(DialogResult.Ok(true));
-        }
-        else
-            Snackbar.Add("Invitation failed, check user's name", Severity.Error);
-        
+        }        
     }
 
     private void Cancel() => MudDialog.Cancel();

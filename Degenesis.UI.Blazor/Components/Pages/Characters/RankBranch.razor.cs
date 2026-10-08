@@ -28,7 +28,7 @@ public partial class RankBranch
             if (prereq.IsBackgroundPrerequisite)
             {
                 var bg = Character.Backgrounds.FirstOrDefault(b => b.BackgroundId == prereq.BackgroundRequiredId);
-                if (bg == null || bg.Level < prereq.BackgroundLevelRequired)
+                if (bg is null || bg.Level < prereq.BackgroundLevelRequired)
                     return true;
             }
             else
@@ -54,7 +54,7 @@ public partial class RankBranch
 
     private static string GetPrerequisiteLabel(RankPrerequisiteDto prerequisite)
     {
-        if (prerequisite == null)
+        if (prerequisite is null)
             return "Unknown";
 
         if (prerequisite.IsBackgroundPrerequisite && prerequisite.BackgroundRequired != null)

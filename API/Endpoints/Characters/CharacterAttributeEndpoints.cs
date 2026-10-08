@@ -1,5 +1,6 @@
 ﻿using Business.Characters;
 using Degenesis.Shared.DTOs.Characters.CRUD;
+using Domain.Characters;
 
 namespace API.Endpoints.Characters;
 
@@ -11,8 +12,8 @@ public static class CharacterAttributeEndpoints
 
         group.MapPut("/", async (CharacterAttributeDto characterAttribute, ICharacterAttributeService service) =>
         {
-            var success = await service.UpdateCharacterAttributeAsync(characterAttribute);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateCharacterAttributeAsync(characterAttribute);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
     }
 }

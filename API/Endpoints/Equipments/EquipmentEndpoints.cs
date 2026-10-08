@@ -1,4 +1,5 @@
 ﻿using Business.Equipments;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Equipments;
 
 namespace API.Endpoints.Equipments;
@@ -11,32 +12,32 @@ public static class EquipmentEndpoints
 
         group.MapGet("/", async (IEquipmentService service) =>
         {
-            var equipments = await service.GetAllEquipmentsAsync();
-            return Results.Ok(equipments);
+            var result = await service.GetAllEquipmentsAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IEquipmentService service) =>
         {
-            var equipment = await service.GetEquipmentByIdAsync(id);
-            return equipment is not null ? Results.Ok(equipment) : Results.NotFound();
+            var result = await service.GetEquipmentByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (EquipmentCreateDto equipment, IEquipmentService service) =>
         {
-            var created = await service.CreateEquipmentAsync(equipment);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateEquipmentAsync(equipment);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (EquipmentDto equipment, IEquipmentService service) =>
         {
-            var success = await service.UpdateEquipmentAsync(equipment);
-            return success ? Results.Ok() : Results.NotFound();
+            var result = await service.UpdateEquipmentAsync(equipment);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IEquipmentService service) =>
         {
-            var success = await service.DeleteEquipmentAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteEquipmentAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

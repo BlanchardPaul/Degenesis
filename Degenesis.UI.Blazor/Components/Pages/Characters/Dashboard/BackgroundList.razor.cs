@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
@@ -15,7 +16,14 @@ public partial class BackgroundList
 
     private async Task LoadBackgrounds()
     {
-        backgrounds = await Client!.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
+        var result = await Client!.GetFromJsonAsync<Result<List<BackgroundDto>>>("/backgrounds") ?? new Result<List<BackgroundDto>> { IsError = true, Error = "Unknown error" };
+        if (result.IsError)
+        {
+            Snackbar.Add("Error loading backgrounds: " + result.Error);
+            backgrounds = [];
+        }
+        else
+            backgrounds = result.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -52,11 +60,16 @@ public partial class BackgroundList
 
     private async Task DeleteBackground(Guid backgroundId)
     {
-        var result = await Client!.DeleteAsync($"/backgrounds/{backgroundId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/backgrounds/{backgroundId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
+
         await LoadBackgrounds();
     }
 

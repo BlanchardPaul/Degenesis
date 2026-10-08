@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -20,7 +21,7 @@ public partial class RankModal
         Rank.Prerequisites ??= [];
         SelectedPrerequisiteIds = [.. Rank.Prerequisites.Select(rp => rp.Id)];
 
-        if (Rank.CultId == Guid.Empty && Cults.Any())
+        if (Rank.CultId == Guid.Empty && Cults.Count != 0)
         {
             Rank.CultId = Cults.First().Id;
         }
@@ -31,7 +32,7 @@ public partial class RankModal
 
     private Task OnPrerequisitesChanged(IEnumerable<Guid> selectedValues)
     {
-        SelectedPrerequisiteIds = selectedValues.ToHashSet();
+        SelectedPrerequisiteIds = [.. selectedValues];
         Rank.Prerequisites = [.. RankPrerequisites.Where(rp => SelectedPrerequisiteIds.Contains(rp.Id))];
         return Task.CompletedTask;
     }
@@ -45,29 +46,21 @@ public partial class RankModal
 
     private async Task SaveRank()
     {
+        HttpResponseMessage response;
         if (Rank.Id == Guid.Empty)
+            response = await Client!.PostAsJsonAsync("/ranks", Rank);
+        else
+            response = await Client!.PutAsJsonAsync($"/ranks", Rank);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PostAsJsonAsync("/ranks", Rank);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
 
-        else
-        {
-            var result = await Client!.PutAsJsonAsync($"/ranks", Rank);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+        Snackbar.Add(Rank.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Protections;
 using Microsoft.AspNetCore.Components;
@@ -15,7 +16,16 @@ public partial class CharacterAddProtection
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        Protections = await Client!.GetFromJsonAsync<List<ProtectionDto>>("/protections") ?? [];
+        var result = await Client!.GetFromJsonAsync<Result<List<ProtectionDto>>>("/protections") ?? new Result<List<ProtectionDto>> {IsError = true, Error = "Unknown error" };
+        if (result.IsError)
+        {
+            Snackbar.Add("Error loading protections: " + result.Error);
+            Protections = [];
+        }
+        else
+        {
+            Protections = result.Value;
+        }
     }
 
     private async Task AddCharacterProtection(Guid protectionId)
@@ -25,11 +35,17 @@ public partial class CharacterAddProtection
             Snackbar.Add("Please select a protection first.", Severity.Warning);
             return;
         }
-        var result = await Client!.PostAsJsonAsync($"/character-protections/", new CharacterProtectionCreateDto { Id = Guid.NewGuid(), CharacterId = Character.Id, ProtectionId = protectionId });
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error while adding character protection", Severity.Error);
+
+        var response = await Client!.PostAsJsonAsync($"/character-protections/", new CharacterProtectionCreateDto { Id = Guid.NewGuid(), CharacterId = Character.Id, ProtectionId = protectionId });
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
             Snackbar.Add("Character protection added successfully.", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

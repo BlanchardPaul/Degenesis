@@ -1,6 +1,6 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
-using System;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -9,20 +9,40 @@ public partial class PotentialList
     private List<PotentialDto>? Potentials;
     private List<CultDto> Cults = [];
     private List<PotentialPrerequisiteDto> PotentialPrerequisites = [];
-    private HttpClient _client = new();
     private string SearchString = "";
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
         await LoadPotentials();
     }
 
     private async Task LoadPotentials()
     {
-        Potentials = await _client.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
-        Cults = await _client.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
-        PotentialPrerequisites = await _client.GetFromJsonAsync<List<PotentialPrerequisiteDto>>("/potential-prerequisites") ?? [];
+        var potentialResult = await Client!.GetFromJsonAsync<Result<List<PotentialDto>>>("/potentials") ?? new Result<List<PotentialDto>> { IsError = true, Error = "Unknown error" };
+        if(potentialResult.IsError)
+        {
+            Snackbar.Add($"Error loading potentials: {potentialResult.Error}", Severity.Error);
+            Potentials = [];
+        }else
+            Potentials = potentialResult.Value ?? [];
+
+        var cultResult = await Client!.GetFromJsonAsync<Result<List<CultDto>>>("/cults") ?? new Result<List<CultDto>> { IsError = true, Error = "Unknown error" };
+        if (cultResult.IsError)
+        {
+            Snackbar.Add($"Error loading cults: {cultResult.Error}", Severity.Error);
+            Cults = [];
+        }
+        else
+            Cults = cultResult.Value ?? [];
+
+        var potentialPrerequisiteResult = await Client!.GetFromJsonAsync<Result<List<PotentialPrerequisiteDto>>>("/potential-prerequisites") ?? new Result<List<PotentialPrerequisiteDto>> { IsError = true, Error = "Unknown error" };
+        if(potentialPrerequisiteResult.IsError)
+        {
+            Snackbar.Add($"Error loading potential prerequisites: {potentialPrerequisiteResult.Error}", Severity.Error);
+            PotentialPrerequisites = [];
+        }
+        else
+            PotentialPrerequisites = potentialPrerequisiteResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -73,9 +93,12 @@ public partial class PotentialList
 
     private async Task DeletePotential(Guid potentialId)
     {
-        var result = await _client.DeleteAsync($"/potentials/{potentialId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion", Severity.Error);
+        var response = await Client!.DeleteAsync($"/potentials/{potentialId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
             Snackbar.Add("Deleted", Severity.Success);
 
@@ -85,7 +108,7 @@ public partial class PotentialList
 
     private static string GetPrerequisiteLabel(PotentialPrerequisiteDto prerequisite)
     {
-        if (prerequisite == null)
+        if (prerequisite is null)
             return "Unknown";
 
         if (prerequisite.IsBackgroundPrerequisite && prerequisite.BackgroundRequired != null)

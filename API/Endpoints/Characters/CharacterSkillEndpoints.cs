@@ -11,8 +11,8 @@ public static class CharacterSkillEndpoints
 
         group.MapPut("/", async (CharacterSkillDto characterSkill, ICharacterSkillService service) =>
         {
-            var success = await service.UpdateCharacterSkillAsync(characterSkill);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateCharacterSkillAsync(characterSkill);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
     }
 }

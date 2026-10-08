@@ -1,40 +1,35 @@
-﻿using AutoMapper;
-using DataAccessLayer;
+﻿using DataAccessLayer;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;
 public interface ICharacterBackgroundService
 {
-    Task<bool> UpdateCharacterBackgroundAsync(CharacterBackgroundDto characterBackground);
+    Task<Result<object>> UpdateCharacterBackgroundAsync(CharacterBackgroundDto characterBackground);
 }
-public class CharacterBackgroundService : ICharacterBackgroundService
+
+public class CharacterBackgroundService(ApplicationDbContext context) : ICharacterBackgroundService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
 
-    public CharacterBackgroundService(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
-    public async Task<bool> UpdateCharacterBackgroundAsync(CharacterBackgroundDto characterBackground)
+    public async Task<Result<object>> UpdateCharacterBackgroundAsync(CharacterBackgroundDto characterBackground)
     {
         try
         {
             var existingCharacterBackground = await _context.CharacterBackgrounds
-                .FirstOrDefaultAsync(cb => cb.CharacterId == characterBackground.CharacterId && cb.BackgroundId == characterBackground.BackgroundId) 
-                ?? throw new Exception("CharacterBackground not found"); ;
+                .FirstOrDefaultAsync(cb => cb.CharacterId == characterBackground.CharacterId && cb.BackgroundId == characterBackground.BackgroundId);
+            if (existingCharacterBackground is null)
+                return new Result<object> { IsError = true, Error = "CharacterBackgrounds not found" };
 
             existingCharacterBackground.Level = characterBackground.Level;
              
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

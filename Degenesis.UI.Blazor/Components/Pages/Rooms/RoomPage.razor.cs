@@ -1,5 +1,8 @@
-﻿using Degenesis.Shared.DTOs.Characters.Display;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
+using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
@@ -15,7 +18,11 @@ public partial class RoomPage
 
     private async Task ReloadCharacter()
     {
-        Character = await Client!.GetFromJsonAsync<CharacterDisplayDto>($"/characters/{IdRoom}");
+        var response = await Client!.GetFromJsonAsync<Result<CharacterDisplayDto>>($"/characters/{IdRoom}") ?? new Result<CharacterDisplayDto> { IsError = true, Error = "Unknown error" };
+        if (response.IsError) {
+            Snackbar.Add("Error loading character: " + response.Error);
+        }else
+            Character = response.Value;
         StateHasChanged();
     }
 }

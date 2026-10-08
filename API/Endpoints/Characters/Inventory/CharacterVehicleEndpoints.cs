@@ -1,5 +1,6 @@
 ﻿using Business.Characters.Inventory;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
+using Domain.Characters.Inventory;
 
 namespace API.Endpoints.Characters.Inventory;
 
@@ -10,35 +11,23 @@ public static class CharacterVehicleEndpoints
         var group = app.MapGroup("/character-vehicles").WithTags("CharacterVehicles");
         group.MapGet("/character/{characterId:guid}", async (Guid characterId, ICharacterVehicleService service) =>
         {
-            var characterVehicles = await service.GetByCharacterIdAsync(characterId);
-            return Results.Ok(characterVehicles);
+            var result = await service.GetByCharacterIdAsync(characterId);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
         group.MapPost("/", async (CharacterVehicleCreateDto characterVehicleCreate, ICharacterVehicleService service) =>
         {
-            var createdCharacterVehicle = await service.CreateAsync(characterVehicleCreate);
-            if (createdCharacterVehicle is null)
-            {
-                return Results.BadRequest("Failed to create CharacterVehicle.");
-            }
-            return Results.Created($"/character-vehicles/{createdCharacterVehicle.Id}", createdCharacterVehicle);
+            var result = await service.CreateAsync(characterVehicleCreate);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
         group.MapPut("/", async (CharacterVehicleDto characterVehicleDto, ICharacterVehicleService service) =>
         {
-            var success = await service.UpdateAsync(characterVehicleDto);
-            if (!success)
-            {
-                return Results.NotFound();
-            }
-            return Results.Ok();
+            var result = await service.UpdateAsync(characterVehicleDto);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
         group.MapDelete("/{id:guid}", async (Guid id, ICharacterVehicleService service) =>
         {
-            var success = await service.DeleteAsync(id);
-            if (!success)
-            {
-                return Results.NotFound();
-            }
-            return Results.NoContent();
+            var result = await service.DeleteAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

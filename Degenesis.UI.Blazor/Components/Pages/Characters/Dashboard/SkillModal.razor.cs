@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
-using MudBlazor;
+﻿using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
+using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -21,28 +22,21 @@ public partial class SkillModal
 
     private async Task SaveSkill()
     {
+        HttpResponseMessage response;
         if (Skill.Id == Guid.Empty)
-        {
-            var result = await Client!.PostAsJsonAsync("/skills", Skill);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+            response = await Client!.PostAsJsonAsync("/skills", Skill);
         else
+            response = await Client!.PutAsJsonAsync("/skills", Skill);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PutAsJsonAsync("/skills", Skill);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
+
+        Snackbar.Add(Skill.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

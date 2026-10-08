@@ -1,98 +1,103 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs._Artifacts;
-using Degenesis.Shared.DTOs.Characters;
 using Domain._Artifacts;
-using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace Business._Artifacts;
 public interface IArtifactService
 {
-    Task<List<ArtifactDto>> GetAllAsync();
-    Task<ArtifactDto?> GetByIdAsync(Guid id);
-    Task<ArtifactDto?> CreateAsync(ArtifactCreateDto artifact);
-    Task<bool> UpdateAsync(ArtifactDto artifact);
-    Task<bool> DeleteAsync(Guid id);
+    Task<Result<List<ArtifactDto>>> GetAllAsync();
+    Task<Result<ArtifactDto>> GetByIdAsync(Guid id);
+    Task<Result<object>> CreateAsync(ArtifactCreateDto artifact);
+    Task<Result<object>> UpdateAsync(ArtifactDto artifact);
+    Task<Result<object>> DeleteAsync(Guid id);
 }
 
-public class ArtifactService : IArtifactService
+public class ArtifactService(ApplicationDbContext context, IMapper mapper) : IArtifactService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
-    public ArtifactService(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-
-    public async Task<List<ArtifactDto>> GetAllAsync()
-    {
-        var artifacts = await _context.Artifacts.OrderBy(a=>a.Name).ToListAsync();
-        return _mapper.Map<List<ArtifactDto>>(artifacts);
-    }
-
-    public async Task<ArtifactDto?> GetByIdAsync(Guid id)
+    public async Task<Result<List<ArtifactDto>>> GetAllAsync()
     {
         try
         {
-            var artifact = await _context.Artifacts.FirstOrDefaultAsync(a => a.Id == id) ?? throw new Exception("Background not found");
-            return _mapper.Map<ArtifactDto>(artifact);
+            var artifacts = await _context.Artifacts.OrderBy(a => a.Name).ToListAsync();
+            return new Result<List<ArtifactDto>> { Value = _mapper.Map<List<ArtifactDto>>(artifacts) };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<List<ArtifactDto>> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<ArtifactDto?> CreateAsync(ArtifactCreateDto artifactCreate)
+    public async Task<Result<ArtifactDto>> GetByIdAsync(Guid id)
+    {
+        try
+        {
+            var artifact = await _context.Artifacts.FirstOrDefaultAsync(a => a.Id == id);
+            if (artifact is null)
+                return new Result<ArtifactDto> { IsError = true, Error = "Artifact not found" };
+
+            return new Result<ArtifactDto> { Value = _mapper.Map<ArtifactDto>(artifact) };
+        }
+        catch (Exception)
+        {
+            return new Result<ArtifactDto> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    public async Task<Result<object>> CreateAsync(ArtifactCreateDto artifactCreate)
     {
         try
         {
             var artifact = _mapper.Map<Artifact>(artifactCreate);
             _context.Artifacts.Add(artifact);
             await _context.SaveChangesAsync();
-            return _mapper.Map<ArtifactDto>(artifact);
-        }
-        catch (Exception) { 
-            return null;
-        }
-    }
-
-    public async Task<bool> UpdateAsync(ArtifactDto artifact)
-    {
-        try
-        {
-            var existing = await _context.Artifacts.FirstOrDefaultAsync(a => a.Id == artifact.Id) ?? throw new Exception("Background not found");
-            if (existing is null) return false;
-
-            _mapper.Map(artifact, existing);
-
-            await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<object>> UpdateAsync(ArtifactDto artifact)
     {
         try
         {
-            var artifact = await _context.Artifacts.FirstOrDefaultAsync(a => a.Id == id) ?? throw new Exception("Background not found");
-            if (artifact is null) return false;
+            var existingArtifact = await _context.Artifacts.FirstOrDefaultAsync(a => a.Id == artifact.Id);
+            if (existingArtifact is null) 
+                return new Result<object> { IsError = true, Error = "Artifact not found" };
 
-            _context.Artifacts.Remove(artifact);
+            _mapper.Map(artifact, existingArtifact);
+
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    public async Task<Result<object>> DeleteAsync(Guid id)
+    {
+        try
+        {
+            var existingArtifact = await _context.Artifacts.FirstOrDefaultAsync(a => a.Id == id);
+            if (existingArtifact is null) 
+                return new Result<object> { IsError = true, Error = "Artifact not found" };
+
+            _context.Artifacts.Remove(existingArtifact);
+            await _context.SaveChangesAsync();
+            return new Result<object> { Value = null };
+        }
+        catch (Exception)
+        {
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

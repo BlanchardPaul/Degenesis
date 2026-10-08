@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs._Artifacts;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs._Artifacts;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -11,29 +12,21 @@ public partial class ArtifactModal
 
     private async Task SaveArtifact()
     {
+        HttpResponseMessage response;
+
         if (Artifact.Id == Guid.Empty)
-        {
-            var result = await Client!.PostAsJsonAsync("/artifacts", Artifact);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+            response = await Client!.PostAsJsonAsync("/artifacts", Artifact);
         else
+            response = await Client!.PutAsJsonAsync("/artifacts", Artifact);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PutAsJsonAsync($"/artifacts", Artifact);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
 
+        Snackbar.Add(Artifact.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }
 

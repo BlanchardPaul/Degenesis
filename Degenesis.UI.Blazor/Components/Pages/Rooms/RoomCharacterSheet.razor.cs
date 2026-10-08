@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterSheetModals;
 using Microsoft.AspNetCore.Components;
@@ -116,11 +117,12 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/xp/", new CharacterIntValueEditDto {Id = Character.Id, Value = Character.Experience });
+        var response = await Client!.PutAsJsonAsync($"/characters/xp/", new CharacterIntValueEditDto {Id = Character.Id, Value = Character.Experience });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating XP", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
 
@@ -129,11 +131,12 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/chroniclermoney/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.ChroniclerMoney });
+        var response = await Client!.PutAsJsonAsync($"/characters/chroniclermoney/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.ChroniclerMoney });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating Chronicler money", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
 
@@ -142,11 +145,12 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/dinar/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.DinarMoney });
+        var response = await Client!.PutAsJsonAsync($"/characters/dinar/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.DinarMoney });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating Dinars", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
 
@@ -155,11 +159,12 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/permanent-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.PermanentSporeInfestation });
+        var response = await Client!.PutAsJsonAsync($"/characters/permanent-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.PermanentSporeInfestation });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating Permanent Spore Infestation", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
     
@@ -170,11 +175,12 @@ public partial class RoomCharacterSheet
 
         Character.Ego = newValue;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/ego/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Ego });
+        var response = await Client!.PutAsJsonAsync($"/characters/ego/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Ego });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating Ego", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
 
@@ -185,11 +191,12 @@ public partial class RoomCharacterSheet
 
         Character.CurrentSporeInfestation = newValue;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/current-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.CurrentSporeInfestation });
+        var response = await Client!.PutAsJsonAsync($"/characters/current-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.CurrentSporeInfestation });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating Current Spore Infestation", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
 
@@ -200,11 +207,12 @@ public partial class RoomCharacterSheet
 
         Character.FleshWounds = newValue;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/fleshwounds/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.FleshWounds });
+        var response = await Client!.PutAsJsonAsync($"/characters/fleshwounds/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.FleshWounds });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating FleshWounds", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
 
@@ -215,11 +223,12 @@ public partial class RoomCharacterSheet
 
         Character.Trauma = newValue;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/trauma/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Trauma });
+        var response = await Client!.PutAsJsonAsync($"/characters/trauma/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Trauma });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating Trauma", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
 
@@ -237,11 +246,15 @@ public partial class RoomCharacterSheet
             Level = newValue
         };
 
-        var result = await Client!.PutAsJsonAsync("/character-backgrounds/", updateDto);
-
-        if (!result.IsSuccessStatusCode)
+        var response = await Client!.PutAsJsonAsync("/character-backgrounds/", updateDto);
+        if (!response.IsSuccessStatusCode) {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        } else
         {
-            Snackbar.Add($"Error while updating {background.Name}", Severity.Error);
+            await OnRequestParentReload.InvokeAsync();
+            StateHasChanged();
         }
     }
 
@@ -336,11 +349,13 @@ public partial class RoomCharacterSheet
             Level = attribute.Level
         };
 
-        var result = await Client!.PutAsJsonAsync("/character-attributes/", updateDto);
-
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add($"Error while updating {attribute.Name}", Severity.Error);
-        else
+        var response = await Client!.PutAsJsonAsync("/character-attributes/", updateDto);
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }else
         {
             await OnRequestParentReload.InvokeAsync();
             StateHasChanged();
@@ -356,10 +371,13 @@ public partial class RoomCharacterSheet
             Level = skill.Level
         };
 
-        var result = await Client!.PutAsJsonAsync("/character-skills/", updateDto);
+        var response = await Client!.PutAsJsonAsync("/character-skills/", updateDto);
 
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add($"Error while updating {skill.Name}", Severity.Error);
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
         {
             await OnRequestParentReload.InvokeAsync();
@@ -375,11 +393,12 @@ public partial class RoomCharacterSheet
             PotentialId = potential.PotentialId,
             Level = potential.Level
         };
-
-        var result = await Client!.PutAsJsonAsync("/character-potentials/", updateDto);
-
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add($"Error while updating {potential.Name}", Severity.Error);
+        var response = await Client!.PutAsJsonAsync("/character-potentials/", updateDto);
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
         {
             await OnRequestParentReload.InvokeAsync();
@@ -392,11 +411,12 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await Client!.PutAsJsonAsync($"/characters/notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.Notes });
+        var response = await Client!.PutAsJsonAsync($"/characters/notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.Notes });
 
-        if (!result.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while updating notes", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
     }
 
@@ -410,7 +430,7 @@ public partial class RoomCharacterSheet
 
         if (direction < 0)
         {
-            int refund = CalculateXpCostForPotential(Character, potential, oldValue, newValue);
+            int refund = CalculateXpCostForPotential(Character, oldValue, newValue);
             Character.Experience += refund;
             potential.Level = newValue;
 
@@ -423,7 +443,7 @@ public partial class RoomCharacterSheet
             return;
         }
 
-        int cost = CalculateXpCostForPotential(Character, potential, oldValue, newValue);
+        int cost = CalculateXpCostForPotential(Character, oldValue, newValue);
         if (Character.Experience < cost)
         {
             Snackbar.Add($"Not enough XP! Needed: {cost}, Available: {Character.Experience}", Severity.Error);
@@ -464,7 +484,7 @@ public partial class RoomCharacterSheet
         return level * factor;
     }
 
-    private static int CalculateXpCostForPotential(CharacterDisplayDto character, CharacterPotentialDisplayDto characterPotential, int oldValue, int newValue)
+    private static int CalculateXpCostForPotential(CharacterDisplayDto character, int oldValue, int newValue)
     {
         int totalPotentialLevels = character.Potentials.Sum(p => p.Level);
         int cost = newValue > oldValue ? totalPotentialLevels+1 : totalPotentialLevels ;
@@ -476,11 +496,11 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var result = await Client!.DeleteAsync($"/character-potentials/{Character.Id}/{characterPotentialId}");
-
-        if (!result.IsSuccessStatusCode)
+        var response = await Client!.DeleteAsync($"/character-potentials/{Character.Id}/{characterPotentialId}");
+        if (!response.IsSuccessStatusCode)
         {
-            Snackbar.Add("Error while deleting Character Potential", Severity.Error);
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
         else
         {

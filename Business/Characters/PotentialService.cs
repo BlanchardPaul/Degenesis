@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
@@ -8,45 +9,46 @@ namespace Business.Characters;
 
 public interface IPotentialService
 {
-    Task<List<PotentialDto>> GetAllPotentialsAsync();
-    Task<PotentialDto?> GetPotentialByIdAsync(Guid id);
-    Task<PotentialDto?> CreatePotentialAsync(PotentialCreateDto potentialCreate);
-    Task<bool> UpdatePotentialAsync(PotentialDto potential);
-    Task<bool> DeletePotentialAsync(Guid id);
+    Task<Result<List<PotentialDto>>> GetAllPotentialsAsync();
+    Task<Result<PotentialDto>> GetPotentialByIdAsync(Guid id);
+    Task<Result<object>> CreatePotentialAsync(PotentialCreateDto potentialCreate);
+    Task<Result<object>> UpdatePotentialAsync(PotentialDto potential);
+    Task<Result<object>> DeletePotentialAsync(Guid id);
 }
 
-public class PotentialService : IPotentialService
+public class PotentialService(ApplicationDbContext context, IMapper mapper) : IPotentialService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
-    public PotentialService(ApplicationDbContext context, IMapper mapper)
+    public async Task<Result<List<PotentialDto>>> GetAllPotentialsAsync()
     {
-        _context = context;
-        _mapper = mapper;
+        try
+        {
+            var potentials = await _context.Potentials
+                .OrderBy(p => p.Name)
+                .Include(p => p.Prerequisites)
+                    .ThenInclude(pr => pr.AttributeRequired)
+                .Include(p => p.Prerequisites)
+                    .ThenInclude(pr => pr.SkillRequired)
+                .Include(p => p.Prerequisites)
+                    .ThenInclude(pr => pr.BackgroundRequired)
+                .Include(p => p.Prerequisites)
+                    .ThenInclude(pr => pr.RankRequired)
+                .Include(p => p.Prerequisites)
+                .Include(p => p.Cult)
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+
+            return new Result<List<PotentialDto>> { Value = _mapper.Map<List<PotentialDto>>(potentials) };
+        }
+        catch (Exception)
+        {
+            return new Result<List<PotentialDto>> { IsError = true, Error = "A server error occurred" };
+        }
     }
 
-    public async Task<List<PotentialDto>> GetAllPotentialsAsync()
-    {
-        var potentials = await _context.Potentials
-            .OrderBy(p => p.Name)
-            .Include(p => p.Prerequisites)
-                .ThenInclude(pr => pr.AttributeRequired)
-            .Include(p => p.Prerequisites)
-                .ThenInclude(pr => pr.SkillRequired)
-            .Include(p => p.Prerequisites)
-                .ThenInclude(pr => pr.BackgroundRequired)
-            .Include(p => p.Prerequisites)
-                .ThenInclude(pr => pr.RankRequired)
-            .Include(p => p.Prerequisites)
-            .Include(p => p.Cult)
-            .OrderBy(p => p.Name)
-            .ToListAsync();
-
-        return _mapper.Map<List<PotentialDto>>(potentials);
-    }
-
-    public async Task<PotentialDto?> GetPotentialByIdAsync(Guid id)
+    public async Task<Result<PotentialDto>> GetPotentialByIdAsync(Guid id)
     {
         try
         {
@@ -61,16 +63,19 @@ public class PotentialService : IPotentialService
                     .ThenInclude(pr => pr.RankRequired)
                 .Include(p => p.Prerequisites)
                 .Include(p => p.Cult)
-                .FirstOrDefaultAsync(p => p.Id == id) ?? throw new Exception("Potential not found");
-            return _mapper.Map<PotentialDto>(potential);
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (potential is null)
+                return new Result<PotentialDto> { IsError = true, Error = "Potential not found" };
+
+            return new Result<PotentialDto> { Value = _mapper.Map<PotentialDto>(potential) };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<PotentialDto> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<PotentialDto?> CreatePotentialAsync(PotentialCreateDto potentialCreate)
+    public async Task<Result<object>> CreatePotentialAsync(PotentialCreateDto potentialCreate)
     {
         try
         {
@@ -79,8 +84,9 @@ public class PotentialService : IPotentialService
             foreach (var prerequisiteDto in potentialCreate.Prerequisites)
             {
                 var existingPrerequisite = await _context.PotentialPrerequisites
-                    .FirstOrDefaultAsync(s => s.Id == prerequisiteDto.Id)
-                    ?? throw new Exception("PotentialPrerequisite not found");
+                    .FirstOrDefaultAsync(s => s.Id == prerequisiteDto.Id);
+                if (existingPrerequisite is null)
+                    return new Result<object> { IsError = true, Error = "PotentialPrerequisite not found" };
 
                 potential.Prerequisites.Add(existingPrerequisite);
             }
@@ -88,36 +94,33 @@ public class PotentialService : IPotentialService
             if (potentialCreate.CultId is not null && potentialCreate.CultId != Guid.Empty)
             {
                 potential.Cult = await _context.Cults
-                    .FirstOrDefaultAsync(c => c.Id == potentialCreate.CultId)
-                    ?? throw new Exception("Cult not found");
+                    .FirstOrDefaultAsync(c => c.Id == potentialCreate.CultId);
+                if (potential.Cult is null)
+                    return new Result<object> { IsError = true, Error = "Cult not found" };
             }
             else
-            {
                 potential.Cult = null;
-            }
 
             _context.Potentials.Add(potential);
             await _context.SaveChangesAsync();
-            return _mapper.Map<PotentialDto>(potential);
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> UpdatePotentialAsync(PotentialDto potentialDto)
+    public async Task<Result<object>> UpdatePotentialAsync(PotentialDto potentialDto)
     {
         try
         {
             var existingPotential = await _context.Potentials
                 .Include(p => p.Prerequisites)
                 .Include(p => p.Cult)
-                .FirstOrDefaultAsync(p => p.Id == potentialDto.Id)
-                ?? throw new Exception("Potential not found");
-
+                .FirstOrDefaultAsync(p => p.Id == potentialDto.Id);
             if (existingPotential is null)
-                return false;
+                return new Result<object> { IsError = true, Error = "Potential not found" };
 
             _mapper.Map(potentialDto, existingPotential);
 
@@ -125,16 +128,19 @@ public class PotentialService : IPotentialService
             foreach (var prerequisiteDto in potentialDto.Prerequisites)
             {
                 var prerequisite = await _context.PotentialPrerequisites
-                    .FirstOrDefaultAsync(s => s.Id == prerequisiteDto.Id)
-                    ?? throw new Exception("PotentialPrerequisite not found");
+                    .FirstOrDefaultAsync(s => s.Id == prerequisiteDto.Id);
+                if (prerequisite is null)
+                    return new Result<object> { IsError = true, Error = "PotentialPrerequisite not found" };
+
                 existingPotential.Prerequisites.Add(prerequisite);
             }
 
             if(potentialDto.CultId is not null)
             {
                 existingPotential.Cult = await _context.Cults
-                    .FirstOrDefaultAsync(c => c.Id == potentialDto.CultId)
-                    ?? throw new Exception("Cult not found");
+                    .FirstOrDefaultAsync(c => c.Id == potentialDto.CultId);
+                if (existingPotential.Cult is null)
+                    return new Result<object> { IsError = true, Error = "Cult not found" };
             }
             else
             {
@@ -143,31 +149,32 @@ public class PotentialService : IPotentialService
             }
 
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> DeletePotentialAsync(Guid id)
+    public async Task<Result<object>> DeletePotentialAsync(Guid id)
     {
         try
         {
             var potential = await _context.Potentials
                 .Include(p => p.Prerequisites)
                 .Include(p => p.Cult)
-                .FirstOrDefaultAsync(p => p.Id == id)
-                ?? throw new Exception("Potential not found");
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (potential is null)
+                return new Result<object> { IsError = true, Error = "Potential not found" };
 
             _context.Potentials.Remove(potential);
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

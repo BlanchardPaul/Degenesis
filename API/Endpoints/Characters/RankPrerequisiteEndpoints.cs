@@ -11,32 +11,32 @@ public static class RankPrerequisiteEndpoints
 
         group.MapGet("/", async (IRankPrerequisiteService service) =>
         {
-            var rankPrerequisites = await service.GetAllRankPrerequisitesAsync();
-            return Results.Ok(rankPrerequisites);
+            var result = await service.GetAllRankPrerequisitesAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IRankPrerequisiteService service) =>
         {
-            var rankPrerequisite = await service.GetRankPrerequisiteByIdAsync(id);
-            return rankPrerequisite is not null ? Results.Ok(rankPrerequisite) : Results.NotFound();
+            var result = await service.GetRankPrerequisiteByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (RankPrerequisiteCreateDto rankPrerequisite, IRankPrerequisiteService service) =>
         {
-            var created = await service.CreateRankPrerequisiteAsync(rankPrerequisite);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateRankPrerequisiteAsync(rankPrerequisite);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (RankPrerequisiteDto rankPrerequisite, IRankPrerequisiteService service) =>
         {
-            var success = await service.UpdateRankPrerequisiteAsync(rankPrerequisite);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateRankPrerequisiteAsync(rankPrerequisite);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IRankPrerequisiteService service) =>
         {
-            var success = await service.DeleteRankPrerequisiteAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteRankPrerequisiteAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

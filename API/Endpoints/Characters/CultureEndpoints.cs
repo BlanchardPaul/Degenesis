@@ -10,32 +10,32 @@ public static class CultureEndpoints
 
         group.MapGet("/", async (ICultureService cultureService) =>
         {
-            var cultures = await cultureService.GetAllCulturesAsync();
-            return Results.Ok(cultures);
+            var result = await cultureService.GetAllCulturesAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id}", async (Guid id, ICultureService cultureService) =>
         {
-            var culture = await cultureService.GetCultureByIdAsync(id);
-            return culture is not null ? Results.Ok(culture) : Results.NotFound();
+            var result = await cultureService.GetCultureByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (CultureCreateDto culture, ICultureService cultureService) =>
         {
-            var created = await cultureService.CreateCultureAsync(culture);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await cultureService.CreateCultureAsync(culture);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (CultureDto culture, ICultureService cultureService) =>
         {
-            var success = await cultureService.UpdateCultureAsync(culture);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await cultureService.UpdateCultureAsync(culture);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id}", async (Guid id, ICultureService cultureService) =>
         {
-            var success = await cultureService.DeleteCultureAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await cultureService.DeleteCultureAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

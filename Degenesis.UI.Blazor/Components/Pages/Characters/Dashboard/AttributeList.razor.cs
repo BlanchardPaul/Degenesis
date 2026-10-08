@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
@@ -15,7 +16,14 @@ public partial class AttributeList
 
     private async Task LoadAttributes()
     {
-        attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        var result = await Client!.GetFromJsonAsync<Result<List<AttributeDto>>>("/attributes") ?? new Result<List<AttributeDto>> { IsError = true, Error = "Unknown error" };
+        if (result.IsError)
+        {
+            Snackbar.Add("Error loading attributes: " + result.Error);
+            attributes = [];
+        }
+        else
+            attributes = result.Value;
     }
 
     private async Task ShowCreateDialog()
@@ -52,11 +60,16 @@ public partial class AttributeList
 
     private async Task DeleteAttribute(Guid attributeId)
     {
-        var result = await Client!.DeleteAsync($"/attributes/{attributeId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/attributes/{attributeId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
+
         await LoadAttributes();
     }
 

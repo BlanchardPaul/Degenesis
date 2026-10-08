@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
+﻿using Business.Characters.Inventory;
+using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 
 namespace API.Endpoints.Characters.Inventory;
 
@@ -10,23 +11,23 @@ public static class CharacterProtectionEndpoints
 
         group.MapGet("/character/{characterId:guid}", async (Guid characterId, ICharacterProtectionService service) =>
         {
-            var protections = await service.GetByCharacterIdAsync(characterId);
-            return protections.Any() ? Results.Ok(protections) : Results.NotFound();
+            var result = await service.GetByCharacterIdAsync(characterId);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
         group.MapPost("/", async (CharacterProtectionCreateDto characterProtection, ICharacterProtectionService service) =>
         {
-            var created = await service.CreateAsync(characterProtection);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateAsync(characterProtection);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
         group.MapPut("/", async (CharacterProtectionDto characterProtection, ICharacterProtectionService service) =>
         {
-            var success = await service.UpdateAsync(characterProtection);
-            return success ? Results.Ok() : Results.BadRequest();
+            var result = await service.UpdateAsync(characterProtection);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
         group.MapDelete("/{id:guid}", async (Guid id, ICharacterProtectionService service) =>
         {
-            var success = await service.DeleteAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

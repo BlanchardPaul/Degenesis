@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using DataAccessLayer;
+﻿using DataAccessLayer;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
@@ -7,31 +7,28 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Characters;
 public interface ICharacterPotentialService
 {
-    Task<bool> CreateCharacterPotentialAsync(CharacterGuidValueEditDto potentialToCreate);
-    Task<bool> UpdateCharacterPotentialAsync(CharacterPotentialDto characterPotential);
-    Task<bool> DeleteCharacterPotentialAsync(Guid characterId, Guid characterPotentialId);
+    Task<Result<object>> CreateCharacterPotentialAsync(CharacterGuidValueEditDto potentialToCreate);
+    Task<Result<object>> UpdateCharacterPotentialAsync(CharacterPotentialDto characterPotential);
+    Task<Result<object>> DeleteCharacterPotentialAsync(Guid characterId, Guid characterPotentialId);
 }
 
-public class CharacterPotentialService : ICharacterPotentialService
+public class CharacterPotentialService(ApplicationDbContext context) : ICharacterPotentialService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _context = context;
 
-    public CharacterPotentialService(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-    }
-
-    public async Task<bool> CreateCharacterPotentialAsync(CharacterGuidValueEditDto potentialToCreate)
+    public async Task<Result<object>> CreateCharacterPotentialAsync(CharacterGuidValueEditDto potentialToCreate)
     {
         try
         {
             var existingCharacter = await _context.Characters
-                .FirstOrDefaultAsync(cp => cp.Id == potentialToCreate.Id)
-                ?? throw new Exception("Character not found");
+                .FirstOrDefaultAsync(cp => cp.Id == potentialToCreate.Id);
+            if (existingCharacter is null)
+                return new Result<object> { IsError = true, Error = "Character not found" };
 
             var existingPotential = await _context.Potentials
-                .FirstOrDefaultAsync(cp => cp.Id == potentialToCreate.Value)
-                ?? throw new Exception("Potential not found");
+                .FirstOrDefaultAsync(cp => cp.Id == potentialToCreate.Value);
+            if (existingPotential is null)
+                return new Result<object> { IsError = true, Error = "Potential not found" };
 
             CharacterPotential toCreate = new()
             {
@@ -44,49 +41,52 @@ public class CharacterPotentialService : ICharacterPotentialService
 
             await _context.CharacterPotentials.AddAsync(toCreate);
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> UpdateCharacterPotentialAsync(CharacterPotentialDto characterPotential)
+    public async Task<Result<object>> UpdateCharacterPotentialAsync(CharacterPotentialDto characterPotential)
     {
         try
         {
             var existingCharacterPotential = await _context.CharacterPotentials
                 .FirstOrDefaultAsync(cp => cp.CharacterId == characterPotential.CharacterId && cp.PotentialId == characterPotential.PotentialId) 
                 ?? throw new Exception("CharacterPotential not found");
+            if(existingCharacterPotential is null)
+                return new Result<object> { IsError = true, Error = "CharacterPotential not found" };
 
             existingCharacterPotential.Level = characterPotential.Level;
 
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> DeleteCharacterPotentialAsync(Guid characterId, Guid characterPotentialId)
+    public async Task<Result<object>> DeleteCharacterPotentialAsync(Guid characterId, Guid characterPotentialId)
     {
         try
         {
             var existingCharacterPotential = await _context.CharacterPotentials
-                .FirstOrDefaultAsync(cp => cp.CharacterId == characterId && cp.PotentialId == characterPotentialId)
-                ?? throw new Exception("CharacterPotential not found");
+                .FirstOrDefaultAsync(cp => cp.CharacterId == characterId && cp.PotentialId == characterPotentialId);
+            if (existingCharacterPotential is null)
+                return new Result<object> { IsError = true, Error = "CharacterPotential not found" };
 
             _context.Remove(existingCharacterPotential);
 
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

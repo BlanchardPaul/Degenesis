@@ -81,7 +81,7 @@ public partial class WeaponList
         if (!result.IsSuccessStatusCode)
             Snackbar.Add("Error during deletion");
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
         await LoadWeapons();
     }
 

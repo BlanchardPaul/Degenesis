@@ -1,8 +1,10 @@
-﻿using Degenesis.Shared.DTOs.Rooms;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Rooms;
 using Degenesis.UI.Blazor.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
+using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
@@ -40,7 +42,11 @@ public partial class RoomMapChat : IAsyncDisposable
 
         userName = user.FindFirst("unique_name")?.Value;
 
-        room = await Client!.GetFromJsonAsync<RoomDisplayDto>($"/rooms/{IdRoom}");
+        var roomResult = await Client!.GetFromJsonAsync<Result<RoomDisplayDto>>($"/rooms/{IdRoom}") ?? new Result<RoomDisplayDto> { IsError = true, Error = "Unknown error", Value = null };
+        if (roomResult.IsError)
+            Snackbar.Add(roomResult.Error ?? "Unknown error", Severity.Error);
+
+        room = roomResult.Value;
 
         if (room is null || string.IsNullOrEmpty(userName) || !room.Players.Contains(userName) && room.GMName != userName)
         {

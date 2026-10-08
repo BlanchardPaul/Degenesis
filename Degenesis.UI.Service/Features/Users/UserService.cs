@@ -2,20 +2,9 @@
 using System.Net.Http.Json;
 
 namespace Degenesis.UI.Service.Features.Users;
-public class UserService
+public class UserService(HttpClient httpClient)
 {
-    private readonly HttpClient _httpClient;
-
-    public UserService(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
-    public async Task<bool> RegisterAsync(UserCreateDto userCreateDto)
-    {
-        var response = await _httpClient.PostAsJsonAsync("/users/register", userCreateDto);
-        return response.IsSuccessStatusCode;
-    }
+    private readonly HttpClient _httpClient = httpClient;
 
     public async Task<string?> LoginAsync(UserLoginDto userLoginDto)
     {

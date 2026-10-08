@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -34,12 +35,16 @@ public partial class CharacterEditRankModal
             return;
         }
 
-        var result = await Client!.PutAsJsonAsync($"/characters/rank/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedRankId });
+        var response = await Client!.PutAsJsonAsync($"/characters/rank/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedRankId });
 
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error while updating rank", Severity.Error);
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Rank updated successfully.", Severity.Success);
+            Snackbar.Add("Rank updated.", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 

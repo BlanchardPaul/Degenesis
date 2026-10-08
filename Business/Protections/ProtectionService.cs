@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
+using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Protections;
 using Domain.Protections;
 using Microsoft.EntityFrameworkCore;
@@ -7,51 +9,53 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Protections;
 public interface IProtectionService
 {
-    Task<List<ProtectionDto>> GetAllProtectionsAsync();
-    Task<ProtectionDto?> GetProtectionByIdAsync(Guid id);
-    Task<ProtectionDto?> CreateProtectionAsync(ProtectionCreateDto protectionCreate);
-    Task<bool> UpdateProtectionAsync(ProtectionDto protection);
-    Task<bool> DeleteProtectionAsync(Guid id);
+    Task<Result<List<ProtectionDto>>> GetAllProtectionsAsync();
+    Task<Result<ProtectionDto>> GetProtectionByIdAsync(Guid id);
+    Task<Result<object>> CreateProtectionAsync(ProtectionCreateDto protectionCreate);
+    Task<Result<object>> UpdateProtectionAsync(ProtectionDto protection);
+    Task<Result<object>> DeleteProtectionAsync(Guid id);
 }
 
-public class ProtectionService : IProtectionService
+public class ProtectionService(ApplicationDbContext context, IMapper mapper) : IProtectionService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
-    public ProtectionService(ApplicationDbContext context, IMapper mapper)
+    public async Task<Result<List<ProtectionDto>>> GetAllProtectionsAsync()
     {
-        _context = context;
-        _mapper = mapper;
+        try
+        {
+            var protections = await _context.Protections
+                .Include(p => p.Cults)
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+            return new Result<List<ProtectionDto>> { Value = _mapper.Map<List<ProtectionDto>>(protections) };
+        }
+        catch(Exception)
+        {
+            return new Result<List<ProtectionDto>> { IsError = true, Error = "A server error occurred" };
+        }
     }
 
-    public async Task<List<ProtectionDto>> GetAllProtectionsAsync()
-    {
-        var protections = await _context.Protections
-            .Include(p => p.Cults)
-            .OrderBy(p => p.Name)
-            .ToListAsync();
-        return _mapper.Map<List<ProtectionDto>>(protections);
-    }
-
-    public async Task<ProtectionDto?> GetProtectionByIdAsync(Guid id)
+    public async Task<Result<ProtectionDto>> GetProtectionByIdAsync(Guid id)
     {
         try
         {
             var protection = await _context.Protections
                 .Include(p => p.Cults)
-                .FirstOrDefaultAsync(p => p.Id == id) ?? throw new Exception("Protection not found");
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (protection is null)
+                return new Result<ProtectionDto> { IsError = true, Error = "Protection not found" };
 
-            return _mapper.Map<ProtectionDto>(protection);
+            return new Result<ProtectionDto> { Value = _mapper.Map<ProtectionDto>(protection) };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<ProtectionDto> { IsError = true, Error = "A server error occurred" };
         }
-
     }
 
-    public async Task<ProtectionDto?> CreateProtectionAsync(ProtectionCreateDto protectionCreate)
+    public async Task<Result<object>> CreateProtectionAsync(ProtectionCreateDto protectionCreate)
     {
         try
         {
@@ -60,34 +64,39 @@ public class ProtectionService : IProtectionService
             foreach (var cultDto in protectionCreate.Cults)
             {
                 var cult = await _context.Cults
-                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id);
+                if (cult is null)
+                    return new Result<object> { IsError = true, Error = "Cult not found" };
                 protection.Cults.Add(cult);
             }
 
             _context.Protections.Add(protection);
             await _context.SaveChangesAsync();
-            return _mapper.Map<ProtectionDto>(protection);
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> UpdateProtectionAsync(ProtectionDto protectionDto)
+    public async Task<Result<object>> UpdateProtectionAsync(ProtectionDto protectionDto)
     {
         try
         {
             var existingProtection = await _context.Protections
                 .Include(p => p.Cults)
-                .FirstOrDefaultAsync(p => p.Id == protectionDto.Id)
-                ?? throw new Exception("Protection not found");
+                .FirstOrDefaultAsync(p => p.Id == protectionDto.Id);
+            if (existingProtection is null)
+                return new Result<object> { IsError = true, Error = "Protection not found" };
 
             existingProtection.Cults.Clear();
             foreach (var cultDto in protectionDto.Cults)
             {
                 var cult = await _context.Cults
-                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id) ?? throw new Exception("Cult not found");
+                    .FirstOrDefaultAsync(c => c.Id == cultDto.Id);
+                if (cult is null)
+                    return new Result<object> { IsError = true, Error = "Cult not found" };
                 existingProtection.Cults.Add(cult);
             }
 
@@ -95,29 +104,30 @@ public class ProtectionService : IProtectionService
             _mapper.Map(protectionDto, existingProtection);
 
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> DeleteProtectionAsync(Guid id)
+    public async Task<Result<object>> DeleteProtectionAsync(Guid id)
     {
         try
         {
             var protection = await _context.Protections
-                .FirstOrDefaultAsync(p => p.Id == id)
-                ?? throw new Exception("Protection not found");
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (protection is null)
+                return new Result<object> { IsError = true, Error = "Protection not found" };
 
             _context.Protections.Remove(protection);
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

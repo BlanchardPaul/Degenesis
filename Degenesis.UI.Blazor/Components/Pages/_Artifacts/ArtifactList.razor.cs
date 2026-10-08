@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs._Artifacts;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.UI.Blazor.Extensions;
 using MudBlazor;
 
@@ -16,7 +17,16 @@ public partial class ArtifactList : AuthenticatedComponentBase
 
     private async Task LoadArtifacts()
     {
-        Artifacts = await Client!.GetFromJsonAsync<List<ArtifactDto>>("/artifacts") ?? [];
+        var result = await Client!.GetFromJsonAsync<Result<List<ArtifactDto>>>("/artifacts") ?? new Result<List<ArtifactDto>> { IsError = true, Error = "Unknown error" };
+        if (result.IsError)
+        {
+            Snackbar.Add("Error loading artifacts: " + result.Error);
+            Artifacts = [];
+        }
+        else
+        {
+            Artifacts = result.Value;
+        }
     }
 
     private async Task ShowCreateDialog()
@@ -53,11 +63,15 @@ public partial class ArtifactList : AuthenticatedComponentBase
 
     private async Task DeleteArtifact(Guid artifactId)
     {
-        var result = await Client!.DeleteAsync($"/artifacts/{artifactId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/artifacts/{artifactId}");
+        if(!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
 
         await LoadArtifacts();
     }

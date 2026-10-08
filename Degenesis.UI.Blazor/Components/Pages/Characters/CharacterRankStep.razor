@@ -4,7 +4,7 @@
 
 <MudForm @ref="_formStepRank">
     <MudStack Row AlignItems="AlignItems.Center">
-        @foreach (var rank in Ranks.Where(r => r.ParentRankId == null))
+        @foreach (var rank in Ranks.Where(r => r.ParentRankId is null))
         {
             <RankBranch Rank="rank"
                         AllRanks="Ranks"

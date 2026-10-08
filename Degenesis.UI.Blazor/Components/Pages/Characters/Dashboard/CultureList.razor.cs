@@ -1,6 +1,6 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
-using System;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -18,10 +18,41 @@ public partial class CultureList
 
     private async Task LoadCultures()
     {
-        cultures = await Client!.GetFromJsonAsync<List<CultureDto>>("/cultures") ?? [];
-        cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
-        attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
+        var cultureResult = await Client!.GetFromJsonAsync<Result<List<CultureDto>>>("/cultures") ?? new Result<List<CultureDto>> { IsError = true, Error = "Unknown error" };
+        if (cultureResult.IsError)
+        {
+            Snackbar.Add($"Error loading cultures: {cultureResult.Error}", Severity.Error);
+            cultures = [];
+        }
+        else
+            cultures = cultureResult.Value ?? [];
+
+        var cultResult = await Client!.GetFromJsonAsync<Result<List<CultDto>>>("/cults") ?? new Result<List<CultDto>> { IsError = true, Error = "Unknown error" };
+        if (cultResult.IsError)
+        {
+            Snackbar.Add($"Error loading cults: {cultResult.Error}", Severity.Error);
+            cults = [];
+        }
+        else
+            cults = cultResult.Value ?? [];
+
+        var attributeResult = await Client!.GetFromJsonAsync<Result<List<AttributeDto>>>("/attributes") ?? new Result<List<AttributeDto>> { IsError = true, Error = "Unknown error" };
+        if (attributeResult.IsError)
+        {
+            Snackbar.Add($"Error loading attributes: {attributeResult.Error}", Severity.Error);
+            attributes = [];
+        }
+        else
+            attributes = attributeResult.Value ?? [];
+
+        var skillResult = await Client!.GetFromJsonAsync<Result<List<SkillDto>>>("/skills") ?? new Result<List<SkillDto>> { IsError = true, Error = "Unknown error" };
+        if (skillResult.IsError)
+        {
+            Snackbar.Add($"Error loading skills: {skillResult.Error}", Severity.Error);
+            skills = [];
+        }
+        else
+            skills = skillResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -72,11 +103,14 @@ public partial class CultureList
 
     private async Task DeleteCulture(Guid cultureId)
     {
-        var result = await Client!.DeleteAsync($"/cultures/{cultureId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/cultures/{cultureId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
         await LoadCultures();
     }
 

@@ -8,7 +8,7 @@
         else
         {
             <MudStack Row AlignItems="AlignItems.Center">
-                @foreach (var root in Ranks.Where(r => r.ParentRankId == null))
+                @foreach (var root in Ranks.Where(r => r.ParentRankId is null))
                 {
                     <RankBranchForEdit Rank="root"
                                           AllRanks="Ranks"

@@ -1,47 +1,58 @@
-﻿using DataAccessLayer;
+﻿using AutoMapper;
+using DataAccessLayer;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
-using AutoMapper;
 using Domain.Characters.Inventory;
 using Microsoft.EntityFrameworkCore;
 
+namespace Business.Characters.Inventory;
+
 public interface ICharacterProtectionService
 {
-    Task<List<CharacterProtectionDto>> GetByCharacterIdAsync(Guid characterId);
-    Task<CharacterProtectionDto?> CreateAsync(CharacterProtectionCreateDto characterProtection);
-    Task<bool> UpdateAsync(CharacterProtectionDto characterProtection);
-    Task<bool> DeleteAsync(Guid id);
+    Task<Result<List<CharacterProtectionDto>>> GetByCharacterIdAsync(Guid characterId);
+    Task<Result<object>> CreateAsync(CharacterProtectionCreateDto characterProtection);
+    Task<Result<object>> UpdateAsync(CharacterProtectionDto characterProtection);
+    Task<Result<object>> DeleteAsync(Guid id);
 }
 
-public class CharacterProtectionService : ICharacterProtectionService
+public class CharacterProtectionService(ApplicationDbContext context, IMapper mapper) : ICharacterProtectionService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
 
-    public CharacterProtectionService(ApplicationDbContext context, IMapper mapper)
+    public async Task<Result<List<CharacterProtectionDto>>> GetByCharacterIdAsync(Guid characterId)
     {
-        _context = context;
-        _mapper = mapper;
+        try
+        {
+            var characterProtections =
+                await _context.CharacterProtections
+                .Where(cp => cp.CharacterId == characterId)
+                .Include(cp => cp.Protection)
+                .ToListAsync();
+            return new Result<List<CharacterProtectionDto>> { Value = _mapper.Map<List<CharacterProtectionDto>>(characterProtections) };
+        }
+        catch(Exception)
+        {
+            return new Result<List<CharacterProtectionDto>> { IsError = true, Error = "A server error occurred" };
+        }
     }
 
-    public async Task<List<CharacterProtectionDto>> GetByCharacterIdAsync(Guid characterId)
-    {
-        var characterProtections =
-            await _context.CharacterProtections
-            .Where(cp => cp.CharacterId == characterId)
-            .Include(cp => cp.Protection)
-            .ToListAsync();
-        return _mapper.Map<List<CharacterProtectionDto>>(characterProtections);
-    }
-
-    public async Task<CharacterProtectionDto?> CreateAsync(CharacterProtectionCreateDto characterProtectionCreate)
+    public async Task<Result<object>> CreateAsync(CharacterProtectionCreateDto characterProtectionCreate)
     {
         try
         {
             var characterProtection = _mapper.Map<CharacterProtection>(characterProtectionCreate);
-            characterProtection.Character = await _context.Characters.FindAsync(characterProtectionCreate.CharacterId)
-                ?? throw new Exception("Character not found");
-            characterProtection.Protection = await _context.Protections.FindAsync(characterProtectionCreate.ProtectionId)
-                ?? throw new Exception("Protection not found");
+
+            var existingCharacter = await _context.Characters.FindAsync(characterProtection.CharacterId);
+            if (existingCharacter is null)
+                return new Result<object> { IsError = true, Error = "Character not found" };
+
+            var existingProtection = await _context.Protections.FindAsync(characterProtection.ProtectionId);
+            if (existingProtection is null)
+                return new Result<object> { IsError = true, Error = "Protection not found" };
+
+            characterProtection.Character = existingCharacter;
+            characterProtection.Protection = existingProtection;
 
             // Set the Encumbrance, Qualities, Slots based on the Protection entity
             characterProtection.Encumbrance = characterProtection.Protection.Encumbrance;
@@ -50,44 +61,46 @@ public class CharacterProtectionService : ICharacterProtectionService
 
             _context.CharacterProtections.Add(characterProtection);
             await _context.SaveChangesAsync();
-            return _mapper.Map<CharacterProtectionDto>(characterProtection);
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return null;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> UpdateAsync(CharacterProtectionDto characterProtectionDto)
+    public async Task<Result<object>> UpdateAsync(CharacterProtectionDto characterProtectionDto)
     {
         try
         {
-            var existing = await _context.CharacterProtections.FirstOrDefaultAsync(cb => cb.Id == characterProtectionDto.Id)
-                ?? throw new Exception("CharacterProtection not found");
+            var existing = await _context.CharacterProtections.FirstOrDefaultAsync(cb => cb.Id == characterProtectionDto.Id);
+            if (existing is null)
+                return new Result<object> { IsError = true, Error = "CharacterProtection not found" };
             _mapper.Map(characterProtectionDto, existing);
 
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<Result<object>> DeleteAsync(Guid id)
     {
         try
         {
-            var existing = await _context.CharacterProtections.FirstOrDefaultAsync(cb => cb.Id == id)
-                ?? throw new Exception("CharacterProtection not found");
+            var existing = await _context.CharacterProtections.FirstOrDefaultAsync(cb => cb.Id == id);
+            if (existing is null)
+                return new Result<object> { IsError = true, Error = "CharacterProtection not found" };
             _context.CharacterProtections.Remove(existing);
             await _context.SaveChangesAsync();
-            return true;
+            return new Result<object> { Value = null };
         }
         catch (Exception)
         {
-            return false;
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }

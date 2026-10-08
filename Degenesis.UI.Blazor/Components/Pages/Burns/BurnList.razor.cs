@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Burns;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Burns;
 using Degenesis.UI.Blazor.Extensions;
 using MudBlazor;
 
@@ -16,7 +17,14 @@ public partial class BurnList : AuthenticatedComponentBase
 
     private async Task LoadBurns()
     {
-        Burns = await Client!.GetFromJsonAsync<List<BurnDto>>("/burns") ?? [];
+        var result = await Client!.GetFromJsonAsync<Result<List<BurnDto>>>("/burns") ?? new Result<List<BurnDto>> { IsError = true, Error = "Unknown error" };
+        if (result.IsError)
+        {
+            Snackbar.Add("Error loading burns: " + result.Error);
+            Burns = [];
+        }
+        else
+            Burns = result.Value;
     }
 
     private async Task ShowCreateDialog()
@@ -53,11 +61,16 @@ public partial class BurnList : AuthenticatedComponentBase
 
     private async Task DeleteBurn(Guid burnId)
     {
-        var result = await Client!.DeleteAsync($"/burns/{burnId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/burns/{burnId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
+
         await LoadBurns();
     }
 

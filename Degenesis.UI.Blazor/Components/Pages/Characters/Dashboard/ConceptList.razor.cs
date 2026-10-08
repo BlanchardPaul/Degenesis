@@ -1,6 +1,6 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
-using System;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -18,9 +18,32 @@ public partial class ConceptList
 
     private async Task LoadConcepts()
     {
-        concepts = await Client!.GetFromJsonAsync<List<ConceptDto>>("/concepts") ?? [];
-        skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
-        attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        var conceptResult = await Client!.GetFromJsonAsync<Result<List<ConceptDto>>>("/concepts") ?? new Result<List<ConceptDto>> { IsError = true, Error = "Unknown error" };
+        if (conceptResult.IsError)
+        {
+            Snackbar.Add("Error loading concepts: " + conceptResult.Error);
+            concepts = [];
+        }
+        else
+            concepts = conceptResult.Value ?? [];
+
+        var skillsResult = await Client!.GetFromJsonAsync<Result<List<SkillDto>>>("/skills") ?? new Result<List<SkillDto>> { IsError = true, Error = "Unknown error" };
+        if (skillsResult.IsError)
+        {
+            Snackbar.Add("Error loading skills: " + skillsResult.Error);
+            skills = [];
+        }
+        else
+            skills = skillsResult.Value ?? [];
+
+        var attributesResult = await Client!.GetFromJsonAsync<Result<List<AttributeDto>>>("/attributes") ?? new Result<List<AttributeDto>> { IsError = true, Error = "Unknown error" };
+        if (attributesResult.IsError)
+        {
+            Snackbar.Add("Error loading attributes: " + attributesResult.Error);
+            attributes = [];
+        }
+        else
+            attributes = attributesResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -69,11 +92,14 @@ public partial class ConceptList
 
     private async Task DeleteConcept(Guid conceptId)
     {
-        var result = await Client!.DeleteAsync($"/concepts/{conceptId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/concepts/{conceptId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
 
         await LoadConcepts();
     }

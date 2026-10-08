@@ -1,4 +1,5 @@
 ﻿using Business.Protections;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Protections;
 
 namespace API.Endpoints.Protections;
@@ -11,32 +12,32 @@ public static class ProtectionEndpoints
 
         group.MapGet("/", async (IProtectionService service) =>
         {
-            var protections = await service.GetAllProtectionsAsync();
-            return Results.Ok(protections);
+            var result = await service.GetAllProtectionsAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapGet("/{id:guid}", async (Guid id, IProtectionService service) =>
         {
-            var protection = await service.GetProtectionByIdAsync(id);
-            return protection is not null ? Results.Ok(protection) : Results.NotFound();
+            var result = await service.GetProtectionByIdAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
         group.MapPost("/", async (ProtectionCreateDto protection, IProtectionService service) =>
         {
-            var created = await service.CreateProtectionAsync(protection);
-            return created is not null ? Results.Created() : Results.BadRequest();
+            var result = await service.CreateProtectionAsync(protection);
+            return result.IsError ? Results.BadRequest(result) : Results.Created();
         });
 
         group.MapPut("/", async (ProtectionDto protection, IProtectionService service) =>
         {
-            var success = await service.UpdateProtectionAsync(protection);
-            return success ? Results.Ok() : Results.NotFound();
+            var result = await service.UpdateProtectionAsync(protection);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
         group.MapDelete("/{id:guid}", async (Guid id, IProtectionService service) =>
         {
-            var success = await service.DeleteProtectionAsync(id);
-            return success ? Results.NoContent() : Results.NotFound();
+            var result = await service.DeleteProtectionAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.NoContent();
         });
     }
 }

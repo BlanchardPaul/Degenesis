@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Protections;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -26,28 +27,20 @@ public partial class ProtectionModal
 
     private async Task SaveProtection()
     {
+        HttpResponseMessage response;
         if (Protection.Id == Guid.Empty)
-        {
-            var result = await Client!.PostAsJsonAsync("/protections", Protection);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during creation", Severity.Error);
-            else
-            {
-                Snackbar.Add("Created", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
-        }
+            response = await Client!.PostAsJsonAsync("/protections", Protection);
         else
+            response = await Client!.PutAsJsonAsync($"/protections", Protection);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var result = await Client!.PutAsJsonAsync("/protections", Protection);
-            if (!result.IsSuccessStatusCode)
-                Snackbar.Add("Error during edition", Severity.Error);
-            else
-            {
-                Snackbar.Add("Edited", Severity.Success);
-                MudDialog.Close(DialogResult.Ok(true));
-            }
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
         }
+
+        Snackbar.Add(Protection.Id == Guid.Empty ? "Created" : "Edited", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }
 

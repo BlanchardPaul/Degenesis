@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.CRUD;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
@@ -18,10 +19,41 @@ public partial class RankPrerequisiteList
 
     private async Task LoadRankPrerequisites()
     {
-        RankPrerequisites = await Client!.GetFromJsonAsync<List<RankPrerequisiteDto>>("/rank-prerequisites") ?? [];
-        Attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        Skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
-        Backgrounds = await Client!.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
+        var rankPrerequisiteResult = await Client!.GetFromJsonAsync<Result<List<RankPrerequisiteDto>>>("/rank-prerequisites") ?? new Result<List<RankPrerequisiteDto>> { IsError = true, Error = "Unknown error" };
+        if(rankPrerequisiteResult.IsError)
+        {
+            Snackbar.Add($"Error loading rank prerequisites: {rankPrerequisiteResult.Error}", Severity.Error);
+            RankPrerequisites = [];
+        }
+        else
+            RankPrerequisites = rankPrerequisiteResult.Value ?? [];
+
+        var attributeResult = await Client!.GetFromJsonAsync<Result<List<AttributeDto>>>("/attributes") ?? new Result<List<AttributeDto>> { IsError = true, Error = "Unknown error" };
+        if(attributeResult.IsError)
+        {
+            Snackbar.Add($"Error loading attributes: {attributeResult.Error}", Severity.Error);
+            Attributes = [];
+        }
+        else
+            Attributes = attributeResult.Value ?? [];
+
+        var skillResult = await Client!.GetFromJsonAsync<Result<List<SkillDto>>>("/skills") ?? new Result<List<SkillDto>> { IsError = true, Error = "Unknown error" };
+        if(skillResult.IsError)
+        {
+            Snackbar.Add($"Error loading skills: {skillResult.Error}", Severity.Error);
+            Skills = [];
+        }
+        else
+            Skills = skillResult.Value ?? [];
+
+        var backgroundResult = await Client!.GetFromJsonAsync<Result<List<BackgroundDto>>>("/backgrounds") ?? new Result<List<BackgroundDto>> { IsError = true, Error = "Unknown error" };
+        if(backgroundResult.IsError)
+        {
+            Snackbar.Add($"Error loading backgrounds: {backgroundResult.Error}", Severity.Error);
+            Backgrounds = [];
+        }
+        else
+            Backgrounds = backgroundResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()
@@ -72,11 +104,15 @@ public partial class RankPrerequisiteList
 
     private async Task DeleteRankPrerequisite(Guid rankPrerequisiteId)
     {
-        var result = await Client!.DeleteAsync($"/rank-prerequisites/{rankPrerequisiteId}");
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error during deletion");
+        var response = await Client!.DeleteAsync($"/rank-prerequisites/{rankPrerequisiteId}");
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+        }
         else
-            Snackbar.Add("Deleted");
+            Snackbar.Add("Deleted", Severity.Success);
+
         await LoadRankPrerequisites();
     }
 

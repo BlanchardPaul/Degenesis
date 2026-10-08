@@ -1,4 +1,5 @@
-﻿using Degenesis.Shared.DTOs.Characters.Display;
+﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Vehicles;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -10,14 +11,20 @@ public partial class CharacterAddVehicle
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public CharacterDisplayDto Character { get; set; } = new();
     public List<VehicleDto> Vehicles { get; set; } = [];
-
-    private HttpClient _client = new();
     private string SearchString { get; set; } = "";
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        _client = await HttpClientService.GetClientAsync();
-        Vehicles = await _client.GetFromJsonAsync<List<VehicleDto>>("/vehicles") ?? [];
+        var result = await Client!.GetFromJsonAsync<Result<List<VehicleDto>>>("/vehicles") ?? new Result<List<VehicleDto>> {IsError = true, Error = "Unknown error" };
+        if (result.IsError)
+        {
+            Snackbar.Add("Error loading vehicles: " + result.Error);
+            Vehicles = [];
+        }
+        else
+        {
+            Vehicles = result.Value ?? [];
+        }
     }
 
     private async Task AddCharacterVehicle(Guid vehicleId)
@@ -27,11 +34,17 @@ public partial class CharacterAddVehicle
             Snackbar.Add("Please select a vehicle first.", Severity.Warning);
             return;
         }
-        var result = await _client.PostAsJsonAsync($"/character-vehicles/", new { CharacterId = Character.Id, VehicleId = vehicleId });
-        if (!result.IsSuccessStatusCode)
-            Snackbar.Add("Error while adding character vehicle", Severity.Error);
+
+        var response = await Client!.PostAsJsonAsync($"/character-vehicles/", new { CharacterId = Character.Id, VehicleId = vehicleId });
+        if(response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
         else
             Snackbar.Add("Character vehicle added successfully.", Severity.Success);
+
         MudDialog.Close(DialogResult.Ok(true));
     }
 
