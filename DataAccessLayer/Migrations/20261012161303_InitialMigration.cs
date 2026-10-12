@@ -624,6 +624,27 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "RoomChatMessages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdRoom = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Sender = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Text = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
+                    SentAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoomChatMessages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoomChatMessages_Rooms_IdRoom",
+                        column: x => x.IdRoom,
+                        principalTable: "Rooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserRooms",
                 columns: table => new
                 {
@@ -1742,6 +1763,11 @@ namespace DataAccessLayer.Migrations
                 column: "ParentRankId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoomChatMessages_IdRoom",
+                table: "RoomChatMessages",
+                column: "IdRoom");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Skills_CAttributeId",
                 table: "Skills",
                 column: "CAttributeId");
@@ -1883,6 +1909,9 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "RankRankPrerequisite");
+
+            migrationBuilder.DropTable(
+                name: "RoomChatMessages");
 
             migrationBuilder.DropTable(
                 name: "UserRooms");

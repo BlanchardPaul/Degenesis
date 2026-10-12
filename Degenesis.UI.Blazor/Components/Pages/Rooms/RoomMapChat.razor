@@ -23,7 +23,7 @@ else
                     @foreach (var msg in Messages)
                     {
                         <MudChatBubble ChatPosition="@(msg.Sender == userName ? ChatBubblePosition.End : ChatBubblePosition.Start)">
-                            <b>@msg.Sender:</b> @msg.Text
+                            <b>@msg.SentAtUtc | @msg.Sender:</b> @msg.Text
                         </MudChatBubble>
                     }
                 </div>

@@ -21,13 +21,7 @@ public partial class RoomMapChat : IAsyncDisposable
     private string currentMessage = "";
     private string? userName;
 
-    private class ChatMessage
-    {
-        public string Sender { get; set; } = "";
-        public string Text { get; set; } = "";
-    }
-
-    private List<ChatMessage> Messages = [];
+    private List<RoomChatMessageDto> Messages = [];
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
@@ -54,6 +48,7 @@ public partial class RoomMapChat : IAsyncDisposable
             return;
         }
 
+        // Create a connection with the chat hub
         hubConnection = new HubConnectionBuilder()
             .WithUrl("https://localhost:7274/roomchathub", options =>
             {
@@ -66,9 +61,21 @@ public partial class RoomMapChat : IAsyncDisposable
             .WithAutomaticReconnect()
             .Build();
 
+        // When hub send message
         hubConnection.On<string, string>("ReceiveMessage", (sender, message) =>
         {
-            Messages.Add(new ChatMessage { Sender = sender, Text = message });
+            // Insert at position 0 : displayed at the bottom thanks to flex-column-reverse
+            Messages.Insert(0, new RoomChatMessageDto { Sender = sender, Text = message, SentAtUtc = DateTime.UtcNow });
+            InvokeAsync(StateHasChanged);
+        });
+
+        // When hub send messages history
+        hubConnection.On<List<RoomChatMessageDto>>("ReceiveHistory", history =>
+        {
+            // History arrives chronological (oldest first) → reverse it
+            // so that the newest is first (bottom of the visual column)
+            Messages = history;
+            Messages.Reverse();
             InvokeAsync(StateHasChanged);
         });
 

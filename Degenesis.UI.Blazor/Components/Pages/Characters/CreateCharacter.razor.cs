@@ -1,4 +1,5 @@
 ﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
@@ -40,13 +41,68 @@ public partial class CreateCharacter
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         Character.IdRoom = RoomId;
-        Cultures = await Client!.GetFromJsonAsync<List<CultureDto>>("/cultures") ?? [];
-        Concepts = await Client!.GetFromJsonAsync<List<ConceptDto>>("/concepts") ?? [];
-        Attributes = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
-        Skills = await Client!.GetFromJsonAsync<List<SkillDto>>("/skills") ?? [];
-        Backgrounds = await Client!.GetFromJsonAsync<List<BackgroundDto>>("/backgrounds") ?? [];
-        Ranks = await Client!.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
-        Potentials = await Client!.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
+        var resultCulture = await Client!.GetFromJsonAsync<Result<List<CultureDto>>>("/cultures") ?? new Result<List<CultureDto>> { IsError = true, Error = "Unknown error" };
+        if (resultCulture.IsError)
+        {
+            Snackbar.Add("Error loading Cultures: " + resultCulture.Error);
+            Cultures = [];
+        }
+        else
+            Cultures = resultCulture.Value ?? [];
+
+        var resultConcept = await Client!.GetFromJsonAsync<Result<List<ConceptDto>>>("/concepts") ?? new Result<List<ConceptDto>> { IsError = true, Error = "Unknown error" };
+        if (resultConcept.IsError)
+        {
+            Snackbar.Add("Error loading Concepts: " + resultConcept.Error);
+            Concepts = [];
+        }
+        else
+            Concepts = resultConcept.Value ?? [];
+
+        var resultAttribute = await Client!.GetFromJsonAsync<Result<List<AttributeDto>>>("/attributes") ?? new Result<List<AttributeDto>> { IsError = true, Error = "Unknown error" };
+        if (resultAttribute.IsError)
+        {
+            Snackbar.Add("Error loading Attributes: " + resultAttribute.Error);
+            Attributes = [];
+        }
+        else
+            Attributes = resultAttribute.Value ?? [];
+
+        var resultSkill = await Client!.GetFromJsonAsync<Result<List<SkillDto>>>("/skills") ?? new Result<List<SkillDto>> { IsError = true, Error = "Unknown error" };
+        if (resultSkill.IsError)
+        {
+            Snackbar.Add("Error loading Skills: " + resultSkill.Error);
+            Skills = [];
+        }
+        else
+            Skills = resultSkill.Value ?? [];
+
+        var resultBackground = await Client!.GetFromJsonAsync<Result<List<BackgroundDto>>>("/backgrounds") ?? new Result<List<BackgroundDto>> { IsError = true, Error = "Unknown error" };
+        if (resultBackground.IsError)
+        {
+            Snackbar.Add("Error loading Backgrounds: " + resultBackground.Error);
+            Backgrounds = [];
+        }
+        else
+            Backgrounds = resultBackground.Value ?? [];
+
+        var resultRank = await Client!.GetFromJsonAsync<Result<List<RankDto>>>("/ranks") ?? new Result<List<RankDto>> { IsError = true, Error = "Unknown error" };
+        if (resultRank.IsError)
+        {
+            Snackbar.Add("Error loading Ranks: " + resultRank.Error);
+            Ranks = [];
+        }
+        else
+            Ranks = resultRank.Value ?? [];
+
+        var resultPotential = await Client!.GetFromJsonAsync<Result<List<PotentialDto>>>("/potentials") ?? new Result<List<PotentialDto>> { IsError = true, Error = "Unknown error" };
+        if (resultPotential.IsError)
+        {
+            Snackbar.Add("Error loading Potentials: " + resultPotential.Error);
+            Potentials = [];
+        }
+        else
+            Potentials = resultPotential.Value ?? [];
     }
 
     // Those are step 1 logic but it's here because we need some of the step 1 DTOs in step 2

@@ -65,6 +65,7 @@ public static class ServiceCollectionExtensions
         //services.AddScoped<INPCSkillService, NPCSkillService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<IRoomChatMessageService, RoomChatMessageService>();
         services.AddScoped<IPotentialPrerequisiteService, PotentialPrerequisiteService>();
         return services;
     }

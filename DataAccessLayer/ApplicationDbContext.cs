@@ -57,6 +57,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, Gui
     public DbSet<Rank> Ranks { get; set; } = null!;
     public DbSet<RankPrerequisite> RankPrerequisites { get; set; } = null!;
     public DbSet<Room> Rooms { get; set; } = null!;
+    public DbSet<RoomChatMessage> RoomChatMessages { get; set; }
     public DbSet<Skill> Skills { get; set; } = null!;
     public DbSet<UserRoom> UserRooms { get; set; } = null!;
     public DbSet<Vehicle> Vehicles { get; set; } = null!;

@@ -2,7 +2,6 @@
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 

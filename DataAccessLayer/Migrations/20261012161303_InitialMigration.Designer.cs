@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260928151938_InitialMigration")]
+    [Migration("20261012161303_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -1158,6 +1158,34 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Rooms", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Rooms.RoomChatMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdRoom")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Sender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SentAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdRoom");
+
+                    b.ToTable("RoomChatMessages", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Rooms.UserRoom", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2273,6 +2301,17 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("NPC");
 
                     b.Navigation("Protection");
+                });
+
+            modelBuilder.Entity("Domain.Rooms.RoomChatMessage", b =>
+                {
+                    b.HasOne("Domain.Rooms.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("IdRoom")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("Domain.Rooms.UserRoom", b =>
