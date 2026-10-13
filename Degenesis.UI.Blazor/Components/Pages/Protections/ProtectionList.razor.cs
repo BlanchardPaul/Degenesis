@@ -19,8 +19,6 @@ public partial class ProtectionList
 
     private async Task LoadProtections()
     {
-        Protections = await Client!.GetFromJsonAsync<List<ProtectionDto>>("/protections") ?? [];
-        Cults = await Client!.GetFromJsonAsync<List<CultDto>>("/cults") ?? [];
         var protectionResult = await Client!.GetFromJsonAsync<Result<List<ProtectionDto>>>("/protections") ?? new Result<List<ProtectionDto>> { IsError = true, Error = "Unknown error" };
         if (protectionResult.IsError)
         {

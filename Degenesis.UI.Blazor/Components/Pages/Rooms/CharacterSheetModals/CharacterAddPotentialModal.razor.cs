@@ -17,7 +17,15 @@ public partial class CharacterAddPotentialModal
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         List<Guid> ownedPotentialIds = [.. Character.Potentials.Select(p => p.PotentialId)];
-        Potentials = await Client!.GetFromJsonAsync<List<PotentialDto>>("/potentials") ?? [];
+        var potentialResult = await Client!.GetFromJsonAsync<Result<List<PotentialDto>>>("/potentials") ?? new Result<List<PotentialDto>> { IsError = true, Error = "Unknown error" };
+        if (potentialResult is null)
+        {
+            Snackbar.Add($"Error loading potentials", Severity.Error);
+            Potentials = [];
+        }
+        else
+            Potentials = potentialResult.Value ?? [];
+
         Potentials = Potentials = [.. Potentials
         .Where(p => (p.CultId == Character.Cult.Id || p.CultId is null)
                     && !ownedPotentialIds.Contains(p.Id))];

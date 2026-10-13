@@ -61,7 +61,7 @@ public partial class RoomMapChat : IAsyncDisposable
             .WithAutomaticReconnect()
             .Build();
 
-        // When hub send message
+        // When hub send message to user
         hubConnection.On<string, string>("ReceiveMessage", (sender, message) =>
         {
             // Insert at position 0 : displayed at the bottom thanks to flex-column-reverse
@@ -69,7 +69,7 @@ public partial class RoomMapChat : IAsyncDisposable
             InvokeAsync(StateHasChanged);
         });
 
-        // When hub send messages history
+        // When hub send messages history to user
         hubConnection.On<List<RoomChatMessageDto>>("ReceiveHistory", history =>
         {
             // History arrives chronological (oldest first) → reverse it
@@ -83,6 +83,7 @@ public partial class RoomMapChat : IAsyncDisposable
         await hubConnection.SendAsync("JoinRoom", IdRoom.ToString());
     }
 
+    // When user send message to hub
     private async Task SendMessage()
     {
         if (!string.IsNullOrWhiteSpace(currentMessage))

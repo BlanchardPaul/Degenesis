@@ -25,14 +25,14 @@ public partial class SkillList
         }
         else
             skills = skillResult.Value ?? [];
-        var attributeResult = await Client!.GetFromJsonAsync<List<AttributeDto>>("/attributes") ?? [];
+        var attributeResult = await Client!.GetFromJsonAsync<Result<List<AttributeDto>>>("/attributes") ?? new Result<List<AttributeDto>> { IsError = true, Error = "Unknow error" };
         if (attributeResult is null)
         {
             Snackbar.Add($"Error loading attributes", Severity.Error);
             attributes = [];
         }
         else
-            attributes = attributeResult;
+            attributes = attributeResult.Value ?? [];
     }
 
     private async Task ShowCreateDialog()

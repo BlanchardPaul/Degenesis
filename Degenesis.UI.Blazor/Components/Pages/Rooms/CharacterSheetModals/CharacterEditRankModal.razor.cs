@@ -15,7 +15,14 @@ public partial class CharacterEditRankModal
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        Ranks = await Client!.GetFromJsonAsync<List<RankDto>>("/ranks") ?? [];
+        var rankResult = await Client!.GetFromJsonAsync<Result<List<RankDto>>>("/ranks") ?? new Result<List<RankDto>> { IsError = true, Error = "Unknown error" };
+        if (rankResult is null)
+        {
+            Snackbar.Add($"Error loading ranks", Severity.Error);
+            Ranks = [];
+        }
+        else
+            Ranks = rankResult.Value ?? [];
         Ranks = [.. Ranks.Where(r => r.CultId == Character.Cult.Id)];
     }
 
