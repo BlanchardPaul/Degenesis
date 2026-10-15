@@ -1,4 +1,5 @@
 ﻿using Business.Rooms;
+using Degenesis.Shared.DTOs.Rooms;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Business.Hubs;
@@ -29,5 +30,17 @@ public class RoomChatHub(IRoomChatMessageService chatService) : Hub
 
         // Send message to others
         await Clients.Group(roomId).SendAsync("ReceiveMessage", user, message);
+    }
+
+    public async Task SendRollResult(string roomId, DiceRollResultDto result)
+    {
+        await chatService.SaveRollResultAsync(Guid.Parse(roomId), result);
+        await Clients.Group(roomId).SendAsync("ReceiveRollResult", result);
+    }
+
+    public async Task GetHistory(string roomId)
+    {
+        var history = await chatService.GetLastMessagesAsync(Guid.Parse(roomId), 50);
+        await Clients.Caller.SendAsync("ReceiveHistory", history);
     }
 }

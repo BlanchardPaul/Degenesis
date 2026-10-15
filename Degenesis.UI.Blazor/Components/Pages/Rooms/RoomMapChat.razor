@@ -23,7 +23,38 @@ else
                     @foreach (var msg in Messages)
                     {
                         <MudChatBubble ChatPosition="@(msg.Sender == userName ? ChatBubblePosition.End : ChatBubblePosition.Start)">
-                            <b>@msg.SentAtUtc | @msg.Sender:</b> @msg.Text
+                            @if (msg.RollResult is not null)
+                            {
+                                <b>@msg.Sender rolls:</b> <i>@msg.RollResult.RollDescription</i>
+                                <div class="d-flex flex-wrap" style="gap: 4px; font-size: 1.8rem; line-height: 1;">
+                                    @foreach (var die in msg.RollResult.Rolls)
+                                    {
+                                        <span Style="@GetDieStyle(die)"
+                                              title="@die">@GetDieFace(die)</span>
+                                    }
+                                </div>
+                                @if (msg.RollResult.IsActionRoll)
+                                {
+                                    <div>
+                                        <span style="color: darkred;">@msg.RollResult.Botches</span> |
+                                        <span style="color: red;">@msg.RollResult.Failures</span> |
+                                        <span style="color: green;">@msg.RollResult.Successes</span> |
+                                        <span style="color: goldenrod;">@msg.RollResult.Triggers</span>
+                                        @if (msg.RollResult.AutoSuccesses > 0)
+                                        {
+                                            <text> | <span style="color: teal;">+@msg.RollResult.AutoSuccesses auto successes</span></text>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>Total: <b>@msg.RollResult.Total</b></div>
+                                }
+                            }
+                            else
+                            {
+                                <b>@msg.SentAtUtc | @msg.Sender:</b> @msg.Text
+                            }
                         </MudChatBubble>
                     }
                 </div>

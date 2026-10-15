@@ -1164,6 +1164,9 @@ namespace DataAccessLayer.Migrations
                     b.Property<Guid>("IdRoom")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("RollResultJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Sender")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

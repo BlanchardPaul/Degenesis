@@ -14,12 +14,13 @@ public partial class RoomMapChat : IAsyncDisposable
 
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
-    [Inject] private AuthenticatedHttpClientService AuthenticatedHttpClientService { get; set; } = default!;
+    [Inject] private RoomConnectionService RoomConnection { get; set; } = default!;
 
     private RoomDisplayDto? room;
     private HubConnection? hubConnection;
     private string currentMessage = "";
     private string? userName;
+    private static readonly string[] DiceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
     private List<RoomChatMessageDto> Messages = [];
 
@@ -49,17 +50,12 @@ public partial class RoomMapChat : IAsyncDisposable
         }
 
         // Create a connection with the chat hub
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl("https://localhost:7274/roomchathub", options =>
-            {
-                options.AccessTokenProvider = async () =>
-                {
-                    var token = await AuthenticatedHttpClientService.GetTokenAsync();
-                    return token ?? string.Empty;
-                };
-            })
-            .WithAutomaticReconnect()
-            .Build();
+        hubConnection = await RoomConnection.GetOrCreateAsync(IdRoom, userName!);
+
+        // Detach if a previous connection existed
+        hubConnection.Remove("ReceiveMessage");
+        hubConnection.Remove("ReceiveHistory");
+        hubConnection.Remove("ReceiveRollResult");
 
         // When hub send message to user
         hubConnection.On<string, string>("ReceiveMessage", (sender, message) =>
@@ -79,8 +75,20 @@ public partial class RoomMapChat : IAsyncDisposable
             InvokeAsync(StateHasChanged);
         });
 
-        await hubConnection.StartAsync();
-        await hubConnection.SendAsync("JoinRoom", IdRoom.ToString());
+        // When hub send a dice roll to display
+        hubConnection.On<DiceRollResultDto>("ReceiveRollResult", result =>
+        {
+            Messages.Insert(0, new RoomChatMessageDto
+            {
+                Sender = result.Roller,
+                Text = result.RollDescription,
+                SentAtUtc = DateTime.UtcNow,
+                RollResult = result
+            });
+            InvokeAsync(StateHasChanged);
+        });
+
+        await hubConnection.SendAsync("GetHistory", IdRoom.ToString());
     }
 
     // When user send message to hub
@@ -94,13 +102,29 @@ public partial class RoomMapChat : IAsyncDisposable
         }
     }
 
-    public async ValueTask DisposeAsync()
+    private static string GetDieFace(int value) => value is >= 1 and <= 6 ? DiceFaces[value - 1] : value.ToString();
+
+    // Have to do this GetDiceStyle else Blazor aint happy in the dice display
+    private static string GetDieStyle(int value)
     {
-        if (hubConnection is not null)
+        var color = value switch
         {
-            await hubConnection.SendAsync("LeaveRoom", IdRoom.ToString());
-            await hubConnection.DisposeAsync();
-            GC.SuppressFinalize(this);
-        }
+            1 => "darkred",
+            2 or 3 => "red",
+            4 or 5 => "green",
+            6 => "goldenrod",
+            _ => ""
+        };
+        return string.IsNullOrEmpty(color) ? "" : $"color: {color};";
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        // Never dispose hubConnection here: it belongs to RoomConnectionService.
+        // Just detach our handlers so a dead component stops receiving events.
+        hubConnection?.Remove("ReceiveMessage");
+        hubConnection?.Remove("ReceiveHistory");
+        hubConnection?.Remove("ReceiveRollResult");
+        return ValueTask.CompletedTask;
     }
 }

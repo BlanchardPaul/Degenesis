@@ -631,7 +631,8 @@ namespace DataAccessLayer.Migrations
                     IdRoom = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Sender = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Text = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    SentAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    SentAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RollResultJson = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

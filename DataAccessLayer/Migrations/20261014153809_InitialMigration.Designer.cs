@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261012161303_InitialMigration")]
+    [Migration("20261014153809_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -1166,6 +1166,9 @@ namespace DataAccessLayer.Migrations
 
                     b.Property<Guid>("IdRoom")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RollResultJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Sender")
                         .IsRequired()

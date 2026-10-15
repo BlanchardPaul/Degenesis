@@ -7,6 +7,6 @@ public class RoomChatMessage
     public string Sender { get; set; } = string.Empty;
     public string Text { get; set; } = string.Empty;
     public DateTime SentAtUtc { get; set; } = DateTime.UtcNow;
-
+    public string? RollResultJson { get; set; }
     public Room? Room { get; set; }
 }
