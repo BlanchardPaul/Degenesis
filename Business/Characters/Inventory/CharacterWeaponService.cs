@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Business.Hubs;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
@@ -16,10 +17,11 @@ public interface ICharacterWeaponService
 }
 
 
-public class CharacterWeaponService(ApplicationDbContext context, IMapper mapper) : ICharacterWeaponService
+public class CharacterWeaponService(ApplicationDbContext context, IMapper mapper, IRoomBroadcastService broadcast) : ICharacterWeaponService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<List<CharacterWeaponDto>>> GetByCharacterIdAsync(Guid characterId)
     {
@@ -67,7 +69,7 @@ public class CharacterWeaponService(ApplicationDbContext context, IMapper mapper
 
             _context.CharacterWeapons.Add(characterWeapon);
             await _context.SaveChangesAsync();
-
+            await _broadcast.NotifyCharacterUpdatedAsync(characterWeapon.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -86,6 +88,7 @@ public class CharacterWeaponService(ApplicationDbContext context, IMapper mapper
 
             _mapper.Map(characterWeaponDto, characterWeapon);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterWeapon.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -103,6 +106,7 @@ public class CharacterWeaponService(ApplicationDbContext context, IMapper mapper
                 return new Result<object> { IsError = true, Error = "CharacterWeapon not found" };
             _context.CharacterWeapons.Remove(characterWeapon);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterWeapon.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

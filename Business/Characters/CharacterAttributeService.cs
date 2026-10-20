@@ -1,4 +1,5 @@
-﻿using DataAccessLayer;
+﻿using Business.Hubs;
+using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,10 @@ public interface ICharacterAttributeService
     Task<Result<object>> UpdateCharacterAttributeAsync(CharacterAttributeDto characterAttribute);
 }
 
-public class CharacterAttributeService(ApplicationDbContext context) : ICharacterAttributeService
+public class CharacterAttributeService(ApplicationDbContext context, IRoomBroadcastService broadcast) : ICharacterAttributeService
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<object>> UpdateCharacterAttributeAsync(CharacterAttributeDto characterAttribute)
     {
@@ -123,6 +125,7 @@ public class CharacterAttributeService(ApplicationDbContext context) : ICharacte
             }
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterAttribute.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

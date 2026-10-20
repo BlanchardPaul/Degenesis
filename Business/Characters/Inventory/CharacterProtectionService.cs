@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Business.Hubs;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
@@ -15,10 +16,11 @@ public interface ICharacterProtectionService
     Task<Result<object>> DeleteAsync(Guid id);
 }
 
-public class CharacterProtectionService(ApplicationDbContext context, IMapper mapper) : ICharacterProtectionService
+public class CharacterProtectionService(ApplicationDbContext context, IMapper mapper, IRoomBroadcastService broadcast) : ICharacterProtectionService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<List<CharacterProtectionDto>>> GetByCharacterIdAsync(Guid characterId)
     {
@@ -61,6 +63,7 @@ public class CharacterProtectionService(ApplicationDbContext context, IMapper ma
 
             _context.CharacterProtections.Add(characterProtection);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterProtection.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -79,6 +82,7 @@ public class CharacterProtectionService(ApplicationDbContext context, IMapper ma
             _mapper.Map(characterProtectionDto, existing);
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(existing.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -96,6 +100,7 @@ public class CharacterProtectionService(ApplicationDbContext context, IMapper ma
                 return new Result<object> { IsError = true, Error = "CharacterProtection not found" };
             _context.CharacterProtections.Remove(existing);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(existing.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

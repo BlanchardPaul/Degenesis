@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Business.Hubs;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
@@ -16,10 +17,11 @@ public interface ICharacterArtifactService
     Task<Result<object>> DeleteAsync(Guid id);
 }
 
-public class CharacterArtifactService(ApplicationDbContext context, IMapper mapper) : ICharacterArtifactService
+public class CharacterArtifactService(ApplicationDbContext context, IMapper mapper, IRoomBroadcastService broadcast) : ICharacterArtifactService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<CharacterArtifactDto>> GetByIdAsync(Guid id)
     {
@@ -75,6 +77,7 @@ public class CharacterArtifactService(ApplicationDbContext context, IMapper mapp
 
             _context.CharacterArtifacts.Add(characterArtifact);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterArtifactCreate.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -93,6 +96,7 @@ public class CharacterArtifactService(ApplicationDbContext context, IMapper mapp
 
             _mapper.Map(characterArtifact, existing);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(existing.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -111,6 +115,7 @@ public class CharacterArtifactService(ApplicationDbContext context, IMapper mapp
 
             _context.CharacterArtifacts.Remove(characterArtifact);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterArtifact.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

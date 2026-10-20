@@ -1,0 +1,28 @@
+﻿@page "/gm-character/{CharacterId:guid}/{View}"
+
+@if (Character is null && !loadError)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else if (loadError)
+{
+    <MudAlert Severity="Severity.Error">Unable to load this character.</MudAlert>
+}
+else
+{
+    <MudButton StartIcon="@Icons.Material.Filled.Refresh" Variant="Variant.Outlined"
+                OnClick="ReloadCharacter" Class="mb-4">Reload</MudButton>
+
+    @if (ShowInventory)
+    {
+        <RoomCharacterInventory Character="Character" OnRequestParentReload="ReloadCharacter" />
+    }
+    else
+    {
+        <RoomCharacterSheet Character="Character" OnRequestParentReload="ReloadCharacter" />
+    }
+
+    <MudFab Style="position: fixed; top: 70px; right: 15px; z-index: 10;"
+            Color="Color.Primary" StartIcon="@Icons.Material.Filled.Casino"
+            Size="Size.Large" OnClick="OpenDiceRollModal" />
+}

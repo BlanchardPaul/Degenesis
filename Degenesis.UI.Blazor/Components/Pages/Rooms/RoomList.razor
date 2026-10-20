@@ -38,7 +38,8 @@ else
                         <MudCardActions>
                             @if(room.IsCurrentUserGM){
                                 <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="() => ShowEditDialog(room.Id)">Edit</MudButton>
-                                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="() => ShowInviteDialog(room.Id)">Invite Player</MudButton>
+                                <MudButton Variant="Variant.Text" Color="Color.Success" OnClick="() => JoinRoom(room.Id)">Join</MudButton>
+                                <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="() => ShowInviteDialog(room.Id)">Invite Player</MudButton>
                                 <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => DeleteRoom(room.Id)">Delete</MudButton>
                             }else{
                                 <MudButton Variant="Variant.Text" Color="Color.Warning" OnClick="() => ConfirmLeaveRoom(room.Id)">Leave Room</MudButton>

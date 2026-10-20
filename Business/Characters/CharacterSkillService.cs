@@ -1,4 +1,5 @@
-﻿using DataAccessLayer;
+﻿using Business.Hubs;
+using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.EntityFrameworkCore;
@@ -9,9 +10,10 @@ public interface ICharacterSkillService
     Task<Result<object>> UpdateCharacterSkillAsync(CharacterSkillDto characterSkill);
 }
 
-public class CharacterSkillService(ApplicationDbContext context) : ICharacterSkillService
+public class CharacterSkillService(ApplicationDbContext context, IRoomBroadcastService broadcast) : ICharacterSkillService
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<object>> UpdateCharacterSkillAsync(CharacterSkillDto characterSkill)
     {
@@ -109,6 +111,7 @@ public class CharacterSkillService(ApplicationDbContext context) : ICharacterSki
             }
             
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(existingCharacterSkill.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

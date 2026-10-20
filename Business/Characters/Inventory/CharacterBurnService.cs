@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Business.Hubs;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
@@ -15,10 +16,11 @@ public interface ICharacterBurnService
     Task<Result<object>> DeleteAsync(Guid id);
 }
 
-public class CharacterBurnService(ApplicationDbContext context, IMapper mapper) : ICharacterBurnService
+public class CharacterBurnService(ApplicationDbContext context, IMapper mapper, IRoomBroadcastService broadcast) : ICharacterBurnService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<CharacterBurnDto>> GetByIdAsync(Guid id)
     {
@@ -74,6 +76,7 @@ public class CharacterBurnService(ApplicationDbContext context, IMapper mapper) 
 
             _context.CharacterBurns.Add(characterBurn);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterBurnCreate.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -92,6 +95,7 @@ public class CharacterBurnService(ApplicationDbContext context, IMapper mapper) 
 
             _mapper.Map(characterBurn, existing);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(existing.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -110,6 +114,7 @@ public class CharacterBurnService(ApplicationDbContext context, IMapper mapper) 
 
             _context.CharacterBurns.Remove(characterBurn);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterBurn.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

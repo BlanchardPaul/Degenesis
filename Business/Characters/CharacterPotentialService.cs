@@ -1,4 +1,5 @@
-﻿using DataAccessLayer;
+﻿using Business.Hubs;
+using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Domain.Characters;
@@ -12,9 +13,10 @@ public interface ICharacterPotentialService
     Task<Result<object>> DeleteCharacterPotentialAsync(Guid characterId, Guid characterPotentialId);
 }
 
-public class CharacterPotentialService(ApplicationDbContext context) : ICharacterPotentialService
+public class CharacterPotentialService(ApplicationDbContext context, IRoomBroadcastService broadcast) : ICharacterPotentialService
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<object>> CreateCharacterPotentialAsync(CharacterGuidValueEditDto potentialToCreate)
     {
@@ -41,6 +43,7 @@ public class CharacterPotentialService(ApplicationDbContext context) : ICharacte
 
             await _context.CharacterPotentials.AddAsync(toCreate);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(existingCharacter.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -62,6 +65,7 @@ public class CharacterPotentialService(ApplicationDbContext context) : ICharacte
             existingCharacterPotential.Level = characterPotential.Level;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(existingCharacterPotential.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -82,6 +86,7 @@ public class CharacterPotentialService(ApplicationDbContext context) : ICharacte
             _context.Remove(existingCharacterPotential);
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(existingCharacterPotential.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

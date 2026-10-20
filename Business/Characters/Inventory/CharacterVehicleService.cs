@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Business.Hubs;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
@@ -15,10 +16,11 @@ public interface ICharacterVehicleService
     Task<Result<object>> DeleteAsync(Guid id);
 }
 
-public class CharacterVehicleService(ApplicationDbContext context, IMapper mapper) : ICharacterVehicleService
+public class CharacterVehicleService(ApplicationDbContext context, IMapper mapper, IRoomBroadcastService broadcast) : ICharacterVehicleService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<List<CharacterVehicleDto>>> GetByCharacterIdAsync(Guid characterId)
     {
@@ -66,6 +68,7 @@ public class CharacterVehicleService(ApplicationDbContext context, IMapper mappe
 
             _context.CharacterVehicles.Add(characterVehicle);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterVehicle.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -83,6 +86,7 @@ public class CharacterVehicleService(ApplicationDbContext context, IMapper mappe
                 return new Result<object> { IsError = true, Error = "CharacterVehicle not found" };
             _mapper.Map(characterVehicleDto, characterVehicle);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterVehicle.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -101,6 +105,7 @@ public class CharacterVehicleService(ApplicationDbContext context, IMapper mappe
 
             _context.CharacterVehicles.Remove(characterVehicle);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterVehicle.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

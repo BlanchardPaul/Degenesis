@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Business.Hubs;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
@@ -12,6 +13,8 @@ namespace Business.Characters;
 public interface ICharacterService
 {
     Task<Result<CharacterDisplayDto>> GetCharacterByUserAndRoomAsync(Guid roomId, string userName);
+    Task<Result<List<CharacterDisplayForGMListDto>>> GetAllCharactersInRoomAsync(Guid roomId, string userName);
+    Task<Result<CharacterDisplayDto>> GetCharacterByIdForGMAsync(Guid characterId, string userName);
     Task<Result<object>> CreateCharacterAsync(CharacterCreateDto character, string userName);
     Task<Result<object>> UpdateCharacterBasicInfosAsync(CharacterBasicInfosEditDto characterBasicInfosEditDto);
     Task<Result<object>> UpdateCharacterChroniclerMoneyAsync(CharacterIntValueEditDto characterChroniclerMoney); 
@@ -28,11 +31,12 @@ public interface ICharacterService
     Task<Result<object>> DeleteCharacterAsync(Guid roomId, string userName);
 }
 
-public class CharacterService(ApplicationDbContext context, IMapper mapper, UserManager<ApplicationUser> userManager) : ICharacterService
+public class CharacterService(ApplicationDbContext context, IMapper mapper, UserManager<ApplicationUser> userManager, IRoomBroadcastService broadcast) : ICharacterService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
     private readonly UserManager<ApplicationUser> _userManager = userManager;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<CharacterDisplayDto>> GetCharacterByUserAndRoomAsync(Guid roomId, string userName)
     {
@@ -88,6 +92,111 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             return new Result<CharacterDisplayDto> { Value = _mapper.Map<CharacterDisplayDto>(character) };
         }
         catch(Exception)
+        {
+            return new Result<CharacterDisplayDto> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    public async Task<Result<List<CharacterDisplayForGMListDto>>> GetAllCharactersInRoomAsync(Guid roomId, string userName)
+    {
+        try
+        {
+            List<CharacterDisplayForGMListDto> characterList = [];
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user is null)
+                return new Result<List<CharacterDisplayForGMListDto>> { IsError = true, Error = "User not found" };
+            var userRoom = _context.UserRooms.FirstOrDefault(ur => ur.IdApplicationUser == user.Id && ur.IdRoom == roomId);
+            if(userRoom is null)
+                return new Result<List<CharacterDisplayForGMListDto>> { IsError = true, Error = "User Room not found" };
+            if (!userRoom.IsGM)
+                return new Result<List<CharacterDisplayForGMListDto>> { IsError = true, Error = "Complete characters list available for the GM only" };
+            var characters = _context.Characters.Where(c => c.IdRoom == roomId).ToList();
+            foreach (var character in characters)
+            {
+                var characterOwner = _context.Users.Find(character.IdApplicationUser);
+                if (characterOwner is null)
+                    return new Result<List<CharacterDisplayForGMListDto>> { IsError = true, Error = "A character's owner was not found" };
+                characterList.Add(new CharacterDisplayForGMListDto
+                {
+                    Id = character.Id,
+                    Name = character.Name,
+                    PlayerName = characterOwner.UserName!
+                });
+            }
+            return new Result<List<CharacterDisplayForGMListDto>> { Value = characterList };
+        }
+        catch (Exception)
+        {
+            return new Result<List<CharacterDisplayForGMListDto>> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    public async Task<Result<CharacterDisplayDto>> GetCharacterByIdForGMAsync(Guid characterId, string userName)
+    {
+        try
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user is null)
+                return new Result<CharacterDisplayDto> { IsError = true, Error = "User not found" };
+
+            var characterRoomId = await _context.Characters
+                .Where(c => c.Id == characterId)
+                .Select(c => c.IdRoom)
+                .FirstOrDefaultAsync();
+
+            var userRoom = await _context.UserRooms
+                .FirstOrDefaultAsync(ur => ur.IdApplicationUser == user.Id && ur.IdRoom == characterRoomId);
+            if (userRoom is null || !userRoom.IsGM)
+                return new Result<CharacterDisplayDto> { IsError = true, Error = "Character available for the GM of the room only" };
+
+            var character = await _context.Characters
+                            .AsSplitQuery()
+                            .Include(c => c.Cult)
+                            .Include(c => c.Culture)
+                            .Include(c => c.Concept)
+                            .Include(c => c.Room)
+                            .Include(c => c.Rank)
+                            .Include(c => c.CharacterAttributes)
+                                .ThenInclude(ca => ca.Attribute)
+                            .Include(c => c.CharacterSkills)
+                                .ThenInclude(cs => cs.Skill)
+                            .Include(c => c.CharacterBackgrounds)
+                                .ThenInclude(cb => cb.Background)
+                            .Include(c => c.CharacterPontentials)
+                                .ThenInclude(cp => cp.Potential)
+                            .Include(c => c.CharacterArtifacts)
+                                .ThenInclude(ca => ca.Artifact)
+                            .Include(c => c.CharacterBurns)
+                                .ThenInclude(cb => cb.Burn)
+                            .Include(c => c.CharacterEquipments)
+                                .ThenInclude(ce => ce.Equipment)
+                                    .ThenInclude(e => e.EquipmentType)
+                            .Include(c => c.CharacterEquipments)
+                                .ThenInclude(ce => ce.Equipment)
+                                    .ThenInclude(e => e.Cults)
+                            .Include(c => c.CharacterProtections)
+                                .ThenInclude(cp => cp.Protection)
+                                    .ThenInclude(p => p.Cults)
+                            .Include(c => c.CharacterVehicles)
+                                .ThenInclude(cv => cv.Vehicle)
+                                    .ThenInclude(v => v.VehicleType)
+                            .Include(c => c.CharacterVehicles)
+                                .ThenInclude(cv => cv.Vehicle)
+                                    .ThenInclude(v => v.Cult)
+                            .Include(c => c.CharacterWeapons)
+                                .ThenInclude(cw => cw.Weapon)
+                                    .ThenInclude(w => w.WeaponType)
+                            .Include(c => c.CharacterWeapons)
+                                .ThenInclude(cw => cw.Weapon)
+                                    .ThenInclude(w => w.Cults)
+                            .FirstOrDefaultAsync(c => c.Id == characterId);
+
+            if (character is null)
+                return new Result<CharacterDisplayDto> { IsError = true, Error = "Character not found" };
+
+            return new Result<CharacterDisplayDto> { Value = _mapper.Map<CharacterDisplayDto>(character) };
+        }
+        catch (Exception)
         {
             return new Result<CharacterDisplayDto> { IsError = true, Error = "A server error occurred" };
         }
@@ -221,6 +330,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             _mapper.Map(characterBasicInfosEditDto, existingCharacter);
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterBasicInfosEditDto.Id);
             return new Result<object> { Value = null};
         }
         catch (Exception)
@@ -242,6 +352,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.ChroniclerMoney = characterChroniclerMoney.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterChroniclerMoney.Id);
             return new Result<object> { Value = null};
         }
         catch (Exception)
@@ -263,6 +374,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.CurrentSporeInfestation = characterCurrentSporeInfestation.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterCurrentSporeInfestation.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -283,6 +395,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.DinarMoney = characterDinar.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterDinar.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -304,6 +417,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.Ego = characterEgo.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterEgo.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -324,6 +438,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.FleshWounds = characterFleshWounds.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterFleshWounds.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -344,6 +459,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.Notes = characterNotes.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterNotes.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -363,6 +479,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
 
             existingCharacter.InventoryNotes = characterInventoryNotes.Value;
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterInventoryNotes.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -383,6 +500,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.PermanentSporeInfestation = characterPermanentSporeInfestation.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterPermanentSporeInfestation.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -410,6 +528,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.RankId = characterRank.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterRank.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -430,6 +549,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.Trauma = characterTrauma.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterTrauma.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -450,6 +570,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             existingCharacter.Experience = characterXp.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterXp.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)

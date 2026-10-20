@@ -4,6 +4,7 @@ using Business.Burns;
 using Business.Characters;
 using Business.Characters.Inventory;
 using Business.Equipments;
+using Business.Hubs;
 using Business.Protections;
 using Business.Rooms;
 using Business.Users;
@@ -65,6 +66,7 @@ public static class ServiceCollectionExtensions
         //services.AddScoped<INPCSkillService, NPCSkillService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoomService, RoomService>();
+        services.AddScoped<IRoomBroadcastService, RoomBroadcastService>();
         services.AddScoped<IRoomChatMessageService, RoomChatMessageService>();
         services.AddScoped<IPotentialPrerequisiteService, PotentialPrerequisiteService>();
         return services;

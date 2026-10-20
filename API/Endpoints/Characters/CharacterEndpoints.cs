@@ -16,6 +16,18 @@ public static class CharacterEndpoints
             return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
+        group.MapGet("/gm/{roomId:guid}", async (Guid roomId, ICharacterService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.GetAllCharactersInRoomAsync(roomId, user?.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
+        group.MapGet("/gm/character/{characterId:guid}", async (Guid characterId, ICharacterService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.GetCharacterByIdForGMAsync(characterId, user?.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
         group.MapPost("/", async (CharacterCreateDto character, ICharacterService service, ClaimsPrincipal user) =>
         {
             var result = await service.CreateCharacterAsync(character, user?.Identity?.Name ?? string.Empty);

@@ -15,10 +15,8 @@ builder.Services.AddScoped<ProtectedLocalStorage>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddApplicationServices();
 builder.Services.AddAuthentication();
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("Public", policy => policy.RequireAssertion(context => true));
-});
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Public", policy => policy.RequireAssertion(context => true));
 
 builder.Services.AddHttpClient("API", client =>
 {

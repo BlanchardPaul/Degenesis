@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Business.Hubs;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
@@ -16,10 +17,11 @@ public interface ICharacterEquipmentService
     Task<Result<object>> DeleteAsync(Guid id);
 }
 
-public class CharacterEquipmentService(ApplicationDbContext context, IMapper mapper) : ICharacterEquipmentService
+public class CharacterEquipmentService(ApplicationDbContext context, IMapper mapper, IRoomBroadcastService broadcast) : ICharacterEquipmentService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<CharacterEquipmentDto>> GetByIdAsync(Guid id)
     {
@@ -76,6 +78,7 @@ public class CharacterEquipmentService(ApplicationDbContext context, IMapper map
 
             _context.CharacterEquipments.Add(characterEquipment);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterEquipment.CharacterId);
             return new Result<object>{ Value = null };
         }
         catch (Exception)
@@ -94,6 +97,7 @@ public class CharacterEquipmentService(ApplicationDbContext context, IMapper map
 
             _mapper.Map(characterEquipment, existing);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(existing.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -111,6 +115,7 @@ public class CharacterEquipmentService(ApplicationDbContext context, IMapper map
                 return new Result<object> { IsError = true, Error = "CharacterEquipment not found" };
             _context.CharacterEquipments.Remove(characterEquipment);
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterEquipment.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

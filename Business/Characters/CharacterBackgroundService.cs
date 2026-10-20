@@ -1,6 +1,8 @@
-﻿using DataAccessLayer;
+﻿using Business.Hubs;
+using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
+using Domain.Characters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;
@@ -9,9 +11,10 @@ public interface ICharacterBackgroundService
     Task<Result<object>> UpdateCharacterBackgroundAsync(CharacterBackgroundDto characterBackground);
 }
 
-public class CharacterBackgroundService(ApplicationDbContext context) : ICharacterBackgroundService
+public class CharacterBackgroundService(ApplicationDbContext context, IRoomBroadcastService broadcast) : ICharacterBackgroundService
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<object>> UpdateCharacterBackgroundAsync(CharacterBackgroundDto characterBackground)
     {
@@ -25,6 +28,7 @@ public class CharacterBackgroundService(ApplicationDbContext context) : ICharact
             existingCharacterBackground.Level = characterBackground.Level;
              
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterBackground.CharacterId);
             return new Result<object> { Value = null };
         }
         catch (Exception)

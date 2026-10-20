@@ -1,10 +1,9 @@
 ﻿@page "/room/{IdRoom:guid}"
-@using Degenesis.Shared.DTOs.Rooms
-@inject NavigationManager Navigation
+@using Degenesis.Shared.DTOs.Characters.Display
 
-@if (Character is null)
+@if (room is null)
 {
-        <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
 }
 else
 {
@@ -13,14 +12,40 @@ else
             <RoomMapChat IdRoom="IdRoom" />
         </MudTabPanel>
 
-        <MudTabPanel Text="Character">
-            <RoomCharacterSheet Character="Character"
-                                OnRequestParentReload="ReloadCharacter" />
-        </MudTabPanel>
-        <MudTabPanel Text="Inventory">
-            <RoomCharacterInventory Character="Character"
-                                OnRequestParentReload="ReloadCharacter" />
-        </MudTabPanel>
+        @if (IsGM)
+        {
+            <MudTabPanel Text="Characters">
+                <MudList T="string" Class="mt-2">
+                    @foreach (var c in gmCharacters)
+                    {
+                        <MudListItem T="string">
+                            <div class="d-flex flex-column">
+                                <span>@c.Name <i class="ml-1">(@c.PlayerName)</i></span>
+                                <MudStack Row="true" Spacing="1" Class="mt-1">
+                                    <MudButton Size="Size.Small" Variant="Variant.Outlined"
+                                               Href="@GetGmCharacterUrl(c.Id, "sheet")"
+                                               Target="_blank">Details</MudButton>
+                                    <MudButton Size="Size.Small" Variant="Variant.Outlined"
+                                               Href="@GetGmCharacterUrl(c.Id, "inventory")"
+                                               Target="_blank">Inventory</MudButton>
+                                </MudStack>
+                            </div>
+                        </MudListItem>
+                    }
+                </MudList>
+            </MudTabPanel>
+        }
+        else
+        {
+            <MudTabPanel Text="Character">
+                <RoomCharacterSheet Character="Character"
+                                    OnRequestParentReload="ReloadCharacter" />
+            </MudTabPanel>
+            <MudTabPanel Text="Inventory">
+                <RoomCharacterInventory Character="Character"
+                                        OnRequestParentReload="ReloadCharacter" />
+            </MudTabPanel>
+        }
     </MudTabs>
 
     <MudFab Style="position: fixed; top: 70px; right: 15px; z-index: 10;"

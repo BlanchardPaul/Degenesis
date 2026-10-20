@@ -36,7 +36,7 @@ public partial class CharacterAddVehicle
         }
 
         var response = await Client!.PostAsJsonAsync($"/character-vehicles/", new { CharacterId = Character.Id, VehicleId = vehicleId });
-        if(response.IsSuccessStatusCode)
+        if(!response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<Result<object>>();
             Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
