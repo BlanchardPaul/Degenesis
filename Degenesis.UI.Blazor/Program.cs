@@ -20,7 +20,7 @@ builder.Services.AddAuthorizationBuilder()
 
 builder.Services.AddHttpClient("API", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7274/");
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7274/" );
 });
 
 // Pour que les services qui dépendent de HttpClient puissent l'injecter simplement

@@ -33,7 +33,6 @@ else
                             <MudTd DataLabel="Remaining Charges">
                                 <MudNumericField HideSpinButtons @bind-Value="@context.ChargeInMagazine"
                                                  Immediate="true"
-                                                 TextUpdateSuppression="false"
                                                  OnBlur="() => UpdateCharacterArtifact(context)" />
                             </MudTd>
                             <MudTd>
@@ -76,14 +75,11 @@ else
                             <MudTd DataLabel="Weak Qty">
                                 <MudNumericField HideSpinButtons @bind-Value="@context.WeakQuantity"
                                                  Immediate="true"
-                                                 TextUpdateSuppression="false"
                                                  OnBlur="() => UpdateCharacterBurn(context)" />
                             </MudTd>
                             <MudTd DataLabel="Potent Qty">
                                 <MudNumericField HideSpinButtons @bind-Value="@context.PotentQuantity"
-                                                 Immediate="true"
-                                                 TextUpdateSuppression="false"
-                                                 OnBlur="() => UpdateCharacterBurn(context)" />
+                                                 Immediate="true"                                                 OnBlur="() => UpdateCharacterBurn(context)" />
                             </MudTd>
                             <MudTd>
                                 <MudIconButton Icon="@Icons.Material.Filled.Search" Variant="Variant.Filled" Color="Color.Success" OnClick="() => OpenBurnPopover(context.Burn)" />
@@ -182,7 +178,7 @@ else
 
                             <MudTd>
                                 <MudTextField @bind-Value="@context.Qualities"
-                                              Immediate="true" TextUpdateSuppression="false"
+                                              Immediate="true"
                                               OnBlur="() => UpdateCharacterProtection(context)" />
                             </MudTd>
                             <MudTd>
@@ -196,7 +192,7 @@ else
                                         <div style="width:30px">
                                             @{
                                                 <MudNumericField HideSpinButtons @bind-Value="@context.UsedSlots"
-                                                                    Immediate="true" TextUpdateSuppression="false"
+                                                                    Immediate="true" 
                                                                     OnBlur="() => UpdateCharacterProtection(context)" />
                                             }
                                         </div>
@@ -204,7 +200,7 @@ else
                                         <div style="width:30px">
                                             @{
                                                 <MudNumericField HideSpinButtons @bind-Value="@context.Slots"
-                                                                    Immediate="true" TextUpdateSuppression="false"
+                                                                    Immediate="true"
                                                                     OnBlur="() => UpdateCharacterProtection(context)" />
                                             }
                                         </div>
@@ -213,7 +209,7 @@ else
                             </MudTd>
                             <MudTd>
                                 <MudNumericField HideSpinButtons @bind-Value="@context.Encumbrance"
-                                                 Immediate="true" TextUpdateSuppression="false"
+                                                 Immediate="true"
                                                  OnBlur="() => UpdateCharacterProtection(context)"/>
                             </MudTd>
                             <MudTd>
@@ -268,7 +264,7 @@ else
                             <MudTd>@(context.Vehicle.Armor == 0 ? "-" : context.Vehicle.Armor)</MudTd>
                             <MudTd>
                                 <MudTextField @bind-Value="@context.Qualities"
-                                              Immediate="true" TextUpdateSuppression="false"
+                                              Immediate="true" 
                                               OnBlur="() => UpdateCharacterVehicle(context)" />
                             </MudTd>
                             <MudTd>
@@ -276,7 +272,7 @@ else
                                     <div style="width:30px">
                                         @{
                                             <MudNumericField HideSpinButtons @bind-Value="@context.BodyFleshLost"
-                                                               Immediate="true" TextUpdateSuppression="false"
+                                                               Immediate="true" 
                                                                OnBlur="() => UpdateCharacterVehicle(context)" />
                                         }
                                     </div>
@@ -284,7 +280,7 @@ else
                                     <div style="width:30px">
                                         @{
                                             <MudNumericField HideSpinButtons @bind-Value="@context.BodyFlesh"
-                                                               Immediate="true" TextUpdateSuppression="false"
+                                                               Immediate="true" 
                                                                OnBlur="() => UpdateCharacterVehicle(context)" />
                                         }
                                     </div>
@@ -294,13 +290,13 @@ else
                                 <MudStack Row="true" Justify="Justify.FlexStart" Spacing="1">
                                 <div style="width:30px">
                                     @{<MudNumericField HideSpinButtons @bind-Value="@context.StructureTraumaLost"
-                                                     Immediate="true" TextUpdateSuppression="false"
+                                                     Immediate="true" 
                                                      OnBlur="() => UpdateCharacterVehicle(context)"/>}
                                 </div>
                                 <span> / </span>
                                 <div style="width:30px">
                                     @{<MudNumericField HideSpinButtons @bind-Value="@context.StructureTrauma"
-                                                        Immediate="true" TextUpdateSuppression="false"
+                                                        Immediate="true" 
                                                         OnBlur="() => UpdateCharacterVehicle(context)"/>}
                                 </div>
                                 </MudStack>
@@ -316,7 +312,7 @@ else
                                         <div style="width:30px">
                                             @{
                                                 <MudNumericField HideSpinButtons @bind-Value="@context.UsedSlots"
-                                                                 Immediate="true" TextUpdateSuppression="false"
+                                                                 Immediate="true" 
                                                                  OnBlur="() => UpdateCharacterVehicle(context)" />
                                             }
                                         </div>
@@ -324,7 +320,7 @@ else
                                         <div style="width:30px">
                                             @{
                                                 <MudNumericField HideSpinButtons @bind-Value="@context.Slots"
-                                                                 Immediate="true" TextUpdateSuppression="false"
+                                                                 Immediate="true" 
                                                                  OnBlur="() => UpdateCharacterVehicle(context)" />
                                             }
                                         </div>
@@ -383,7 +379,7 @@ else
                             <MudTd>@FormatDamage(context.Weapon)</MudTd>
                             <MudTd>
                                 <MudTextField @bind-Value="@context.Qualities"
-                                              Immediate="true" TextUpdateSuppression="false"
+                                              Immediate="true" 
                                               OnBlur="() => UpdateCharacterWeapon(context)" />
                             </MudTd>
                             <MudTd>
@@ -397,7 +393,7 @@ else
                                         <div style="width:30px">
                                             @{
                                                 <MudNumericField HideSpinButtons @bind-Value="@context.BulletsInMagazine"
-                                                                 Immediate="true" TextUpdateSuppression="false"
+                                                                 Immediate="true" 
                                                                  OnBlur="() => UpdateCharacterWeapon(context)" />
                                             }
                                         </div>
@@ -408,7 +404,7 @@ else
                             </MudTd>
                             <MudTd>
                                 <MudNumericField HideSpinButtons @bind-Value="@context.Encumbrance"
-                                                 Immediate="true" TextUpdateSuppression="false"
+                                                 Immediate="true" 
                                                  OnBlur="() => UpdateCharacterWeapon(context)" />
                             </MudTd>
                             <MudTd>
@@ -422,7 +418,7 @@ else
                                         <div style="width:30px">
                                             @{
                                                 <MudNumericField HideSpinButtons @bind-Value="@context.UsedSlots"
-                                                                 Immediate="true" TextUpdateSuppression="false"
+                                                                 Immediate="true" 
                                                                  OnBlur="() => UpdateCharacterWeapon(context)" />
                                             }
                                         </div>
@@ -430,7 +426,7 @@ else
                                         <div style="width:30px">
                                             @{
                                                 <MudNumericField HideSpinButtons @bind-Value="@context.Slots"
-                                                                 Immediate="true" TextUpdateSuppression="false"
+                                                                 Immediate="true" 
                                                                  OnBlur="() => UpdateCharacterWeapon(context)" />
                                             }
                                         </div>

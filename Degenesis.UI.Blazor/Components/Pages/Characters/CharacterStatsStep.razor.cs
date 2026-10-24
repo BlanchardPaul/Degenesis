@@ -206,7 +206,7 @@ public partial class CharacterStatsStep
 
     public async Task<bool> ValidateFormAsync()
     {
-        await _formStepStats.Validate();
+        await _formStepStats.ValidateAsync();
         return ValidateForm();
     }
 }

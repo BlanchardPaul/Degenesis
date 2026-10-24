@@ -365,7 +365,7 @@ public partial class RoomCharacterInventory
         if (Character is null)
             return;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/inventory-notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.InventoryNotes });
+        var response = await Client!.PutAsJsonAsync($"/characters/inventory-notes/", new IdStringEditDto { Id = Character.Id, Value = Character.InventoryNotes });
 
         if (!response.IsSuccessStatusCode)
         {

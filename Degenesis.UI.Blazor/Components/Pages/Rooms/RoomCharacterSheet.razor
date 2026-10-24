@@ -24,7 +24,6 @@ else
                         <MudItem Style="width:25%">
                             <MudNumericField HideSpinButtons @bind-Value="@Character.Experience"
                                              Immediate="true"
-                                             TextUpdateSuppression="false"
                                              OnBlur="UpdateXp" />
                         </MudItem>
                     </MudStack>
@@ -36,7 +35,6 @@ else
                         <MudItem Style="width:15%">
                             <MudNumericField HideSpinButtons @bind-Value="@Character.ChroniclerMoney"
                                              Immediate="true"
-                                             TextUpdateSuppression="false"
                                              OnBlur="UpdateChroniclerMoney" />
                             
                         </MudItem>
@@ -44,7 +42,6 @@ else
                         <MudItem Style="width:15%">
                             <MudNumericField HideSpinButtons @bind-Value="@Character.DinarMoney"
                                              Immediate="true"
-                                             TextUpdateSuppression="false"
                                              OnBlur="UpdateDinar" />
                         </MudItem>
                     </MudStack>
@@ -240,7 +237,6 @@ else
                                 <MudItem Style="width:20%">
                                     <MudNumericField HideSpinButtons @bind-Value="@Character.PermanentSporeInfestation" 
                                                                     Immediate="true"
-                                                                    TextUpdateSuppression="false"
                                                                     OnBlur="UpdatePermanentSporeInfestation" />
                                 </MudItem>
                             </MudStack>

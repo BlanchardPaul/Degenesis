@@ -1,6 +1,6 @@
 ﻿using Business.Characters;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
-using Domain.Characters;
 
 namespace API.Endpoints.Characters;
 
@@ -10,7 +10,7 @@ public static class CharacterPotentialEndpoints
     {
         var group = app.MapGroup("/character-potentials").WithTags("CharacterPotentials");
 
-        group.MapPost("/", async (CharacterGuidValueEditDto potentialToCreate, ICharacterPotentialService service) =>
+        group.MapPost("/", async (IdGuidEditDto potentialToCreate, ICharacterPotentialService service) =>
         {
             var result = await service.CreateCharacterPotentialAsync(potentialToCreate);
             return result.IsError ? Results.BadRequest(result) : Results.Created();

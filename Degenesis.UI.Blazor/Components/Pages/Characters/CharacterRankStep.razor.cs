@@ -32,7 +32,7 @@ public partial class CharacterRankStep
 
     public async Task<bool> ValidateFormAsync()
     {
-        await _formStepRank.Validate();
+        await _formStepRank.ValidateAsync();
         return ValidateForm();
     }
 }

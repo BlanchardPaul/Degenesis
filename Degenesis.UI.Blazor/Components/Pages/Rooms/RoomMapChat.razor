@@ -22,15 +22,14 @@ else
                 <div class="flex-grow-1 d-flex flex-column-reverse overflow-auto p-2">
                     @foreach (var msg in Messages)
                     {
-                        <MudChatBubble ChatPosition="@(msg.Sender == userName ? ChatBubblePosition.End : ChatBubblePosition.Start)">
+                        <div class="chat-bubble @(msg.Sender == userName ? "chat-bubble-end" : "chat-bubble-start")">
                             @if (msg.RollResult is not null)
                             {
                                 <b>@msg.Sender rolls:</b> <i>@msg.RollResult.RollDescription</i>
                                 <div class="d-flex flex-wrap" style="gap: 4px; font-size: 1.8rem; line-height: 1;">
                                     @foreach (var die in msg.RollResult.Rolls)
                                     {
-                                        <span Style="@GetDieStyle(die)"
-                                              title="@die">@GetDieFace(die)</span>
+                                        <span Style="@GetDieStyle(die)" title="@die">@GetDieFace(die)</span>
                                     }
                                 </div>
                                 @if (msg.RollResult.IsActionRoll)
@@ -55,14 +54,13 @@ else
                             {
                                 <b>@msg.SentAtUtc | @msg.Sender:</b> @msg.Text
                             }
-                        </MudChatBubble>
+                        </div>
                     }
                 </div>
 
                 <div class="p-2 d-flex flex-shrink-0">
                     <MudTextField @bind-Value="currentMessage"
                                   Immediate
-                                  TextUpdateSuppression="false"
                                   Placeholder="Type a message..."
                                   OnKeyUp="@(async e => { if (e.Key == "Enter") await SendMessage(); })"
                                   Class="flex-grow-1" />

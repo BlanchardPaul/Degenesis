@@ -1,4 +1,5 @@
 ﻿using Business.Characters;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using System.Security.Claims;
 
@@ -40,67 +41,67 @@ public static class CharacterEndpoints
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
         
-        group.MapPut("/chroniclermoney", async (CharacterIntValueEditDto characterChroniclerMoney, ICharacterService service) =>
+        group.MapPut("/chroniclermoney", async (IdIntEditDto characterChroniclerMoney, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterChroniclerMoneyAsync(characterChroniclerMoney);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
-        group.MapPut("/current-spore-infestation", async (CharacterIntValueEditDto characterCurrentSporeInfestation, ICharacterService service) =>
+        group.MapPut("/current-spore-infestation", async (IdIntEditDto characterCurrentSporeInfestation, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterCurrentSporeInfestationAsync(characterCurrentSporeInfestation);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
-        group.MapPut("/dinar", async (CharacterIntValueEditDto characterDinar, ICharacterService service) =>
+        group.MapPut("/dinar", async (IdIntEditDto characterDinar, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterDinarAsync(characterDinar);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
-        group.MapPut("/ego", async (CharacterIntValueEditDto characterEgo, ICharacterService service) =>
+        group.MapPut("/ego", async (IdIntEditDto characterEgo, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterEgoAsync(characterEgo);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
-        group.MapPut("/fleshwounds", async (CharacterIntValueEditDto characterFleshWounds, ICharacterService service) =>
+        group.MapPut("/fleshwounds", async (IdIntEditDto characterFleshWounds, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterFleshWoundsAsync(characterFleshWounds);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
-        group.MapPut("/notes", async (CharacterStringValueEditDto characterNotes, ICharacterService service) =>
+        group.MapPut("/notes", async (IdStringEditDto characterNotes, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterNotesAsync(characterNotes);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
-        group.MapPut("/inventory-notes", async (CharacterStringValueEditDto characterInventoryNotes, ICharacterService service) =>
+        group.MapPut("/inventory-notes", async (IdStringEditDto characterInventoryNotes, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterInventoryNotesAsync(characterInventoryNotes);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
 
-        group.MapPut("/permanent-spore-infestation", async (CharacterIntValueEditDto characterPermanentSporeInfestation, ICharacterService service) =>
+        group.MapPut("/permanent-spore-infestation", async (IdIntEditDto characterPermanentSporeInfestation, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterPermanentSporeInfestationAsync(characterPermanentSporeInfestation);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
-        group.MapPut("/rank", async (CharacterGuidValueEditDto characterRank, ICharacterService service) =>
+        group.MapPut("/rank", async (IdGuidEditDto characterRank, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterRankAsync(characterRank);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
-        group.MapPut("/trauma", async (CharacterIntValueEditDto characterTrauma, ICharacterService service) =>
+        group.MapPut("/trauma", async (IdIntEditDto characterTrauma, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterTraumaAsync(characterTrauma);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
-        group.MapPut("/xp", async (CharacterIntValueEditDto characterXp, ICharacterService service) =>
+        group.MapPut("/xp", async (IdIntEditDto characterXp, ICharacterService service) =>
         {
             var result = await service.UpdateCharacterXpAsync(characterXp);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();

@@ -9,5 +9,6 @@ public class CultCreateDto
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public List<SkillDto> BonusSkills { get; set; } = new();
+    public string? ImageName { get; set; }
+    public List<SkillDto> BonusSkills { get; set; } = [];
 }

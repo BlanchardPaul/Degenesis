@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Characters;
 public interface ICharacterPotentialService
 {
-    Task<Result<object>> CreateCharacterPotentialAsync(CharacterGuidValueEditDto potentialToCreate);
+    Task<Result<object>> CreateCharacterPotentialAsync(IdGuidEditDto potentialToCreate);
     Task<Result<object>> UpdateCharacterPotentialAsync(CharacterPotentialDto characterPotential);
     Task<Result<object>> DeleteCharacterPotentialAsync(Guid characterId, Guid characterPotentialId);
 }
@@ -18,7 +18,7 @@ public class CharacterPotentialService(ApplicationDbContext context, IRoomBroadc
     private readonly ApplicationDbContext _context = context;
     private readonly IRoomBroadcastService _broadcast = broadcast;
 
-    public async Task<Result<object>> CreateCharacterPotentialAsync(CharacterGuidValueEditDto potentialToCreate)
+    public async Task<Result<object>> CreateCharacterPotentialAsync(IdGuidEditDto potentialToCreate)
     {
         try
         {

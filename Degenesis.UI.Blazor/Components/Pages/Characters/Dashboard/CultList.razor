@@ -45,6 +45,20 @@ else
             </MudTd>
             <MudTd>
                 <MudButton Color="Color.Primary" OnClick="() => ShowEditDialog(context.Id)">Edit</MudButton>
+                @if(context.ImageName is not null)
+                {
+                    <MudButton StartIcon="@Icons.Material.Filled.Image"
+                                   Color="Color.Info"
+                                   Size="Size.Small"
+                               OnClick="() => ShowImageDialog(context.Id)">Image</MudButton>
+                }
+                else
+                {
+                    <MudButton StartIcon="@Icons.Material.Filled.Image"
+                                   Color="Color.Primary"
+                                   Size="Size.Small"
+                                   OnClick="() => ShowImageDialog(context.Id)">Image</MudButton>
+                }
                 <MudButton Color="Color.Error" OnClick="() => DeleteCult(context.Id)">Delete</MudButton>
             </MudTd>
         </RowTemplate>

@@ -15,13 +15,8 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace DataAccessLayer;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, Guid>
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser, Role, Guid>(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    {
-    }
-
     public DbSet<Artifact> Artifacts { get; set; } = null!;
     public DbSet<CAttribute> Attributes { get; set; } = null!;
     public DbSet<Background> Backgrounds { get; set; } = null!;
@@ -57,7 +52,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, Gui
     public DbSet<Rank> Ranks { get; set; } = null!;
     public DbSet<RankPrerequisite> RankPrerequisites { get; set; } = null!;
     public DbSet<Room> Rooms { get; set; } = null!;
-    public DbSet<RoomChatMessage> RoomChatMessages { get; set; }
+    public DbSet<RoomChatMessage> RoomChatMessages { get; set; } = null!;
+    public DbSet<RoomCultRelationship> RoomCultRelationships { get; set; } = null!;
     public DbSet<Skill> Skills { get; set; } = null!;
     public DbSet<UserRoom> UserRooms { get; set; } = null!;
     public DbSet<Vehicle> Vehicles { get; set; } = null!;

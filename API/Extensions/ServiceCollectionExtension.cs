@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IConceptService, ConceptService>();
         services.AddScoped<ICultService, CultService>();
         services.AddScoped<ICultureService, CultureService>();
+        services.AddScoped<IRoomCultRelationshipService, RoomCultRelationshipService>();
         services.AddScoped<IPotentialService, PotentialService>();
         services.AddScoped<IRankService, RankService>();
         services.AddScoped<IRankPrerequisiteService, RankPrerequisiteService>();

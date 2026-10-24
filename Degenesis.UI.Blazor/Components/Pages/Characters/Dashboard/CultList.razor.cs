@@ -88,4 +88,22 @@ public partial class CultList
             return true;
         return false;
     }
+
+    private async Task ShowImageDialog(Guid cultId)
+    {
+        var cult = cults?.FirstOrDefault(c => c.Id == cultId);
+        if (cult is null)
+            return;
+
+        var parameters = new DialogParameters { { "Cult", cult } };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, BackdropClick = false };
+
+        var dialog = await DialogService.ShowAsync<CultImageModal>("Cult image", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await LoadCults();
+        }
+    }
 }

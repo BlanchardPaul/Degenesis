@@ -17,17 +17,17 @@ public interface ICharacterService
     Task<Result<CharacterDisplayDto>> GetCharacterByIdForGMAsync(Guid characterId, string userName);
     Task<Result<object>> CreateCharacterAsync(CharacterCreateDto character, string userName);
     Task<Result<object>> UpdateCharacterBasicInfosAsync(CharacterBasicInfosEditDto characterBasicInfosEditDto);
-    Task<Result<object>> UpdateCharacterChroniclerMoneyAsync(CharacterIntValueEditDto characterChroniclerMoney); 
-    Task<Result<object>> UpdateCharacterCurrentSporeInfestationAsync(CharacterIntValueEditDto characterCurrentSporeInfestation);
-    Task<Result<object>> UpdateCharacterEgoAsync(CharacterIntValueEditDto characterEgo); 
-    Task<Result<object>> UpdateCharacterFleshWoundsAsync(CharacterIntValueEditDto characterFleshWounds);
-    Task<Result<object>> UpdateCharacterDinarAsync(CharacterIntValueEditDto characterDinar);
-    Task<Result<object>> UpdateCharacterNotesAsync(CharacterStringValueEditDto characterNotes);
-    Task<Result<object>> UpdateCharacterInventoryNotesAsync(CharacterStringValueEditDto characterInventoryNotes);
-    Task<Result<object>> UpdateCharacterPermanentSporeInfestationAsync(CharacterIntValueEditDto characterPermanentSporeInfestation);
-    Task<Result<object>> UpdateCharacterRankAsync(CharacterGuidValueEditDto characterRank);
-    Task<Result<object>> UpdateCharacterTraumaAsync(CharacterIntValueEditDto characterTrauma);
-    Task<Result<object>> UpdateCharacterXpAsync(CharacterIntValueEditDto characterXp);
+    Task<Result<object>> UpdateCharacterChroniclerMoneyAsync(IdIntEditDto characterChroniclerMoney); 
+    Task<Result<object>> UpdateCharacterCurrentSporeInfestationAsync(IdIntEditDto characterCurrentSporeInfestation);
+    Task<Result<object>> UpdateCharacterEgoAsync(IdIntEditDto characterEgo); 
+    Task<Result<object>> UpdateCharacterFleshWoundsAsync(IdIntEditDto characterFleshWounds);
+    Task<Result<object>> UpdateCharacterDinarAsync(IdIntEditDto characterDinar);
+    Task<Result<object>> UpdateCharacterNotesAsync(IdStringEditDto characterNotes);
+    Task<Result<object>> UpdateCharacterInventoryNotesAsync(IdStringEditDto characterInventoryNotes);
+    Task<Result<object>> UpdateCharacterPermanentSporeInfestationAsync(IdIntEditDto characterPermanentSporeInfestation);
+    Task<Result<object>> UpdateCharacterRankAsync(IdGuidEditDto characterRank);
+    Task<Result<object>> UpdateCharacterTraumaAsync(IdIntEditDto characterTrauma);
+    Task<Result<object>> UpdateCharacterXpAsync(IdIntEditDto characterXp);
     Task<Result<object>> DeleteCharacterAsync(Guid roomId, string userName);
 }
 
@@ -340,7 +340,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
 
     }
 
-    public async Task<Result<object>> UpdateCharacterChroniclerMoneyAsync(CharacterIntValueEditDto characterChroniclerMoney)
+    public async Task<Result<object>> UpdateCharacterChroniclerMoneyAsync(IdIntEditDto characterChroniclerMoney)
     {
         try
         {
@@ -362,7 +362,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
 
     }
 
-    public async Task<Result<object>> UpdateCharacterCurrentSporeInfestationAsync(CharacterIntValueEditDto characterCurrentSporeInfestation)
+    public async Task<Result<object>> UpdateCharacterCurrentSporeInfestationAsync(IdIntEditDto characterCurrentSporeInfestation)
     {
         try
         {
@@ -383,7 +383,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         }
     }
 
-    public async Task<Result<object>> UpdateCharacterDinarAsync(CharacterIntValueEditDto characterDinar)
+    public async Task<Result<object>> UpdateCharacterDinarAsync(IdIntEditDto characterDinar)
     {
         try
         {
@@ -405,7 +405,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
 
     }
 
-    public async Task<Result<object>> UpdateCharacterEgoAsync(CharacterIntValueEditDto characterEgo)
+    public async Task<Result<object>> UpdateCharacterEgoAsync(IdIntEditDto characterEgo)
     {
         try
         {
@@ -426,7 +426,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         }
     }
 
-    public async Task<Result<object>> UpdateCharacterFleshWoundsAsync(CharacterIntValueEditDto characterFleshWounds)
+    public async Task<Result<object>> UpdateCharacterFleshWoundsAsync(IdIntEditDto characterFleshWounds)
     {
         try
         {
@@ -447,7 +447,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         }
     }
 
-    public async Task<Result<object>> UpdateCharacterNotesAsync(CharacterStringValueEditDto characterNotes)
+    public async Task<Result<object>> UpdateCharacterNotesAsync(IdStringEditDto characterNotes)
     {
         try
         {
@@ -468,7 +468,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         }
     }
 
-    public async Task<Result<object>> UpdateCharacterInventoryNotesAsync(CharacterStringValueEditDto characterInventoryNotes)
+    public async Task<Result<object>> UpdateCharacterInventoryNotesAsync(IdStringEditDto characterInventoryNotes)
     {
         try
         {
@@ -488,7 +488,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         }
     }
 
-    public async Task<Result<object>> UpdateCharacterPermanentSporeInfestationAsync(CharacterIntValueEditDto characterPermanentSporeInfestation)
+    public async Task<Result<object>> UpdateCharacterPermanentSporeInfestationAsync(IdIntEditDto characterPermanentSporeInfestation)
     {
         try
         {
@@ -509,7 +509,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         }
     }
 
-    public async Task<Result<object>> UpdateCharacterRankAsync(CharacterGuidValueEditDto characterRank)
+    public async Task<Result<object>> UpdateCharacterRankAsync(IdGuidEditDto characterRank)
     {
         try
         {
@@ -537,7 +537,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         }
     }
 
-    public async Task<Result<object>> UpdateCharacterTraumaAsync(CharacterIntValueEditDto characterTrauma)
+    public async Task<Result<object>> UpdateCharacterTraumaAsync(IdIntEditDto characterTrauma)
     {
         try
         {
@@ -558,7 +558,7 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         }
     }
 
-    public async Task<Result<object>> UpdateCharacterXpAsync(CharacterIntValueEditDto characterXp)
+    public async Task<Result<object>> UpdateCharacterXpAsync(IdIntEditDto characterXp)
     {
         try
         {

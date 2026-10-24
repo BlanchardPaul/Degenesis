@@ -100,7 +100,7 @@ public partial class CharacterAddPotentialModal
             return;
         }
 
-        var response = await Client!.PostAsJsonAsync($"/character-potentials/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedPotentialId });
+        var response = await Client!.PostAsJsonAsync($"/character-potentials/", new IdGuidEditDto { Id = Character.Id, Value = SelectedPotentialId });
         if (!response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<Result<object>>();

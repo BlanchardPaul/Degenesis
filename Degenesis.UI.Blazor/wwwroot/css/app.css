@@ -1,0 +1,54 @@
+﻿.chat-bubble {
+    max-width: 85%;
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+
+.chat-bubble-start {
+    background-color: var(--mud-palette-background);
+    color: var(--mud-palette-text-primary);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    margin-right: auto;
+}
+
+.chat-bubble-end {
+    background-color: var(--mud-palette-background);
+    color: var(--mud-palette-primary-text);
+    margin-left: auto;
+}
+
+.cult-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* three per line */
+    gap: 1rem;
+}
+
+.cult-card {
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--mud-palette-drawer-background);
+    border: 1px solid var(--mud-palette-lines-default);
+}
+
+.cult-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1200 / 600;
+    object-fit: cover;
+}
+
+.cult-image-undiscovered {
+    filter: grayscale(1) brightness(0.4);
+}
+
+.cult-image-placeholder {
+    background-color: var(--mud-palette-gray-lighter);
+    aspect-ratio: 1200 / 600;
+}
+
+.cult-card-body {
+    padding: 8px 12px;
+}

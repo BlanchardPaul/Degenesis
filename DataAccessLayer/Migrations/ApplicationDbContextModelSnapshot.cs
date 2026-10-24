@@ -473,6 +473,9 @@ namespace DataAccessLayer.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1184,6 +1187,33 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("IdRoom");
 
                     b.ToTable("RoomChatMessages", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Rooms.RoomCultRelationship", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdCult")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("IdRoom")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDiscovered")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Relationship")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdCult");
+
+                    b.HasIndex("IdRoom");
+
+                    b.ToTable("RoomCultRelationship", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Rooms.UserRoom", b =>
@@ -2310,6 +2340,25 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("IdRoom")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("Domain.Rooms.RoomCultRelationship", b =>
+                {
+                    b.HasOne("Domain.Characters.Cult", "Cult")
+                        .WithMany()
+                        .HasForeignKey("IdCult")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Rooms.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("IdRoom")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cult");
 
                     b.Navigation("Room");
                 });

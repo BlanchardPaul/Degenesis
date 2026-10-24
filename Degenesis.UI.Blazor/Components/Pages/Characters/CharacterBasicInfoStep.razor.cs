@@ -21,7 +21,7 @@ public partial class CharacterBasicInfoStep
 
     public async Task<bool> ValidateFormAsync()
     {
-        await _formStepBasic.Validate();
+        await _formStepBasic.ValidateAsync();
 
         bool selectsValid = Character.CultureId != Guid.Empty
                             && Character.CultId != Guid.Empty

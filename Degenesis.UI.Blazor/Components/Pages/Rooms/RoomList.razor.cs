@@ -13,6 +13,7 @@ public partial class RoomList
     {
         await LoadRooms();
     }
+
     private async Task LoadRooms()
     {
         var roomResult = await Client!.GetFromJsonAsync<Result<List<RoomDisplayDto>>>("/rooms") ?? new Result<List<RoomDisplayDto>> { IsError = true, Error = "Unknown error" };

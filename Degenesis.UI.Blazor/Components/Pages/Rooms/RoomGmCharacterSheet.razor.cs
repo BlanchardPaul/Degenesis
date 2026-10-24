@@ -8,7 +8,7 @@ using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
-public partial class GmCharacterPage
+public partial class RoomGmCharacterSheet
 {
     [Inject] private RoomConnectionService RoomConnection { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthProvider { get; set; } = default!;

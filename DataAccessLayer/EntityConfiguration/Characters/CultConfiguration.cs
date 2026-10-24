@@ -19,8 +19,8 @@ internal class CultConfiguration : IEntityTypeConfiguration<Cult>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(c => c.Description)
-            .IsRequired();
+        builder.Property(c => c.Description);
+        builder.Property(c => c.ImageName);
 
         builder.HasMany(c => c.BonusSkills)
             .WithMany();

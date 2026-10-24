@@ -14,7 +14,7 @@ public partial class CharacterPotentialStep
 
     public async Task<bool> ValidateFormAsync()
     {
-        await _formStepPotentials.Validate();
+        await _formStepPotentials.ValidateAsync();
 
         if (SelectedPotentialId != Guid.Empty)
         {

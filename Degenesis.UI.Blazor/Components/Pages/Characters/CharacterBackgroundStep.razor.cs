@@ -79,7 +79,7 @@ public partial class CharacterBackgroundStep
 
     public async Task<bool> ValidateFormAsync()
     {
-        await _formStepBackgrounds.Validate();
+        await _formStepBackgrounds.ValidateAsync();
         return ValidateForm();
     }
 }

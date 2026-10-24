@@ -115,7 +115,8 @@ namespace DataAccessLayer.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImageName = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -639,6 +640,33 @@ namespace DataAccessLayer.Migrations
                     table.PrimaryKey("PK_RoomChatMessages", x => x.Id);
                     table.ForeignKey(
                         name: "FK_RoomChatMessages_Rooms_IdRoom",
+                        column: x => x.IdRoom,
+                        principalTable: "Rooms",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoomCultRelationship",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IsDiscovered = table.Column<bool>(type: "bit", nullable: false),
+                    Relationship = table.Column<int>(type: "int", nullable: false),
+                    IdCult = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdRoom = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoomCultRelationship", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoomCultRelationship_Cults_IdCult",
+                        column: x => x.IdCult,
+                        principalTable: "Cults",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RoomCultRelationship_Rooms_IdRoom",
                         column: x => x.IdRoom,
                         principalTable: "Rooms",
                         principalColumn: "Id",
@@ -1769,6 +1797,16 @@ namespace DataAccessLayer.Migrations
                 column: "IdRoom");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RoomCultRelationship_IdCult",
+                table: "RoomCultRelationship",
+                column: "IdCult");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoomCultRelationship_IdRoom",
+                table: "RoomCultRelationship",
+                column: "IdRoom");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Skills_CAttributeId",
                 table: "Skills",
                 column: "CAttributeId");
@@ -1913,6 +1951,9 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoomChatMessages");
+
+            migrationBuilder.DropTable(
+                name: "RoomCultRelationship");
 
             migrationBuilder.DropTable(
                 name: "UserRooms");

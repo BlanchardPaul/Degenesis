@@ -34,6 +34,19 @@ public static class CultEndpoints
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
+        group.MapPost("/{id:guid}/image", async (Guid id, IFormFile file, ICultService service) =>
+        {
+            var result = await service.SetCultImageAsync(id, file);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
+        }).DisableAntiforgery();
+
+        group.MapDelete("/{id:guid}/image", async (Guid id, ICultService service) =>
+        {
+            var result = await service.RemoveCultImageAsync(id);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
+        });
+
+
         group.MapDelete("/{id:guid}", async (Guid id, ICultService service) =>
         {
             var result = await service.DeleteCultAsync(id);

@@ -117,7 +117,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/xp/", new CharacterIntValueEditDto {Id = Character.Id, Value = Character.Experience });
+        var response = await Client!.PutAsJsonAsync($"/characters/xp/", new IdIntEditDto {Id = Character.Id, Value = Character.Experience });
 
         if (!response.IsSuccessStatusCode)
         {
@@ -131,7 +131,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/chroniclermoney/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.ChroniclerMoney });
+        var response = await Client!.PutAsJsonAsync($"/characters/chroniclermoney/", new IdIntEditDto { Id = Character.Id, Value = Character.ChroniclerMoney });
 
         if (!response.IsSuccessStatusCode)
         {
@@ -145,7 +145,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/dinar/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.DinarMoney });
+        var response = await Client!.PutAsJsonAsync($"/characters/dinar/", new IdIntEditDto { Id = Character.Id, Value = Character.DinarMoney });
 
         if (!response.IsSuccessStatusCode)
         {
@@ -159,7 +159,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/permanent-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.PermanentSporeInfestation });
+        var response = await Client!.PutAsJsonAsync($"/characters/permanent-spore-infestation/", new IdIntEditDto { Id = Character.Id, Value = Character.PermanentSporeInfestation });
 
         if (!response.IsSuccessStatusCode)
         {
@@ -175,7 +175,7 @@ public partial class RoomCharacterSheet
 
         Character.Ego = newValue;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/ego/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Ego });
+        var response = await Client!.PutAsJsonAsync($"/characters/ego/", new IdIntEditDto { Id = Character.Id, Value = Character.Ego });
 
         if (!response.IsSuccessStatusCode)
         {
@@ -191,7 +191,7 @@ public partial class RoomCharacterSheet
 
         Character.CurrentSporeInfestation = newValue;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/current-spore-infestation/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.CurrentSporeInfestation });
+        var response = await Client!.PutAsJsonAsync($"/characters/current-spore-infestation/", new IdIntEditDto { Id = Character.Id, Value = Character.CurrentSporeInfestation });
 
         if (!response.IsSuccessStatusCode)
         {
@@ -207,7 +207,7 @@ public partial class RoomCharacterSheet
 
         Character.FleshWounds = newValue;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/fleshwounds/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.FleshWounds });
+        var response = await Client!.PutAsJsonAsync($"/characters/fleshwounds/", new IdIntEditDto { Id = Character.Id, Value = Character.FleshWounds });
 
         if (!response.IsSuccessStatusCode)
         {
@@ -223,7 +223,7 @@ public partial class RoomCharacterSheet
 
         Character.Trauma = newValue;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/trauma/", new CharacterIntValueEditDto { Id = Character.Id, Value = Character.Trauma });
+        var response = await Client!.PutAsJsonAsync($"/characters/trauma/", new IdIntEditDto { Id = Character.Id, Value = Character.Trauma });
 
         if (!response.IsSuccessStatusCode)
         {
@@ -411,7 +411,7 @@ public partial class RoomCharacterSheet
         if (Character is null)
             return;
 
-        var response = await Client!.PutAsJsonAsync($"/characters/notes/", new CharacterStringValueEditDto { Id = Character.Id, Value = Character.Notes });
+        var response = await Client!.PutAsJsonAsync($"/characters/notes/", new IdStringEditDto { Id = Character.Id, Value = Character.Notes });
 
         if (!response.IsSuccessStatusCode)
         {

@@ -42,7 +42,7 @@ public partial class CharacterEditRankModal
             return;
         }
 
-        var response = await Client!.PutAsJsonAsync($"/characters/rank/", new CharacterGuidValueEditDto { Id = Character.Id, Value = SelectedRankId });
+        var response = await Client!.PutAsJsonAsync($"/characters/rank/", new IdGuidEditDto { Id = Character.Id, Value = SelectedRankId });
 
         if (!response.IsSuccessStatusCode)
         {
