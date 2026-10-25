@@ -6,6 +6,7 @@ namespace Business.Hubs;
 public interface IRoomBroadcastService
 {
     Task NotifyCharacterUpdatedAsync(Guid characterId);
+    Task NotifyCultRelationshipUpdatedAsync(Guid relationshipId);
 }
 
 public class RoomBroadcastService(ApplicationDbContext context, IHubContext<RoomChatHub> hubContext) : IRoomBroadcastService
@@ -23,5 +24,17 @@ public class RoomBroadcastService(ApplicationDbContext context, IHubContext<Room
 
         if (roomId != Guid.Empty)
             await _hubContext.Clients.Group(roomId.ToString()).SendAsync("CharacterUpdated", characterId);
+    }
+
+    public async Task NotifyCultRelationshipUpdatedAsync(Guid relationshipId)
+    {
+        var roomId = await _context.RoomCultRelationships
+            .AsNoTracking()
+            .Where(r => r.Id == relationshipId)
+            .Select(r => r.IdRoom)
+            .FirstOrDefaultAsync();
+
+        if (roomId != Guid.Empty)
+            await _hubContext.Clients.Group(roomId.ToString()).SendAsync("CultRelationshipUpdated");
     }
 }

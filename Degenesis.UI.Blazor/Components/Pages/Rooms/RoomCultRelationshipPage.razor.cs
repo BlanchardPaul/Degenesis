@@ -1,21 +1,38 @@
 ﻿using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Rooms;
+using Degenesis.UI.Blazor.Extensions;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
 
 public partial class RoomCultRelationshipPage
 {
+    [Inject] private RoomConnectionService RoomConnection { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthProvider { get; set; } = default!;
     [Parameter] public Guid IdRoom { get; set; }
     [Parameter] public bool IsGM { get; set; } = false;
     private string ApiRoot => new Uri(Client!.BaseAddress!, "..").GetLeftPart(UriPartial.Authority);
-
+    private HubConnection? hubConnection;
     private List<CultRelationshipDto>? CultRelationships;
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
+        // Reuse the hub connection already created by RoomPage (same circuit)
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        var userName = auth.User.FindFirst("unique_name")?.Value;
+        if (!string.IsNullOrEmpty(userName))
+            hubConnection = await RoomConnection.GetOrCreateAsync(IdRoom, userName);
+
+        // Live updates when the GM discovers a cult or edits a relationship
         await ReloadCultRelationships();
+        hubConnection?.On("CultRelationshipUpdated", async () =>
+        {
+            Console.WriteLine(">>> CultRelationshipUpdated received");
+            await InvokeAsync(ReloadCultRelationships);
+        });
     }
 
     private async Task ReloadCultRelationships()
@@ -31,6 +48,8 @@ public partial class RoomCultRelationshipPage
         }
         else
             CultRelationships = result.Value ?? [];
+
+        StateHasChanged();
     }
 
     private async Task DiscoverCult(CultRelationshipDto cult)
@@ -46,7 +65,6 @@ public partial class RoomCultRelationshipPage
         }
 
         Snackbar.Add($"{cult.CultName} discovered", Severity.Success);
-        await ReloadCultRelationships();
     }
 
     private async Task UpdateRelationshipAsync(CultRelationshipDto cult)
@@ -57,7 +75,6 @@ public partial class RoomCultRelationshipPage
         {
             var result = await response.Content.ReadFromJsonAsync<Result<object>>();
             Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
-            await ReloadCultRelationships();
             return;
         }
 

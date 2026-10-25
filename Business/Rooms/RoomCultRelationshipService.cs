@@ -1,4 +1,5 @@
-﻿using DataAccessLayer;
+﻿using Business.Hubs;
+using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Rooms;
 using Microsoft.EntityFrameworkCore;
@@ -11,9 +12,10 @@ public interface IRoomCultRelationshipService
     Task<Result<object>> UpdateRelationshipAsync(IdIntEditDto idIntEditDto);
 }
 
-public class RoomCultRelationshipService(ApplicationDbContext context) : IRoomCultRelationshipService
+public class RoomCultRelationshipService(ApplicationDbContext context, IRoomBroadcastService broadcast) : IRoomCultRelationshipService
 {
     private readonly ApplicationDbContext _context = context;
+    private readonly IRoomBroadcastService _broadcast = broadcast;
 
     public async Task<Result<List<CultRelationshipDto>>> GetByRoomAsync(Guid roomId)
     {
@@ -52,6 +54,7 @@ public class RoomCultRelationshipService(ApplicationDbContext context) : IRoomCu
 
             relationship.IsDiscovered = true;
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCultRelationshipUpdatedAsync(relationship.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
@@ -74,6 +77,7 @@ public class RoomCultRelationshipService(ApplicationDbContext context) : IRoomCu
             relationship.Relationship = idIntEditDto.Value;
 
             await _context.SaveChangesAsync();
+            await _broadcast.NotifyCultRelationshipUpdatedAsync(relationship.Id);
             return new Result<object> { Value = null };
         }
         catch (Exception)
