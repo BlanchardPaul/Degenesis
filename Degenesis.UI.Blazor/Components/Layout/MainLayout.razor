@@ -21,6 +21,7 @@
             @if (_isAuthenticated)
             {
                 <MudButton OnClick="NavigateToLogout" Color="Color.Secondary">Logout</MudButton>
+                <MudIconButton Icon="@Icons.Material.Outlined.Person" Color="Color.Primary" OnClick="NavigateToAccount" />
             }
             else
             {
@@ -139,6 +140,7 @@
     }
 
     private void DrawerToggle() => _drawerOpen = !_drawerOpen;
+    private void NavigateToAccount() => NavigationManager.NavigateTo("/account");
     private void NavigateToRooms() => NavigationManager.NavigateTo("/rooms");
     private void NavigateToDashboard() => NavigationManager.NavigateTo("/dashboard");
     private void NavigateToLogin() => NavigationManager.NavigateTo("/login");

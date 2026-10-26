@@ -1,0 +1,78 @@
+﻿@page "/account"
+@using Degenesis.Shared.DTOs
+@using Degenesis.Shared.DTOs.Users
+@using Microsoft.AspNetCore.Components.Authorization
+@using Degenesis.UI.Blazor.Extensions
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject NavigationManager NavigationManager
+@inject ProtectedLocalStorage ProtectedLocalStorage
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudText Typo="Typo.h4" Class="mb-4">My account</MudText>
+
+@if (account is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudPaper Class="pa-4" Elevation="2" Style="max-width: 600px;">
+        <MudText Typo="Typo.h6" Class="mb-2">Profile</MudText>
+
+        <MudTextField @bind-Value="_userName"
+                      Label="User name"
+                      Immediate="true"
+                      Disabled="@_isRenaming"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Person"
+                      Class="mb-2" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   Disabled="@(string.IsNullOrWhiteSpace(_userName) || _userName == account.UserName)"
+                   OnClick="UpdateUserName" Class="mb-6">
+            Update name (requires reloging)
+        </MudButton>
+
+        <MudDivider Class="mb-4" />
+
+        <MudTextField @bind-Value="_email"
+                      Label="Email"
+                      Immediate="true"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Email"
+                      Class="mb-2" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   Disabled="@(string.IsNullOrWhiteSpace(_email) || _email == account.Email)"
+                   OnClick="UpdateEmail" Class="mb-6">
+            Update email
+        </MudButton>
+
+        <MudDivider Class="mb-4" />
+
+        <MudText Typo="Typo.h6" Class="mb-2">Change password</MudText>
+        <MudTextField @bind-Value="_currentPassword"
+                      Label="Current password"
+                      InputType="InputType.Password"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Lock"
+                      Class="mb-2" />
+        <MudTextField @bind-Value="_newPassword"
+                      Label="New password"
+                      InputType="InputType.Password"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Lock"
+                      Class="mb-2" />
+        <MudTextField @bind-Value="_confirmPassword"
+                      Label="Confirm new password"
+                      InputType="InputType.Password"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Lock"
+                      Class="mb-2" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   Disabled="@(string.IsNullOrWhiteSpace(_currentPassword)
+                                             || string.IsNullOrWhiteSpace(_newPassword)
+                                             || _newPassword != _confirmPassword)"
+               OnClick="UpdatePassword">
+        Update password
+    </MudButton>
+</MudPaper>
+}

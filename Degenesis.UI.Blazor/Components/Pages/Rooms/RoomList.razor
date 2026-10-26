@@ -33,7 +33,10 @@ else
                             <MudText>@room.Description</MudText>
                             <MudText>GM : @room.GMName</MudText>
                             <MudText>Players : @string.Join(", ", room.Players)</MudText>
-                            <MudText>Pendings : @string.Join(", ", room.Pendings)</MudText>
+                            @if(room.Pendings.Count > 0)
+                            {
+                                <MudText>Pendings : @string.Join(", ", room.Pendings)</MudText>
+                            }
                         </MudCardContent>
                         <MudCardActions>
                             @if(room.IsCurrentUserGM){

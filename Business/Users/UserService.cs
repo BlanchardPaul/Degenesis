@@ -14,6 +14,10 @@ public interface IUserService
 {
     Task<Result<object>> RegisterAsync(UserCreateDto userCreateDto);
     Task<Result<string>> LoginAsync(UserLoginDto userLoginDto);
+    Task<Result<AccountDisplayDto>> GetAccountAsync(string userName);
+    Task<Result<object>> UpdateUserNameAsync(UpdateUserNameDto dto);
+    Task<Result<object>> UpdateEmailAsync(UpdateEmailDto dto);
+    Task<Result<object>> UpdatePasswordAsync(UpdatePasswordDto dto);
 }
 
 public class UserService(UserManager<ApplicationUser> userManager, IMapper mapper, IConfiguration configuration) : IUserService
@@ -81,6 +85,94 @@ public class UserService(UserManager<ApplicationUser> userManager, IMapper mappe
         catch(Exception)
         {
             return new Result<string> { IsError = true, Error = "An error occurred" };
+        }
+    }
+
+    public async Task<Result<AccountDisplayDto>> GetAccountAsync(string userName)
+    {
+        try
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user is null)
+                return new Result<AccountDisplayDto> { IsError = true, Error = "User not found" };
+
+            return new Result<AccountDisplayDto>
+            {
+                Value = new AccountDisplayDto { UserName = user.UserName!, Email = user.Email }
+            };
+        }
+        catch (Exception)
+        {
+            return new Result<AccountDisplayDto> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    public async Task<Result<object>> UpdateUserNameAsync(UpdateUserNameDto dto)
+    {
+        try
+        {
+            var user = await _userManager.FindByNameAsync(dto.CurrentUserName);
+            if (user is null)
+                return new Result<object> { IsError = true, Error = "User not found" };
+
+            var existing = await _userManager.FindByNameAsync(dto.NewUserName);
+            if (existing is not null)
+                return new Result<object> { IsError = true, Error = "This name is already taken" };
+
+            var result = await _userManager.SetUserNameAsync(user, dto.NewUserName);
+            if (!result.Succeeded)
+                return new Result<object> { IsError = true, Error = result.Errors.First().Description };
+
+            return new Result<object> { Value = null };
+        }
+        catch (Exception)
+        {
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    public async Task<Result<object>> UpdateEmailAsync(UpdateEmailDto dto)
+    {
+        try
+        {
+            var user = await _userManager.FindByNameAsync(dto.UserName);
+            if (user is null)
+                return new Result<object> { IsError = true, Error = "User not found" };
+
+            var result = await _userManager.SetEmailAsync(user, dto.NewEmail);
+            if (!result.Succeeded)
+                return new Result<object> { IsError = true, Error = result.Errors.First().Description };
+
+            return new Result<object> { Value = null };
+        }
+        catch (Exception)
+        {
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    public async Task<Result<object>> UpdatePasswordAsync(UpdatePasswordDto dto)
+    {
+        try
+        {
+            var user = await _userManager.FindByNameAsync(dto.UserName);
+            if (user is null)
+                return new Result<object> { IsError = true, Error = "User not found" };
+
+            // Verify the current password before allowing the change
+            var passwordOk = await _userManager.CheckPasswordAsync(user, dto.CurrentPassword);
+            if (!passwordOk)
+                return new Result<object> { IsError = true, Error = "Current password is incorrect" };
+
+            var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+            if (!result.Succeeded)
+                return new Result<object> { IsError = true, Error = result.Errors.First().Description };
+
+            return new Result<object> { Value = null };
+        }
+        catch (Exception)
+        {
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
         }
     }
 }
