@@ -3,6 +3,7 @@ using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Domain.Characters;
+using Domain.NPCs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;
@@ -68,6 +69,29 @@ public class SkillService(ApplicationDbContext context, IMapper mapper) : ISkill
 
             skill.CAttribute = parentAttribute;
             skill.IsFocusOriented = parentAttribute.IsFocusOriented;
+
+            var characters = await _context.Characters.ToListAsync();
+            foreach (var character in characters)
+            {
+                _context.CharacterSkills.Add(new CharacterSkill
+                {
+                    CharacterId = character.Id,
+                    SkillId = skill.Id,
+                    Level = 0
+                });
+            }
+
+            var npcs = await _context.BaseNPCs.ToListAsync();
+            foreach (var npc in npcs)
+            {
+                _context.BaseNPCSkills.Add(new BaseNPCSkill
+                {
+                    NPCId = npc.Id,
+                    SkillId = skill.Id,
+                    Level = 0
+                });
+            }
+
 
             _context.Skills.Add(skill);
             await _context.SaveChangesAsync();

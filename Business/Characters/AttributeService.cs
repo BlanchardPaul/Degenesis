@@ -3,6 +3,7 @@ using DataAccessLayer;
 using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Domain.Characters;
+using Domain.NPCs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Business.Characters;
@@ -58,6 +59,32 @@ public class AttributeService(ApplicationDbContext context, IMapper mapper) : IA
         {
             var attribute = _mapper.Map<CAttribute>(attributeCreate);
             _context.Attributes.Add(attribute);
+
+
+            // Link the new attribute to every existing character
+            var characters = await _context.Characters.ToListAsync();
+            foreach (var character in characters)
+            {
+                _context.CharacterAttributes.Add(new CharacterAttribute
+                {
+                    CharacterId = character.Id,
+                    AttributeId = attribute.Id,
+                    Level = 0
+                });
+            }
+
+            // Link the new attribute to every existing base NPC
+            var npcs = await _context.BaseNPCs.ToListAsync();
+            foreach (var npc in npcs)
+            {
+                _context.BaseNPCAttributes.Add(new BaseNPCAttribute
+                {
+                    NPCId = npc.Id,
+                    AttributeId = attribute.Id,
+                    Level = 0
+                });
+            }
+
             await _context.SaveChangesAsync();
             return new Result<object> { Value = null };
         }

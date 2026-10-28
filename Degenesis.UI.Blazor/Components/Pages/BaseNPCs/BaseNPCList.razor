@@ -1,0 +1,55 @@
+﻿@page "/dashboard/base-npcs"
+@using Degenesis.Shared.DTOs
+
+@if (npcs is null)
+{
+    <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+}
+else
+{
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mb-4" OnClick="OpenCreateDialog">Create NPC</MudButton>
+        <MudTable Bordered
+                  Items="@npcs"
+                  Hover="true"
+                  Dense="true"
+                  Filter="FilterFunc">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">NPCs</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="SearchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel InitialDirection="SortDirection.Ascending"
+                                   SortBy="@((BaseNPCDto x) => x.Name)">
+                    Name
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>Initiative</MudTh>
+            <MudTh>Specialty</MudTh>
+            <MudTh>Attack</MudTh>
+            <MudTh>Defense</MudTh>
+            <MudTh>Movement</MudTh>
+            <MudTh>Armor</MudTh>
+            <MudTh>Equipment</MudTh>
+            <MudTh>Condition</MudTh>
+            <MudTh>Actions</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Name">@context.Name</MudTd>
+            <MudTd DataLabel="Initiative">@context.Initiative</MudTd>
+            <MudTd DataLabel="Specialty">@context.Specialty</MudTd>
+            <MudTd DataLabel="Attack">@context.Attack</MudTd>
+            <MudTd DataLabel="Defense">@context.Defense</MudTd>
+            <MudTd DataLabel="Defense">@context.Movement</MudTd>
+            <MudTd DataLabel="Defense">@context.Armor</MudTd>
+            <MudTd DataLabel="Defense">@context.Equipment</MudTd>
+            <MudTd DataLabel="Defense">@context.Condition</MudTd>
+            <MudTd>
+                <MudButton Color="Color.Primary" OnClick="() => ShowBasicEditDialog(context.Id)">Edit Basic</MudButton>
+                <MudButton Color="Color.Primary" OnClick="() => ShowStatsEditDialog(context.Id)">Edit Stats</MudButton>
+                <MudButton Color="Color.Error" OnClick="() => DeleteNPC(context.Id)">Delete</MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}

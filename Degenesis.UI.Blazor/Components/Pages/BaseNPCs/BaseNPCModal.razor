@@ -1,0 +1,19 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="NPC.Name" Required="true"
+                      RequiredError="Name is required" Immediate="true" />
+        <MudTextField Label="Initiative" @bind-Value="NPC.Initiative" />
+        <MudTextField Label="Specialty" @bind-Value="NPC.Specialty" />
+        <MudTextField Label="Attack" @bind-Value="NPC.Attack" />
+        <MudTextField Label="Defense" @bind-Value="NPC.Defense" />
+        <MudTextField Label="Movement" @bind-Value="NPC.Movement" />
+        <MudTextField Label="Armor" @bind-Value="NPC.Armor" />
+        <MudTextField Label="Equipment" @bind-Value="NPC.Equipment" Lines="3" />
+        <MudTextField Label="Condition" @bind-Value="NPC.Condition" Lines="3" />
+        <MudTextField Label="Notes" @bind-Value="NPC.Notes" Lines="3" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="SaveNPC" Color="Color.Primary">Save</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

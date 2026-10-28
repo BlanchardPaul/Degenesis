@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccessLayer.EntityConfiguration.NPCs;
-internal class NPCSkillConfiguration : IEntityTypeConfiguration<NPCSkill>
+internal class BaseNPCSkillConfiguration : IEntityTypeConfiguration<BaseNPCSkill>
 {
-    public void Configure(EntityTypeBuilder<NPCSkill> builder)
+    public void Configure(EntityTypeBuilder<BaseNPCSkill> builder)
     {
         builder.ToTable("NPCSkills");
 
@@ -22,6 +22,6 @@ internal class NPCSkillConfiguration : IEntityTypeConfiguration<NPCSkill>
         builder.HasOne(ns => ns.Skill)
             .WithMany()
             .HasForeignKey(ns => ns.SkillId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -20,6 +20,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Artifact> Artifacts { get; set; } = null!;
     public DbSet<CAttribute> Attributes { get; set; } = null!;
     public DbSet<Background> Backgrounds { get; set; } = null!;
+    public DbSet<BaseNPC> BaseNPCs { get; set; }
+    public DbSet<BaseNPCAttribute> BaseNPCAttributes { get; set; }
+    public DbSet<BaseNPCSkill> BaseNPCSkills { get; set; }
     public DbSet<Burn> Burns { get; set; } = null!;
     public DbSet<Character> Characters { get; set; } = null!;
     public DbSet<CharacterArtifact> CharacterArtifacts { get; set; } = null!;
@@ -37,15 +40,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Culture> Cultures { get; set; } = null!;
     public DbSet<Equipment> Equipments { get; set; } = null!;
     public DbSet<EquipmentType> EquipmentTypes { get; set; } = null!;
-    public DbSet<NPC> NPCs { get; set; } = null!;
-    public DbSet<NPCArtifact> NPCArtifacts { get; set; } = null!;
-    public DbSet<NPCAttribute> NPCAttributes { get; set; } = null!;
-    public DbSet<NPCBurn> NPCBurns { get; set; } = null!;
-    public DbSet<NPCEquipment> NPCEquipments { get; set; } = null!;
-    public DbSet<NPCPotential> NPCPotentials { get; set; } = null!;
-    public DbSet<NPCProtection> NPCProtections { get; set; } = null!;
-    public DbSet<NPCSkill> NPCSkills { get; set; } = null!;
-    public DbSet<NPCWeapon> NPCWeapons { get; set; } = null!;
+    public DbSet<BaseNPC> NPCs { get; set; } = null!;
+    public DbSet<BaseNPCAttribute> NPCAttributes { get; set; } = null!;
+    public DbSet<BaseNPCSkill> NPCSkills { get; set; } = null!;
     public DbSet<Potential> Potentials { get; set; } = null!;
     public DbSet<PotentialPrerequisite> PotentialPrerequisites { get; set; } = null!;
     public DbSet<Protection> Protections { get; set; } = null!;

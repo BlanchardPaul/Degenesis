@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters.CRUD;
@@ -15,6 +16,7 @@ using Domain.Burns;
 using Domain.Characters;
 using Domain.Characters.Inventory;
 using Domain.Equipments;
+using Domain.NPCs;
 using Domain.Protections;
 using Domain.Rooms;
 using Domain.Users;
@@ -40,6 +42,23 @@ public class MappingProfile : Profile
         CreateMap<BackgroundCreateDto, Background>();
         CreateMap<BackgroundDto, Background>();
         CreateMap<Background, BackgroundDto>();
+
+        CreateMap<BaseNPCAttribute, BaseNPCAttributeDto>()
+            .ForMember(dest => dest.AttributeName, opt => opt.MapFrom(src => src.Attribute.Name));
+        CreateMap<BaseNPCSkill, BaseNPCSkillDto>()
+            .ForMember(dest => dest.SkillName, opt => opt.MapFrom(src => src.Skill.Name))
+            .ForMember(dest => dest.AttributeId, opt => opt.MapFrom(src => src.Skill.CAttributeId));
+
+        CreateMap<BaseNPC, BaseNPCDto>()
+            .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src.NPCAttributes))
+            .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.NPCSkills));
+
+        CreateMap<BaseNPCDto, BaseNPC>()
+            .IncludeBase<BaseNPCCreateDto, BaseNPC>();
+        CreateMap<BaseNPCCreateDto, BaseNPC>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.NPCAttributes, opt => opt.Ignore())
+            .ForMember(dest => dest.NPCSkills, opt => opt.Ignore());
 
         CreateMap<BurnCreateDto, Burn>();
         CreateMap<Burn, BurnDto>();

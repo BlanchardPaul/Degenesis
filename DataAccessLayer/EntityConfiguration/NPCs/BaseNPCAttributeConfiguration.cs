@@ -1,16 +1,10 @@
 ﻿using Domain.NPCs;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace DataAccessLayer.EntityConfiguration.NPCs;
-internal class NPCAttributeConfiguration : IEntityTypeConfiguration<NPCAttribute>
+internal class BaseNPCAttributeConfiguration : IEntityTypeConfiguration<BaseNPCAttribute>
 {
-    public void Configure(EntityTypeBuilder<NPCAttribute> builder)
+    public void Configure(EntityTypeBuilder<BaseNPCAttribute> builder)
     {
         builder.ToTable("NPCAttributes");
 
@@ -21,11 +15,12 @@ internal class NPCAttributeConfiguration : IEntityTypeConfiguration<NPCAttribute
 
         builder.HasOne(na => na.NPC)
             .WithMany(n => n.NPCAttributes)
-            .HasForeignKey(na => na.NPCId);
+            .HasForeignKey(na => na.NPCId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(na => na.Attribute)
             .WithMany()
             .HasForeignKey(na => na.AttributeId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

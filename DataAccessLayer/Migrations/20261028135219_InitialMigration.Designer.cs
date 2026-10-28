@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261021122912_InitialMigration")]
+    [Migration("20261028135219_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -170,24 +170,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Burns", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Burns.NPCBurn", b =>
-                {
-                    b.Property<Guid>("NPCId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BurnId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("NPCId", "BurnId");
-
-                    b.HasIndex("BurnId");
-
-                    b.ToTable("NPCBurns", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Characters.Background", b =>
@@ -941,69 +923,58 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("EquipmentTypes", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Equipments.NPCEquipment", b =>
+            modelBuilder.Entity("Domain.NPCs.BaseNPC", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("EquipmentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("NPCId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("UsedSlots")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EquipmentId");
-
-                    b.HasIndex("NPCId");
-
-                    b.ToTable("NPCEquipments", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.NPCs.NPC", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Ego")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EnemySpec")
+                    b.Property<string>("Armor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("FleshWounds")
-                        .HasColumnType("int");
+                    b.Property<string>("Attack")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Height")
-                        .HasColumnType("int");
+                    b.Property<string>("Condition")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Defense")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Equipment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Initiative")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Movement")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PassiveDefense")
-                        .HasColumnType("int");
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Trauma")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Weight")
-                        .HasColumnType("int");
+                    b.Property<string>("Specialty")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("NPCs", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.NPCs.NPCAttribute", b =>
+            modelBuilder.Entity("Domain.NPCs.BaseNPCAttribute", b =>
                 {
                     b.Property<Guid>("NPCId")
                         .HasColumnType("uniqueidentifier");
@@ -1021,25 +992,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("NPCAttributes", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.NPCs.NPCPotential", b =>
-                {
-                    b.Property<Guid>("NPCId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PotentialId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Level")
-                        .HasColumnType("int");
-
-                    b.HasKey("NPCId", "PotentialId");
-
-                    b.HasIndex("PotentialId");
-
-                    b.ToTable("NPCPotentials", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.NPCs.NPCSkill", b =>
+            modelBuilder.Entity("Domain.NPCs.BaseNPCSkill", b =>
                 {
                     b.Property<Guid>("NPCId")
                         .HasColumnType("uniqueidentifier");
@@ -1055,33 +1008,6 @@ namespace DataAccessLayer.Migrations
                     b.HasIndex("SkillId");
 
                     b.ToTable("NPCSkills", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Protections.NPCProtection", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("NPCId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ProtectionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("UsedConnectors")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsedSlots")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NPCId");
-
-                    b.HasIndex("ProtectionId");
-
-                    b.ToTable("NPCProtections", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Protections.Protection", b =>
@@ -1430,37 +1356,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("VehicleTypes", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Weapons.NPCWeapon", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("BulletsInMagazine")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("NPCId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SlotAttachments")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UsedSlots")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("WeaponId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NPCId");
-
-                    b.HasIndex("WeaponId");
-
-                    b.ToTable("NPCWeapons", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Weapons.Weapon", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1582,31 +1477,6 @@ namespace DataAccessLayer.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Artifacts", (string)null);
-                });
-
-            modelBuilder.Entity("Domain._Artifacts.NPCArtifact", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasDefaultValueSql("NEWID()");
-
-                    b.Property<Guid>("ArtifactId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("ChargeInMagazine")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("NPCId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArtifactId");
-
-                    b.HasIndex("NPCId");
-
-                    b.ToTable("NPCArtifacts", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -1845,25 +1715,6 @@ namespace DataAccessLayer.Migrations
                         .HasForeignKey("CultureId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Burns.NPCBurn", b =>
-                {
-                    b.HasOne("Domain.Burns.Burn", "Burn")
-                        .WithMany()
-                        .HasForeignKey("BurnId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.NPCs.NPC", "NPC")
-                        .WithMany("NPCBurns")
-                        .HasForeignKey("NPCId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Burn");
-
-                    b.Navigation("NPC");
                 });
 
             modelBuilder.Entity("Domain.Characters.Character", b =>
@@ -2241,34 +2092,15 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("EquipmentType");
                 });
 
-            modelBuilder.Entity("Domain.Equipments.NPCEquipment", b =>
-                {
-                    b.HasOne("Domain.Equipments.Equipment", "Equipment")
-                        .WithMany()
-                        .HasForeignKey("EquipmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.NPCs.NPC", "NPC")
-                        .WithMany("NPCEquipments")
-                        .HasForeignKey("NPCId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Equipment");
-
-                    b.Navigation("NPC");
-                });
-
-            modelBuilder.Entity("Domain.NPCs.NPCAttribute", b =>
+            modelBuilder.Entity("Domain.NPCs.BaseNPCAttribute", b =>
                 {
                     b.HasOne("Domain.Characters.CAttribute", "Attribute")
                         .WithMany()
                         .HasForeignKey("AttributeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.NPCs.NPC", "NPC")
+                    b.HasOne("Domain.NPCs.BaseNPC", "NPC")
                         .WithMany("NPCAttributes")
                         .HasForeignKey("NPCId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2279,28 +2111,9 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("NPC");
                 });
 
-            modelBuilder.Entity("Domain.NPCs.NPCPotential", b =>
+            modelBuilder.Entity("Domain.NPCs.BaseNPCSkill", b =>
                 {
-                    b.HasOne("Domain.NPCs.NPC", "NPC")
-                        .WithMany("NPCPotentials")
-                        .HasForeignKey("NPCId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Characters.Potential", "Potential")
-                        .WithMany()
-                        .HasForeignKey("PotentialId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("NPC");
-
-                    b.Navigation("Potential");
-                });
-
-            modelBuilder.Entity("Domain.NPCs.NPCSkill", b =>
-                {
-                    b.HasOne("Domain.NPCs.NPC", "NPC")
+                    b.HasOne("Domain.NPCs.BaseNPC", "NPC")
                         .WithMany("NPCSkills")
                         .HasForeignKey("NPCId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2309,31 +2122,12 @@ namespace DataAccessLayer.Migrations
                     b.HasOne("Domain.Characters.Skill", "Skill")
                         .WithMany()
                         .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("NPC");
 
                     b.Navigation("Skill");
-                });
-
-            modelBuilder.Entity("Domain.Protections.NPCProtection", b =>
-                {
-                    b.HasOne("Domain.NPCs.NPC", "NPC")
-                        .WithMany("NPCProtections")
-                        .HasForeignKey("NPCId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Protections.Protection", "Protection")
-                        .WithMany()
-                        .HasForeignKey("ProtectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("NPC");
-
-                    b.Navigation("Protection");
                 });
 
             modelBuilder.Entity("Domain.Rooms.RoomChatMessage", b =>
@@ -2403,25 +2197,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("VehicleType");
                 });
 
-            modelBuilder.Entity("Domain.Weapons.NPCWeapon", b =>
-                {
-                    b.HasOne("Domain.NPCs.NPC", "NPC")
-                        .WithMany("NPCWeapons")
-                        .HasForeignKey("NPCId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Weapons.Weapon", "Weapon")
-                        .WithMany()
-                        .HasForeignKey("WeaponId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("NPC");
-
-                    b.Navigation("Weapon");
-                });
-
             modelBuilder.Entity("Domain.Weapons.Weapon", b =>
                 {
                     b.HasOne("Domain.Characters.CAttribute", "Attribute")
@@ -2443,25 +2218,6 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Skill");
 
                     b.Navigation("WeaponType");
-                });
-
-            modelBuilder.Entity("Domain._Artifacts.NPCArtifact", b =>
-                {
-                    b.HasOne("Domain._Artifacts.Artifact", "Artifact")
-                        .WithMany()
-                        .HasForeignKey("ArtifactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.NPCs.NPC", "NPC")
-                        .WithMany("NPCArtifacts")
-                        .HasForeignKey("NPCId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Artifact");
-
-                    b.Navigation("NPC");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -2573,23 +2329,11 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("CharacterWeapons");
                 });
 
-            modelBuilder.Entity("Domain.NPCs.NPC", b =>
+            modelBuilder.Entity("Domain.NPCs.BaseNPC", b =>
                 {
-                    b.Navigation("NPCArtifacts");
-
                     b.Navigation("NPCAttributes");
 
-                    b.Navigation("NPCBurns");
-
-                    b.Navigation("NPCEquipments");
-
-                    b.Navigation("NPCPotentials");
-
-                    b.Navigation("NPCProtections");
-
                     b.Navigation("NPCSkills");
-
-                    b.Navigation("NPCWeapons");
                 });
 
             modelBuilder.Entity("Domain.Rooms.Room", b =>

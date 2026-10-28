@@ -98,7 +98,7 @@ public class UserService(UserManager<ApplicationUser> userManager, IMapper mappe
 
             return new Result<AccountDisplayDto>
             {
-                Value = new AccountDisplayDto { UserName = user.UserName!, Email = user.Email }
+                Value = new AccountDisplayDto { UserName = user.UserName!, Email = user.Email! }
             };
         }
         catch (Exception)
