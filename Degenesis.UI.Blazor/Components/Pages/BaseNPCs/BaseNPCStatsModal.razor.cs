@@ -9,9 +9,6 @@ public partial class BaseNPCStatsModal
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
     [Parameter] public BaseNPCDto NPC { get; set; } = new();
 
-    private void ChangeAttributeLevel(BaseNPCAttributeDto attr, int delta) => attr.Level += delta;
-    private void ChangeSkillLevel(BaseNPCSkillDto skill, int delta) => skill.Level += delta;
-
     private async Task Save()
     {
         var response = await Client!.PutAsJsonAsync("/base-npcs/stats", NPC);
