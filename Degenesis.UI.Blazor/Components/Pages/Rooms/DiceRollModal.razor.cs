@@ -4,6 +4,7 @@ using Degenesis.Shared.DTOs.Rooms;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.JSInterop;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
@@ -17,7 +18,7 @@ public enum RollType
 public partial class DiceRollModal
 {
     [Inject] private AuthenticationStateProvider AuthProvider { get; set; } = default!;
-    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public Action? OnClose { get; set; }
     [Parameter] public CharacterDisplayDto? Character { get; set; }
     [Parameter] public HubConnection? HubConnection { get; set; }
     [Parameter] public Guid IdRoom { get; set; }
@@ -47,6 +48,19 @@ public partial class DiceRollModal
 
     // Unicode dice faces for result display
     private static readonly string[] DiceFaces = [ "⚀", "⚁", "⚂", "⚃","⚄","⚅" ];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JS.InvokeAsync<object>("floatingWindow.enableDragging", "dice-roll-window");
+            }
+            catch { /* Server render so it will fail at least once, so just shush it */ }
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -156,8 +170,7 @@ public partial class DiceRollModal
         StateHasChanged();
     }
 
-    private void Cancel() => MudDialog.Cancel();
-
+    private void Cancel() => OnClose?.Invoke();
     private static string GetDieFace(int value) => DiceFaces[value - 1];
 
 }

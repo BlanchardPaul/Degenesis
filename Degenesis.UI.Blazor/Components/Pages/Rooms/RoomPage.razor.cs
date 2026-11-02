@@ -15,7 +15,7 @@ public partial class RoomPage
     [Inject] private RoomConnectionService RoomConnection { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthProvider { get; set; } = default!;
     [Parameter] public Guid IdRoom { get; set; }
-
+    private bool _showDiceRollModal = false;
     private RoomDisplayDto? room;
     private string? userName;
     private bool IsGM => room is not null && userName is not null && room.GMName == userName;
@@ -107,21 +107,15 @@ public partial class RoomPage
         StateHasChanged();
     }
 
-    private async Task OpenDiceRollModal()
+    private void OpenDiceRollModal()
     {
-        var parameters = new DialogParameters
-        {
-            { "Character", Character },
-            { "HubConnection", hubConnection },
-            { "IdRoom", IdRoom }
-        };
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Small,
-            FullWidth = true,
-            BackdropClick = true
-        };
-        await DialogService.ShowAsync<DiceRollModal>("Roll dice", parameters, options);
+        _showDiceRollModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseDiceRollModal()
+    {
+        _showDiceRollModal = false;
+        StateHasChanged();
     }
 }

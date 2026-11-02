@@ -1,5 +1,13 @@
-﻿<MudDialog>
-    <DialogContent>
+﻿@using Degenesis.Shared.DTOs.Rooms
+@inject IJSRuntime JS
+
+<div id="dice-roll-window" class="floating-window" style="top: 100px; left: 100px;">
+    <div class="floating-window-header">
+        <span>Dice Roll</span>
+        <span class="floating-window-close" @onclick="Cancel">✕</span>
+    </div>
+
+    <div class="floating-window-content">
         <MudStack Row Justify="Justify.SpaceAround">
             <MudSelect T="RollType" Label="Roll type" @bind-Value="_rollType" Class="mb-4">
                 <MudSelectItem T="RollType" Value="RollType.Action">Action Roll</MudSelectItem>
@@ -12,7 +20,7 @@
         {
             <MudGrid>
                 <MudItem xs="12">
-                    <MudNumericField @bind-Value="_diceCount" Label="Number of dice" Min="1"/>
+                    <MudNumericField @bind-Value="_diceCount" Label="Number of dice" Min="1" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudSelect T="int" Label="Dice type" @bind-Value="_diceType">
@@ -55,7 +63,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="6" sm="3">
-                    <MudNumericField @bind-Value="_bonus" Label="Bonus (+ dice)" Min="0"/>
+                    <MudNumericField @bind-Value="_bonus" Label="Bonus (+ dice)" Min="0" />
                 </MudItem>
                 <MudItem xs="6" sm="3">
                     <MudNumericField @bind-Value="_malus" Label="Malus (- dice)" Min="0" />
@@ -106,9 +114,10 @@
                 </MudText>
             }
         }
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="RollAsync" Disabled="@_isRolling">Roll</MudButton>
-        <MudButton Color="Color.Secondary" OnClick="Cancel">Close</MudButton>
-    </DialogActions>
-</MudDialog>
+
+        <MudStack Row Class="mt-4" Justify="Justify.FlexEnd">
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="RollAsync" Disabled="@_isRolling">Roll</MudButton>
+            <MudButton Color="Color.Secondary" OnClick="Cancel">Close</MudButton>
+        </MudStack>
+    </div>
+</div>

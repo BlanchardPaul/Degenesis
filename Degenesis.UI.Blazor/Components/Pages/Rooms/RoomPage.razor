@@ -47,4 +47,12 @@ else
             StartIcon="@Icons.Material.Filled.Casino"
             Size="Size.Large"
             OnClick="OpenDiceRollModal" />
+
+    @if (_showDiceRollModal)
+    {
+        <DiceRollModal Character="Character"
+                       HubConnection="hubConnection"
+                       IdRoom="IdRoom"
+                       OnClose="CloseDiceRollModal" />
+    }
 }

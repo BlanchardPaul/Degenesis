@@ -1,0 +1,36 @@
+﻿.floating-window {
+    position: fixed;
+    min-width: 400px;
+    background: var(--mud-palette-surface);
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 4px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    pointer-events: auto;
+}
+
+.floating-window-header {
+    padding: 12px;
+    background: var(--mud-palette-app-bar);
+    border-bottom: 1px solid var(--mud-palette-divider);
+    cursor: grab;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .floating-window-header:active {
+        cursor: grabbing;
+    }
+
+.floating-window-content {
+    padding: 16px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.floating-window-close {
+    cursor: pointer;
+    font-size: 20px;
+}
