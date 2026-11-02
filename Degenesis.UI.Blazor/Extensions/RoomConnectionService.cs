@@ -6,32 +6,32 @@ public class RoomConnectionService : IAsyncDisposable
 {
     private readonly AuthenticatedHttpClientService _authHttpClient;
     private HubConnection? _connection;
-    private Guid _currentRoomId;
+    private Guid _currentIdRoom;
     private readonly List<Action<HubConnection>> _connectionReadyCallbacks = [];
 
     public HubConnection? Connection => _connection;
-    public Guid CurrentRoomId => _currentRoomId;
+    public Guid CurrentIdRoom => _currentIdRoom;
 
     public RoomConnectionService(AuthenticatedHttpClientService authHttpClient)
     {
         _authHttpClient = authHttpClient;
     }
 
-    public bool IsForRoom(Guid roomId) => _connection is not null && _currentRoomId == roomId;
+    public bool IsForRoom(Guid roomId) => _connection is not null && _currentIdRoom == roomId;
 
     public async Task<HubConnection> GetOrCreateAsync(Guid roomId, string userName)
     {
         if (_connection is not null)
         {
-            if (_currentRoomId == roomId)
+            if (_currentIdRoom == roomId)
                 return _connection;
 
-            await _connection.SendAsync("LeaveRoom", _currentRoomId.ToString());
+            await _connection.SendAsync("LeaveRoom", _currentIdRoom.ToString());
             await _connection.DisposeAsync();
             _connection = null;
         }
 
-        _currentRoomId = roomId;
+        _currentIdRoom = roomId;
 
         _connection = new HubConnectionBuilder()
             .WithUrl("https://localhost:7274/roomchathub", options =>
@@ -67,7 +67,7 @@ public class RoomConnectionService : IAsyncDisposable
         if (_connection is not null)
         {
             if (_connection.State == HubConnectionState.Connected)
-                await _connection.SendAsync("LeaveRoom", _currentRoomId.ToString());
+                await _connection.SendAsync("LeaveRoom", _currentIdRoom.ToString());
             await _connection.DisposeAsync();
         }
         GC.SuppressFinalize(this);

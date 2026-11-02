@@ -8,7 +8,7 @@ namespace Degenesis.UI.Blazor.Components.Pages.Characters;
 
 public partial class CreateCharacter
 {
-    [Parameter] public Guid RoomId { get; set; }
+    [Parameter] public Guid IdRoom { get; set; }
 
     private int _step = 0;
     private bool _saving = false;
@@ -40,7 +40,7 @@ public partial class CreateCharacter
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        Character.IdRoom = RoomId;
+        Character.IdRoom = IdRoom;
         var resultCulture = await Client!.GetFromJsonAsync<Result<List<CultureDto>>>("/cultures") ?? new Result<List<CultureDto>> { IsError = true, Error = "Unknown error" };
         if (resultCulture.IsError)
         {

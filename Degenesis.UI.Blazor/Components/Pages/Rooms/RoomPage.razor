@@ -1,5 +1,8 @@
 ﻿@page "/room/{IdRoom:guid}"
 @using Degenesis.Shared.DTOs.Characters.Display
+@using Degenesis.UI.Blazor.Components.Pages.Rooms.Character
+@using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory
+@using Degenesis.UI.Blazor.Components.Pages.Rooms.NPC
 
 @if (room is null)
 {
@@ -15,24 +18,12 @@ else
         @if (IsGM)
         {
             <MudTabPanel Text="Characters">
-                <MudList T="string" Class="mt-2">
-                    @foreach (var c in gmCharacters)
-                    {
-                        <MudListItem T="string">
-                            <div class="d-flex flex-column">
-                                <span>@c.Name <i class="ml-1">(@c.PlayerName)</i></span>
-                                <MudStack Row="true" Spacing="1" Class="mt-1">
-                                    <MudButton Size="Size.Small" Variant="Variant.Outlined"
-                                               Href="@GetGmCharacterUrl(c.Id, "sheet")"
-                                               Target="_blank">Details</MudButton>
-                                    <MudButton Size="Size.Small" Variant="Variant.Outlined"
-                                               Href="@GetGmCharacterUrl(c.Id, "inventory")"
-                                               Target="_blank">Inventory</MudButton>
-                                </MudStack>
-                            </div>
-                        </MudListItem>
-                    }
-                </MudList>
+               <RoomGmCharacterList GmCharacters="GmCharacters" />
+            </MudTabPanel>
+            <MudTabPanel Text="NPCs">
+                <RoomGmNpcList GmNpcs="GmNpcs"
+                               IdRoom="IdRoom"
+                               OnRequestParentReload="LoadGmNpcs" />
             </MudTabPanel>
         }
         else

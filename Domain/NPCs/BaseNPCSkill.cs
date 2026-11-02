@@ -3,9 +3,9 @@
 namespace Domain.NPCs;
 public class BaseNPCSkill
 {
-    public Guid NPCId { get; set; }
-    public BaseNPC NPC { get; set; } = new();
+    public Guid BaseNPCId { get; set; }
+    public BaseNPC BaseNPC { get; set; } = null!;
     public Guid SkillId { get; set; }
-    public Skill Skill { get; set; } = new();
+    public Skill Skill { get; set; } = null!;
     public int Level { get; set; }
 }

@@ -3,9 +3,9 @@
 namespace Domain.NPCs;
 public class BaseNPCAttribute
 {
-    public Guid NPCId { get; set; }
-    public BaseNPC NPC { get; set; } = new();
+    public Guid BaseNPCId { get; set; }
+    public BaseNPC BaseNPC { get; set; } = null!;
     public Guid AttributeId { get; set; }
-    public CAttribute Attribute { get; set; } = new();
+    public CAttribute Attribute { get; set; } = null!;
     public int Level { get; set; }
 }

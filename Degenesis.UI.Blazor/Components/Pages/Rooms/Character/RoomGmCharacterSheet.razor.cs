@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
+namespace Degenesis.UI.Blazor.Components.Pages.Rooms.Character;
 
 public partial class RoomGmCharacterSheet
 {

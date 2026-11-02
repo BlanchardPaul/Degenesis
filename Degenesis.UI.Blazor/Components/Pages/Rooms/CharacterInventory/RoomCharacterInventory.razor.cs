@@ -1,6 +1,5 @@
 ﻿using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Burns;
-using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Equipments;
@@ -11,7 +10,7 @@ using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory.Modals;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
+namespace Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory;
 
 public partial class RoomCharacterInventory
 {
@@ -114,6 +113,7 @@ public partial class RoomCharacterInventory
             StateHasChanged();
         }
     }
+
     private void OpenBurnPopover(BurnDto burn)
     {
         SelectedBurn = burn;

@@ -1,11 +1,11 @@
 ﻿using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.Display;
-using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterSheetModals;
+using Degenesis.UI.Blazor.Components.Pages.Rooms.Character.Modals;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
+namespace Degenesis.UI.Blazor.Components.Pages.Rooms.Character;
 
 public partial class RoomCharacterSheet
 {
@@ -464,8 +464,8 @@ public partial class RoomCharacterSheet
     private static int CalculateXpCostForAttribute(CharacterDisplayDto character, CharacterAttributeDisplayDto attribute, int oldValue, int newValue)
     {
         bool isPreferred =
-            (character.IsFocusOriented && new[] { "INTELLECT", "AGILITY", "PSYCHE" }.Contains(attribute.Name.ToUpper())) ||
-            (!character.IsFocusOriented && new[] { "BODY", "CHARISMA", "INSTINCT" }.Contains(attribute.Name.ToUpper()));
+            character.IsFocusOriented && new[] { "INTELLECT", "AGILITY", "PSYCHE" }.Contains(attribute.Name.ToUpper()) ||
+            !character.IsFocusOriented && new[] { "BODY", "CHARISMA", "INSTINCT" }.Contains(attribute.Name.ToUpper());
 
         int factor = isPreferred ? 10 : 12;
         int level = newValue > oldValue ? newValue : oldValue;
@@ -476,8 +476,8 @@ public partial class RoomCharacterSheet
     {
         var attribute = character.Attributes.FirstOrDefault(a => a.AttributeId == skill.AttributeId);
         bool isPreferred = attribute is not null &&
-            ((character.IsFocusOriented && new[] { "INTELLECT", "AGILITY", "PSYCHE" }.Contains(attribute.Name.ToUpper())) ||
-             (!character.IsFocusOriented && new[] { "BODY", "CHARISMA", "INSTINCT" }.Contains(attribute.Name.ToUpper())));
+            (character.IsFocusOriented && new[] { "INTELLECT", "AGILITY", "PSYCHE" }.Contains(attribute.Name.ToUpper()) ||
+             !character.IsFocusOriented && new[] { "BODY", "CHARISMA", "INSTINCT" }.Contains(attribute.Name.ToUpper()));
 
         int factor = isPreferred ? 4 : 5;
         int level = newValue > oldValue ? newValue : oldValue;

@@ -6,7 +6,7 @@
     <MudText Typo="Typo.h5" Class="mb-6">Character creation</MudText>
 
     <MudStepper Elevation="0" @bind-ActiveStepIndex="_step" OnPreviewInteraction="OnPreviewInteraction">
-        <MudStep Label="Basic infos">
+        <MudStep Title="Basic infos">
             <CharacterBasicInfoStep @ref="_basicInfoStep"
                                     Character="Character"
                                     Cultures="Cultures"
@@ -21,7 +21,7 @@
             </MudButton>
         </MudStep>
 
-        <MudStep Label="Attributes and skills" Disabled="@(_step < 1)">
+        <MudStep Title="Attributes and skills" Disabled="@(_step < 1)">
             <CharacterStatsStep @ref="_characterStatsStep"
                                 Attributes="@Attributes"
                                 Skills="@Skills"
@@ -36,7 +36,7 @@
                 Validate
             </MudButton>
         </MudStep>
-        <MudStep Label="Backgrounds" Disabled="@(_step < 2)">
+        <MudStep Title="Backgrounds" Disabled="@(_step < 2)">
             <CharacterBackgroundStep @ref="_characterBackgroundStep"
                                      Backgrounds="@Backgrounds"
                                      CharacterBackgrounds="@CharacterBackgrounds" />
@@ -45,7 +45,7 @@
                 Validate
             </MudButton>
         </MudStep>
-        <MudStep Label="Assign Rank" Disabled="@(_step < 3)">
+        <MudStep Title="Assign Rank" Disabled="@(_step < 3)">
             <CharacterRankStep @ref="_rankStep"
                                Ranks="SortedRanks"
                                Character="Character" />
@@ -54,7 +54,7 @@
                 Validate
             </MudButton>
         </MudStep>
-        <MudStep Label="Potential" Disabled="@(_step < 4)">
+        <MudStep Title="Potential" Disabled="@(_step < 4)">
             <CharacterPotentialStep @ref="_potentialStep"
                                     Potentials="SortedPotentials"
                                     Character="Character" />
@@ -63,7 +63,7 @@
                 Validate
             </MudButton>
         </MudStep>
-        <MudStep Label="Finish" Disabled="@(_step < 5)">
+        <MudStep Title="Finish" Disabled="@(_step < 5)">
             <MudText Typo="Typo.h6" Class="mb-4">
                 Congrats, your character is ready to be saved!
             </MudText>

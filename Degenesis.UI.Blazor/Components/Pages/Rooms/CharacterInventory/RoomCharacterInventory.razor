@@ -175,7 +175,6 @@ else
                             <MudTd>@(context.Protection.Armor.HasValue? context.Protection.Armor: "-")</MudTd>
                             <MudTd>@(string.IsNullOrEmpty(context.Protection.Defense) ? "-" : context.Protection.Defense)</MudTd>
                             <MudTd>@(string.IsNullOrEmpty(context.Protection.Attack) ? "-" : context.Protection.Attack)</MudTd>
-
                             <MudTd>
                                 <MudTextField @bind-Value="@context.Qualities"
                                               Immediate="true"

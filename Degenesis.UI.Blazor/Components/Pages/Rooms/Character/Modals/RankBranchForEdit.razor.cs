@@ -2,7 +2,7 @@
 using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterSheetModals;
+namespace Degenesis.UI.Blazor.Components.Pages.Rooms.Character.Modals;
 
 public partial class RankBranchForEdit
 {

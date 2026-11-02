@@ -7,7 +7,7 @@ internal class BaseNPCConfiguration : IEntityTypeConfiguration<BaseNPC>
 {
     public void Configure(EntityTypeBuilder<BaseNPC> builder)
     {
-        builder.ToTable("NPCs");
+        builder.ToTable("BaseNPCs");
 
         builder.HasKey(n => n.Id);
 

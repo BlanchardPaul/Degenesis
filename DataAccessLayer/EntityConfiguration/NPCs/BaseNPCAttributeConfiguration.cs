@@ -6,16 +6,16 @@ internal class BaseNPCAttributeConfiguration : IEntityTypeConfiguration<BaseNPCA
 {
     public void Configure(EntityTypeBuilder<BaseNPCAttribute> builder)
     {
-        builder.ToTable("NPCAttributes");
+        builder.ToTable("BaseNPCAttributes");
 
-        builder.HasKey(na => new { na.NPCId, na.AttributeId });
+        builder.HasKey(na => new { na.BaseNPCId, na.AttributeId });
 
         builder.Property(na => na.Level)
             .IsRequired();
 
-        builder.HasOne(na => na.NPC)
-            .WithMany(n => n.NPCAttributes)
-            .HasForeignKey(na => na.NPCId)
+        builder.HasOne(na => na.BaseNPC)
+            .WithMany(n => n.BaseNPCAttributes)
+            .HasForeignKey(na => na.BaseNPCId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(na => na.Attribute)

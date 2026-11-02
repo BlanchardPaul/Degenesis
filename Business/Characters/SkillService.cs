@@ -86,7 +86,7 @@ public class SkillService(ApplicationDbContext context, IMapper mapper) : ISkill
             {
                 _context.BaseNPCSkills.Add(new BaseNPCSkill
                 {
-                    NPCId = npc.Id,
+                    BaseNPCId = npc.Id,
                     SkillId = skill.Id,
                     Level = 0
                 });

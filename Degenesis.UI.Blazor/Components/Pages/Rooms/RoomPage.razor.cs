@@ -1,5 +1,6 @@
 ﻿using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.Display;
+using Degenesis.Shared.DTOs.NPCs;
 using Degenesis.Shared.DTOs.Rooms;
 using Degenesis.UI.Blazor.Extensions;
 using Microsoft.AspNetCore.Components;
@@ -19,9 +20,13 @@ public partial class RoomPage
     private string? userName;
     private bool IsGM => room is not null && userName is not null && room.GMName == userName;
 
+    // If user is player only load their character
     private CharacterDisplayDto? Character;
 
-    private List<CharacterDisplayForGMListDto> gmCharacters = [];
+    // If user is GM load list of characters and npcs
+    private List<CharacterDisplayForGMListDto> GmCharacters = [];
+    private List<NPCDto> GmNpcs = [];
+
     private HubConnection? hubConnection;
 
     protected override async Task OnAuthenticatedInitializedAsync()
@@ -49,8 +54,18 @@ public partial class RoomPage
                 await InvokeAsync(ReloadCharacter);
         });
 
+        // Hub listener so that if another player or the GM modified a NPC it's reloaded
+        hubConnection!.On<Guid>("NpcUpdated", async npcId =>
+        {
+            if (IsGM)
+                await InvokeAsync(LoadGmNpcs);
+        });
+
         if (IsGM)
+        {
             await LoadGmCharacters();
+            await LoadGmNpcs();
+        }
         else
             await ReloadCharacter();
     }
@@ -75,12 +90,22 @@ public partial class RoomPage
             Snackbar.Add("Error loading characters: " + response.Error, Severity.Error);
             return;
         }
-        gmCharacters = response.Value ?? [];
+        GmCharacters = response.Value ?? [];
         StateHasChanged();
     }
 
-    private static string GetGmCharacterUrl(Guid characterId, string view)
-        => $"/gm-character/{characterId}/{view}";
+    private async Task LoadGmNpcs()
+    {
+        var response = await Client!.GetFromJsonAsync<Result<List<NPCDto>>>($"/npcs/room/{IdRoom}")
+            ?? new Result<List<NPCDto>> { IsError = true, Error = "Unknown error" };
+        if (response.IsError)
+        {
+            Snackbar.Add("Error loading NPCs: " + response.Error, Severity.Error);
+            return;
+        }
+        GmNpcs = response.Value ?? [];
+        StateHasChanged();
+    }
 
     private async Task OpenDiceRollModal()
     {

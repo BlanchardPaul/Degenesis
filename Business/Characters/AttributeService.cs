@@ -79,7 +79,7 @@ public class AttributeService(ApplicationDbContext context, IMapper mapper) : IA
             {
                 _context.BaseNPCAttributes.Add(new BaseNPCAttribute
                 {
-                    NPCId = npc.Id,
+                    BaseNPCId = npc.Id,
                     AttributeId = attribute.Id,
                     Level = 0
                 });

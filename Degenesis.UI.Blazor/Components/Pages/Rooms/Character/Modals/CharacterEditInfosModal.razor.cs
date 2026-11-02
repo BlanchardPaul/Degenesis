@@ -3,7 +3,7 @@ using Degenesis.Shared.DTOs.Characters.CRUD;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterSheetModals;
+namespace Degenesis.UI.Blazor.Components.Pages.Rooms.Character.Modals;
 
 public partial class CharacterEditInfosModal
 {

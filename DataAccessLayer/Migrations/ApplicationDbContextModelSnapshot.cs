@@ -968,10 +968,102 @@ namespace DataAccessLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("NPCs", (string)null);
+                    b.ToTable("BaseNPCs", (string)null);
                 });
 
             modelBuilder.Entity("Domain.NPCs.BaseNPCAttribute", b =>
+                {
+                    b.Property<Guid>("BaseNPCId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AttributeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.HasKey("BaseNPCId", "AttributeId");
+
+                    b.HasIndex("AttributeId");
+
+                    b.ToTable("BaseNPCAttributes", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.NPCs.BaseNPCSkill", b =>
+                {
+                    b.Property<Guid>("BaseNPCId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SkillId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.HasKey("BaseNPCId", "SkillId");
+
+                    b.HasIndex("SkillId");
+
+                    b.ToTable("BaseNPCSkills", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.NPCs.NPC", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Armor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Attack")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Condition")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Defense")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Equipment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("IdRoom")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Initiative")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Movement")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Specialty")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdRoom");
+
+                    b.ToTable("NPCs", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.NPCs.NPCAttribute", b =>
                 {
                     b.Property<Guid>("NPCId")
                         .HasColumnType("uniqueidentifier");
@@ -989,7 +1081,7 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("NPCAttributes", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.NPCs.BaseNPCSkill", b =>
+            modelBuilder.Entity("Domain.NPCs.NPCSkill", b =>
                 {
                     b.Property<Guid>("NPCId")
                         .HasColumnType("uniqueidentifier");
@@ -2097,7 +2189,56 @@ namespace DataAccessLayer.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Domain.NPCs.BaseNPC", "NPC")
+                    b.HasOne("Domain.NPCs.BaseNPC", "BaseNPC")
+                        .WithMany("BaseNPCAttributes")
+                        .HasForeignKey("BaseNPCId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Attribute");
+
+                    b.Navigation("BaseNPC");
+                });
+
+            modelBuilder.Entity("Domain.NPCs.BaseNPCSkill", b =>
+                {
+                    b.HasOne("Domain.NPCs.BaseNPC", "BaseNPC")
+                        .WithMany("BaseNPCSkills")
+                        .HasForeignKey("BaseNPCId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Characters.Skill", "Skill")
+                        .WithMany()
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BaseNPC");
+
+                    b.Navigation("Skill");
+                });
+
+            modelBuilder.Entity("Domain.NPCs.NPC", b =>
+                {
+                    b.HasOne("Domain.Rooms.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("IdRoom")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("Domain.NPCs.NPCAttribute", b =>
+                {
+                    b.HasOne("Domain.Characters.CAttribute", "Attribute")
+                        .WithMany()
+                        .HasForeignKey("AttributeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.NPCs.NPC", "NPC")
                         .WithMany("NPCAttributes")
                         .HasForeignKey("NPCId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2108,9 +2249,9 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("NPC");
                 });
 
-            modelBuilder.Entity("Domain.NPCs.BaseNPCSkill", b =>
+            modelBuilder.Entity("Domain.NPCs.NPCSkill", b =>
                 {
-                    b.HasOne("Domain.NPCs.BaseNPC", "NPC")
+                    b.HasOne("Domain.NPCs.NPC", "NPC")
                         .WithMany("NPCSkills")
                         .HasForeignKey("NPCId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2327,6 +2468,13 @@ namespace DataAccessLayer.Migrations
                 });
 
             modelBuilder.Entity("Domain.NPCs.BaseNPC", b =>
+                {
+                    b.Navigation("BaseNPCAttributes");
+
+                    b.Navigation("BaseNPCSkills");
+                });
+
+            modelBuilder.Entity("Domain.NPCs.NPC", b =>
                 {
                     b.Navigation("NPCAttributes");
 

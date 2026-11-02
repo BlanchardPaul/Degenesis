@@ -7,16 +7,16 @@ internal class BaseNPCSkillConfiguration : IEntityTypeConfiguration<BaseNPCSkill
 {
     public void Configure(EntityTypeBuilder<BaseNPCSkill> builder)
     {
-        builder.ToTable("NPCSkills");
+        builder.ToTable("BaseNPCSkills");
 
-        builder.HasKey(ns => new { ns.NPCId, ns.SkillId });
+        builder.HasKey(ns => new { ns.BaseNPCId, ns.SkillId });
 
         builder.Property(ns => ns.Level)
             .IsRequired();
 
-        builder.HasOne(ns => ns.NPC)
-            .WithMany(n => n.NPCSkills)
-            .HasForeignKey(ns => ns.NPCId)
+        builder.HasOne(ns => ns.BaseNPC)
+            .WithMany(n => n.BaseNPCSkills)
+            .HasForeignKey(ns => ns.BaseNPCId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(ns => ns.Skill)

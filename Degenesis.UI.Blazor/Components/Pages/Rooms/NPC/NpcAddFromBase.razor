@@ -1,0 +1,62 @@
+﻿@using Degenesis.Shared.DTOs.NPCs
+<MudDialog>
+    <DialogContent>
+        @if (BaseNpcs is null)
+        {
+            <MudText Color="Color.Primary">Loading NPCs templates.</MudText>
+            <MudProgressCircular Color="Color.Primary" Size="Size.Large" Indeterminate="true" />
+        }
+        else
+        {
+            <MudTable Bordered Items="@BaseNpcs"
+                      Hover="true"
+                      Filter="FilterFunc"
+                      Dense="true">
+                <ToolBarContent>
+                    <MudTextField @bind-Value="SearchString"
+                                  Placeholder="Search"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  IconSize="Size.Medium" Class="mt-0" />
+                </ToolBarContent>
+                <HeaderContent>
+                    <MudTh>
+                        <MudTableSortLabel InitialDirection="SortDirection.Ascending"
+                                           SortBy="@((BaseNPCDto x) => x.Name)">
+                            Name
+                        </MudTableSortLabel>
+                    </MudTh>
+                    <MudTh>Initiative</MudTh>
+                    <MudTh>Specialty</MudTh>
+                    <MudTh>Attack</MudTh>
+                    <MudTh>Defense</MudTh>
+                    <MudTh>Movement</MudTh>
+                    <MudTh>Armor</MudTh>
+                    <MudTh>Equipment</MudTh>
+                    <MudTh>Condition</MudTh>
+                    <MudTh>Notes</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Initiative) ? "-" : context.Initiative)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Specialty) ? "-" : context.Specialty)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Attack) ? "-" : context.Attack)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Defense) ? "-" : context.Defense)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Movement) ? "-" : context.Movement)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Armor) ? "-" : context.Armor)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Equipment) ? "-" : context.Equipment)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Condition) ? "-" : context.Condition)</MudTd>
+                    <MudTd>@(string.IsNullOrEmpty(context.Notes) ? "-" : context.Notes)</MudTd>
+                    <MudTd>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                                   OnClick="() => AddNpc(context.Id)">Add to Room</MudButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>

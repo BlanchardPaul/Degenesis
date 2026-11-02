@@ -1,0 +1,28 @@
+﻿<MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2" Class="mt-2">
+    @{
+        int rowMaxElement = 3;
+        int rowElementNb = 0;
+    }
+    @foreach (var c in GmCharacters)
+    {
+        <MudPaper Class="pa-2" Width="32%" Outlined="true">
+            <div class="d-flex flex-column">
+                <span>@c.Name <i class="ml-1">(@c.PlayerName)</i></span>
+                <MudStack Row="true" Spacing="1" Class="mt-1">
+                    <MudButton Size="Size.Small" Variant="Variant.Outlined"
+                               Href="@GetGmCharacterUrl(c.Id, "sheet")"
+                               Target="_blank">Details</MudButton>
+                    <MudButton Size="Size.Small" Variant="Variant.Outlined"
+                               Href="@GetGmCharacterUrl(c.Id, "inventory")"
+                               Target="_blank">Inventory</MudButton>
+                </MudStack>
+            </div>
+        </MudPaper>
+        rowElementNb++;
+        if (rowElementNb == rowMaxElement)
+        {
+            <MudFlexBreak />
+            rowElementNb = 0;
+        }
+    }
+</MudStack>

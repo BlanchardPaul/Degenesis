@@ -17,38 +17,40 @@ public static class EndpointRouteBuilderExtensions
     public static IEndpointRouteBuilder MapApplicationEndpoints(this IEndpointRouteBuilder endpoints)
     {
         endpoints.MapArtifactEndpoints();
-        endpoints.MapCharacterArtifactEndpoints();
-        endpoints.MapCharacterEndpoints();
         endpoints.MapAttributeEndpoints();
         endpoints.MapBackgroundEndpoints();
+        endpoints.MapBaseNPCEndpoints();
+        endpoints.MapBurnEndpoints();
+        endpoints.MapCharacterArtifactEndpoints();
+
         endpoints.MapCharacterAttributeEndpoints();
         endpoints.MapCharacterBackgroundEndpoints();
+        endpoints.MapCharacterBurnEndpoints();
+        endpoints.MapCharacterEndpoints();
+        endpoints.MapCharacterEquipmentEndpoints();
         endpoints.MapCharacterPotentialEndpoints();
+        endpoints.MapCharacterProtectionEndpoints();
         endpoints.MapCharacterSkillEndpoints();
+        endpoints.MapCharacterVehicleEndpoints();
+        endpoints.MapCharacterWeaponEndpoints();
         endpoints.MapConceptEndpoints();
         endpoints.MapCultEndpoints();
         endpoints.MapCultureEndpoints();
+        endpoints.MapEquipmentEndpoints();
+        endpoints.MapEquipmentTypeEndpoints();
+        endpoints.MapNPCEndpoints();
         endpoints.MapPotentialEndpoints();
         endpoints.MapPotentialPrerequisiteEndpoints();
+        endpoints.MapProtectionEndpoints();
         endpoints.MapRankEndpoints();
         endpoints.MapRankPrerequisiteEndpoints();
+        endpoints.MapRoomEndpoints();
         endpoints.MapSkillEndpoints();
-        endpoints.MapBurnEndpoints();
-        endpoints.MapCharacterBurnEndpoints();
-        endpoints.MapCharacterEquipmentEndpoints();
-        endpoints.MapEquipmentEndpoints();
-        endpoints.MapEquipmentTypeEndpoints();        
-        endpoints.MapCharacterProtectionEndpoints();
-        endpoints.MapProtectionEndpoints();
-        endpoints.MapCharacterVehicleEndpoints();
+        endpoints.MapUserEndpoints();
         endpoints.MapVehicleEndpoints();
         endpoints.MapVehicleTypeEndpoints();
-        endpoints.MapCharacterWeaponEndpoints();
         endpoints.MapWeaponEndpoints();
         endpoints.MapWeaponTypeEndpoints();
-        endpoints.MapBaseNPCEndpoints();
-        endpoints.MapUserEndpoints();
-        endpoints.MapRoomEndpoints();
         return endpoints;
     }
 }

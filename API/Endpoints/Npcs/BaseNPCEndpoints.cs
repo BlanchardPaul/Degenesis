@@ -1,5 +1,5 @@
 ﻿using Business.NPCs;
-using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.NPCs;
 
 namespace API.Endpoints.Npcs;
 

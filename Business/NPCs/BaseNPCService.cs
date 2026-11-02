@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DataAccessLayer;
 using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.NPCs;
 using Domain.NPCs;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,14 +25,14 @@ public class BaseNPCService(ApplicationDbContext context, IMapper mapper) : IBas
     {
         try
         {
-            var npcs = await _context.BaseNPCs
-                .Include(n => n.NPCAttributes)
+            var baseNpcs = await _context.BaseNPCs
+                .Include(n => n.BaseNPCAttributes)
                     .ThenInclude(na => na.Attribute)
-                .Include(n => n.NPCSkills)
+                .Include(n => n.BaseNPCSkills)
                     .ThenInclude(ns => ns.Skill)
                 .OrderBy(n => n.Name)
                 .ToListAsync();
-            return new Result<List<BaseNPCDto>> { Value = _mapper.Map<List<BaseNPCDto>>(npcs) };
+            return new Result<List<BaseNPCDto>> { Value = _mapper.Map<List<BaseNPCDto>>(baseNpcs) };
         }
         catch (Exception)
         {
@@ -43,16 +44,16 @@ public class BaseNPCService(ApplicationDbContext context, IMapper mapper) : IBas
     {
         try
         {
-            var npc = await _context.BaseNPCs
-                .Include(n => n.NPCAttributes)
+            var baseNpc = await _context.BaseNPCs
+                .Include(n => n.BaseNPCAttributes)
                     .ThenInclude(na => na.Attribute)
-                .Include(n => n.NPCSkills)
+                .Include(n => n.BaseNPCSkills)
                     .ThenInclude(ns => ns.Skill)
                 .FirstOrDefaultAsync(n => n.Id == id);
-            if (npc is null)
-                return new Result<BaseNPCDto> { IsError = true, Error = "NPC not found" };
+            if (baseNpc is null)
+                return new Result<BaseNPCDto> { IsError = true, Error = "BaseNPC not found" };
 
-            return new Result<BaseNPCDto> { Value = _mapper.Map<BaseNPCDto>(npc) };
+            return new Result<BaseNPCDto> { Value = _mapper.Map<BaseNPCDto>(baseNpc) };
         }
         catch (Exception)
         {
@@ -64,8 +65,8 @@ public class BaseNPCService(ApplicationDbContext context, IMapper mapper) : IBas
     {
         try
         {
-            var npc = _mapper.Map<BaseNPC>(npcDto);
-            npc.Id = Guid.NewGuid();
+            var baseNpc = _mapper.Map<BaseNPC>(npcDto);
+            baseNpc.Id = Guid.NewGuid();
 
             // Link ALL existing attributes and skills at level 0
             var allAttributes = await _context.Attributes.ToListAsync();
@@ -73,9 +74,9 @@ public class BaseNPCService(ApplicationDbContext context, IMapper mapper) : IBas
 
             foreach (var attribute in allAttributes)
             {
-                npc.NPCAttributes.Add(new BaseNPCAttribute
+                baseNpc.BaseNPCAttributes.Add(new BaseNPCAttribute
                 {
-                    NPCId = npc.Id,
+                    BaseNPCId = baseNpc.Id,
                     AttributeId = attribute.Id,
                     Attribute = attribute,
                     Level = 0
@@ -84,16 +85,16 @@ public class BaseNPCService(ApplicationDbContext context, IMapper mapper) : IBas
 
             foreach (var skill in allSkills)
             {
-                npc.NPCSkills.Add(new BaseNPCSkill
+                baseNpc.BaseNPCSkills.Add(new BaseNPCSkill
                 {
-                    NPCId = npc.Id,
+                    BaseNPCId = baseNpc.Id,
                     SkillId = skill.Id,
                     Skill = skill,
                     Level = 0
                 });
             }
 
-            _context.BaseNPCs.Add(npc);
+            _context.BaseNPCs.Add(baseNpc);
             await _context.SaveChangesAsync();
             return new Result<object> { Value = null };
         }
@@ -108,8 +109,8 @@ public class BaseNPCService(ApplicationDbContext context, IMapper mapper) : IBas
         try
         {
             var existingNPC = await _context.BaseNPCs
-                .Include(n => n.NPCAttributes)
-                .Include(n => n.NPCSkills)
+                .Include(n => n.BaseNPCAttributes)
+                .Include(n => n.BaseNPCSkills)
                 .FirstOrDefaultAsync(n => n.Id == npcDto.Id);
             if (existingNPC is null)
                 return new Result<object> { IsError = true, Error = "NPC not found" };
@@ -130,8 +131,8 @@ public class BaseNPCService(ApplicationDbContext context, IMapper mapper) : IBas
         try
         {
             var existingNPC = await _context.BaseNPCs
-                .Include(n => n.NPCAttributes)
-                .Include(n => n.NPCSkills)
+                .Include(n => n.BaseNPCAttributes)
+                .Include(n => n.BaseNPCSkills)
                 .FirstOrDefaultAsync(n => n.Id == npcDto.Id);
             if (existingNPC is null)
                 return new Result<object> { IsError = true, Error = "NPC not found" };
@@ -139,7 +140,7 @@ public class BaseNPCService(ApplicationDbContext context, IMapper mapper) : IBas
             // Update attribute levels
             foreach (var attributeDto in npcDto.Attributes)
             {
-                var link = existingNPC.NPCAttributes
+                var link = existingNPC.BaseNPCAttributes
                     .FirstOrDefault(na => na.AttributeId == attributeDto.AttributeId);
                 // Unknown link: ignore
                 if (link is null)
@@ -151,7 +152,7 @@ public class BaseNPCService(ApplicationDbContext context, IMapper mapper) : IBas
             // Update skill levels
             foreach (var skillDto in npcDto.Skills)
             {
-                var link = existingNPC.NPCSkills
+                var link = existingNPC.BaseNPCSkills
                     .FirstOrDefault(ns => ns.SkillId == skillDto.SkillId);
                 if (link is null)
                     continue;

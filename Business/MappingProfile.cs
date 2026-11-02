@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
-using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs._Artifacts;
 using Degenesis.Shared.DTOs.Burns;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.CRUD.Inventory;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Equipments;
+using Degenesis.Shared.DTOs.NPCs;
 using Degenesis.Shared.DTOs.Protections;
 using Degenesis.Shared.DTOs.Rooms;
 using Degenesis.Shared.DTOs.Users;
@@ -48,15 +48,20 @@ public class MappingProfile : Profile
         CreateMap<BaseNPCSkill, BaseNPCSkillDto>()
             .ForMember(dest => dest.SkillName, opt => opt.MapFrom(src => src.Skill.Name))
             .ForMember(dest => dest.AttributeId, opt => opt.MapFrom(src => src.Skill.CAttributeId));
-
         CreateMap<BaseNPC, BaseNPCDto>()
-            .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src.NPCAttributes))
-            .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.NPCSkills));
+            .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src.BaseNPCAttributes))
+            .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.BaseNPCSkills));
 
         CreateMap<BaseNPCDto, BaseNPC>()
             .IncludeBase<BaseNPCCreateDto, BaseNPC>();
         CreateMap<BaseNPCCreateDto, BaseNPC>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.BaseNPCAttributes, opt => opt.Ignore())
+            .ForMember(dest => dest.BaseNPCSkills, opt => opt.Ignore());
+        CreateMap<BaseNPC, NPC>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.IdRoom, opt => opt.Ignore())
+            .ForMember(dest => dest.Room, opt => opt.Ignore())
             .ForMember(dest => dest.NPCAttributes, opt => opt.Ignore())
             .ForMember(dest => dest.NPCSkills, opt => opt.Ignore());
 
@@ -237,6 +242,20 @@ public class MappingProfile : Profile
         CreateMap<EquipmentTypeCreateDto, EquipmentType>();
         CreateMap<EquipmentTypeDto, EquipmentType>();
         CreateMap<EquipmentType, EquipmentTypeDto>();
+
+        CreateMap<NPCAttribute, NPCAttributeDto>()
+            .ForMember(dest => dest.AttributeName, opt => opt.MapFrom(src => src.Attribute.Name));
+        CreateMap<NPCSkill, NPCSkillDto>()
+            .ForMember(dest => dest.SkillName, opt => opt.MapFrom(src => src.Skill.Name))
+            .ForMember(dest => dest.AttributeId, opt => opt.MapFrom(src => src.Skill.CAttributeId));
+
+        CreateMap<NPC, NPCDto>()
+            .ForMember(dest => dest.Attributes, opt => opt.MapFrom(src => src.NPCAttributes))
+            .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.NPCSkills));
+
+        CreateMap<NPCDto, NPC>()
+            .ForMember(dest => dest.NPCAttributes, opt => opt.Ignore())
+            .ForMember(dest => dest.NPCSkills, opt => opt.Ignore());
 
         CreateMap<PotentialCreateDto, Potential>()
             .ForMember(dest => dest.Prerequisites, opt => opt.Ignore())

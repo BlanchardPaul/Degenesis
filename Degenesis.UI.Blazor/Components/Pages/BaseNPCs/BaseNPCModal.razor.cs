@@ -1,4 +1,5 @@
 ﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.NPCs;
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
@@ -15,7 +16,7 @@ public partial class BaseNPCModal
         if (NPC.Id == Guid.Empty)
             response = await Client!.PostAsJsonAsync("/base-npcs", NPC);
         else
-            response = await Client!.PutAsJsonAsync($"/base-npcs/{NPC.Id}", NPC);
+            response = await Client!.PutAsJsonAsync($"/base-npcs/", NPC);
 
         if (!response.IsSuccessStatusCode)
         {

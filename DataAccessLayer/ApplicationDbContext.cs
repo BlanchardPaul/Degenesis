@@ -40,9 +40,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Culture> Cultures { get; set; } = null!;
     public DbSet<Equipment> Equipments { get; set; } = null!;
     public DbSet<EquipmentType> EquipmentTypes { get; set; } = null!;
-    public DbSet<BaseNPC> NPCs { get; set; } = null!;
-    public DbSet<BaseNPCAttribute> NPCAttributes { get; set; } = null!;
-    public DbSet<BaseNPCSkill> NPCSkills { get; set; } = null!;
+    public DbSet<NPC> NPCs { get; set; } = null!;
+    public DbSet<NPCAttribute> NPCAttributes { get; set; } = null!;
+    public DbSet<NPCSkill> NPCSkills { get; set; } = null!;
     public DbSet<Potential> Potentials { get; set; } = null!;
     public DbSet<PotentialPrerequisite> PotentialPrerequisites { get; set; } = null!;
     public DbSet<Protection> Protections { get; set; } = null!;

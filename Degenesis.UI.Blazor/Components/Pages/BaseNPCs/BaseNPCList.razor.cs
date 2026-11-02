@@ -1,4 +1,5 @@
 ﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.NPCs;
 using Degenesis.UI.Blazor.Extensions;
 using MudBlazor;
 

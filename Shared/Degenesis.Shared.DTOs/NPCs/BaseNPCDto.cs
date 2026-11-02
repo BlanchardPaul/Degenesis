@@ -1,4 +1,4 @@
-﻿namespace Degenesis.Shared.DTOs;
+﻿namespace Degenesis.Shared.DTOs.NPCs;
 public class BaseNPCDto : BaseNPCCreateDto
 {
     public Guid Id { get; set; }

@@ -139,13 +139,13 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             if (user is null)
                 return new Result<CharacterDisplayDto> { IsError = true, Error = "User not found" };
 
-            var characterRoomId = await _context.Characters
+            var characterIdRoom = await _context.Characters
                 .Where(c => c.Id == characterId)
                 .Select(c => c.IdRoom)
                 .FirstOrDefaultAsync();
 
             var userRoom = await _context.UserRooms
-                .FirstOrDefaultAsync(ur => ur.IdApplicationUser == user.Id && ur.IdRoom == characterRoomId);
+                .FirstOrDefaultAsync(ur => ur.IdApplicationUser == user.Id && ur.IdRoom == characterIdRoom);
             if (userRoom is null || !userRoom.IsGM)
                 return new Result<CharacterDisplayDto> { IsError = true, Error = "Character available for the GM of the room only" };
 

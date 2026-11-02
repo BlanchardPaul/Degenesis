@@ -1,0 +1,105 @@
+﻿@using Degenesis.Shared.DTOs.NPCs
+
+<MudStack Row="true" Spacing="2" Class="mt-2" Justify="Justify.FlexStart">
+    <MudText Typo="Typo.h6">NPCs</MudText>
+    <MudButton StartIcon="@Icons.Material.Filled.Add"
+               Color="Color.Primary"
+               Variant="Variant.Outlined"
+               Size="Size.Small"
+               OnClick="OpenAddNpcModal">Add</MudButton>
+</MudStack>
+
+@if(!GmNpcs.Any())
+{
+    <MudText Class="mb-3">None</MudText>
+}
+else
+{
+    <MudTable Bordered Items="@GmNpcs"
+              Hover="true"
+              Filter="FilterFunc"
+              Dense="true">
+        <ToolBarContent>
+            <MudTextField @bind-Value="SearchString"
+                          Placeholder="Search"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          IconSize="Size.Medium" Class="mt-0" />
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel InitialDirection="SortDirection.Ascending"
+                                   SortBy="@((BaseNPCDto x) => x.Name)">
+                    Name
+                </MudTableSortLabel>
+            </MudTh>
+            <MudTh>Initiative</MudTh>
+            <MudTh>Specialty</MudTh>
+            <MudTh>Attack</MudTh>
+            <MudTh>Defense</MudTh>
+            <MudTh>Movement</MudTh>
+            <MudTh>Armor</MudTh>
+            <MudTh>Equipment</MudTh>
+            <MudTh>Condition</MudTh>
+            <MudTh>Notes</MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>
+                <MudTextField @bind-Value="@context.Initiative"
+                        Immediate="true"
+                        OnBlur="() => UpdateNpcBasicInfos(context)" />
+            </MudTd>
+            <MudTd>
+                <MudTextField @bind-Value="@context.Specialty"
+                              Immediate="true"
+                              OnBlur="() => UpdateNpcBasicInfos(context)" />
+            </MudTd>
+            <MudTd>
+                <MudTextField @bind-Value="@context.Attack"
+                              Immediate="true"
+                              OnBlur="() => UpdateNpcBasicInfos(context)" />
+            </MudTd>
+            <MudTd>
+                <MudTextField @bind-Value="@context.Defense"
+                              Immediate="true"
+                              OnBlur="() => UpdateNpcBasicInfos(context)" />
+            </MudTd>
+            <MudTd>
+                <MudTextField @bind-Value="@context.Movement"
+                              Immediate="true"
+                              OnBlur="() => UpdateNpcBasicInfos(context)" />
+            </MudTd>
+            <MudTd>
+                <MudTextField @bind-Value="@context.Armor"
+                              Immediate="true"
+                              OnBlur="() => UpdateNpcBasicInfos(context)" />
+            </MudTd>
+            <MudTd>
+                <MudTextField @bind-Value="@context.Equipment"
+                              Immediate="true"
+                              OnBlur="() => UpdateNpcBasicInfos(context)" />
+            </MudTd>
+            <MudTd>
+                <MudTextField @bind-Value="@context.Condition"
+                              Immediate="true"
+                              OnBlur="() => UpdateNpcBasicInfos(context)" />
+            </MudTd>
+            <MudTd>
+                <MudTextField @bind-Value="@context.Notes"
+                              Immediate="true"
+                              OnBlur="() => UpdateNpcBasicInfos(context)" />
+            </MudTd>
+            <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                   Variant="Variant.Filled" Color="Color.Info"
+                                   Href="@GetGmNpcUrl(context.Id)"
+                                   Target="_blank" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Variant="Variant.Filled" Color="Color.Error"
+                                   OnClick="() => DeleteNpc(context.Id)" />
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
