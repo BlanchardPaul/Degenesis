@@ -1,6 +1,6 @@
 ﻿.floating-window {
     position: fixed;
-    min-width: 400px;
+    width: 380px;
     background: var(--mud-palette-surface);
     border: 1px solid var(--mud-palette-divider);
     border-radius: 4px;
@@ -30,7 +30,32 @@
     overflow-y: auto;
 }
 
+    .floating-window-content .mud-grid {
+        margin-left: -8px;
+        margin-right: -8px;
+    }
+
+    .floating-window-content .mud-select {
+        width: 100%;
+    }
+
+    .floating-window-content .mud-input-control {
+        width: 100%;
+    }
+
 .floating-window-close {
     cursor: pointer;
     font-size: 20px;
+}
+
+.floating-window-content .mud-item {
+    padding: 6px 8px;
+}
+
+.floating-window-content .mud-input-slot {
+    min-height: 32px;
+}
+
+.floating-window-content .mud-stack {
+    gap: 8px;
 }

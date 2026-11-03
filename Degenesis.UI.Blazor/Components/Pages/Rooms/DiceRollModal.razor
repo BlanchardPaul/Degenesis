@@ -1,4 +1,6 @@
 ﻿@using Degenesis.Shared.DTOs.Rooms
+@using Degenesis.Shared.DTOs.Characters.Display
+@using Degenesis.Shared.DTOs.NPCs
 @inject IJSRuntime JS
 
 <div id="dice-roll-window" class="floating-window" style="top: 100px; left: 100px;">
@@ -8,116 +10,118 @@
     </div>
 
     <div class="floating-window-content">
-        <MudStack Row Justify="Justify.SpaceAround">
-            <MudSelect T="RollType" Label="Roll type" @bind-Value="_rollType" Class="mb-4">
-                <MudSelectItem T="RollType" Value="RollType.Action">Action Roll</MudSelectItem>
-                <MudSelectItem T="RollType" Value="RollType.Free">Free Roll</MudSelectItem>
+        <!-- GM Mode: Character/NPC Selector -->
+        @if (IsGM)
+        {
+            <MudAutocomplete T="Guid?" 
+                             Label="Character / NPC"
+                             ValueChanged="@HandleCharacterSelected"
+                             SearchFunc="@SearchCharacters"
+                             ToStringFunc="@(id => GetCharacterName(id))"
+                             Clearable="true"
+                             Dense
+                             Class="mb-2" />
+        }
+
+        <MudStack Row Justify="Justify.SpaceBetween" Class="mb-3">
+            <MudSelect T="RollType" @bind-Value="_rollType" Class="flex-grow-1 mr-2" Dense>
+                <MudSelectItem T="RollType" Value="RollType.Action">Action</MudSelectItem>
+                <MudSelectItem T="RollType" Value="RollType.Free">Free</MudSelectItem>
             </MudSelect>
-            <MudSwitch @bind-Value="PrivateRoll" Label="Private roll" Color="Color.Error" />
+            <MudSwitch @bind-Value="PrivateRoll" Label="Private" Color="Color.Error" Class="ml-2" />
         </MudStack>
 
         @if (_rollType == RollType.Free)
         {
-            <MudGrid>
-                <MudItem xs="12">
-                    <MudNumericField @bind-Value="_diceCount" Label="Number of dice" Min="1" />
-                </MudItem>
-                <MudItem xs="12">
-                    <MudSelect T="int" Label="Dice type" @bind-Value="_diceType">
-                        <MudSelectItem T="int" Value="4">d4</MudSelectItem>
-                        <MudSelectItem T="int" Value="6">d6</MudSelectItem>
-                        <MudSelectItem T="int" Value="8">d8</MudSelectItem>
-                        <MudSelectItem T="int" Value="10">d10</MudSelectItem>
-                        <MudSelectItem T="int" Value="12">d12</MudSelectItem>
-                        <MudSelectItem T="int" Value="20">d20</MudSelectItem>
-                        <MudSelectItem T="int" Value="100">d100</MudSelectItem>
-                    </MudSelect>
-                </MudItem>
-                <MudItem xs="12">
-                    <MudNumericField @bind-Value="_modifier" Label="Modifier" />
-                </MudItem>
-            </MudGrid>
+            <MudNumericField @bind-Value="_diceCount" Label="# Dice" Min="1" Dense Class="mb-2" />
+            <MudSelect T="int" Label="Type" @bind-Value="_diceType" Dense Class="mb-2">
+                <MudSelectItem T="int" Value="4">d4</MudSelectItem>
+                <MudSelectItem T="int" Value="6">d6</MudSelectItem>
+                <MudSelectItem T="int" Value="8">d8</MudSelectItem>
+                <MudSelectItem T="int" Value="10">d10</MudSelectItem>
+                <MudSelectItem T="int" Value="12">d12</MudSelectItem>
+                <MudSelectItem T="int" Value="20">d20</MudSelectItem>
+                <MudSelectItem T="int" Value="100">d100</MudSelectItem>
+            </MudSelect>
+            <MudNumericField @bind-Value="_modifier" Label="Modifier" Dense Class="mb-2" />
         }
         else
         {
-            <MudGrid>
-                <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid?" Label="Attribute" @bind-Value="_selectedAttributeId"
-                               ToStringFunc="@(id => id is null ? "" : Character?.Attributes.FirstOrDefault(a => a.AttributeId == id)?.Name ?? "")">
-                        @foreach (var attr in Character?.Attributes ?? [])
+            @if (_selectedCharacterData is not null)
+            {
+                <MudSelect T="Guid?" Label="Attribute" @bind-Value="_selectedAttributeId" Dense Class="mb-2"
+                           ToStringFunc="@(id => id is null ? "" : AvailableAttributes.FirstOrDefault(a => a.AttributeId == id)?.Name ?? "")">
+                    @foreach (var attr in AvailableAttributes)
+                    {
+                        <MudSelectItem T="Guid?" Value="@attr.AttributeId">@attr.Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudSelect T="Guid?" Label="Skill" @bind-Value="_selectedSkillId" Dense Class="mb-2"
+                           ToStringFunc="@(id => id is null ? "" : SkillsOfSelectedAttribute.FirstOrDefault(s => s.SkillId == id)?.Name ?? "")">
+                    @if (_selectedAttributeId.HasValue)
+                    {
+                        @foreach (var skill in SkillsOfSelectedAttribute)
                         {
-                            <MudSelectItem T="Guid?" Value="@attr.AttributeId">@attr.Name</MudSelectItem>
+                            <MudSelectItem T="Guid?" Value="@skill.SkillId">@skill.Name</MudSelectItem>
                         }
-                    </MudSelect>
-                </MudItem>
-                <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid?" Label="Skill" @bind-Value="_selectedSkillId"
-                               ToStringFunc="@(id => id is null ? "" : Character?.Skills.FirstOrDefault(s => s.SkillId == id)?.Name ?? "")">
-                        @if (_selectedAttributeId.HasValue)
-                        {
-                            @foreach (var skill in SkillsOfSelectedAttribute)
-                            {
-                                <MudSelectItem T="Guid?" Value="@skill.SkillId">@skill.Name</MudSelectItem>
-                            }
-                        }
-                    </MudSelect>
-                </MudItem>
-                <MudItem xs="6" sm="3">
-                    <MudNumericField @bind-Value="_bonus" Label="Bonus (+ dice)" Min="0" />
-                </MudItem>
-                <MudItem xs="6" sm="3">
-                    <MudNumericField @bind-Value="_malus" Label="Malus (- dice)" Min="0" />
-                </MudItem>
-                <MudItem xs="12" sm="6" Class="d-flex align-end">
-                    <MudText Typo="Typo.subtitle2" Class="pb-2 w-100" Align="Align.Center">
-                        Dice: <b>@(ActionRollDiceCount)</b> d6
-                        @if (_autoSuccesses > 0)
-                        {
-                            <text> + <b>@(_autoSuccesses)</b> auto successes</text>
-                        }
-                        <br />
-                        <i>(@(SelectedAttribute?.Level ?? 0) + @(SelectedSkill?.Level ?? 0) + @_bonus - @_malus)</i>
-                    </MudText>
-                </MudItem>
-            </MudGrid>
+                    }
+                </MudSelect>
+
+                <MudStack Row Spacing="1" Class="mb-2">
+                    <MudNumericField @bind-Value="_bonus" Label="Bonus" Min="0" Dense Class="flex-grow-1" />
+                    <MudNumericField @bind-Value="_malus" Label="Malus" Min="0" Dense Class="flex-grow-1" />
+                </MudStack>
+
+                <MudText Typo="Typo.caption" Align="Align.Center" Class="mb-2">
+                    Dice: <b>@(ActionRollDiceCount)</b> d6
+                    @if (_autoSuccesses > 0)
+                    {
+                        <text> + <b>@(_autoSuccesses)</b> auto</text>
+                    }
+                </MudText>
+            }
+            else if (IsGM)
+            {
+                <MudAlert Severity="Severity.Info" Dense="true">Select a character or NPC first</MudAlert>
+            }
         }
 
         @if (_lastRolls.Any())
         {
-            <MudDivider Class="my-3" />
+            <MudDivider Class="my-2" />
 
             @if (_rollType == RollType.Action)
             {
-                <MudText Typo="Typo.subtitle1" Class="d-flex flex-wrap" Style="gap: 4px; font-size: 2rem; align-items: center;">
+                <MudText Typo="Typo.subtitle2" Class="d-flex flex-wrap" Style="gap: 4px; font-size: 1.5rem; align-items: center; margin: 8px 0;">
                     @foreach (var die in _lastRolls)
                     {
-                        <span style="color: @GetDieColor(die);"
-                              title="@die">@GetDieFace(die)</span>
+                        <span style="color: @GetDieColor(die);" title="@die">@GetDieFace(die)</span>
                     }
                 </MudText>
-                <MudText Typo="Typo.h6" Class="mt-1">
+                <MudText Typo="Typo.caption" Class="mt-1">
                     <span style="color: darkred;">@_botches</span> |
                     <span style="color: red;">@_failures</span> |
                     <span style="color: green;">@_successes</span> |
                     <span style="color: goldenrod;">@_triggers</span>
                     @if (_autoSuccesses > 0)
                     {
-                        <text> | <span style="color: teal;"> @_autoSuccesses auto</span></text>
+                        <text> | <span style="color: teal;">+@_autoSuccesses</span></text>
                     }
                 </MudText>
             }
             else
             {
-                <MudText Typo="Typo.subtitle1">Rolls: @string.Join(", ", _lastRolls)</MudText>
-                <MudText Typo="Typo.h5" Align="Align.Center" Class="mt-2">
+                <MudText Typo="Typo.caption" Class="mb-1">Rolls: @string.Join(", ", _lastRolls)</MudText>
+                <MudText Typo="Typo.h6" Align="Align.Center" Class="mt-1">
                     Total: <b>@(_lastRolls.Sum() + _modifier)</b>
                 </MudText>
             }
         }
 
-        <MudStack Row Class="mt-4" Justify="Justify.FlexEnd">
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="RollAsync" Disabled="@_isRolling">Roll</MudButton>
-            <MudButton Color="Color.Secondary" OnClick="Cancel">Close</MudButton>
+        <MudStack Row Class="mt-3" Justify="Justify.FlexEnd" Spacing="1">
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="RollAsync" Disabled="@(_isRolling || (_rollType == RollType.Action && _selectedCharacterData is null))" Size="Size.Small">Roll</MudButton>
+            <MudButton Color="Color.Secondary" OnClick="Cancel" Size="Size.Small">Close</MudButton>
         </MudStack>
     </div>
 </div>

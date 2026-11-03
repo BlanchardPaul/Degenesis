@@ -12,4 +12,5 @@ public class DiceRollResultDto
     public int Total { get; set; }
     public bool IsActionRoll { get; set; }
     public int AutoSuccesses { get; set; }
+    public string? RolledForCharacterName { get; set; }
 }

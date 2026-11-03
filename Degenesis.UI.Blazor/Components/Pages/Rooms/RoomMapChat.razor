@@ -25,7 +25,14 @@ else
                         <div class="chat-bubble @(msg.Sender == userName ? "chat-bubble-end" : "chat-bubble-start")">
                             @if (msg.RollResult is not null)
                             {
-                                <b>@msg.Sender rolls:</b> <i>@msg.RollResult.RollDescription</i>
+                                if(msg.RollResult?.RolledForCharacterName is not null)
+                                {
+                                    <b>@msg.Sender rolls for @msg.RollResult.RolledForCharacterName:</b> <i>@msg.RollResult.RollDescription</i>
+                                }
+                                else
+                                {
+                                    <b>@msg.Sender rolls:</b> <i>@msg.RollResult!.RollDescription</i>
+                                }
                                 <div class="d-flex flex-wrap" style="gap: 4px; font-size: 1.8rem; line-height: 1;">
                                     @foreach (var die in msg.RollResult.Rolls)
                                     {

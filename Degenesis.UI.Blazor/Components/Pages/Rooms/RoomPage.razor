@@ -48,11 +48,14 @@ else
             Size="Size.Large"
             OnClick="OpenDiceRollModal" />
 
-    @if (_showDiceRollModal)
+    @if (_showDiceRollModal && (Character is not null || IsGM))
     {
         <DiceRollModal Character="Character"
                        HubConnection="hubConnection"
                        IdRoom="IdRoom"
+                       IsGM="IsGM"
+                       GmCharacters="GmCharacters"
+                       GmNpcs="GmNpcs"
                        OnClose="CloseDiceRollModal" />
     }
 }
