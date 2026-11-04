@@ -139,60 +139,56 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             if (user is null)
                 return new Result<CharacterDisplayDto> { IsError = true, Error = "User not found" };
 
-            var characterIdRoom = await _context.Characters
-                .Where(c => c.Id == characterId)
-                .Select(c => c.IdRoom)
-                .FirstOrDefaultAsync();
-
-            var userRoom = await _context.UserRooms
-                .FirstOrDefaultAsync(ur => ur.IdApplicationUser == user.Id && ur.IdRoom == characterIdRoom);
-            if (userRoom is null || !userRoom.IsGM)
-                return new Result<CharacterDisplayDto> { IsError = true, Error = "Character available for the GM of the room only" };
-
             var character = await _context.Characters
-                            .AsSplitQuery()
-                            .Include(c => c.Cult)
-                            .Include(c => c.Culture)
-                            .Include(c => c.Concept)
-                            .Include(c => c.Room)
-                            .Include(c => c.Rank)
-                            .Include(c => c.CharacterAttributes)
-                                .ThenInclude(ca => ca.Attribute)
-                            .Include(c => c.CharacterSkills)
-                                .ThenInclude(cs => cs.Skill)
-                            .Include(c => c.CharacterBackgrounds)
-                                .ThenInclude(cb => cb.Background)
-                            .Include(c => c.CharacterPontentials)
-                                .ThenInclude(cp => cp.Potential)
-                            .Include(c => c.CharacterArtifacts)
-                                .ThenInclude(ca => ca.Artifact)
-                            .Include(c => c.CharacterBurns)
-                                .ThenInclude(cb => cb.Burn)
-                            .Include(c => c.CharacterEquipments)
-                                .ThenInclude(ce => ce.Equipment)
-                                    .ThenInclude(e => e.EquipmentType)
-                            .Include(c => c.CharacterEquipments)
-                                .ThenInclude(ce => ce.Equipment)
-                                    .ThenInclude(e => e.Cults)
-                            .Include(c => c.CharacterProtections)
-                                .ThenInclude(cp => cp.Protection)
-                                    .ThenInclude(p => p.Cults)
-                            .Include(c => c.CharacterVehicles)
-                                .ThenInclude(cv => cv.Vehicle)
-                                    .ThenInclude(v => v.VehicleType)
-                            .Include(c => c.CharacterVehicles)
-                                .ThenInclude(cv => cv.Vehicle)
-                                    .ThenInclude(v => v.Cult)
-                            .Include(c => c.CharacterWeapons)
-                                .ThenInclude(cw => cw.Weapon)
-                                    .ThenInclude(w => w.WeaponType)
-                            .Include(c => c.CharacterWeapons)
-                                .ThenInclude(cw => cw.Weapon)
-                                    .ThenInclude(w => w.Cults)
-                            .FirstOrDefaultAsync(c => c.Id == characterId);
+                                        .AsSplitQuery()
+                                        .Include(c => c.Cult)
+                                        .Include(c => c.Culture)
+                                        .Include(c => c.Concept)
+                                        .Include(c => c.Room)
+                                        .Include(c => c.Rank)
+                                        .Include(c => c.CharacterAttributes)
+                                            .ThenInclude(ca => ca.Attribute)
+                                        .Include(c => c.CharacterSkills)
+                                            .ThenInclude(cs => cs.Skill)
+                                        .Include(c => c.CharacterBackgrounds)
+                                            .ThenInclude(cb => cb.Background)
+                                        .Include(c => c.CharacterPontentials)
+                                            .ThenInclude(cp => cp.Potential)
+                                        .Include(c => c.CharacterArtifacts)
+                                            .ThenInclude(ca => ca.Artifact)
+                                        .Include(c => c.CharacterBurns)
+                                            .ThenInclude(cb => cb.Burn)
+                                        .Include(c => c.CharacterEquipments)
+                                            .ThenInclude(ce => ce.Equipment)
+                                                .ThenInclude(e => e.EquipmentType)
+                                        .Include(c => c.CharacterEquipments)
+                                            .ThenInclude(ce => ce.Equipment)
+                                                .ThenInclude(e => e.Cults)
+                                        .Include(c => c.CharacterProtections)
+                                            .ThenInclude(cp => cp.Protection)
+                                                .ThenInclude(p => p.Cults)
+                                        .Include(c => c.CharacterVehicles)
+                                            .ThenInclude(cv => cv.Vehicle)
+                                                .ThenInclude(v => v.VehicleType)
+                                        .Include(c => c.CharacterVehicles)
+                                            .ThenInclude(cv => cv.Vehicle)
+                                                .ThenInclude(v => v.Cult)
+                                        .Include(c => c.CharacterWeapons)
+                                            .ThenInclude(cw => cw.Weapon)
+                                                .ThenInclude(w => w.WeaponType)
+                                        .Include(c => c.CharacterWeapons)
+                                            .ThenInclude(cw => cw.Weapon)
+                                                .ThenInclude(w => w.Cults)
+                                        .FirstOrDefaultAsync(c => c.Id == characterId);
 
             if (character is null)
                 return new Result<CharacterDisplayDto> { IsError = true, Error = "Character not found" };
+
+            var userRoom = await _context.UserRooms
+                .FirstOrDefaultAsync(ur => ur.IdApplicationUser == user.Id && ur.IdRoom == character.IdRoom);
+
+            if (userRoom is null || (!userRoom.IsGM && character.IdApplicationUser != user.Id))
+                return new Result<CharacterDisplayDto> { IsError = true, Error = "Character available for the GM or character creator only" };
 
             return new Result<CharacterDisplayDto> { Value = _mapper.Map<CharacterDisplayDto>(character) };
         }

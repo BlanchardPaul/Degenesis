@@ -31,6 +31,7 @@ public partial class RoomPage
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
+        // Retrieve UserName from the Game Master display
         var auth = await AuthProvider.GetAuthenticationStateAsync();
         userName = auth.User.FindFirst("unique_name")?.Value;
 
@@ -44,8 +45,7 @@ public partial class RoomPage
         room = roomResult.Value;
 
         // Hub connection for the dice modal
-        if (!string.IsNullOrEmpty(userName))
-            hubConnection = await RoomConnection.GetOrCreateAsync(IdRoom, userName);
+        hubConnection = await RoomConnection.GetOrCreateAsync(IdRoom);
 
         // Hub listener so that if another player or the GM modified this character it's reloaded
         hubConnection!.On<Guid>("CharacterUpdated", async characterId =>

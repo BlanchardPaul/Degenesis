@@ -10,7 +10,6 @@ namespace Degenesis.UI.Blazor.Components.Pages.Rooms.Character;
 public partial class RoomCharacterSheet
 {
     [Parameter] public CharacterDisplayDto? Character { get; set; }
-    [Parameter] public EventCallback OnRequestParentReload { get; set; }
 
     private bool IsSkillDisabled(CharacterSkillDisplayDto characterSkill)
     {
@@ -60,11 +59,7 @@ public partial class RoomCharacterSheet
         var result = await dialog.Result;
 
         if (result is not null && !result.Canceled)
-        {
             Snackbar.Add("Character infos updated", Severity.Success);
-            await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
-        }
     }
 
     private async Task OpenEditRankDialog()
@@ -79,14 +74,7 @@ public partial class RoomCharacterSheet
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
 
-        var dialog = await DialogService.ShowAsync<CharacterEditRankModal>("Select a new rank", parameters, options);
-        var result = await dialog.Result;
-
-        if (result is not null && !result.Canceled)
-        {
-            await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
-        }
+        await DialogService.ShowAsync<CharacterEditRankModal>("Select a new rank", parameters, options);
 
     }
 
@@ -102,14 +90,8 @@ public partial class RoomCharacterSheet
 
         var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, BackdropClick = false };
 
-        var dialog = await DialogService.ShowAsync<CharacterAddPotentialModal>("Add a potential", parameters, options);
-        var result = await dialog.Result;
+        await DialogService.ShowAsync<CharacterAddPotentialModal>("Add a potential", parameters, options);
 
-        if (result is not null && !result.Canceled)
-        {
-            await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
-        }
     }
 
     private async Task UpdateXp()
@@ -251,52 +233,34 @@ public partial class RoomCharacterSheet
             var result = await response.Content.ReadFromJsonAsync<Result<object>>();
             Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
             return;
-        } else
-        {
-            await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
         }
     }
 
     private async Task ChangeAttributeLevel(CharacterAttributeDisplayDto attribute, int direction)
     {
-        if (Character is null)
-            return;
+        if (Character is null) return;
 
         int oldValue = attribute.Level;
         int newValue = oldValue + direction;
-
-        if (direction < 0)
-        {
-            int refund = CalculateXpCostForAttribute(Character, attribute, newValue, oldValue);
-            Character.Experience += refund;
-            attribute.Level = newValue;
-
-            Snackbar.Add($"{attribute.Name} decreased to {newValue}. Refunded {refund} XP.", Severity.Info);
-            
-            await UpdateXp();
-            await UpdateCharacterAttribute(attribute);
-
-            StateHasChanged();
-            return;
-        }
-
         int cost = CalculateXpCostForAttribute(Character, attribute, oldValue, newValue);
-        if (Character.Experience < cost)
+
+        if (direction > 0)
         {
-            Snackbar.Add($"Not enough XP! Needed: {cost}, Available: {Character.Experience}", Severity.Error);
-            return;
+            if (Character.Experience < cost)
+            {
+                Snackbar.Add($"Not enough XP! Needed: {cost}, Available: {Character.Experience}", Severity.Error);
+                return;
+            }
+            Snackbar.Add($"{attribute.Name} increased to {newValue} (Cost {cost} XP)", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add($"{attribute.Name} decreased to {newValue}. Refunded {cost} XP.", Severity.Info);
         }
 
-        Character.Experience -= cost;
         attribute.Level = newValue;
 
-        Snackbar.Add($"{attribute.Name} increased to {newValue} (Cost {cost} XP)", Severity.Success);
-
-        await UpdateXp();
         await UpdateCharacterAttribute(attribute);
-
-        StateHasChanged();
     }
 
     private async Task ChangeSkillLevel(CharacterSkillDisplayDto skill, int direction)
@@ -306,38 +270,25 @@ public partial class RoomCharacterSheet
 
         int oldValue = skill.Level;
         int newValue = oldValue + direction;
-
-        if (direction < 0)
-        {
-            int refund = CalculateXpCostForSkill(Character, skill, newValue, oldValue);
-            Character.Experience += refund;
-            skill.Level = newValue;
-
-            Snackbar.Add($"{skill.Name} decreased to {newValue}. Refunded {refund} XP.", Severity.Info);
-
-            await UpdateXp();
-            await UpdateCharacterSkill(skill);
-
-            StateHasChanged();
-            return;
-        }
-
         int cost = CalculateXpCostForSkill(Character, skill, oldValue, newValue);
-        if (Character.Experience < cost)
+
+        if (direction > 0)
         {
-            Snackbar.Add($"Not enough XP! Needed: {cost}, Available: {Character.Experience}", Severity.Error);
-            return;
+            if (Character.Experience < cost)
+            {
+                Snackbar.Add($"Not enough XP! Needed: {cost}, Available: {Character.Experience}", Severity.Error);
+                return;
+            }
+            Snackbar.Add($"{skill.Name} increased to {newValue} (Cost {cost} XP)", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add($"{skill.Name} decreased to {newValue}. Refunded {cost} XP.", Severity.Info);
         }
 
-        Character.Experience -= cost;
         skill.Level = newValue;
 
-        Snackbar.Add($"{skill.Name} increased to {newValue} (Cost {cost} XP)", Severity.Success);
-
-        await UpdateXp();
         await UpdateCharacterSkill(skill);
-
-        StateHasChanged();
     }
 
     private async Task UpdateCharacterAttribute(CharacterAttributeDisplayDto attribute)
@@ -355,10 +306,6 @@ public partial class RoomCharacterSheet
             var result = await response.Content.ReadFromJsonAsync<Result<object>>();
             Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
             return;
-        }else
-        {
-            await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
         }
     }
 
@@ -378,11 +325,6 @@ public partial class RoomCharacterSheet
             var result = await response.Content.ReadFromJsonAsync<Result<object>>();
             Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
-        else
-        {
-            await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
-        }
     }
 
     private async Task UpdateCharacterPotential(CharacterPotentialDisplayDto potential)
@@ -398,11 +340,6 @@ public partial class RoomCharacterSheet
         {
             var result = await response.Content.ReadFromJsonAsync<Result<object>>();
             Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
-        }
-        else
-        {
-            await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
         }
     }
 
@@ -420,45 +357,32 @@ public partial class RoomCharacterSheet
         }
     }
 
-    private async Task ChangeBackgroundLevel(CharacterPotentialDisplayDto potential, int direction)
+    private async Task ChangePotentialLevel(CharacterPotentialDisplayDto potential, int direction)
     {
         if (Character is null)
             return;
 
         int oldValue = potential.Level;
         int newValue = oldValue + direction;
-
-        if (direction < 0)
-        {
-            int refund = CalculateXpCostForPotential(Character, oldValue, newValue);
-            Character.Experience += refund;
-            potential.Level = newValue;
-
-            Snackbar.Add($"{potential.Name} decreased to {newValue}. Refunded {refund} XP.", Severity.Info);
-
-            await UpdateXp();
-            await UpdateCharacterPotential(potential);
-
-            StateHasChanged();
-            return;
-        }
-
         int cost = CalculateXpCostForPotential(Character, oldValue, newValue);
-        if (Character.Experience < cost)
+
+        if (direction > 0)
         {
-            Snackbar.Add($"Not enough XP! Needed: {cost}, Available: {Character.Experience}", Severity.Error);
-            return;
+            if (Character.Experience < cost)
+            {
+                Snackbar.Add($"Not enough XP! Needed: {cost}, Available: {Character.Experience}", Severity.Error);
+                return;
+            }
+            Snackbar.Add($"{potential.Name} increased to {newValue} (Cost {cost} XP)", Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add($"{potential.Name} decreased to {newValue}. Refunded {cost} XP.", Severity.Info);
         }
 
-        Character.Experience -= cost;
         potential.Level = newValue;
 
-        Snackbar.Add($"{potential.Name} increased to {newValue} (Cost {cost} XP)", Severity.Success);
-
-        await UpdateXp();
         await UpdateCharacterPotential(potential);
-
-        StateHasChanged();
     }
 
     private static int CalculateXpCostForAttribute(CharacterDisplayDto character, CharacterAttributeDisplayDto attribute, int oldValue, int newValue)
@@ -502,10 +426,9 @@ public partial class RoomCharacterSheet
             var result = await response.Content.ReadFromJsonAsync<Result<object>>();
             Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
-        else
-        {
-            await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
-        }
     }
+
+    private static string GetCharacterUrl(Guid characterId, string view)
+    => $"/popped-out/{characterId}/{view}";
+
 }

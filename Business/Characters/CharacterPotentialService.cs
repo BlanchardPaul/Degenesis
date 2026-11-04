@@ -57,12 +57,29 @@ public class CharacterPotentialService(ApplicationDbContext context, IRoomBroadc
         try
         {
             var existingCharacterPotential = await _context.CharacterPotentials
-                .FirstOrDefaultAsync(cp => cp.CharacterId == characterPotential.CharacterId && cp.PotentialId == characterPotential.PotentialId) 
-                ?? throw new Exception("CharacterPotential not found");
+                .FirstOrDefaultAsync(cp => cp.CharacterId == characterPotential.CharacterId && cp.PotentialId == characterPotential.PotentialId);
             if(existingCharacterPotential is null)
                 return new Result<object> { IsError = true, Error = "CharacterPotential not found" };
 
-            existingCharacterPotential.Level = characterPotential.Level;
+            var character = await _context.Characters
+                .FirstOrDefaultAsync(c => c.Id == existingCharacterPotential.CharacterId);
+            if (character is null)
+                return new Result<object> { IsError = true, Error = "Character not found" };
+
+            int oldValue = existingCharacterPotential.Level;
+            int newValue = characterPotential.Level;
+
+            int totalPotentialLevels = await _context.CharacterPotentials
+                .Where(cp => cp.CharacterId == character.Id)
+                .SumAsync(cp => cp.Level);
+            int cost = CharacterXpCalculator.PotentialCost(totalPotentialLevels, oldValue, newValue);
+
+            if (newValue > oldValue && character.Experience < cost)
+                return new Result<object> { IsError = true, Error = $"Not enough XP! Needed: {cost}, Available: {character.Experience}" };
+
+            character.Experience += newValue > oldValue ? -cost : cost;
+
+            existingCharacterPotential.Level = newValue;
 
             await _context.SaveChangesAsync();
             await _broadcast.NotifyCharacterUpdatedAsync(existingCharacterPotential.CharacterId);

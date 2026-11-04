@@ -10,10 +10,10 @@
                 <span>@c.Name <i class="ml-1">(@c.PlayerName)</i></span>
                 <MudStack Row="true" Spacing="1" Class="mt-1">
                     <MudButton Size="Size.Small" Variant="Variant.Outlined"
-                               Href="@GetGmCharacterUrl(c.Id, "sheet")"
+                               Href="@GetCharacterUrl(c.Id, "sheet")"
                                Target="_blank">Details</MudButton>
                     <MudButton Size="Size.Small" Variant="Variant.Outlined"
-                               Href="@GetGmCharacterUrl(c.Id, "inventory")"
+                               Href="@GetCharacterUrl(c.Id, "inventory")"
                                Target="_blank">Inventory</MudButton>
                 </MudStack>
             </div>

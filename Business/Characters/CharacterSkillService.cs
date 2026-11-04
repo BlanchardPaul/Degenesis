@@ -23,11 +23,8 @@ public class CharacterSkillService(ApplicationDbContext context, IRoomBroadcastS
                 .FirstOrDefaultAsync(cs => cs.CharacterId == characterSkill.CharacterId && cs.SkillId == characterSkill.SkillId);
             if (existingCharacterSkill is null)
                 return new Result<object> { IsError = true, Error = "CharacterSkill not found" };
-
-            existingCharacterSkill.Level = characterSkill.Level;
-
-            // We have to modify the maximum variables depending on specific attributes
             var skill = await _context.Skills
+                .Include(s => s.CAttribute)
                 .FirstOrDefaultAsync(s => s.Id == existingCharacterSkill.SkillId);
             if (skill is null)
                 return new Result<object> { IsError = true, Error = "Skill not found" };
@@ -36,6 +33,20 @@ public class CharacterSkillService(ApplicationDbContext context, IRoomBroadcastS
             if (character is null)
                 return new Result<object> { IsError = true, Error = "Character not found" };
 
+            int oldValue = existingCharacterSkill.Level;
+            int newValue = characterSkill.Level;
+
+            string parentAttributeName = skill.CAttribute?.Name ?? string.Empty;
+            int cost = CharacterXpCalculator.SkillCost(parentAttributeName, character.IsFocusOriented, oldValue, newValue);
+
+            if (newValue > oldValue && character.Experience < cost)
+                return new Result<object> { IsError = true, Error = $"Not enough XP! Needed: {cost}, Available: {character.Experience}" };
+
+            character.Experience += newValue > oldValue ? -cost : cost;
+
+            existingCharacterSkill.Level = newValue;
+
+            // We have to modify the maximum variables depending on specific attributes
             if (skill.Name == "FOCUS" && character.IsFocusOriented)
             {
                 var intellectAttribute = await _context.Attributes

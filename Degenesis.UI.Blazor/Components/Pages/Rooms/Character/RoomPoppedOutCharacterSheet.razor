@@ -1,4 +1,4 @@
-﻿@page "/gm-character/{CharacterId:guid}/{View}"
+﻿@page "/popped-out/{CharacterId:guid}/{View}"
 @using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory
 
 @if (Character is null && !loadError)
@@ -17,6 +17,6 @@ else
     }
     else
     {
-        <RoomCharacterSheet Character="Character" OnRequestParentReload="ReloadCharacter" />
+        <RoomCharacterSheet Character="Character" />
     }
 }

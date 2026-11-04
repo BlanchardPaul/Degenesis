@@ -21,13 +21,10 @@ public partial class NpcEditPage
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        var auth = await AuthProvider.GetAuthenticationStateAsync();
-        var userName = auth.User.FindFirst("unique_name")?.Value ?? string.Empty;
-
         await ReloadNpc();
 
         if (npcRoomId != Guid.Empty)
-            hubConnection = await RoomConnection.GetOrCreateAsync(npcRoomId, userName);
+            hubConnection = await RoomConnection.GetOrCreateAsync(npcRoomId);
 
         hubConnection?.On<Guid>("NpcUpdated", async npcId =>
         {

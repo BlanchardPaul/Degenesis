@@ -2,9 +2,9 @@
 
 namespace Degenesis.UI.Blazor.Extensions;
 
-public class RoomConnectionService : IAsyncDisposable
+public class RoomConnectionService(AuthenticatedHttpClientService authHttpClient) : IAsyncDisposable
 {
-    private readonly AuthenticatedHttpClientService _authHttpClient;
+    private readonly AuthenticatedHttpClientService _authHttpClient = authHttpClient;
     private HubConnection? _connection;
     private Guid _currentIdRoom;
     private readonly List<Action<HubConnection>> _connectionReadyCallbacks = [];
@@ -12,14 +12,9 @@ public class RoomConnectionService : IAsyncDisposable
     public HubConnection? Connection => _connection;
     public Guid CurrentIdRoom => _currentIdRoom;
 
-    public RoomConnectionService(AuthenticatedHttpClientService authHttpClient)
-    {
-        _authHttpClient = authHttpClient;
-    }
-
     public bool IsForRoom(Guid roomId) => _connection is not null && _currentIdRoom == roomId;
 
-    public async Task<HubConnection> GetOrCreateAsync(Guid roomId, string userName)
+    public async Task<HubConnection> GetOrCreateAsync(Guid roomId)
     {
         if (_connection is not null)
         {

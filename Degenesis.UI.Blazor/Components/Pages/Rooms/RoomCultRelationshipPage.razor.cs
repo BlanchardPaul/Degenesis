@@ -21,10 +21,7 @@ public partial class RoomCultRelationshipPage
     protected override async Task OnAuthenticatedInitializedAsync()
     {
         // Reuse the hub connection already created by RoomPage (same circuit)
-        var auth = await AuthProvider.GetAuthenticationStateAsync();
-        var userName = auth.User.FindFirst("unique_name")?.Value;
-        if (!string.IsNullOrEmpty(userName))
-            hubConnection = await RoomConnection.GetOrCreateAsync(IdRoom, userName);
+        hubConnection = await RoomConnection.GetOrCreateAsync(IdRoom);
 
         // Live updates when the GM discovers a cult or edits a relationship
         await ReloadCultRelationships();

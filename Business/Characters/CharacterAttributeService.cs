@@ -21,22 +21,32 @@ public class CharacterAttributeService(ApplicationDbContext context, IRoomBroadc
         {
             var existingCharacterAttribute = await _context.CharacterAttributes
                 .FirstOrDefaultAsync(ca => ca.CharacterId == characterAttribute.CharacterId && ca.AttributeId == characterAttribute.AttributeId) ;
-            
             if(existingCharacterAttribute is null)
                 return new Result<object> { IsError = true, Error = "CharacterAttribute not found" };
 
-            existingCharacterAttribute.Level = characterAttribute.Level;
-
-            // We have to modify the maximum variables depending on specific attributes
             var attribute = await _context.Attributes
                 .FirstOrDefaultAsync(a => a.Id == existingCharacterAttribute.AttributeId);
-            if(attribute is null)
+            if (attribute is null)
                 return new Result<object> { IsError = true, Error = "Attribute not found" };
+
             var character = await _context.Characters
                 .FirstOrDefaultAsync(a => a.Id == existingCharacterAttribute.CharacterId);
-            if(character is null)
+            if (character is null)
                 return new Result<object> { IsError = true, Error = "Character not found" };
 
+            int oldValue = existingCharacterAttribute.Level;
+            int newValue = characterAttribute.Level;
+
+            int cost = CharacterXpCalculator.AttributeCost(attribute.Name, character.IsFocusOriented, oldValue, newValue);
+
+            if (newValue > oldValue && character.Experience < cost)
+                return new Result<object> { IsError = true, Error = $"Not enough XP! Needed: {cost}, Available: {character.Experience}" };
+
+            character.Experience += newValue > oldValue ? -cost : cost;
+
+            existingCharacterAttribute.Level = newValue;
+
+            // We have to modify the maximum variables depending on specific attributes
             if (attribute.Name == "INTELLECT" && character.IsFocusOriented)
             {
                 var focusSkill = await _context.Skills

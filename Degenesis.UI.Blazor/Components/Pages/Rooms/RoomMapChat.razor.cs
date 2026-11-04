@@ -26,6 +26,7 @@ public partial class RoomMapChat : IAsyncDisposable
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
+        // Get the current user name for rolls and chat messages
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
@@ -43,14 +44,14 @@ public partial class RoomMapChat : IAsyncDisposable
 
         room = roomResult.Value;
 
-        if (room is null || string.IsNullOrEmpty(userName) || !room.Players.Contains(userName) && room.GMName != userName)
+        if (room is null)
         {
             Navigation.NavigateTo("/rooms");
             return;
         }
 
         // Create a connection with the chat hub
-        hubConnection = await RoomConnection.GetOrCreateAsync(IdRoom, userName!);
+        hubConnection = await RoomConnection.GetOrCreateAsync(IdRoom);
 
         // Detach if a previous connection existed
         hubConnection.Remove("ReceiveMessage");
@@ -125,6 +126,7 @@ public partial class RoomMapChat : IAsyncDisposable
         hubConnection?.Remove("ReceiveMessage");
         hubConnection?.Remove("ReceiveHistory");
         hubConnection?.Remove("ReceiveRollResult");
+        GC.SuppressFinalize(this);
         return ValueTask.CompletedTask;
     }
 }

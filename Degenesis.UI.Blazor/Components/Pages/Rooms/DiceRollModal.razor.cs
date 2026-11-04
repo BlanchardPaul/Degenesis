@@ -32,9 +32,7 @@ public partial class DiceRollModal
     public bool PrivateRoll { get; set; }
 
     // GM mode: selected character/NPC
-    private Guid? _selectedCharacterId;
     private CharacterDisplayDto? _selectedCharacterData;
-    private NPCDto? _selectedNpcData;
 
     // Action Roll
     private RollType _rollType = RollType.Action;
@@ -83,8 +81,6 @@ public partial class DiceRollModal
             return;
         }
 
-        _selectedCharacterId = characterId;
-
         _selectedAttributeId = null;
         _selectedSkillId = null;
         _lastRolls.Clear();
@@ -126,7 +122,7 @@ public partial class DiceRollModal
     }
 
     // Convertit un NPC en CharacterDisplayDto pour la réutilisabilité
-    private CharacterDisplayDto ConvertNpcToCharacterDisplay(NPCDto npc)
+    private static CharacterDisplayDto ConvertNpcToCharacterDisplay(NPCDto npc)
     {
         return new CharacterDisplayDto
         {
@@ -274,11 +270,12 @@ public partial class DiceRollModal
         var result = new List<Guid?>();
 
         result.AddRange(GmCharacters
-            .Where(c => c.Name.ToLower().Contains(searchLower) || c.PlayerName.ToLower().Contains(searchLower))
+            .Where(c => c.Name.Contains(searchLower, StringComparison.CurrentCultureIgnoreCase) ||
+                c.PlayerName.Contains(searchLower, StringComparison.CurrentCultureIgnoreCase))
             .Select(c => (Guid?)c.Id));
 
         result.AddRange(GmNpcs
-            .Where(n => n.Name.ToLower().Contains(searchLower))
+            .Where(n => n.Name.Contains(searchLower, StringComparison.CurrentCultureIgnoreCase))
             .Select(n => (Guid?)n.Id));
 
         return result;

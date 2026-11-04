@@ -7,6 +7,6 @@ public partial class RoomGmCharacterList
     [Parameter]
     public List<CharacterDisplayForGMListDto> GmCharacters { get; set; } = [];
 
-    private static string GetGmCharacterUrl(Guid characterId, string view)
-        => $"/gm-character/{characterId}/{view}";
+    private static string GetCharacterUrl(Guid characterId, string view)
+        => $"/popped-out/{characterId}/{view}";
 }
