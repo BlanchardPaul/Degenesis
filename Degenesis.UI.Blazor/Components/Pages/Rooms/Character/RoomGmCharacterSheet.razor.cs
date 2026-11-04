@@ -60,25 +60,4 @@ public partial class RoomGmCharacterSheet
         }
         StateHasChanged();
     }
-
-    private async Task OpenDiceRollModal()
-    {
-        if (Character is null || hubConnection is null)
-            return;
-
-        var parameters = new DialogParameters
-        {
-            { "Character", Character },
-            { "HubConnection", hubConnection },
-            { "IdRoom", Character.IdRoom }
-        };
-        var options = new DialogOptions
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Small,
-            FullWidth = true,
-            BackdropClick = true
-        };
-        await DialogService.ShowAsync<DiceRollModal>("Roll dice", parameters, options);
-    }
 }
