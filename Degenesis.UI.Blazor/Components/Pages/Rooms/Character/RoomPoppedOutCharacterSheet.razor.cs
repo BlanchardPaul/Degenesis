@@ -36,7 +36,13 @@ public partial class RoomPoppedOutCharacterSheet
         hubConnection?.On<Guid>("CharacterUpdated", async characterId =>
             {
                 if (characterId == CharacterId)
-                    await InvokeAsync(ReloadCharacter);
+                {
+                    await InvokeAsync(async () =>
+                    {
+                        await ReloadCharacter();
+                        StateHasChanged();
+                    });
+                }
             });
     }
 

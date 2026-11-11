@@ -54,7 +54,13 @@ public partial class RoomPage
         hubConnection!.On<Guid>("CharacterUpdated", async characterId =>
         {
             if (Character is not null && Character.Id == characterId)
-                await InvokeAsync(ReloadCharacter);
+            {
+                await InvokeAsync(async () =>
+                {
+                    await ReloadCharacter();
+                    StateHasChanged();
+                });
+            }
         });
 
         // Hub listener so that if another player or the GM modified a NPC it's reloaded
