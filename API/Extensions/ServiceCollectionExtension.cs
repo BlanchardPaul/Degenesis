@@ -40,6 +40,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICharacterEquipmentService, CharacterEquipmentService>();
         services.AddScoped<ICharacterPotentialService, CharacterPotentialService>();
         services.AddScoped<ICharacterProtectionService, CharacterProtectionService>();
+        services.AddScoped<ICharacterSavedDiceRollService, CharacterSavedDiceRollService>();
         services.AddScoped<ICharacterSkillService, CharacterSkillService>();
         services.AddScoped<ICharacterVehicleService, CharacterVehicleService>();
         services.AddScoped<ICharacterWeaponService, CharacterWeaponService>();

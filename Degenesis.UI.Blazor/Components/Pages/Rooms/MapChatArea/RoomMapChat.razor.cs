@@ -1,4 +1,5 @@
 ﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.Rooms;
 using Degenesis.UI.Blazor.Extensions;
 using Microsoft.AspNetCore.Components;
@@ -6,12 +7,12 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 
-namespace Degenesis.UI.Blazor.Components.Pages.Rooms;
+namespace Degenesis.UI.Blazor.Components.Pages.Rooms.MapChatArea;
 
 public partial class RoomMapChat : IAsyncDisposable
 {
     [Parameter] public Guid IdRoom { get; set; }
-
+    [Parameter] public CharacterDisplayDto? Character { get; set; }
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
     [Inject] private RoomConnectionService RoomConnection { get; set; } = default!;
@@ -21,6 +22,7 @@ public partial class RoomMapChat : IAsyncDisposable
     private string currentMessage = "";
     private string? userName;
     private static readonly string[] DiceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+    private bool isMapDrawerOpen;
 
     private List<RoomChatMessageDto> Messages = [];
 
@@ -92,6 +94,8 @@ public partial class RoomMapChat : IAsyncDisposable
         await hubConnection.SendAsync("GetHistory", IdRoom.ToString());
     }
 
+    private void ToggleMapDrawer() => isMapDrawerOpen = !isMapDrawerOpen;
+
     // When user send message to hub
     private async Task SendMessage()
     {
@@ -118,6 +122,8 @@ public partial class RoomMapChat : IAsyncDisposable
         };
         return string.IsNullOrEmpty(color) ? "" : $"color: {color};";
     }
+
+    
 
     public ValueTask DisposeAsync()
     {

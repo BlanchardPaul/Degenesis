@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Business.Hubs;
 public interface IRoomBroadcastService
 {
-    Task NotifyCharacterUpdatedAsync(Guid characterId, string? excludedConnectionId = null);
+    Task NotifyCharacterUpdatedAsync(Guid characterId);
     Task NotifyCultRelationshipUpdatedAsync(Guid relationshipId);
     Task NotifyNpcUpdatedAsync(Guid npcId);
 }
@@ -15,7 +15,7 @@ public class RoomBroadcastService(ApplicationDbContext context, IHubContext<Room
     private readonly ApplicationDbContext _context = context;
     private readonly IHubContext<RoomChatHub> _hubContext = hubContext;
 
-    public async Task NotifyCharacterUpdatedAsync(Guid characterId, string? excludedConnectionId = null)
+    public async Task NotifyCharacterUpdatedAsync(Guid characterId)
     {
         var roomId = await _context.Characters
             .AsNoTracking()
@@ -26,9 +26,7 @@ public class RoomBroadcastService(ApplicationDbContext context, IHubContext<Room
         if (roomId == Guid.Empty)
             return;
 
-        var clients = string.IsNullOrWhiteSpace(excludedConnectionId)
-            ? _hubContext.Clients.Group(roomId.ToString())
-            : _hubContext.Clients.GroupExcept(roomId.ToString(), [excludedConnectionId]);
+        var clients = _hubContext.Clients.Group(roomId.ToString());
 
         await clients.SendAsync("CharacterUpdated", characterId);
     }

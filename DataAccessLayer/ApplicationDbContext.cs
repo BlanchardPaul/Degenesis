@@ -32,6 +32,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<CharacterEquipment> CharacterEquipments { get; set; } = null!;
     public DbSet<CharacterPotential> CharacterPotentials { get; set; } = null!;
     public DbSet<CharacterProtection> CharacterProtections { get; set; } = null!;
+    public DbSet<CharacterSavedDiceRoll> CharacterSavedDiceRolls { get; set; } = null!;
     public DbSet<CharacterSkill> CharacterSkills { get; set; } = null!;
     public DbSet<CharacterVehicle> CharacterVehicles { get; set; } = null!;
     public DbSet<CharacterWeapon> CharacterWeapons { get; set; } = null!;

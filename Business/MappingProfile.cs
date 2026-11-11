@@ -111,7 +111,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Artifacts, opt => opt.MapFrom(src => src.CharacterArtifacts))
             .ForMember(dest => dest.Burns, opt => opt.MapFrom(src => src.CharacterBurns))
             .ForMember(dest => dest.Vehicles, opt => opt.MapFrom(src => src.CharacterVehicles))
-            .ForMember(dest => dest.Weapons, opt => opt.MapFrom(src => src.CharacterWeapons));
+            .ForMember(dest => dest.Weapons, opt => opt.MapFrom(src => src.CharacterWeapons))
+            .ForMember(dest => dest.CharacterSavedDiceRolls, opt => opt.MapFrom(src => src.CharacterSavedDiceRolls));
 
         CreateMap<CharacterArtifactCreateDto, CharacterArtifact>()
              .ForMember(dest => dest.Character, opt => opt.Ignore())
@@ -172,6 +173,18 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Protection, opt => opt.Ignore());
         CreateMap<CharacterProtection, CharacterProtectionDto>()
             .ForMember(dest => dest.Protection, opt => opt.MapFrom(src => src.Protection));
+
+        CreateMap<CharacterSavedDiceRollDto, CharacterSavedDiceRoll>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Character, opt => opt.Ignore())
+            .ForMember(dest => dest.Attribute, opt => opt.Ignore())
+            .ForMember(dest => dest.Skill, opt => opt.Ignore());
+
+        CreateMap<CharacterSavedDiceRoll, CharacterSavedDiceRollDto>();
+
+        CreateMap<CharacterSavedDiceRoll, CharacterSavedDiceRollDisplayDto>()
+            .ForMember(dest => dest.AttributeName, opt => opt.MapFrom(src => src.Attribute.Name))
+            .ForMember(dest => dest.SkillName, opt => opt.MapFrom(src => src.Skill.Name));
 
         CreateMap<CharacterSkillDto, CharacterSkill>()
             .ForMember(dest => dest.Character, opt => opt.Ignore())

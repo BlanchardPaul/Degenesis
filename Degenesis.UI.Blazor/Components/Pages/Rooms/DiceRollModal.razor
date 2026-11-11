@@ -73,6 +73,18 @@
                     <MudNumericField @bind-Value="_malus" Label="Malus" Min="0" Dense Class="flex-grow-1" />
                 </MudStack>
 
+                @if (!IsGM && _selectedAttributeId.HasValue && _selectedSkillId.HasValue)
+                {
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               StartIcon="@Icons.Material.Filled.Save"
+                               OnClick="OpenSaveRollModal"
+                               Class="mb-2">
+                        Save roll
+                    </MudButton>
+                }
+
                 <MudText Typo="Typo.caption" Align="Align.Center" Class="mb-2">
                     Dice: <b>@(ActionRollDiceCount)</b> d6
                     @if (_autoSuccesses > 0)

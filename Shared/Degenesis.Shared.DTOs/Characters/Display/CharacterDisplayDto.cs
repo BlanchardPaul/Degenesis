@@ -43,4 +43,5 @@ public class CharacterDisplayDto
     public List<CharacterProtectionDto> Protections { get; set; } = [];
     public List<CharacterVehicleDto> Vehicles { get; set; } = [];
     public List<CharacterWeaponDto> Weapons { get; set; } = [];
+    public List<CharacterSavedDiceRollDisplayDto> CharacterSavedDiceRolls { get; set; } = [];
 }

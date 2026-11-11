@@ -1,0 +1,39 @@
+﻿<MudPaper Class="d-flex flex-column"
+          Elevation="8"
+          Style="position: absolute; top: 0; right: 0; bottom: 0; width: 320px; max-width: 100%; z-index: 2; overflow-y: auto;">
+    <div class="d-flex align-center justify-space-between pa-3">
+        <MudText Typo="Typo.subtitle1">Saved rolls</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Close"
+                       Color="Color.Default"
+                       OnClick="() => OnClose.InvokeAsync()" />
+    </div>
+
+    <MudDivider Style="flex: 0 0 1px;" />
+
+    @if (Character is not null && Character.CharacterSavedDiceRolls.Count > 0)
+    {
+        <MudStack Class="pa-3" Spacing="1">
+            @foreach (var savedRoll in Character.CharacterSavedDiceRolls)
+            {
+                <MudStack Row>
+                    <MudButton Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               OnClick="() => RollSavedAsync(savedRoll)">
+                        @savedRoll.Name
+                    </MudButton>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   OnClick="() => DeleteSavedRollAsync(savedRoll.Id)"/>
+                </MudStack>
+            }
+        </MudStack>
+    }
+    else
+    {
+        <MudText Class="pa-3" Color="Color.Secondary">
+            No saved roll
+        </MudText>
+    }
+
+</MudPaper>

@@ -2,6 +2,7 @@
 @using Degenesis.Shared.DTOs.Characters.Display
 @using Degenesis.UI.Blazor.Components.Pages.Rooms.Character
 @using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory
+@using Degenesis.UI.Blazor.Components.Pages.Rooms.MapChatArea
 @using Degenesis.UI.Blazor.Components.Pages.Rooms.NPC
 
 @if (room is null)
@@ -12,7 +13,7 @@ else
 {
     <MudTabs Class="d-flex flex-column" Style="height: 100%;">
         <MudTabPanel Text="Map and Chat">
-            <RoomMapChat IdRoom="IdRoom" />
+            <RoomMapChat IdRoom="IdRoom" Character="Character"/>
         </MudTabPanel>
 
         @if (IsGM)

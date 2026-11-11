@@ -1,10 +1,10 @@
 ﻿using Degenesis.Shared.DTOs;
+using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Degenesis.Shared.DTOs.NPCs;
 using Degenesis.Shared.DTOs.Rooms;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using MudBlazor;
@@ -307,4 +307,43 @@ public partial class DiceRollModal
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    private async Task OpenSaveRollModal()
+    {
+        if (_selectedCharacterData is null || !_selectedAttributeId.HasValue || !_selectedSkillId.HasValue)
+            return;
+
+        var parameters = new DialogParameters();
+        var options = new DialogOptions
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.ExtraSmall,
+            FullWidth = true,
+            BackdropClick = true
+        };
+
+        var dialog = await DialogService.ShowAsync<SavedRollNameModal>("Save this roll", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is null || result.Canceled || result.Data is not string name || string.IsNullOrWhiteSpace(name))
+            return;
+
+        var dto = new CharacterSavedDiceRollDto
+        {
+            Id = Guid.Empty,
+            Name = name.Trim(),
+            CharacterId = _selectedCharacterData.Id,
+            AttributeId = _selectedAttributeId.Value,
+            SkillId = _selectedSkillId.Value
+        };
+
+        var response = await Client!.PostAsJsonAsync("/character-saved-dice-rolls/", dto);
+        if (!response.IsSuccessStatusCode)
+        {
+            var error = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(error?.Error ?? "Unknown error", Severity.Error);
+            return;
+        }
+
+        Snackbar.Add($"Roll '{name}' saved", Severity.Success);
+    }
 }

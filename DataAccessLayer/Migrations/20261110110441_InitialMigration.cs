@@ -1280,6 +1280,39 @@ namespace DataAccessLayer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CharacterSavedDiceRolls",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CharacterId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AttributeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SkillId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CharacterSavedDiceRolls", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CharacterSavedDiceRolls_Attributes_AttributeId",
+                        column: x => x.AttributeId,
+                        principalTable: "Attributes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CharacterSavedDiceRolls_Characters_CharacterId",
+                        column: x => x.CharacterId,
+                        principalTable: "Characters",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CharacterSavedDiceRolls_Skills_SkillId",
+                        column: x => x.SkillId,
+                        principalTable: "Skills",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CharacterSkills",
                 columns: table => new
                 {
@@ -1535,6 +1568,21 @@ namespace DataAccessLayer.Migrations
                 column: "RankId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CharacterSavedDiceRolls_AttributeId",
+                table: "CharacterSavedDiceRolls",
+                column: "AttributeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterSavedDiceRolls_CharacterId",
+                table: "CharacterSavedDiceRolls",
+                column: "CharacterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CharacterSavedDiceRolls_SkillId",
+                table: "CharacterSavedDiceRolls",
+                column: "SkillId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CharacterSkills_SkillId",
                 table: "CharacterSkills",
                 column: "SkillId");
@@ -1782,6 +1830,9 @@ namespace DataAccessLayer.Migrations
 
             migrationBuilder.DropTable(
                 name: "CharacterProtections");
+
+            migrationBuilder.DropTable(
+                name: "CharacterSavedDiceRolls");
 
             migrationBuilder.DropTable(
                 name: "CharacterSkills");

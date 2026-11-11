@@ -385,6 +385,37 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("CharacterPotentials", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Characters.CharacterSavedDiceRoll", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AttributeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CharacterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid>("SkillId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AttributeId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.HasIndex("SkillId");
+
+                    b.ToTable("CharacterSavedDiceRolls", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Characters.CharacterSkill", b =>
                 {
                     b.Property<Guid>("CharacterId")
@@ -1914,6 +1945,33 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("Potential");
                 });
 
+            modelBuilder.Entity("Domain.Characters.CharacterSavedDiceRoll", b =>
+                {
+                    b.HasOne("Domain.Characters.CAttribute", "Attribute")
+                        .WithMany()
+                        .HasForeignKey("AttributeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Characters.Character", "Character")
+                        .WithMany("CharacterSavedDiceRolls")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Characters.Skill", "Skill")
+                        .WithMany()
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Attribute");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Skill");
+                });
+
             modelBuilder.Entity("Domain.Characters.CharacterSkill", b =>
                 {
                     b.HasOne("Domain.Characters.Character", "Character")
@@ -2459,6 +2517,8 @@ namespace DataAccessLayer.Migrations
                     b.Navigation("CharacterPontentials");
 
                     b.Navigation("CharacterProtections");
+
+                    b.Navigation("CharacterSavedDiceRolls");
 
                     b.Navigation("CharacterSkills");
 

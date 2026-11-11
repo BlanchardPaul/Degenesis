@@ -7,8 +7,24 @@ else
     <MudPaper Class="pl-6 pr-4 pb-4 rounded-lg d-flex flex-column" Style="height: 85vh; margin-top : 4px !important">
 
         <MudGrid style="height: 100%; margin-top: 0 !important;">
-            <MudItem xs="9" Class="border bg-light" Style="height: 100%;">
+            <MudItem xs="9"
+                     Class="border bg-light pa-0"
+                     Style="height: 100%; position: relative; overflow: hidden; padding: 0;">
+                <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft"
+                               Color="Color.Primary"
+                               OnClick="ToggleMapDrawer"
+                               Style="position: absolute; top: 40%; right: 8px; z-index: 1;" />
+
                 <!-- Map / image area -->
+
+                @if (isMapDrawerOpen)
+                {
+                    <SavedRollsDrawer Character="Character"
+                                      HubConnection="hubConnection"
+                                      IdRoom="IdRoom"
+                                      UserName="@userName"
+                                      OnClose="ToggleMapDrawer" />
+                }
             </MudItem>
 
             <MudItem xs="3" class="d-flex flex-column" Style="height: 100%; border-left: 1px solid #ccc;">

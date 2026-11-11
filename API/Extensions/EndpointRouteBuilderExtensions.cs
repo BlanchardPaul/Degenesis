@@ -30,6 +30,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapCharacterEquipmentEndpoints();
         endpoints.MapCharacterPotentialEndpoints();
         endpoints.MapCharacterProtectionEndpoints();
+        endpoints.MapCharacterSavedDiceRollEndpoints();
         endpoints.MapCharacterSkillEndpoints();
         endpoints.MapCharacterVehicleEndpoints();
         endpoints.MapCharacterWeaponEndpoints();

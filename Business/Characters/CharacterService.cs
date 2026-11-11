@@ -85,6 +85,10 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
                 .Include(c => c.CharacterWeapons)
                     .ThenInclude(cw => cw.Weapon)
                         .ThenInclude(w => w.Cults)
+                .Include(c => c.CharacterSavedDiceRolls)
+                    .ThenInclude(csdr => csdr.Attribute)
+                .Include(c => c.CharacterSavedDiceRolls)
+                    .ThenInclude(csdr => csdr.Skill)
                 .FirstOrDefaultAsync(c => c.IdRoom == roomId && c.IdApplicationUser == user.Id);
             if (character is null)
                 return new Result<CharacterDisplayDto> { IsError = true, Error = "Character not found" };
@@ -591,9 +595,13 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         if (character is null)
             return new Result<object> { IsError = true, Error = "Character not found" };
 
-        // Here we have to delete the CharacterAttributes manually because we can't put an OnDelete.Cascade in the configuration
-        _context.CharacterAttributes.RemoveRange(character.CharacterAttributes);
+        // Here we have to delete the Character Attributes and SavedRolls manually because we can't put an OnDelete.Cascade in the configuration
+        var savedRolls = await _context.CharacterSavedDiceRolls
+            .Where(sr => sr.CharacterId == character.Id)
+            .ToListAsync();
+        _context.CharacterSavedDiceRolls.RemoveRange(savedRolls);
 
+        _context.CharacterAttributes.RemoveRange(character.CharacterAttributes);
         _context.Characters.Remove(character);
         await _context.SaveChangesAsync();
         return new Result<object> { Value = null };

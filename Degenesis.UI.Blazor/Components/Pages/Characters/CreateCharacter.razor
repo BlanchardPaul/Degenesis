@@ -5,7 +5,7 @@
 <MudPaper Class="pa-4 mx-auto mt-6">
     <MudText Typo="Typo.h5" Class="mb-6">Character creation</MudText>
 
-    <MudStepper Elevation="0" @bind-ActiveStepIndex="_step" OnPreviewInteraction="OnPreviewInteraction">
+    <MudStepper @bind-ActiveStepIndex="_step" OnPreviewInteraction="OnPreviewInteraction">
         <MudStep Title="Basic infos">
             <CharacterBasicInfoStep @ref="_basicInfoStep"
                                     Character="Character"

@@ -50,4 +50,5 @@ public class Character
     public List<CharacterArtifact> CharacterArtifacts { get; set; } = [];
     public List<CharacterVehicle> CharacterVehicles { get; set; } = [];
     public List<CharacterWeapon> CharacterWeapons { get; set; } = [];
+    public List<CharacterSavedDiceRoll> CharacterSavedDiceRolls { get; set; } = [];
 }
