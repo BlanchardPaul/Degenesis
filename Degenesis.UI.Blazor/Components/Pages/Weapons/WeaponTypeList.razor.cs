@@ -65,6 +65,24 @@ public partial class WeaponTypeList
         }
     }
 
+    private async Task ConfirmDeleteWeaponType(Guid weaponTypeId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete weapon type ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteWeaponType(weaponTypeId);
+        }
+    }
+
     private async Task DeleteWeaponType(Guid weaponTypeId)
     {
         var response = await Client!.DeleteAsync($"/weapon-types/{weaponTypeId}");

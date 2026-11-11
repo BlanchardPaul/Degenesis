@@ -415,6 +415,24 @@ public partial class RoomCharacterSheet
         return cost * 10;
     }
 
+    private async Task ConfirmDeleteCharacterPotential(Guid characterPotentialId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete character potential?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteCharacterPotential(characterPotentialId);
+        }
+    }
+
     private async Task DeleteCharacterPotential(Guid characterPotentialId)
     {
         if (Character is null)

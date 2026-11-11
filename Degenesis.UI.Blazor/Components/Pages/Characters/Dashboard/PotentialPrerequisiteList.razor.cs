@@ -113,6 +113,24 @@ public partial class PotentialPrerequisiteList
         }
     }
 
+    private async Task ConfirmDeletePotentialPrerequisite(Guid potentialPrerequisiteId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete potential prerequisite ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeletePotentialPrerequisite(potentialPrerequisiteId);
+        }
+    }
+
     private async Task DeletePotentialPrerequisite(Guid potentialPrerequisiteId)
     {
         var response = await Client!.DeleteAsync($"/potential-prerequisites/{potentialPrerequisiteId}");

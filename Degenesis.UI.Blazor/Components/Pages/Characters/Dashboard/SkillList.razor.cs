@@ -67,6 +67,24 @@ public partial class SkillList
         }
     }
 
+    private async Task ConfirmDeleteSkill(Guid skillId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete skill ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteSkill(skillId);
+        }
+    }
+
     private async Task DeleteSkill(Guid skillId)
     {
         var response = await Client!.DeleteAsync($"/skills/{skillId}");

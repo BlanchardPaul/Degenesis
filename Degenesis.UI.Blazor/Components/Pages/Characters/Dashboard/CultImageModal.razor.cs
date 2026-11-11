@@ -111,6 +111,24 @@ public partial class CultImageModal
         MudDialog.Close(DialogResult.Ok(true));
     }
 
+    private async Task ConfirmRemoveImage()
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Remove image ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await RemoveImage();
+        }
+    }
+
     private async Task RemoveImage()
     {
         var response = await Client!.DeleteAsync($"/cults/{Cult.Id}/image");

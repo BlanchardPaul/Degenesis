@@ -91,6 +91,24 @@ public partial class PotentialList
         }
     }
 
+    private async Task ConfirmDeletePotential(Guid potentialId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete potential ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeletePotential(potentialId);
+        }
+    }
+
     private async Task DeletePotential(Guid potentialId)
     {
         var response = await Client!.DeleteAsync($"/potentials/{potentialId}");

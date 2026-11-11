@@ -115,6 +115,24 @@ public partial class WeaponList
         }
     }
 
+    private async Task ConfirmDeleteWeapon(Guid weaponId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete weapon ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteWeapon(weaponId);
+        }
+    }
+
     private async Task DeleteWeapon(Guid weaponId)
     {
         var response = await Client!.DeleteAsync($"/weapons/{weaponId}");

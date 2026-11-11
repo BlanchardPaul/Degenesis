@@ -92,6 +92,24 @@ public partial class EquipmentList
         }
     }
 
+    private async Task ConfirmDeleteEquipment(Guid equipmentId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete equipment ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteEquipment(equipmentId);
+        }
+    }
+
     private async Task DeleteEquipment(Guid equipmentId)
     {
         var response = await Client!.DeleteAsync($"/equipments/{equipmentId}");

@@ -61,6 +61,24 @@ public partial class ArtifactList : AuthenticatedComponentBase
         }
     }
 
+    private async Task ConfirmDeleteArtifact(Guid artifactId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete artifact ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteArtifact(artifactId);
+        }
+    }
+
     private async Task DeleteArtifact(Guid artifactId)
     {
         var response = await Client!.DeleteAsync($"/artifacts/{artifactId}");

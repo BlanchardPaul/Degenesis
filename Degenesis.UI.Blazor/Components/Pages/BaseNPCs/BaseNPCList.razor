@@ -49,7 +49,7 @@ else
             <MudTd>
                 <MudButton Color="Color.Primary" OnClick="() => ShowBasicEditDialog(context.Id)">Edit Basic</MudButton>
                 <MudButton Color="Color.Primary" OnClick="() => ShowStatsEditDialog(context.Id)">Edit Stats</MudButton>
-                <MudButton Color="Color.Error" OnClick="() => DeleteNPC(context.Id)">Delete</MudButton>
+                <MudButton Color="Color.Error" OnClick="() => ConfirmDeleteNPC(context.Id)">Delete</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>

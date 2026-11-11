@@ -54,6 +54,24 @@ public partial class RoomCharacterInventory
         }
     }
 
+    private async Task ConfirmDeleteCharacterArtifact(Guid artifactId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete character's artifact?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteCharacterArtifact(artifactId);
+        }
+    }
+
     private async Task DeleteCharacterArtifact(Guid artifactId)
     {
         var result = await Client!.DeleteAsync($"/character-artifacts/{artifactId}");
@@ -102,6 +120,24 @@ public partial class RoomCharacterInventory
         }
     }
 
+    private async Task ConfirmDeleteCharacterBurn(Guid burnId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete character's burn?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteCharacterBurn(burnId);
+        }
+    }
+
     private async Task DeleteCharacterBurn(Guid burnId)
     {
         var result = await Client!.DeleteAsync($"/character-burns/{burnId}");
@@ -142,6 +178,24 @@ public partial class RoomCharacterInventory
         {
             await OnRequestParentReload.InvokeAsync();
             StateHasChanged();
+        }
+    }
+
+    private async Task ConfirmDeleteCharacterEquipment(Guid equipmentId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete character's equipment?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteCharacterEquipment(equipmentId);
         }
     }
 
@@ -199,6 +253,24 @@ public partial class RoomCharacterInventory
         }
     }
 
+    private async Task ConfirmDeleteCharacterProtection(Guid protectionId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete character's protection?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteCharacterProtection(protectionId);
+        }
+    }
+
     private async Task DeleteCharacterProtection(Guid protectionId)
     {
         var result = await Client!.DeleteAsync($"/character-protections/{protectionId}");
@@ -250,6 +322,24 @@ public partial class RoomCharacterInventory
         if (!result.IsSuccessStatusCode)
         {
             Snackbar.Add("Error while updating Vehicle", Severity.Error);
+        }
+    }
+
+    private async Task ConfirmDeleteCharacterVehicle(Guid vehicleId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete character's vehicle?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteCharacterVehicle(vehicleId);
         }
     }
 
@@ -332,6 +422,24 @@ public partial class RoomCharacterInventory
         if (!result.IsSuccessStatusCode)
         {
             Snackbar.Add("Error while updating Weapon", Severity.Error);
+        }
+    }
+
+    private async Task ConfirmDeleteCharacterWeapon(Guid weaponId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete character's weapon?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteCharacterWeapon(weaponId);
         }
     }
 

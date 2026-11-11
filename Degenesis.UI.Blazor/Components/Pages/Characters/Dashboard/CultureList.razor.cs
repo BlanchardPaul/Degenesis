@@ -101,6 +101,24 @@ public partial class CultureList
         }
     }
 
+    private async Task ConfirmDeleteCulture(Guid cultureId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete culture ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteCulture(cultureId);
+        }
+    }
+
     private async Task DeleteCulture(Guid cultureId)
     {
         var response = await Client!.DeleteAsync($"/cultures/{cultureId}");

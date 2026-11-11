@@ -93,6 +93,24 @@ public partial class RankList
         }
     }
 
+    private async Task ConfirmDeleteRank(Guid rankId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete rank ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteRank(rankId);
+        }
+    }
+
     private async Task DeleteRank(Guid rankId)
     {
         var response = await Client!.DeleteAsync($"/ranks/{rankId}");

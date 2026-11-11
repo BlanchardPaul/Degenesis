@@ -91,6 +91,24 @@ public partial class VehicleList
         }
     }
 
+    private async Task ConfirmDeleteVehicle(Guid vehicleId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete vehicle ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteVehicle(vehicleId);
+        }
+    }
+
     private async Task DeleteVehicle(Guid vehicleId)
     {
         var response = await Client!.DeleteAsync($"/vehicles/{vehicleId}");

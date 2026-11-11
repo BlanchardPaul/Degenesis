@@ -59,6 +59,24 @@ public partial class BurnList : AuthenticatedComponentBase
         }
     }
 
+    private async Task ConfirmDeleteBurn(Guid burnId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete burn ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteBurn(burnId);
+        }
+    }
+
     private async Task DeleteBurn(Guid burnId)
     {
         var response = await Client!.DeleteAsync($"/burns/{burnId}");

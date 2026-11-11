@@ -46,7 +46,7 @@ public partial class EquipmentModal
             Snackbar.Add(result?.Error ?? "Unknown error", Severity.Error);
         }
         else
-            Snackbar.Add("Deleted", Severity.Success);
+            Snackbar.Add("Saved", Severity.Success);
 
         MudDialog.Close(DialogResult.Ok(true));
     }

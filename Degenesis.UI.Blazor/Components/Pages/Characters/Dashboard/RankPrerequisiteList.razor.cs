@@ -102,6 +102,24 @@ public partial class RankPrerequisiteList
         }
     }
 
+    private async Task ConfirmDeleteRankPrerequisite(Guid rankPrerequisiteId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete rank prerequisite ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteRankPrerequisite(rankPrerequisiteId);
+        }
+    }
+
     private async Task DeleteRankPrerequisite(Guid rankPrerequisiteId)
     {
         var response = await Client!.DeleteAsync($"/rank-prerequisites/{rankPrerequisiteId}");

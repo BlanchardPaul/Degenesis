@@ -52,6 +52,24 @@ public partial class RoomGmNpcList
         }
     }
 
+    private async Task ConfirmDeleteNpc(Guid npcId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete npc ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteNpc(npcId);
+        }
+    }
+
     private async Task DeleteNpc(Guid npcId)
     {
         var result = await Client!.DeleteAsync($"/npcs/{npcId}");

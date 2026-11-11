@@ -80,6 +80,24 @@ public partial class ProtectionList
         }
     }
 
+    private async Task ConfirmDeleteProtection(Guid protectionId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete protection?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteProtection(protectionId);
+        }
+    }
+
     private async Task DeleteProtection(Guid protectionId)
     {
         var response = await Client!.DeleteAsync($"/protections/{protectionId}");

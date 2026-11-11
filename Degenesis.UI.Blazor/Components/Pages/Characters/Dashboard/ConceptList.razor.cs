@@ -90,6 +90,24 @@ public partial class ConceptList
         }
     }
 
+    private async Task ConfirmDeleteConcept(Guid conceptId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete concept ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteConcept(conceptId);
+        }
+    }
+
     private async Task DeleteConcept(Guid conceptId)
     {
         var response = await Client!.DeleteAsync($"/concepts/{conceptId}");

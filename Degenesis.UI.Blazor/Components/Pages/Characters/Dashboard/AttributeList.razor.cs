@@ -1,6 +1,7 @@
 ﻿using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.CRUD;
 using MudBlazor;
+using System;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Characters.Dashboard;
 
@@ -55,6 +56,24 @@ public partial class AttributeList
             {
                 await LoadAttributes();
             }
+        }
+    }
+
+    private async Task ConfirmDeleteAttribute(Guid attributeId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete attribute ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteAttribute(attributeId);
         }
     }
 

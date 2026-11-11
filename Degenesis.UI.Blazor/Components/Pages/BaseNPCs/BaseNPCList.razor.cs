@@ -26,9 +26,27 @@ public partial class BaseNPCList : AuthenticatedComponentBase
         StateHasChanged();
     }
 
-    private async Task DeleteNPC(Guid id)
+    private async Task ConfirmDeleteNPC(Guid npcId)
     {
-        var response = await Client!.DeleteAsync($"/base-npcs/{id}");
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete npc ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteNPC(npcId);
+        }
+    }
+
+    private async Task DeleteNPC(Guid npcId)
+    {
+        var response = await Client!.DeleteAsync($"/base-npcs/{npcId}");
         if (!response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<Result<object>>();

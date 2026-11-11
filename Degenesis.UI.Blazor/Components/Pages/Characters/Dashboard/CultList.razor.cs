@@ -67,6 +67,24 @@ public partial class CultList
         }
     }
 
+    private async Task ConfirmDeleteCult(Guid cultId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete cult ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteCult(cultId);
+        }
+    }
+
     private async Task DeleteCult(Guid cultId)
     {
         var response = await Client!.DeleteAsync($"/cults/{cultId}");

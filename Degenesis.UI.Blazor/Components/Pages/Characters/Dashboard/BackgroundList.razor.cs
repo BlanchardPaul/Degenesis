@@ -58,6 +58,24 @@ public partial class BackgroundList
         }
     }
 
+    private async Task ConfirmDeleteBackground(Guid backgroundId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete background ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteBackground(backgroundId);
+        }
+    }
+
     private async Task DeleteBackground(Guid backgroundId)
     {
         var response = await Client!.DeleteAsync($"/backgrounds/{backgroundId}");

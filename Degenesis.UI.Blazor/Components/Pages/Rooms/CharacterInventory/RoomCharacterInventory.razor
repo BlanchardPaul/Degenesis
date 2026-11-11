@@ -36,7 +36,7 @@ else
                                                  OnBlur="() => UpdateCharacterArtifact(context)" />
                             </MudTd>
                             <MudTd>
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterArtifact(context.Id)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Error" OnClick="() => ConfirmDeleteCharacterArtifact(context.Id)" />
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -83,7 +83,7 @@ else
                             </MudTd>
                             <MudTd>
                                 <MudIconButton Icon="@Icons.Material.Filled.Search" Variant="Variant.Filled" Color="Color.Success" OnClick="() => OpenBurnPopover(context.Burn)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterBurn(context.Id)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Variant="Variant.Filled" Color="Color.Error" OnClick="() => ConfirmDeleteCharacterBurn(context.Id)" />
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -129,7 +129,7 @@ else
                             <MudTd>@(context.Equipment.Encumbrance == 0 ? "-" : context.Equipment.Encumbrance)</MudTd>
                             <MudTd>
                                 <MudIconButton Icon="@Icons.Material.Filled.Search" Variant="Variant.Filled" Color="Color.Success" OnClick="() => OpenEquipmentPopover(context.Equipment)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete"  Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterEquipment(context.Id)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"  Variant="Variant.Filled" Color="Color.Error" OnClick="() => ConfirmDeleteCharacterEquipment(context.Id)" />
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -213,7 +213,7 @@ else
                             </MudTd>
                             <MudTd>
                                 <MudIconButton Icon="@Icons.Material.Filled.Search" Variant="Variant.Filled" Color="Color.Success" OnClick="() => OpenProtectionPopover(context.Protection)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete"  Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterProtection(context.Id)"/>
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"  Variant="Variant.Filled" Color="Color.Error" OnClick="() => ConfirmDeleteCharacterProtection(context.Id)"/>
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -328,7 +328,7 @@ else
                             </MudTd>
                             <MudTd>
                                 <MudIconButton Icon="@Icons.Material.Filled.Search" Variant="Variant.Filled" Color="Color.Success" OnClick="() => OpenVehiclePopover(context.Vehicle)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete"  Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterVehicle(context.Id)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"  Variant="Variant.Filled" Color="Color.Error" OnClick="() => ConfirmDeleteCharacterVehicle(context.Id)" />
                             </MudTd>
                         </RowTemplate>
                     </MudTable>
@@ -434,7 +434,7 @@ else
                             </MudTd>
                             <MudTd>
                                 <MudIconButton Icon="@Icons.Material.Filled.Search" Variant="Variant.Filled" Color="Color.Success" OnClick="() => OpenWeaponPopover(context.Weapon)" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Delete"  Variant="Variant.Filled" Color="Color.Error" OnClick="() => DeleteCharacterWeapon(context.Id)" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"  Variant="Variant.Filled" Color="Color.Error" OnClick="() => ConfirmDeleteCharacterWeapon(context.Id)" />
                             </MudTd>
                         </RowTemplate>
                     </MudTable>

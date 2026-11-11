@@ -58,7 +58,7 @@ else
             </MudTd>
             <MudTd>
                 <MudButton OnClick="() => ShowEditDialog(context.Id)" Color="Color.Primary">Edit</MudButton>
-                <MudButton OnClick="() => DeleteEquipment(context.Id)" Color="Color.Error">Delete</MudButton>
+                <MudButton OnClick="() => ConfirmDeleteEquipment(context.Id)" Color="Color.Error">Delete</MudButton>
             </MudTd>
         </RowTemplate>
     </MudTable>

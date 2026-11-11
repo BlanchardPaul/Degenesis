@@ -119,6 +119,24 @@ public partial class RoomList
         return;
     }
 
+    private async Task ConfirmDeleteRoom(Guid roomId)
+    {
+        var parameters = new DialogParameters<ConfirmationDialog>
+        {
+            { "ContentText", "Delete room ?" }
+        };
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = await DialogService.ShowAsync<ConfirmationDialog>("Confirm", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            await DeleteRoom(roomId);
+        }
+    }
+
     private async Task DeleteRoom(Guid roomId)
     {
         var deleteResult = await Client!.DeleteAsync($"/rooms/{roomId}");
@@ -130,7 +148,6 @@ public partial class RoomList
         else
             Snackbar.Add("Deleted", Severity.Success);
 
-        Snackbar.Add("Deleted", Severity.Success);
         await LoadRooms();
     }
 
