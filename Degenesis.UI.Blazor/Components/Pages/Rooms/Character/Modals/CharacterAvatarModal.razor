@@ -1,0 +1,44 @@
+@inject IJSRuntime JS
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.caption" Class="mb-2">
+            Avatar must be exactly 512×512 px (JPG, PNG or WEBP, max 2 MB).
+        </MudText>
+
+        @if (_previewUrl is not null)
+        {
+            <div class="d-flex justify-center mb-4">
+                <img src="@_previewUrl" alt="@Character.Name avatar"
+                     style="max-height: 300px; max-width: 100%; object-fit: contain;" />
+            </div>
+        }
+        else
+        {
+            <MudAlert Severity="Severity.Info" Class="mb-4">This character has no avatar yet.</MudAlert>
+        }
+
+        <MudFileUpload T="IBrowserFile"
+                       Accept="image/jpeg,image/png,image/webp"
+                       FilesChanged="OnImageSelected">
+            <CustomContent>
+                <MudButton Variant="Variant.Outlined"
+                           StartIcon="@Icons.Material.Filled.Upload"
+                           FullWidth="true"
+                           OnClick="@context.OpenFilePickerAsync">
+                    @(_imageFile is null ? "Choose an image" : _imageFile.Name)
+                </MudButton>
+            </CustomContent>
+        </MudFileUpload>
+    </DialogContent>
+    <DialogActions>
+        @if (Character.AvatarName is not null)
+        {
+            <MudButton Color="Color.Error" OnClick="ConfirmRemoveAvatar">Remove avatar</MudButton>
+        }
+        <MudSpacer />
+        <MudButton Color="Color.Primary" Variant="Variant.Filled"
+                   Disabled="@(_imageFile is null)" OnClick="UploadAvatar">Save</MudButton>
+        <MudButton Color="Color.Secondary" OnClick="Cancel">Close</MudButton>
+    </DialogActions>
+</MudDialog>

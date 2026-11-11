@@ -11,6 +11,22 @@ public partial class RoomCharacterSheet
 {
     [Parameter] public CharacterDisplayDto? Character { get; set; }
 
+    private string _avatarVersion = Guid.NewGuid().ToString("N");
+    private CharacterDisplayDto? _lastAvatarCharacter;
+    private string ApiRoot => new Uri(Client!.BaseAddress!, "..").GetLeftPart(UriPartial.Authority);
+    private string? CharacterAvatarUrl => Character?.AvatarName is null || Client?.BaseAddress is null
+        ? null
+        : $"{ApiRoot}/character-avatars/{Character.AvatarName}?v={_avatarVersion}";
+
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(Character, _lastAvatarCharacter))
+        {
+            _lastAvatarCharacter = Character;
+            _avatarVersion = Guid.NewGuid().ToString("N");
+        }
+    }
+
     private bool IsSkillDisabled(CharacterSkillDisplayDto characterSkill)
     {
         if(Character is null)
@@ -29,6 +45,25 @@ public partial class RoomCharacterSheet
             return true;
 
         return false;
+    }
+
+    private async Task OpenAvatarDialog()
+    {
+        if (Character is null)
+        {
+            Snackbar.Add("No character loaded.", Severity.Warning);
+            return;
+        }
+
+        var parameters = new DialogParameters { { "Character", Character } };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<CharacterAvatarModal>("Character avatar", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            _avatarVersion = Guid.NewGuid().ToString("N");
+        }
     }
 
     private async Task OpenEditInfosDialog()

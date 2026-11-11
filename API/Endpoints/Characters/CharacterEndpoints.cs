@@ -107,6 +107,18 @@ public static class CharacterEndpoints
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 
+        group.MapPost("/{characterId:guid}/avatar", async (Guid characterId, IFormFile file, ICharacterService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.SetCharacterAvatarAsync(characterId, file, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
+        }).DisableAntiforgery();
+
+        group.MapDelete("/{characterId:guid}/avatar", async (Guid characterId, ICharacterService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.RemoveCharacterAvatarAsync(characterId, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
+        });
+
         group.MapDelete("/{roomId:guid}", async (Guid roomId, ICharacterService service, ClaimsPrincipal user) =>
         {
             var result = await service.DeleteCharacterAsync(roomId, user?.Identity?.Name ?? string.Empty);

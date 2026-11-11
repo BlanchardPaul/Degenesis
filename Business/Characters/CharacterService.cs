@@ -6,8 +6,11 @@ using Degenesis.Shared.DTOs.Characters.CRUD;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Domain.Characters;
 using Domain.Users;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 
 namespace Business.Characters;
 public interface ICharacterService
@@ -28,15 +31,23 @@ public interface ICharacterService
     Task<Result<object>> UpdateCharacterRankAsync(IdGuidEditDto characterRank);
     Task<Result<object>> UpdateCharacterTraumaAsync(IdIntEditDto characterTrauma);
     Task<Result<object>> UpdateCharacterXpAsync(IdIntEditDto characterXp);
+    Task<Result<object>> SetCharacterAvatarAsync(Guid characterId, IFormFile file, string userName);
+    Task<Result<object>> RemoveCharacterAvatarAsync(Guid characterId, string userName);
     Task<Result<object>> DeleteCharacterAsync(Guid roomId, string userName);
 }
 
-public class CharacterService(ApplicationDbContext context, IMapper mapper, UserManager<ApplicationUser> userManager, IRoomBroadcastService broadcast) : ICharacterService
+public class CharacterService(ApplicationDbContext context, IMapper mapper, UserManager<ApplicationUser> userManager, IRoomBroadcastService broadcast, IWebHostEnvironment env) : ICharacterService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
     private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly IRoomBroadcastService _broadcast = broadcast;
+    private readonly string _characterAvatarsFolder = Path.Combine(env.WebRootPath!, "character-avatars");
+
+    private const int RequiredAvatarWidth = 512;
+    private const int RequiredAvatarHeight = 512;
+    private const long MaxAvatarSizeBytes = 2 * 1024 * 1024;
+    private static readonly string[] AllowedAvatarExtensions = [".jpg", ".jpeg", ".png", ".webp"];
 
     public async Task<Result<CharacterDisplayDto>> GetCharacterByUserAndRoomAsync(Guid roomId, string userName)
     {
@@ -580,6 +591,123 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
 
     }
 
+    public async Task<Result<object>> SetCharacterAvatarAsync(Guid characterId, IFormFile file, string userName)
+    {
+        try
+        {
+            var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == characterId);
+            if (character is null)
+                return new Result<object> { IsError = true, Error = "Character not found" };
+
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user is null)
+                return new Result<object> { IsError = true, Error = "User not found" };
+            if (character.IdApplicationUser != user.Id && !await _context.UserRooms.AnyAsync(ur =>
+                    ur.IdApplicationUser == user.Id && ur.IdRoom == character.IdRoom && ur.IsGM))
+                return new Result<object> { IsError = true, Error = "Character available for the GM or character creator only" };
+
+            if (file.Length == 0)
+                return new Result<object> { IsError = true, Error = "No file provided" };
+            if (file.Length > MaxAvatarSizeBytes)
+                return new Result<object> { IsError = true, Error = "File too large (max 2 MB)" };
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!AllowedAvatarExtensions.Contains(extension))
+                return new Result<object> { IsError = true, Error = "Only JPG, PNG or WEBP allowed" };
+
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+
+            var dimensionError = ValidateAvatarDimensions(ms);
+            if (dimensionError is not null)
+                return dimensionError;
+
+            Directory.CreateDirectory(_characterAvatarsFolder);
+            var fileName = $"{characterId}{extension}";
+            var fullPath = Path.Combine(_characterAvatarsFolder, fileName);
+
+            foreach (var old in Directory.GetFiles(_characterAvatarsFolder, $"{characterId}.*"))
+                if (!string.Equals(old, fullPath, StringComparison.OrdinalIgnoreCase))
+                    File.Delete(old);
+
+            ms.Position = 0;
+            await using (var fs = File.Create(fullPath))
+                await ms.CopyToAsync(fs);
+
+            character.AvatarName = fileName;
+            await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterId);
+
+            return new Result<object> { Value = null };
+        }
+        catch (Exception)
+        {
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    public async Task<Result<object>> RemoveCharacterAvatarAsync(Guid characterId, string userName)
+    {
+        try
+        {
+            var character = await _context.Characters.FirstOrDefaultAsync(c => c.Id == characterId);
+            if (character is null)
+                return new Result<object> { IsError = true, Error = "Character not found" };
+
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user is null)
+                return new Result<object> { IsError = true, Error = "User not found" };
+            if (character.IdApplicationUser != user.Id && !await _context.UserRooms.AnyAsync(ur =>
+                    ur.IdApplicationUser == user.Id && ur.IdRoom == character.IdRoom && ur.IsGM))
+                return new Result<object> { IsError = true, Error = "Character available for the GM or character creator only" };
+
+            if (character.AvatarName is not null)
+            {
+                var fullPath = Path.Combine(_characterAvatarsFolder, character.AvatarName);
+                if (File.Exists(fullPath))
+                    File.Delete(fullPath);
+            }
+
+            character.AvatarName = null;
+            await _context.SaveChangesAsync();
+            await _broadcast.NotifyCharacterUpdatedAsync(characterId);
+
+            return new Result<object> { Value = null };
+        }
+        catch (Exception)
+        {
+            return new Result<object> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    private static Result<object>? ValidateAvatarDimensions(MemoryStream ms)
+    {
+        try
+        {
+            ms.Position = 0;
+            using var data = SKData.Create(ms);
+            using var codec = SKCodec.Create(data);
+
+            if (codec is null)
+                return new Result<object> { IsError = true, Error = "Invalid image file" };
+
+            var width = codec.Info.Width;
+            var height = codec.Info.Height;
+            if (width != RequiredAvatarWidth || height != RequiredAvatarHeight)
+                return new Result<object>
+                {
+                    IsError = true,
+                    Error = $"Avatar must be exactly {RequiredAvatarWidth}x{RequiredAvatarHeight} px (received {width}x{height})"
+                };
+
+            return null;
+        }
+        catch
+        {
+            return new Result<object> { IsError = true, Error = "Invalid image file" };
+        }
+    }
+
     public async Task<Result<object>> DeleteCharacterAsync(Guid roomId, string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
@@ -594,6 +722,13 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
                .FirstOrDefaultAsync(c => c.IdRoom == roomId && c.IdApplicationUser == user.Id);
         if (character is null)
             return new Result<object> { IsError = true, Error = "Character not found" };
+
+        if (character.AvatarName is not null)
+        {
+            var avatarPath = Path.Combine(_characterAvatarsFolder, character.AvatarName);
+            if (File.Exists(avatarPath))
+                File.Delete(avatarPath);
+        }
 
         // Here we have to delete the Character Attributes and SavedRolls manually because we can't put an OnDelete.Cascade in the configuration
         var savedRolls = await _context.CharacterSavedDiceRolls

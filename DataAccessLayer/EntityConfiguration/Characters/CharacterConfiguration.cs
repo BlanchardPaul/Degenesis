@@ -18,6 +18,8 @@ internal sealed class CharacterConfiguration : IEntityTypeConfiguration<Characte
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(c => c.AvatarName);
+
         builder.Property(c => c.Age)
             .IsRequired();
 
