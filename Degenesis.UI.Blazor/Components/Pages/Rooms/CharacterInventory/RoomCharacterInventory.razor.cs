@@ -37,7 +37,6 @@ public partial class RoomCharacterInventory
         if (result is not null && !result.Canceled)
         {
             await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
         }
     }
 
@@ -105,7 +104,6 @@ public partial class RoomCharacterInventory
         if (result is not null && !result.Canceled)
         {
             await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
         }
     }
 
@@ -177,7 +175,6 @@ public partial class RoomCharacterInventory
         if (result is not null && !result.Canceled)
         {
             await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
         }
     }
 
@@ -238,7 +235,6 @@ public partial class RoomCharacterInventory
         if (result is not null && !result.Canceled)
         {
             await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
         }
     }
 
@@ -310,7 +306,6 @@ public partial class RoomCharacterInventory
         if (result is not null && !result.Canceled)
         {
             await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
         }
     }
 
@@ -410,7 +405,6 @@ public partial class RoomCharacterInventory
         if (result is not null && !result.Canceled)
         {
             await OnRequestParentReload.InvokeAsync();
-            StateHasChanged();
         }
     }
 

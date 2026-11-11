@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.JSInterop;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -16,12 +17,36 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
+        var token = await GetToken();
+        return await BuildAuthenticationStateAsync(token);
+    }
+
+    public async Task SetToken(string token)
+    {
         try
         {
-            // Get the token from ProtectedLocalStorage
-            var tokenResult = await _protectedLocalStorage.GetAsync<string>("authToken");
-            var token = tokenResult.Success ? tokenResult.Value : null;
+            if (string.IsNullOrEmpty(token))
+            {
+                await _protectedLocalStorage.DeleteAsync("authToken");
+            }
+            else
+            {
+                await _protectedLocalStorage.SetAsync("authToken", token);
+            }
+        }
+        catch (Exception ex) when (IsPrerenderInteropException(ex))
+        {
+            // During prerender, browser storage is not yet available. We continue with the in-memory state.
+        }
 
+        var authState = await BuildAuthenticationStateAsync(token);
+        NotifyAuthenticationStateChanged(Task.FromResult(authState));
+    }
+
+    private async Task<AuthenticationState> BuildAuthenticationStateAsync(string? token)
+    {
+        try
+        {
             if (string.IsNullOrEmpty(token))
             {
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
@@ -35,22 +60,28 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         }
         catch
         {
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
-        // In case of error return non authenticated state
-        return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-    }
-
-    public async Task SetToken(string token)
-    {
-        // Store token in ProtectedLocalStorage
-        await _protectedLocalStorage.SetAsync("authToken", token);
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
     public async Task<string?> GetToken()
     {
-        var tokenResult = await _protectedLocalStorage.GetAsync<string>("authToken");
-        return tokenResult.Success ? tokenResult.Value : null;
+        try
+        {
+            var tokenResult = await _protectedLocalStorage.GetAsync<string>("authToken");
+            return tokenResult.Success ? tokenResult.Value : null;
+        }
+        catch (Exception ex) when (IsPrerenderInteropException(ex))
+        {
+            return null;
+        }
+    }
+
+    private static bool IsPrerenderInteropException(Exception exception)
+    {
+        return exception is JSDisconnectedException
+            || (exception is InvalidOperationException
+                && exception.Message.Contains("JavaScript interop calls cannot be issued at this time", StringComparison.OrdinalIgnoreCase));
     }
 
     private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)

@@ -28,17 +28,12 @@ public partial class RoomMapChat : IAsyncDisposable
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        // Get the current user name for rolls and chat messages
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity is null || !user.Identity.IsAuthenticated)
+        AuthenticationStateProvider.AuthenticationStateChanged += async _ =>
         {
-            Navigation.NavigateTo("/login");
-            return;
-        }
+            await RefreshUserNameAsync();
+        };
 
-        userName = user.FindFirst("unique_name")?.Value;
+        await RefreshUserNameAsync();
 
         var roomResult = await Client!.GetFromJsonAsync<Result<RoomDisplayDto>>($"/rooms/{IdRoom}") ?? new Result<RoomDisplayDto> { IsError = true, Error = "Unknown error", Value = null };
         if (roomResult.IsError)
@@ -94,6 +89,21 @@ public partial class RoomMapChat : IAsyncDisposable
         await hubConnection.SendAsync("GetHistory", IdRoom.ToString());
     }
 
+    private async Task RefreshUserNameAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity is null || !user.Identity.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        userName = user.FindFirst("unique_name")?.Value;
+        StateHasChanged();
+    }
+
     private void ToggleMapDrawer() => isMapDrawerOpen = !isMapDrawerOpen;
 
     // When user send message to hub
@@ -103,7 +113,6 @@ public partial class RoomMapChat : IAsyncDisposable
         {
             await hubConnection!.SendAsync("SendMessage", IdRoom.ToString(), userName, currentMessage);
             currentMessage = "";
-            StateHasChanged();
         }
     }
 

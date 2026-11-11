@@ -16,7 +16,6 @@ public partial class CharacterRankStep
     {
         SelectedRankId = rankId;
         Character.RankId = rankId;
-        StateHasChanged();
         return Task.CompletedTask;
     }
 

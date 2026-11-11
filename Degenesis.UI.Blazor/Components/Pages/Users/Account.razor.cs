@@ -23,6 +23,16 @@ public partial class Account
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
+        AuthProvider.AuthenticationStateChanged += async _ =>
+        {
+            await RefreshAccountAsync();
+        };
+
+        await RefreshAccountAsync();
+    }
+
+    private async Task RefreshAccountAsync()
+    {
         var auth = await AuthProvider.GetAuthenticationStateAsync();
         var userName = auth.User.FindFirst("unique_name")?.Value;
         if (string.IsNullOrEmpty(userName))

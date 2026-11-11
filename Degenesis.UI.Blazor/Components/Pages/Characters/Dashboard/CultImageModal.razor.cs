@@ -38,7 +38,6 @@ public partial class CultImageModal
         {
             _imageFile = null;
             _previewUrl = CurrentImageUrl;
-            StateHasChanged();
             return;
         }
 
@@ -67,7 +66,6 @@ public partial class CultImageModal
 
         _imageFile = file;
         _previewUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
-        StateHasChanged();
     }
 
     // Small JS interop to decode image dimensions without a library

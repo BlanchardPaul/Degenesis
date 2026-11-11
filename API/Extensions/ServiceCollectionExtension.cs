@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddBusinessServices(this IServiceCollection services)
     {
-        services.AddAutoMapper(typeof(MappingProfile));
+        services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
         services.AddScoped<IArtifactService, ArtifactService>();
         services.AddScoped<IAttributeService, AttributeService>();

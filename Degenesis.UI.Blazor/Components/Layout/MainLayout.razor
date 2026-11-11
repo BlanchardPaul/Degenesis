@@ -88,6 +88,12 @@
     protected override void OnInitialized()
     {
         base.OnInitialized();
+
+        AuthStateProvider.AuthenticationStateChanged += async _ =>
+        {
+            await RefreshAuthenticationStateAsync();
+        };
+
         _isDashboard = NavigationManager.Uri.Contains("/dashboard", StringComparison.OrdinalIgnoreCase);
         NavigationManager.LocationChanged += (s, e) =>
         {
@@ -100,8 +106,7 @@
     {
         if (firstRender)
         {
-            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            _isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+            await RefreshAuthenticationStateAsync();
 
             if (!_isAuthenticated) NavigateToLogout();
 
@@ -123,6 +128,13 @@
             _isReady = true;
             StateHasChanged();
         }
+    }
+
+    private async Task RefreshAuthenticationStateAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _isAuthenticated = authState.User.Identity?.IsAuthenticated ?? false;
+        StateHasChanged();
     }
 
     private bool IsTokenExpired(string token)

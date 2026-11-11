@@ -31,9 +31,12 @@ public partial class RoomPage
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
-        // Retrieve UserName from the Game Master display
-        var auth = await AuthProvider.GetAuthenticationStateAsync();
-        userName = auth.User.FindFirst("unique_name")?.Value;
+        AuthProvider.AuthenticationStateChanged += async _ =>
+        {
+            await UpdateUserNameAsync();
+        };
+
+        await UpdateUserNameAsync();
 
         var roomResult = await Client!.GetFromJsonAsync<Result<RoomDisplayDto>>($"/rooms/{IdRoom}")
             ?? new Result<RoomDisplayDto> { IsError = true, Error = "Unknown error", Value = null };
@@ -70,6 +73,13 @@ public partial class RoomPage
             await ReloadCharacter();
     }
 
+    private async Task UpdateUserNameAsync()
+    {
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        userName = auth.User.FindFirst("unique_name")?.Value;
+        StateHasChanged();
+    }
+
     private async Task ReloadCharacter()
     {
         var response = await Client!.GetFromJsonAsync<Result<CharacterDisplayDto>>($"/characters/{IdRoom}")
@@ -78,7 +88,6 @@ public partial class RoomPage
             Snackbar.Add("Error loading character: " + response.Error);
         else
             Character = response.Value;
-        StateHasChanged();
     }
 
     private async Task LoadGmCharacters()
@@ -104,13 +113,11 @@ public partial class RoomPage
             return;
         }
         GmNpcs = response.Value ?? [];
-        StateHasChanged();
     }
 
     private void OpenDiceRollModal()
     {
         _showDiceRollModal = true;
-        StateHasChanged();
     }
 
     private void CloseDiceRollModal()

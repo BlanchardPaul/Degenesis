@@ -63,7 +63,6 @@ public partial class RankList
         if (result is not null && !result.Canceled)
         {
             await LoadRanks();
-            StateHasChanged();
         }
     }
 

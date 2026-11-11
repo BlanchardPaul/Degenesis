@@ -52,7 +52,5 @@ public partial class RoomPoppedOutCharacterSheet
         }
         else
             Character = response.Value;
-
-        StateHasChanged();
     }
 }

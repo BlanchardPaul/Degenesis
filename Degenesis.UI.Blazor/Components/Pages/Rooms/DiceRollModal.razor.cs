@@ -59,14 +59,25 @@ public partial class DiceRollModal
 
     protected override async Task OnInitializedAsync()
     {
-        var auth = await AuthProvider.GetAuthenticationStateAsync();
-        UserName = auth.User.FindFirst("unique_name")?.Value ?? string.Empty;
+        AuthProvider.AuthenticationStateChanged += async _ =>
+        {
+            await UpdateUserNameAsync();
+        };
+
+        await UpdateUserNameAsync();
 
         // If not GM, use the player's character
         if (!IsGM && Character is not null)
         {
             _selectedCharacterData = Character;
         }
+    }
+
+    private async Task UpdateUserNameAsync()
+    {
+        var auth = await AuthProvider.GetAuthenticationStateAsync();
+        UserName = auth.User.FindFirst("unique_name")?.Value ?? string.Empty;
+        StateHasChanged();
     }
 
     private async Task HandleCharacterSelected(Guid? characterId)
@@ -77,7 +88,6 @@ public partial class DiceRollModal
             _selectedAttributeId = null;
             _selectedSkillId = null;
             _lastRolls.Clear();
-            StateHasChanged();
             return;
         }
 
@@ -117,8 +127,6 @@ public partial class DiceRollModal
                 _selectedCharacterData = ConvertNpcToCharacterDisplay(npc);
             }
         }
-
-        StateHasChanged();
     }
 
     // Convertit un NPC en CharacterDisplayDto pour la réutilisabilité
@@ -249,7 +257,6 @@ public partial class DiceRollModal
         }
 
         _isRolling = false;
-        StateHasChanged();
     }
 
     private void Cancel() => OnClose?.Invoke();
@@ -300,7 +307,7 @@ public partial class DiceRollModal
         {
             try
             {
-                await JS.InvokeAsync<object>("floatingWindow.enableDragging", "dice-roll-window");
+                await JS.InvokeVoidAsync("floatingWindow.enableDragging", "dice-roll-window");
             }
             catch { }
         }

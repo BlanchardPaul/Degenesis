@@ -44,7 +44,6 @@ public partial class SkillModal
     {
         Skill.CAttributeId = value;
         Skill.CAttribute = Attributes.First(a => a.Id == value);
-        StateHasChanged();
     }
 
     private void Cancel() => MudDialog.Cancel();

@@ -62,7 +62,6 @@ public partial class PotentialList
         if (result is not null && !result.Canceled)
         {
             await LoadPotentials();
-            StateHasChanged();
         }
     }
 

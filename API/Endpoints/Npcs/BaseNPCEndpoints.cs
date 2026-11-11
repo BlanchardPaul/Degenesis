@@ -7,7 +7,7 @@ public static class BaseNPCEndpoints
 {
     public static void MapBaseNPCEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/base-npcs").RequireAuthorization();
+        var group = app.MapGroup("/base-npcs").WithTags("Base NPCs").RequireAuthorization();
 
         group.MapGet("/", async (IBaseNPCService service) =>
         {

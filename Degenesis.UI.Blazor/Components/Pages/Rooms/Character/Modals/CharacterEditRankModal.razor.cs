@@ -29,7 +29,6 @@ public partial class CharacterEditRankModal
     private Task OnRankSelected(Guid rankId)
     {
         SelectedRankId = rankId;
-        StateHasChanged();
         return Task.CompletedTask;
     }
 
