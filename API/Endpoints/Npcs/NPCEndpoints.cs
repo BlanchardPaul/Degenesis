@@ -1,5 +1,6 @@
 ﻿using Business.NPCs;
 using Degenesis.Shared.DTOs.NPCs;
+using System.Security.Claims;
 
 namespace API.Endpoints.Npcs;
 
@@ -30,6 +31,18 @@ public static class NPCEndpoints
         group.MapPut("/", async (NPCDto npcDto, INPCService npcService) =>
         {
             var result = await npcService.UpdateAsync(npcDto);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
+        });
+
+        group.MapPost("/{id:guid}/avatar", async (Guid id, IFormFile file, INPCService npcService, ClaimsPrincipal user) =>
+        {
+            var result = await npcService.SetAvatarAsync(id, file, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok();
+        }).DisableAntiforgery();
+
+        group.MapDelete("/{id:guid}/avatar", async (Guid id, INPCService npcService, ClaimsPrincipal user) =>
+        {
+            var result = await npcService.RemoveAvatarAsync(id, user.Identity?.Name ?? string.Empty);
             return result.IsError ? Results.BadRequest(result) : Results.Ok();
         });
 

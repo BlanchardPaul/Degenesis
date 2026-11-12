@@ -14,6 +14,7 @@ internal class NPCConfiguration : IEntityTypeConfiguration<NPC>
         builder.Property(n => n.Name)
             .IsRequired();
 
+        builder.Property(n => n.AvatarName);
         builder.Property(n => n.Initiative);
         builder.Property(n => n.Specialty);
         builder.Property(n => n.Attack);

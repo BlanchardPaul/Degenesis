@@ -45,7 +45,17 @@ else
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
-            <MudTd>@context.Name</MudTd>
+            <MudTd>
+                <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                    @if (context.AvatarName is not null)
+                    {
+                        <MudAvatar Size="Size.Small">
+                            <MudImage Src="@GetNpcAvatarUrl(context)" Alt="@($"{context.Name} avatar")" />
+                        </MudAvatar>
+                    }
+                    <MudText>@context.Name</MudText>
+                </MudStack>
+            </MudTd>
             <MudTd>
                 <MudTextField @bind-Value="@context.Initiative"
                         Immediate="true"

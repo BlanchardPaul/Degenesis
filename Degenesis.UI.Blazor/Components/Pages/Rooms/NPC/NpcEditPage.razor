@@ -9,7 +9,21 @@
 else
 {
     <MudPaper Elevation="0" Class="pa-1">
-        <MudText Typo="Typo.h6" Class="mb-2"><b>@NPC.Name</b></MudText>
+        <MudStack Row AlignItems="AlignItems.Center" Class="mb-2">
+            <MudButton Variant="Variant.Text" OnClick="OpenAvatarDialog" Class="pa-0">
+                <MudAvatar Size="Size.Large" Color="Color.Primary">
+                    @if (NPC.AvatarName is null)
+                    {
+                        @NPC.Name.FirstOrDefault()
+                    }
+                    else
+                    {
+                        <MudImage Src="@NpcAvatarUrl" Alt="@($"{NPC.Name} avatar")" />
+                    }
+                </MudAvatar>
+            </MudButton>
+            <MudText Typo="Typo.h6"><b>@NPC.Name</b></MudText>
+        </MudStack>
 
         <MudGrid Class="mb-4">
             <MudItem xs="12" md="6" sm="4">

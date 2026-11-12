@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations;
 
 /// <inheritdoc />
-public partial class _20261111165325_InitialMigration : Migration
+public partial class _20261112103711_InitialMigration : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -554,6 +554,7 @@ public partial class _20261111165325_InitialMigration : Migration
             {
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                AvatarName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                 Initiative = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 Specialty = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 Attack = table.Column<string>(type: "nvarchar(max)", nullable: false),

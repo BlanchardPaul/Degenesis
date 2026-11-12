@@ -136,6 +136,7 @@ public partial class DiceRollModal
         {
             Id = npc.Id,
             Name = npc.Name,
+            AvatarName = npc.AvatarName,
             Attributes = [.. npc.Attributes.Select(a => new CharacterAttributeDisplayDto
             {
                 AttributeId = a.AttributeId,

@@ -17,6 +17,23 @@ public partial class RoomGmNpcList
     public EventCallback OnRequestParentReload { get; set; }
 
     private string SearchString { get; set; } = "";
+    private List<NPCDto>? _avatarNpcs;
+    private string _avatarVersion = Guid.NewGuid().ToString("N");
+    private string ApiRoot => Client?.BaseAddress is null
+        ? string.Empty
+        : new Uri(Client.BaseAddress, "..").GetLeftPart(UriPartial.Authority);
+
+    protected override void OnParametersSet()
+    {
+        if (!ReferenceEquals(GmNpcs, _avatarNpcs))
+        {
+            _avatarNpcs = GmNpcs;
+            _avatarVersion = Guid.NewGuid().ToString("N");
+        }
+    }
+
+    private string GetNpcAvatarUrl(NPCDto npc)
+        => $"{ApiRoot}/npc-avatars/{npc.AvatarName}?v={_avatarVersion}";
 
     private async Task OpenAddNpcModal()
     {

@@ -5,6 +5,7 @@ public class NPC
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
+    public string? AvatarName { get; set; }
     public string Initiative { get; set; } = string.Empty;
     public string Specialty { get; set; } = string.Empty;
     public string Attack { get; set; } = string.Empty;

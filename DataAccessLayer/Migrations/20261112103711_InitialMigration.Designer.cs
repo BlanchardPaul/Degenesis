@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations;
 
 [DbContext(typeof(ApplicationDbContext))]
-[Migration("20261111165325_InitialMigration")]
-partial class _20261111165325_InitialMigration
+[Migration("20261112103711_InitialMigration")]
+partial class _20261112103711_InitialMigration
 {
     /// <inheritdoc />
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1056,6 +1056,9 @@ partial class _20261111165325_InitialMigration
 
                 b.Property<string>("Attack")
                     .IsRequired()
+                    .HasColumnType("nvarchar(max)");
+
+                b.Property<string>("AvatarName")
                     .HasColumnType("nvarchar(max)");
 
                 b.Property<string>("Condition")

@@ -18,6 +18,11 @@ public partial class NpcEditPage
     private NPCDto? NPC { get; set; }
     private HubConnection? hubConnection;
     private Guid npcRoomId;
+    private string _avatarVersion = Guid.NewGuid().ToString("N");
+    private string ApiRoot => new Uri(Client!.BaseAddress!, "..").GetLeftPart(UriPartial.Authority);
+    private string? NpcAvatarUrl => NPC?.AvatarName is null || Client?.BaseAddress is null
+        ? null
+        : $"{ApiRoot}/npc-avatars/{NPC.AvatarName}?v={_avatarVersion}";
 
     protected override async Task OnAuthenticatedInitializedAsync()
     {
@@ -44,7 +49,28 @@ public partial class NpcEditPage
         }
         NPC = response.Value;
         npcRoomId = NPC!.IdRoom;
+        _avatarVersion = Guid.NewGuid().ToString("N");
         StateHasChanged();
+    }
+
+    private async Task OpenAvatarDialog()
+    {
+        if (NPC is null)
+        {
+            Snackbar.Add("No NPC loaded.", Severity.Warning);
+            return;
+        }
+
+        var parameters = new DialogParameters { { "NPC", NPC } };
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, BackdropClick = false };
+        var dialog = await DialogService.ShowAsync<NpcAvatarModal>("NPC avatar", parameters, options);
+        var result = await dialog.Result;
+
+        if (result is not null && !result.Canceled)
+        {
+            _avatarVersion = Guid.NewGuid().ToString("N");
+            StateHasChanged();
+        }
     }
 
     private async Task Save()
