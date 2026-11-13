@@ -618,21 +618,18 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
             using var ms = new MemoryStream();
             await file.CopyToAsync(ms);
 
-            var dimensionError = ValidateAvatarDimensions(ms);
-            if (dimensionError is not null)
-                return dimensionError;
+            var resized = ImageProcessing.ResizeCover(ms.ToArray(), RequiredAvatarWidth, RequiredAvatarHeight, out var imgError);
+            if (resized is null)
+                return new Result<object> { IsError = true, Error = imgError ?? "An error occurred while processing the image" };
 
             Directory.CreateDirectory(_characterAvatarsFolder);
-            var fileName = $"{characterId}{extension}";
+            var fileName = $"{characterId}.jpg";
             var fullPath = Path.Combine(_characterAvatarsFolder, fileName);
 
             foreach (var old in Directory.GetFiles(_characterAvatarsFolder, $"{characterId}.*"))
-                if (!string.Equals(old, fullPath, StringComparison.OrdinalIgnoreCase))
-                    File.Delete(old);
+                File.Delete(old);
 
-            ms.Position = 0;
-            await using (var fs = File.Create(fullPath))
-                await ms.CopyToAsync(fs);
+            await File.WriteAllBytesAsync(fullPath, resized);
 
             character.AvatarName = fileName;
             await _context.SaveChangesAsync();
@@ -677,34 +674,6 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
         catch (Exception)
         {
             return new Result<object> { IsError = true, Error = "A server error occurred" };
-        }
-    }
-
-    private static Result<object>? ValidateAvatarDimensions(MemoryStream ms)
-    {
-        try
-        {
-            ms.Position = 0;
-            using var data = SKData.Create(ms);
-            using var codec = SKCodec.Create(data);
-
-            if (codec is null)
-                return new Result<object> { IsError = true, Error = "Invalid image file" };
-
-            var width = codec.Info.Width;
-            var height = codec.Info.Height;
-            if (width != RequiredAvatarWidth || height != RequiredAvatarHeight)
-                return new Result<object>
-                {
-                    IsError = true,
-                    Error = $"Avatar must be exactly {RequiredAvatarWidth}x{RequiredAvatarHeight} px (received {width}x{height})"
-                };
-
-            return null;
-        }
-        catch
-        {
-            return new Result<object> { IsError = true, Error = "Invalid image file" };
         }
     }
 

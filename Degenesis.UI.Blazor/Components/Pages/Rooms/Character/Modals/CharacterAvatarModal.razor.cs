@@ -2,9 +2,7 @@ using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.Display;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
 using MudBlazor;
-using System.Text.Json;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms.Character.Modals;
 
@@ -16,13 +14,12 @@ public partial class CharacterAvatarModal
     private IBrowserFile? _imageFile;
     private string? _previewUrl;
 
-    private const int RequiredWidth = 512;
-    private const int RequiredHeight = 512;
-
     private string ApiRoot => new Uri(Client!.BaseAddress!, "..").GetLeftPart(UriPartial.Authority);
+    private string _cacheBuster = Guid.NewGuid().ToString("N");
+
     private string? CurrentAvatarUrl => Character.AvatarName is null
         ? null
-        : $"{ApiRoot}/character-avatars/{Character.AvatarName}";
+        : $"{ApiRoot}/character-avatars/{Character.AvatarName}?v={_cacheBuster}";
 
     protected override Task OnAuthenticatedInitializedAsync()
     {
@@ -54,31 +51,8 @@ public partial class CharacterAvatarModal
             bytes = ms.ToArray();
         }
 
-        if (!await IsValidDimensionsAsync(bytes))
-        {
-            Snackbar.Add($"Avatar must be exactly {RequiredWidth}×{RequiredHeight} px", Severity.Warning);
-            _imageFile = null;
-            _previewUrl = CurrentAvatarUrl;
-            return;
-        }
-
         _imageFile = file;
         _previewUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
-    }
-
-    private async Task<bool> IsValidDimensionsAsync(byte[] bytes)
-    {
-        try
-        {
-            using var streamRef = new DotNetStreamReference(new MemoryStream(bytes));
-            var size = await JS.InvokeAsync<JsonElement>("readImageDimensions", streamRef);
-            return size.GetProperty("width").GetInt32() == RequiredWidth
-                && size.GetProperty("height").GetInt32() == RequiredHeight;
-        }
-        catch
-        {
-            return true;
-        }
     }
 
     private async Task UploadAvatar()
@@ -102,6 +76,8 @@ public partial class CharacterAvatarModal
         }
 
         Character.AvatarName = $"{Character.Id}{Path.GetExtension(_imageFile.Name).ToLowerInvariant()}";
+        _cacheBuster = Guid.NewGuid().ToString("N");
+        _previewUrl = CurrentAvatarUrl;
         Snackbar.Add("Avatar updated", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }
@@ -132,6 +108,8 @@ public partial class CharacterAvatarModal
         }
 
         Character.AvatarName = null;
+        _cacheBuster = Guid.NewGuid().ToString("N");
+        _previewUrl = null;
         Snackbar.Add("Avatar removed", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }

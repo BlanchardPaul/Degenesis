@@ -2,9 +2,7 @@ using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.NPCs;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.JSInterop;
 using MudBlazor;
-using System.Text.Json;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms.NPC;
 
@@ -16,13 +14,12 @@ public partial class NpcAvatarModal
     private IBrowserFile? _imageFile;
     private string? _previewUrl;
 
-    private const int RequiredWidth = 512;
-    private const int RequiredHeight = 512;
-
     private string ApiRoot => new Uri(Client!.BaseAddress!, "..").GetLeftPart(UriPartial.Authority);
+    private string _cacheBuster = Guid.NewGuid().ToString("N");
+
     private string? CurrentAvatarUrl => NPC.AvatarName is null
         ? null
-        : $"{ApiRoot}/npc-avatars/{NPC.AvatarName}";
+        : $"{ApiRoot}/npc-avatars/{NPC.AvatarName}?v={_cacheBuster}";
 
     protected override Task OnAuthenticatedInitializedAsync()
     {
@@ -32,19 +29,11 @@ public partial class NpcAvatarModal
 
     private async Task OnImageSelected(IBrowserFile file)
     {
-        if (file is null)
-        {
-            _imageFile = null;
-            _previewUrl = CurrentAvatarUrl;
-            return;
-        }
-
+        if (file is null) { _imageFile = null; _previewUrl = CurrentAvatarUrl; return; }
         if (file.Size > 2 * 1024 * 1024)
         {
             Snackbar.Add("Image too large (max 2 MB)", Severity.Warning);
-            _imageFile = null;
-            _previewUrl = CurrentAvatarUrl;
-            return;
+            _imageFile = null; _previewUrl = CurrentAvatarUrl; return;
         }
 
         byte[] bytes;
@@ -54,31 +43,8 @@ public partial class NpcAvatarModal
             bytes = ms.ToArray();
         }
 
-        if (!await IsValidDimensionsAsync(bytes))
-        {
-            Snackbar.Add($"Avatar must be exactly {RequiredWidth}×{RequiredHeight} px", Severity.Warning);
-            _imageFile = null;
-            _previewUrl = CurrentAvatarUrl;
-            return;
-        }
-
         _imageFile = file;
         _previewUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(bytes)}";
-    }
-
-    private async Task<bool> IsValidDimensionsAsync(byte[] bytes)
-    {
-        try
-        {
-            using var streamRef = new DotNetStreamReference(new MemoryStream(bytes));
-            var size = await JS.InvokeAsync<JsonElement>("readImageDimensions", streamRef);
-            return size.GetProperty("width").GetInt32() == RequiredWidth
-                && size.GetProperty("height").GetInt32() == RequiredHeight;
-        }
-        catch
-        {
-            return true;
-        }
     }
 
     private async Task UploadAvatar()
@@ -101,7 +67,9 @@ public partial class NpcAvatarModal
             return;
         }
 
-        NPC.AvatarName = $"{NPC.Id}{Path.GetExtension(_imageFile.Name).ToLowerInvariant()}";
+        NPC.AvatarName = $"{NPC.Id}.jpg";
+        _cacheBuster = Guid.NewGuid().ToString("N");
+        _previewUrl = CurrentAvatarUrl;
         Snackbar.Add("Avatar updated", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }
@@ -132,6 +100,7 @@ public partial class NpcAvatarModal
         }
 
         NPC.AvatarName = null;
+        _cacheBuster = Guid.NewGuid().ToString("N");
         Snackbar.Add("Avatar removed", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));
     }

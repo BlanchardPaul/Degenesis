@@ -195,20 +195,18 @@ public class NPCService(ApplicationDbContext context, IMapper mapper, IRoomBroad
             using var ms = new MemoryStream();
             await file.CopyToAsync(ms);
 
-            var dimensionError = ValidateAvatarDimensions(ms);
-            if (dimensionError is not null)
-                return dimensionError;
+            var resized = ImageProcessing.ResizeCover(ms.ToArray(), RequiredAvatarWidth, RequiredAvatarHeight, out var imgError);
+            if (resized is null)
+                return new Result<object> { IsError = true, Error = imgError ?? "An error occurred while processing the image" };
 
             Directory.CreateDirectory(_npcAvatarsFolder);
-            var fileName = $"{npcId}{extension}";
+            var fileName = $"{npcId}.jpg";
             var fullPath = Path.Combine(_npcAvatarsFolder, fileName);
-            foreach (var old in Directory.GetFiles(_npcAvatarsFolder, $"{npcId}.*"))
-                if (!string.Equals(old, fullPath, StringComparison.OrdinalIgnoreCase))
-                    File.Delete(old);
 
-            ms.Position = 0;
-            await using (var fs = File.Create(fullPath))
-                await ms.CopyToAsync(fs);
+            foreach (var old in Directory.GetFiles(_npcAvatarsFolder, $"{npcId}.*"))
+                File.Delete(old);
+
+            await File.WriteAllBytesAsync(fullPath, resized);
 
             npc.AvatarName = fileName;
             await _context.SaveChangesAsync();

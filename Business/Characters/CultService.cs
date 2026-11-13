@@ -154,28 +154,21 @@ public class CultService(ApplicationDbContext context, IMapper mapper,
             if (!AllowedImageExtensions.Contains(extension))
                 return new Result<object> { IsError = true, Error = "Only JPG, PNG or WEBP allowed" };
 
-            // Pass the image as memory stream
             using var ms = new MemoryStream();
             await file.CopyToAsync(ms);
 
-            // Validate image dimensions
-            var dimensionError = ValidateImageDimensions(ms);
-            if (dimensionError is not null)
-                return dimensionError;
+            var resized = ImageProcessing.ResizeCover(ms.ToArray(), RequiredImageWidth, RequiredImageHeight, out var imgError);
+            if (resized is null)
+                return new Result<object> { IsError = true, Error = imgError ?? "An error occurred while processing the image" };
 
-            var fileName = $"{cultId}{extension}";
+            Directory.CreateDirectory(_cultImagesFolder);
+            var fileName = $"{cultId}.jpg";
             var fullPath = Path.Combine(_cultImagesFolder, fileName);
 
-            // Remove a previous image with a different extension (cultId.png vs cultId.jpg)
             foreach (var old in Directory.GetFiles(_cultImagesFolder, $"{cultId}.*"))
-                if (!string.Equals(old, fullPath, StringComparison.OrdinalIgnoreCase))
-                    File.Delete(old);
+                File.Delete(old);
 
-            ms.Position = 0;
-
-            // Create file in the back
-            await using (var fs = File.Create(fullPath))
-                await ms.CopyToAsync(fs);
+            await File.WriteAllBytesAsync(fullPath, resized);
 
             cult.ImageName = fileName;
             await _context.SaveChangesAsync();
@@ -248,33 +241,4 @@ public class CultService(ApplicationDbContext context, IMapper mapper,
         }
     }
 
-    // Helper to validate Cult image format and size
-    private static Result<object>? ValidateImageDimensions(MemoryStream ms)
-    {
-        try
-        {
-            ms.Position = 0;
-            using var data = SKData.Create(ms);
-            using var codec = SKCodec.Create(data);
-
-            if (codec is null)
-                return new Result<object> { IsError = true, Error = "Invalid image file" };
-
-            var width = codec.Info.Width;
-            var height = codec.Info.Height;
-
-            if (width != RequiredImageWidth || height != RequiredImageHeight)
-                return new Result<object>
-                {
-                    IsError = true,
-                    Error = $"Image must be exactly {RequiredImageWidth}x{RequiredImageHeight} px (received {width}x{height})"
-                };
-
-            return null;
-        }
-        catch
-        {
-            return new Result<object> { IsError = true, Error = "Invalid image file" };
-        }
-    }
 }
