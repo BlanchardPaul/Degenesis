@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations;
 
 [DbContext(typeof(ApplicationDbContext))]
-[Migration("20261112103711_InitialMigration")]
-partial class _20261112103711_InitialMigration
+[Migration("20261118092453_InitialMigration")]
+partial class _20261118092453_InitialMigration
 {
     /// <inheritdoc />
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1274,6 +1274,38 @@ partial class _20261112103711_InitialMigration
                 b.ToTable("RoomCultRelationship");
             });
 
+        modelBuilder.Entity("Domain.Rooms.RoomMap", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("FileName")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.Property<int>("Height")
+                    .HasColumnType("int");
+
+                b.Property<Guid>("IdRoom")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<int>("Width")
+                    .HasColumnType("int");
+
+                b.HasKey("Id");
+
+                b.HasIndex("IdRoom");
+
+                b.ToTable("RoomMaps");
+            });
+
         modelBuilder.Entity("Domain.Rooms.UserRoom", b =>
             {
                 b.Property<Guid>("Id")
@@ -2365,6 +2397,17 @@ partial class _20261112103711_InitialMigration
                 b.Navigation("Room");
             });
 
+        modelBuilder.Entity("Domain.Rooms.RoomMap", b =>
+            {
+                b.HasOne("Domain.Rooms.Room", "Room")
+                    .WithMany("Maps")
+                    .HasForeignKey("IdRoom")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Room");
+            });
+
         modelBuilder.Entity("Domain.Rooms.UserRoom", b =>
             {
                 b.HasOne("Domain.Users.ApplicationUser", "ApplicationUser")
@@ -2553,6 +2596,8 @@ partial class _20261112103711_InitialMigration
         modelBuilder.Entity("Domain.Rooms.Room", b =>
             {
                 b.Navigation("Characters");
+
+                b.Navigation("Maps");
 
                 b.Navigation("UserRooms");
             });

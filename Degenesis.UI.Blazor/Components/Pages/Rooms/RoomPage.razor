@@ -1,5 +1,4 @@
 ﻿@page "/room/{IdRoom:guid}"
-@using Degenesis.Shared.DTOs.Characters.Display
 @using Degenesis.UI.Blazor.Components.Pages.Rooms.Character
 @using Degenesis.UI.Blazor.Components.Pages.Rooms.CharacterInventory
 @using Degenesis.UI.Blazor.Components.Pages.Rooms.MapChatArea
@@ -25,6 +24,9 @@ else
                 <RoomGmNpcList GmNpcs="GmNpcs"
                                IdRoom="IdRoom"
                                OnRequestParentReload="LoadGmNpcs" />
+            </MudTabPanel>
+            <MudTabPanel Text="Maps">
+                <GmRoomMapList IdRoom="IdRoom" />
             </MudTabPanel>
         }
         else

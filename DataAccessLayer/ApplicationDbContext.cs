@@ -50,6 +50,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Rank> Ranks { get; set; } = null!;
     public DbSet<RankPrerequisite> RankPrerequisites { get; set; } = null!;
     public DbSet<Room> Rooms { get; set; } = null!;
+    public DbSet<RoomMap> RoomMaps { get; set; } = null!;
     public DbSet<RoomChatMessage> RoomChatMessages { get; set; } = null!;
     public DbSet<RoomCultRelationship> RoomCultRelationships { get; set; } = null!;
     public DbSet<Skill> Skills { get; set; } = null!;

@@ -1,0 +1,59 @@
+<MudStack Spacing="3" Class="pa-4">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.h5">Background maps</MudText>
+        <MudFileUpload @key="_fileUploadKey"
+                       T="IBrowserFile"
+                       Accept="image/jpeg,image/png,image/webp"
+                       FilesChanged="OnImageSelected">
+            <CustomContent>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Upload"
+                           OnClick="@context.OpenFilePickerAsync">
+                    @(_selectedFile?.Name ?? "Choose an image")
+                </MudButton>
+            </CustomContent>
+        </MudFileUpload>
+        @if (_selectedFile is not null)
+        {
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="UploadMap" Disabled="_isUploading">
+                Save map
+            </MudButton>
+        }
+    </MudStack>
+
+    <MudText Typo="Typo.caption">JPG, PNG or WEBP; maximum 20 MB per image.</MudText>
+
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+    else if (_maps.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info">No background maps have been saved for this room yet.</MudAlert>
+    }
+    else
+    {
+        <MudGrid>
+            @foreach (var map in _maps)
+            {
+                <MudItem xs="12" sm="6" md="4" lg="3">
+                    <MudCard>
+                        <MudCardMedia Image="@GetMapImageUrl(map)" Height="180" />
+                        <MudCardContent>
+                            <MudText Typo="Typo.subtitle1" Class="text-truncate">@map.Name</MudText>
+                            <MudText Typo="Typo.caption">@map.Width × @map.Height px</MudText>
+                        </MudCardContent>
+                        <MudCardActions>
+                            <MudSpacer />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                           Color="Color.Error"
+                                           AriaLabel="Delete map"
+                                           OnClick="() => ConfirmDeleteMap(map)" />
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudStack>

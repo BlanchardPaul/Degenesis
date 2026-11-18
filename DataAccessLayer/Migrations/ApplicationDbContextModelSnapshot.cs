@@ -16,7 +16,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261112103711_InitialMigration";
+    public override string LastMigrationId => "20261118092453_InitialMigration";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1276,6 +1276,38 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("RoomCultRelationship");
             });
 
+        modelBuilder.Entity("Domain.Rooms.RoomMap", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("FileName")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("nvarchar(100)");
+
+                b.Property<int>("Height")
+                    .HasColumnType("int");
+
+                b.Property<Guid>("IdRoom")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("nvarchar(200)");
+
+                b.Property<int>("Width")
+                    .HasColumnType("int");
+
+                b.HasKey("Id");
+
+                b.HasIndex("IdRoom");
+
+                b.ToTable("RoomMaps");
+            });
+
         modelBuilder.Entity("Domain.Rooms.UserRoom", b =>
             {
                 b.Property<Guid>("Id")
@@ -2367,6 +2399,17 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Room");
             });
 
+        modelBuilder.Entity("Domain.Rooms.RoomMap", b =>
+            {
+                b.HasOne("Domain.Rooms.Room", "Room")
+                    .WithMany("Maps")
+                    .HasForeignKey("IdRoom")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("Room");
+            });
+
         modelBuilder.Entity("Domain.Rooms.UserRoom", b =>
             {
                 b.HasOne("Domain.Users.ApplicationUser", "ApplicationUser")
@@ -2555,6 +2598,8 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
         modelBuilder.Entity("Domain.Rooms.Room", b =>
             {
                 b.Navigation("Characters");
+
+                b.Navigation("Maps");
 
                 b.Navigation("UserRooms");
             });

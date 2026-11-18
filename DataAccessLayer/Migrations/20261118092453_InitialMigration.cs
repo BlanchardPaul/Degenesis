@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations;
 
 /// <inheritdoc />
-public partial class _20261112103711_InitialMigration : Migration
+public partial class _20261118092453_InitialMigration : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -620,6 +620,28 @@ public partial class _20261112103711_InitialMigration : Migration
                     onDelete: ReferentialAction.Cascade);
                 table.ForeignKey(
                     name: "FK_RoomCultRelationship_Rooms_IdRoom",
+                    column: x => x.IdRoom,
+                    principalTable: "Rooms",
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "RoomMaps",
+            columns: table => new
+            {
+                Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                IdRoom = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                FileName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                Width = table.Column<int>(type: "int", nullable: false),
+                Height = table.Column<int>(type: "int", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_RoomMaps", x => x.Id);
+                table.ForeignKey(
+                    name: "FK_RoomMaps_Rooms_IdRoom",
                     column: x => x.IdRoom,
                     principalTable: "Rooms",
                     principalColumn: "Id",
@@ -1745,6 +1767,11 @@ public partial class _20261112103711_InitialMigration : Migration
             column: "IdRoom");
 
         migrationBuilder.CreateIndex(
+            name: "IX_RoomMaps_IdRoom",
+            table: "RoomMaps",
+            column: "IdRoom");
+
+        migrationBuilder.CreateIndex(
             name: "IX_Skills_CAttributeId",
             table: "Skills",
             column: "CAttributeId");
@@ -1883,6 +1910,9 @@ public partial class _20261112103711_InitialMigration : Migration
 
         migrationBuilder.DropTable(
             name: "RoomCultRelationship");
+
+        migrationBuilder.DropTable(
+            name: "RoomMaps");
 
         migrationBuilder.DropTable(
             name: "UserRooms");

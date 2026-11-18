@@ -46,6 +46,7 @@ public static class EndpointRouteBuilderExtensions
         endpoints.MapRankEndpoints();
         endpoints.MapRankPrerequisiteEndpoints();
         endpoints.MapRoomEndpoints();
+        endpoints.MapRoomMapEndpoints();
         endpoints.MapSkillEndpoints();
         endpoints.MapUserEndpoints();
         endpoints.MapVehicleEndpoints();

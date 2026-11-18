@@ -8,4 +8,5 @@ public class Room
     public string Description { get; set; } = string.Empty;
     public List<UserRoom> UserRooms { get; set; } = [];
     public List<Character> Characters { get; set; } = [];
+    public List<RoomMap> Maps { get; set; } = [];
 }
