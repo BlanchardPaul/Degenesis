@@ -1,5 +1,6 @@
 ﻿using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Characters.Display;
+using Degenesis.Shared.DTOs.NPCs;
 using Degenesis.Shared.DTOs.Rooms;
 using Degenesis.UI.Blazor.Extensions;
 using Microsoft.AspNetCore.Components;
@@ -13,6 +14,9 @@ public partial class RoomMapChat : IAsyncDisposable
 {
     [Parameter] public Guid IdRoom { get; set; }
     [Parameter] public CharacterDisplayDto? Character { get; set; }
+    [Parameter] public bool IsGM { get; set; }
+    [Parameter] public List<CharacterDisplayForGMListDto> GmCharacters { get; set; } = [];
+    [Parameter] public List<NPCDto> GmNpcs { get; set; } = [];
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
     [Inject] private RoomConnectionService RoomConnection { get; set; } = default!;
@@ -23,6 +27,7 @@ public partial class RoomMapChat : IAsyncDisposable
     private string? userName;
     private static readonly string[] DiceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
     private bool isMapDrawerOpen;
+    private bool isMembersDrawerOpen;
 
     private List<RoomChatMessageDto> Messages = [];
 
@@ -105,6 +110,7 @@ public partial class RoomMapChat : IAsyncDisposable
     }
 
     private void ToggleMapDrawer() => isMapDrawerOpen = !isMapDrawerOpen;
+    private void ToggleMembersDrawer() => isMembersDrawerOpen = !isMembersDrawerOpen;
 
     // When user send message to hub
     private async Task SendMessage()

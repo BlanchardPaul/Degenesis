@@ -135,7 +135,8 @@ public class CharacterService(ApplicationDbContext context, IMapper mapper, User
                 {
                     Id = character.Id,
                     Name = character.Name,
-                    PlayerName = characterOwner.UserName!
+                    PlayerName = characterOwner.UserName!,
+                    AvatarName = character.AvatarName
                 });
             }
             return new Result<List<CharacterDisplayForGMListDto>> { Value = characterList };

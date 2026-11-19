@@ -4,4 +4,5 @@ public class CharacterDisplayForGMListDto
     public Guid Id { get; set; }
     public string PlayerName { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string? AvatarName { get; set; }
 }

@@ -12,7 +12,11 @@ else
 {
     <MudTabs Class="d-flex flex-column" Style="height: 100%;">
         <MudTabPanel Text="Map and Chat">
-            <RoomMapChat IdRoom="IdRoom" Character="Character"/>
+            <RoomMapChat IdRoom="IdRoom"
+                         Character="Character"
+                         IsGM="IsGM"
+                         GmCharacters="GmCharacters"
+                         GmNpcs="GmNpcs" />
         </MudTabPanel>
 
         @if (IsGM)

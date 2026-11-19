@@ -1,0 +1,70 @@
+<MudPaper Class="d-flex flex-column"
+          Elevation="8"
+          Style="position: absolute; top: 0; left: 0; bottom: 0; width: 320px; max-width: 100%; z-index: 2; overflow-y: auto;">
+    <div class="d-flex align-center justify-space-between pa-3">
+        <MudText Typo="Typo.subtitle1">Room members</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Close"
+                       Color="Color.Default"
+                       OnClick="() => OnClose.InvokeAsync()" />
+    </div>
+
+    <MudDivider Style="flex: 0 0 1px;" />
+
+    <MudNavMenu>
+        <MudNavGroup Title="Characters" Icon="@Icons.Material.Filled.Person" Expanded="false">
+            @if (GmCharacters.Count == 0)
+            {
+                <MudText Class="pa-4" Color="Color.Secondary">None</MudText>
+            }
+            else
+            {
+                @foreach (var character in GmCharacters)
+                {
+                    <MudNavLink Href="@($"/popped-out/{character.Id}/sheet")" Target="_blank">
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudAvatar Size="Size.Small">
+                                @if (character.AvatarName is not null)
+                                {
+                                    <MudImage Src="@GetCharacterAvatarUrl(character)" Alt="@($"{character.Name} avatar")" />
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.caption">@GetInitials(character.Name)</MudText>
+                                }
+                            </MudAvatar>
+                            <MudText>@character.Name</MudText>
+                        </MudStack>
+                    </MudNavLink>
+                }
+            }
+        </MudNavGroup>
+
+        <MudNavGroup Title="NPCs" Icon="@Icons.Material.Filled.Groups" Expanded="false">
+            @if (GmNpcs.Count == 0)
+            {
+                <MudText Class="pa-4" Color="Color.Secondary">None</MudText>
+            }
+            else
+            {
+                @foreach (var npc in GmNpcs)
+                {
+                    <MudNavLink Href="@($"/gm-npc/{npc.Id}")" Target="_blank">
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudAvatar Size="Size.Small">
+                                @if (npc.AvatarName is not null)
+                                {
+                                    <MudImage Src="@GetNpcAvatarUrl(npc)" Alt="@($"{npc.Name} avatar")" />
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.caption">@GetInitials(npc.Name)</MudText>
+                                }
+                            </MudAvatar>
+                            <MudText>@npc.Name</MudText>
+                        </MudStack>
+                    </MudNavLink>
+                }
+            }
+        </MudNavGroup>
+    </MudNavMenu>
+</MudPaper>

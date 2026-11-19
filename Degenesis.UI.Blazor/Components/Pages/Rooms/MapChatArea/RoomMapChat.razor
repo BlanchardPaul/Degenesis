@@ -10,6 +10,13 @@ else
             <MudItem xs="9"
                      Class="border bg-light pa-0"
                      Style="height: 100%; position: relative; overflow: hidden; padding: 0;">
+                @if (IsGM)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowRight"
+                                   Color="Color.Primary"
+                                   OnClick="ToggleMembersDrawer"
+                                   Style="position: absolute; top: 40%; left: 8px; z-index: 1;" />
+                }
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft"
                                Color="Color.Primary"
                                OnClick="ToggleMapDrawer"
@@ -24,6 +31,13 @@ else
                                       IdRoom="IdRoom"
                                       UserName="@userName"
                                       OnClose="ToggleMapDrawer" />
+                }
+
+                @if (IsGM && isMembersDrawerOpen)
+                {
+                    <RoomMembersDrawer GmCharacters="GmCharacters"
+                                       GmNpcs="GmNpcs"
+                                       OnClose="ToggleMembersDrawer" />
                 }
             </MudItem>
 
