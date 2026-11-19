@@ -1,0 +1,40 @@
+<MudPaper Class="d-flex flex-column"
+          Elevation="8"
+          Style="position: absolute; top: 0; left: 0; right: 0; height: 230px; max-width: 100%; z-index: 2; overflow: hidden;">
+    <div class="d-flex align-center justify-space-between pa-3">
+        <MudText Typo="Typo.subtitle1">Room maps</MudText>
+        <MudIconButton Icon="@Icons.Material.Filled.Close"
+                       Color="Color.Default"
+                       OnClick="() => OnClose.InvokeAsync()" />
+    </div>
+
+    <MudDivider Style="flex: 0 0 1px;" />
+
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+    }
+    else if (_maps.Count == 0)
+    {
+        <MudText Class="pa-3" Color="Color.Secondary">No maps available for this room.</MudText>
+    }
+    else
+    {
+        <div class="d-flex flex-row pa-2" style="gap: 8px; overflow-x: auto; overflow-y: hidden;">
+            @foreach (var map in _maps)
+            {
+                <MudButton Class="pa-1 flex-shrink-0"
+                           Variant="@(SelectedMap?.Id == map.Id ? Variant.Filled : Variant.Text)"
+                           Color="Color.Primary"
+                           OnClick="() => OnSelect.InvokeAsync(map)">
+                    <div class="d-flex flex-column" style="width: 150px;">
+                        <MudImage Src="@GetMapImageUrl(map)"
+                                  Alt="@map.Name"
+                                  Style="width: 150px; height: 140px; object-fit: contain;" />
+                        <MudText Typo="Typo.caption" Class="text-truncate">@map.Name</MudText>
+                    </div>
+                </MudButton>
+            }
+        </div>
+    }
+</MudPaper>

@@ -22,7 +22,91 @@ else
                                OnClick="ToggleMapDrawer"
                                Style="position: absolute; top: 40%; right: 8px; z-index: 1;" />
 
-                <!-- Map / image area -->
+                @if (SelectedMap is not null)
+                {
+                    <svg @ref="_mapSvg"
+                         viewBox="@($"0 0 {SelectedMap.Width} {SelectedMap.Height}")"
+                         preserveAspectRatio="xMidYMid meet"
+                         @onpointerdown="StartMapDrag"
+                         @onpointermove="DragMap"
+                         @onpointerup="EndMapDrag"
+                         @onpointercancel="EndMapDrag"
+                         @ondragover="IgnoreMapDragOver"
+                         @ondragover:preventDefault="true"
+                         @ondrop="DropToken"
+                         style="position: absolute; inset: 0; width: 100%; height: 100%; transform: @MapTransform; transform-origin: center; cursor: @(isMapDragging ? "grabbing" : "grab"); touch-action: none;">
+                        <defs>
+                            <clipPath id="mapTokenAvatarClip" clipPathUnits="objectBoundingBox">
+                                <circle cx="0.5" cy="0.5" r="0.5" />
+                            </clipPath>
+                        </defs>
+                        <image href="@GetSelectedMapImageUrl()"
+                               x="0" y="0"
+                               width="@SelectedMap.Width" height="@SelectedMap.Height"
+                               preserveAspectRatio="xMidYMid meet"
+                               draggable="false" />
+                        @foreach (var token in CurrentMapTokens)
+                        {
+                            <g @onpointerdown="args => StartTokenDrag(token, args)"
+                               @onpointerdown:stopPropagation="true"
+                               @onpointerdown:preventDefault="true"
+                               style="cursor: grab;">
+                                <circle cx="@SvgNumber(token.X)" cy="@SvgNumber(token.Y)" r="@SvgNumber(MapTokenRadius)" fill="#263238" stroke="white" stroke-width="3" />
+                                @if (token.AvatarName is not null)
+                                {
+                                    <image href="@GetTokenAvatarUrl(token)"
+                                           x="@SvgNumber(token.X - MapTokenRadius)" y="@SvgNumber(token.Y - MapTokenRadius)"
+                                           width="@SvgNumber(MapTokenRadius * 2)" height="@SvgNumber(MapTokenRadius * 2)"
+                                           clip-path="url(#mapTokenAvatarClip)"
+                                           draggable="false" />
+                                }
+                                else
+                                {
+                                    <foreignObject x="@SvgNumber(token.X - MapTokenRadius)" y="@SvgNumber(token.Y - MapTokenRadius)"
+                                                   width="@SvgNumber(MapTokenRadius * 2)" height="@SvgNumber(MapTokenRadius * 2)">
+                                        <div xmlns="http://www.w3.org/1999/xhtml"
+                                             style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white; font-size: @(SvgNumber(TokenLabelSize))px;">
+                                            @GetInitials(token.Name)
+                                        </div>
+                                    </foreignObject>
+                                }
+                                <foreignObject x="@SvgNumber(token.X - MapTokenRadius * 3)" y="@SvgNumber(token.Y + MapTokenRadius + 2)"
+                                               width="@SvgNumber(MapTokenRadius * 6)" height="@SvgNumber(MapTokenRadius * 1.5)">
+                                    <div xmlns="http://www.w3.org/1999/xhtml"
+                                         style="width: 100%; overflow: hidden; color: white; text-align: center; white-space: nowrap; text-overflow: ellipsis; font-size: @(SvgNumber(TokenLabelSize))px; text-shadow: -1px -1px 2px #263238, 1px 1px 2px #263238;">
+                                        @token.Name
+                                    </div>
+                                </foreignObject>
+                            </g>
+                        }
+                    </svg>
+                    <MudStack Row Spacing="1"
+                              Style="position: absolute; right: 12px; bottom: 12px; z-index: 1; background: rgba(255,255,255,0.8); border-radius: 8px;">
+                        <MudIconButton Icon="@Icons.Material.Filled.ZoomOut"
+                                       Color="Color.Primary"
+                                       AriaLabel="Zoom out"
+                                       Disabled="@(_mapZoom <= MinMapZoom)"
+                                       OnClick="ZoomOut" />
+                        <MudIconButton Icon="@Icons.Material.Filled.ZoomIn"
+                                       Color="Color.Primary"
+                                       AriaLabel="Zoom in"
+                                       Disabled="@(_mapZoom >= MaxMapZoom)"
+                                       OnClick="ZoomIn" />
+                    </MudStack>
+                }
+
+                <MudIconButton Icon="@(isMapsDrawerOpen ? Icons.Material.Filled.KeyboardArrowUp : Icons.Material.Filled.Map)"
+                               Color="Color.Primary"
+                               OnClick="ToggleMapsDrawer"
+                               Style="position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 1;" />
+
+                @if (isMapsDrawerOpen)
+                {
+                    <RoomMapsDrawer IdRoom="IdRoom"
+                                    SelectedMap="SelectedMap"
+                                    OnSelect="SelectMap"
+                                    OnClose="ToggleMapsDrawer" />
+                }
 
                 @if (isMapDrawerOpen)
                 {
@@ -37,6 +121,7 @@ else
                 {
                     <RoomMembersDrawer GmCharacters="GmCharacters"
                                        GmNpcs="GmNpcs"
+                                       OnTokenDragStart="SetPendingMapToken"
                                        OnClose="ToggleMembersDrawer" />
                 }
             </MudItem>

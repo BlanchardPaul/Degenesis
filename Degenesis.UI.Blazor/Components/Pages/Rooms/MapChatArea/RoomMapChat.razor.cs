@@ -5,7 +5,9 @@ using Degenesis.Shared.DTOs.Rooms;
 using Degenesis.UI.Blazor.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.JSInterop;
 using MudBlazor;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms.MapChatArea;
@@ -20,6 +22,7 @@ public partial class RoomMapChat : IAsyncDisposable
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; } = default!;
     [Inject] private RoomConnectionService RoomConnection { get; set; } = default!;
+    [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
     private RoomDisplayDto? room;
     private HubConnection? hubConnection;
@@ -28,6 +31,30 @@ public partial class RoomMapChat : IAsyncDisposable
     private static readonly string[] DiceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
     private bool isMapDrawerOpen;
     private bool isMembersDrawerOpen;
+    private bool isMapsDrawerOpen;
+    private RoomMapDto? SelectedMap;
+    private const double MinMapZoom = 0.5;
+    private const double MaxMapZoom = 3;
+    private const double MapZoomStep = 0.25;
+    private double _mapZoom = 1;
+    private double _mapOffsetX;
+    private double _mapOffsetY;
+    private double _lastPointerX;
+    private double _lastPointerY;
+    private bool isMapDragging;
+    private ElementReference _mapSvg;
+    private IJSObjectReference? _mapCanvasModule;
+    private RoomMapToken? _pendingMapToken;
+    private RoomMapToken? _draggingToken;
+    private readonly Dictionary<Guid, List<RoomMapToken>> _tokensByMap = [];
+    private List<RoomMapToken> CurrentMapTokens => SelectedMap is not null && _tokensByMap.TryGetValue(SelectedMap.Id, out var tokens) ? tokens : [];
+    private double MapTokenRadius => SelectedMap is null ? 20 : Math.Max(12, Math.Min(SelectedMap.Width, SelectedMap.Height) * 0.025);
+    private double TokenLabelSize => MapTokenRadius * 0.65;
+    private string MapTransform => FormattableString.Invariant($"translate({_mapOffsetX}px, {_mapOffsetY}px) scale({_mapZoom})");
+    private static string SvgNumber(double value) => FormattableString.Invariant($"{value}");
+    private string MapImageApiRoot => Client?.BaseAddress is null
+        ? string.Empty
+        : new Uri(Client.BaseAddress, "..").GetLeftPart(UriPartial.Authority);
 
     private List<RoomChatMessageDto> Messages = [];
 
@@ -111,6 +138,173 @@ public partial class RoomMapChat : IAsyncDisposable
 
     private void ToggleMapDrawer() => isMapDrawerOpen = !isMapDrawerOpen;
     private void ToggleMembersDrawer() => isMembersDrawerOpen = !isMembersDrawerOpen;
+    private void ToggleMapsDrawer() => isMapsDrawerOpen = !isMapsDrawerOpen;
+
+    private void SelectMap(RoomMapDto map)
+    {
+        SelectedMap = map;
+        _mapZoom = 1;
+        _mapOffsetX = 0;
+        _mapOffsetY = 0;
+        isMapDragging = false;
+        _draggingToken = null;
+        isMapsDrawerOpen = false;
+    }
+
+    private async Task StartMapDrag(PointerEventArgs args)
+    {
+        if (args.Button != 0)
+            return;
+
+        isMapDragging = true;
+        _lastPointerX = args.ClientX;
+        _lastPointerY = args.ClientY;
+        await CaptureMapPointerAsync(args.PointerId);
+    }
+
+    private async Task StartTokenDrag(RoomMapToken token, PointerEventArgs args)
+    {
+        if (args.Button != 0)
+            return;
+
+        _draggingToken = token;
+        await CaptureMapPointerAsync(args.PointerId);
+    }
+
+    private async Task DragMap(PointerEventArgs args)
+    {
+        var draggingToken = _draggingToken;
+        if (draggingToken is not null)
+        {
+            var selectedMap = SelectedMap;
+            if (selectedMap is null)
+                return;
+
+            var mapTokenRadius = Math.Max(12, Math.Min(selectedMap.Width, selectedMap.Height) * 0.025);
+            var point = await GetMapPointAsync(args.ClientX, args.ClientY);
+            if (!ReferenceEquals(_draggingToken, draggingToken) || !ReferenceEquals(SelectedMap, selectedMap))
+                return;
+
+            draggingToken.X = Math.Clamp(point.X, mapTokenRadius, Math.Max(mapTokenRadius, selectedMap.Width - mapTokenRadius));
+            draggingToken.Y = Math.Clamp(point.Y, mapTokenRadius, Math.Max(mapTokenRadius, selectedMap.Height - mapTokenRadius));
+            return;
+        }
+
+        if (!isMapDragging)
+            return;
+
+        _mapOffsetX += args.ClientX - _lastPointerX;
+        _mapOffsetY += args.ClientY - _lastPointerY;
+        _lastPointerX = args.ClientX;
+        _lastPointerY = args.ClientY;
+    }
+
+    private void EndMapDrag(PointerEventArgs args)
+    {
+        isMapDragging = false;
+        _draggingToken = null;
+    }
+
+    private void SetPendingMapToken(RoomMapToken token) => _pendingMapToken = token;
+
+    private void IgnoreMapDragOver(DragEventArgs args) { }
+
+    private async Task DropToken(DragEventArgs args)
+    {
+        var pendingToken = _pendingMapToken;
+        var selectedMap = SelectedMap;
+        if (pendingToken is null || selectedMap is null)
+            return;
+
+        var mapTokenRadius = Math.Max(12, Math.Min(selectedMap.Width, selectedMap.Height) * 0.025);
+        var point = await GetMapPointAsync(args.ClientX, args.ClientY);
+        var token = new RoomMapToken
+        {
+            MemberId = pendingToken.MemberId,
+            IsNpc = pendingToken.IsNpc,
+            Name = pendingToken.Name,
+            AvatarName = pendingToken.AvatarName,
+            X = Math.Clamp(point.X, mapTokenRadius, Math.Max(mapTokenRadius, selectedMap.Width - mapTokenRadius)),
+            Y = Math.Clamp(point.Y, mapTokenRadius, Math.Max(mapTokenRadius, selectedMap.Height - mapTokenRadius))
+        };
+
+        if (!_tokensByMap.TryGetValue(selectedMap.Id, out var tokens))
+        {
+            tokens = [];
+            _tokensByMap.Add(selectedMap.Id, tokens);
+        }
+
+        var existingToken = tokens.FirstOrDefault(item => item.Key == token.Key);
+        if (existingToken is null)
+            tokens.Add(token);
+        else
+        {
+            existingToken.X = token.X;
+            existingToken.Y = token.Y;
+        }
+
+        if (ReferenceEquals(_pendingMapToken, pendingToken))
+            _pendingMapToken = null;
+    }
+
+    private async Task CaptureMapPointerAsync(long pointerId)
+    {
+        try
+        {
+            await (await GetMapCanvasModuleAsync()).InvokeVoidAsync("capturePointer", _mapSvg, pointerId);
+        }
+        catch(JSDisconnectedException)
+        {
+            // If the JS runtime is disconnected, we can't capture the pointer, so we just ignore it.
+        }
+    }
+
+    private async Task<SvgPoint> GetMapPointAsync(double clientX, double clientY)
+    {
+        try
+        {
+            return await (await GetMapCanvasModuleAsync()).InvokeAsync<SvgPoint>("getSvgPoint", _mapSvg, clientX, clientY);
+        }
+        catch(JSDisconnectedException)
+        {
+            // If the JS runtime is disconnected, we can't get the SVG point, so we return a default point.
+            return new SvgPoint { X = 0, Y = 0 };
+        }
+    }
+
+    private async Task<IJSObjectReference> GetMapCanvasModuleAsync()
+    {
+        try
+        {
+            return _mapCanvasModule ??= await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/map-canvas.js");
+        }
+        catch (JSDisconnectedException)
+        {
+            // If the JS runtime is disconnected, we can't import the module, so we throw an exception.
+            throw new InvalidOperationException("JS runtime is disconnected.");
+        }
+    }
+
+    private string GetTokenAvatarUrl(RoomMapToken token)
+    {
+        var avatarType = token.IsNpc ? "npc-avatars" : "character-avatars";
+        return $"{MapImageApiRoot}/{avatarType}/{Uri.EscapeDataString(token.AvatarName!)}";
+    }
+
+    private static string GetInitials(string name)
+        => string.IsNullOrWhiteSpace(name) ? "?" : name[..1].ToUpperInvariant();
+
+    private sealed class SvgPoint
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+    }
+
+    private void ZoomIn() => _mapZoom = Math.Min(_mapZoom + MapZoomStep, MaxMapZoom);
+    private void ZoomOut() => _mapZoom = Math.Max(_mapZoom - MapZoomStep, MinMapZoom);
+
+    private string GetSelectedMapImageUrl()
+        => $"{MapImageApiRoot}/map-images/{Uri.EscapeDataString(SelectedMap!.FileName)}";
 
     // When user send message to hub
     private async Task SendMessage()
@@ -140,14 +334,15 @@ public partial class RoomMapChat : IAsyncDisposable
 
     
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         // Never dispose hubConnection here: it belongs to RoomConnectionService.
         // Just detach our handlers so a dead component stops receiving events.
         hubConnection?.Remove("ReceiveMessage");
         hubConnection?.Remove("ReceiveHistory");
         hubConnection?.Remove("ReceiveRollResult");
+        if (_mapCanvasModule is not null)
+            await _mapCanvasModule.DisposeAsync();
         GC.SuppressFinalize(this);
-        return ValueTask.CompletedTask;
     }
 }
