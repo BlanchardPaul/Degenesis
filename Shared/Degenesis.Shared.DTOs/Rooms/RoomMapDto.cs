@@ -8,4 +8,5 @@ public class RoomMapDto
     public string FileName { get; set; } = string.Empty;
     public int Width { get; set; }
     public int Height { get; set; }
+    public int GridCellSize { get; set; }
 }

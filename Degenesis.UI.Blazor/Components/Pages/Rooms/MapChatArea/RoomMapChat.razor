@@ -16,11 +16,19 @@ else
                                    Color="Color.Primary"
                                    OnClick="ToggleMembersDrawer"
                                    Style="position: absolute; top: 40%; left: 8px; z-index: 1;" />
+                    <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft"
+                                    Color="Color.Primary"
+                                    OnClick="ToggleGridDrawer"
+                                    Style="position: absolute; top: 40%; right: 8px; z-index: 1;" />
+
                 }
-                <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft"
-                               Color="Color.Primary"
-                               OnClick="ToggleMapDrawer"
-                               Style="position: absolute; top: 40%; right: 8px; z-index: 1;" />
+                @if (!IsGM)
+                {
+                    <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft"
+                                   Color="Color.Primary"
+                                   OnClick="ToggleSavedRollsDrawer"
+                                   Style="position: absolute; top: 40%; right: 8px; z-index: 1;" />
+                }
 
                 @if (SelectedMap is not null)
                 {
@@ -45,6 +53,21 @@ else
                                width="@SelectedMap.Width" height="@SelectedMap.Height"
                                preserveAspectRatio="xMidYMid meet"
                                draggable="false" />
+                        @if (IsGM && _isGridVisible)
+                        {
+                            <g stroke="#263238" stroke-opacity="0.65" stroke-width="2" pointer-events="none">
+                                @foreach (var column in Enumerable.Range(1, Math.Max(0, GridColumns - 1)))
+                                {
+                                    var x = GridCellSize * column;
+                                    <line x1="@SvgNumber(x)" y1="0" x2="@SvgNumber(x)" y2="@SelectedMap.Height" />
+                                }
+                                @foreach (var row in Enumerable.Range(1, Math.Max(0, GridRows - 1)))
+                                {
+                                    var y = GridCellSize * row;
+                                    <line x1="0" y1="@SvgNumber(y)" x2="@SelectedMap.Width" y2="@SvgNumber(y)" />
+                                }
+                            </g>
+                        }
                         @foreach (var token in CurrentMapTokens)
                         {
                             <g @onpointerdown="args => StartTokenDrag(token, args)"
@@ -54,29 +77,29 @@ else
                                @oncontextmenu:preventDefault="true"
                                @oncontextmenu:stopPropagation="true"
                                style="cursor: grab;">
-                                <circle cx="@SvgNumber(token.X)" cy="@SvgNumber(token.Y)" r="@SvgNumber(MapTokenRadius)" fill="#263238" stroke="white" stroke-width="3" />
+                                <circle cx="@SvgNumber(token.X)" cy="@SvgNumber(token.Y)" r="@SvgNumber(GridCellSize / 2)" fill="#263238" />
                                 @if (token.AvatarName is not null)
                                 {
                                     <image href="@GetTokenAvatarUrl(token)"
-                                           x="@SvgNumber(token.X - MapTokenRadius)" y="@SvgNumber(token.Y - MapTokenRadius)"
-                                           width="@SvgNumber(MapTokenRadius * 2)" height="@SvgNumber(MapTokenRadius * 2)"
+                                           x="@SvgNumber(token.X - GridCellSize / 2)" y="@SvgNumber(token.Y - GridCellSize / 2)"
+                                           width="@SvgNumber(GridCellSize)" height="@SvgNumber(GridCellSize)"
                                            clip-path="url(#mapTokenAvatarClip)"
                                            draggable="false" />
                                 }
                                 else
                                 {
-                                    <foreignObject x="@SvgNumber(token.X - MapTokenRadius)" y="@SvgNumber(token.Y - MapTokenRadius)"
-                                                   width="@SvgNumber(MapTokenRadius * 2)" height="@SvgNumber(MapTokenRadius * 2)">
-                                        <div xmlns="http://www.w3.org/1999/xhtml"
+                                    <foreignObject x="@SvgNumber(token.X - GridCellSize / 2)" y="@SvgNumber(token.Y - GridCellSize / 2)"
+                                                   width="@SvgNumber(GridCellSize)" height="@SvgNumber(GridCellSize)">
+                                        <div
                                              style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white; font-size: @(SvgNumber(TokenLabelSize))px;">
                                             @GetInitials(token.Name)
                                         </div>
                                     </foreignObject>
                                 }
-                                <foreignObject x="@SvgNumber(token.X - MapTokenRadius * 3)" y="@SvgNumber(token.Y + MapTokenRadius + 2)"
-                                               width="@SvgNumber(MapTokenRadius * 6)" height="@SvgNumber(MapTokenRadius * 1.5)">
-                                    <div xmlns="http://www.w3.org/1999/xhtml"
-                                         style="width: 100%; overflow: hidden; color: white; text-align: center; white-space: nowrap; text-overflow: ellipsis; font-size: @(SvgNumber(TokenLabelSize))px; text-shadow: -1px -1px 2px #263238, 1px 1px 2px #263238;">
+                                <circle cx="@SvgNumber(token.X)" cy="@SvgNumber(token.Y)" r="@SvgNumber(GridCellSize / 2)" fill="none" stroke="white" stroke-width="3" />
+                                <foreignObject x="@SvgNumber(token.X - GridCellSize * 1.5)" y="@SvgNumber(token.Y + GridCellSize / 2 + 2)"
+                                               width="@SvgNumber(GridCellSize * 3)" height="@SvgNumber(GridCellSize * 0.75)">
+                                    <div style="width: 100%; overflow: hidden; color: white; text-align: center; white-space: nowrap; text-overflow: ellipsis; font-size: @(SvgNumber(TokenLabelSize))px; text-shadow: -1px -1px 2px #263238, 1px 1px 2px #263238;">
                                         @token.Name
                                     </div>
                                 </foreignObject>
@@ -136,7 +159,28 @@ else
                                       HubConnection="hubConnection"
                                       IdRoom="IdRoom"
                                       UserName="@userName"
-                                      OnClose="ToggleMapDrawer" />
+                                      OnClose="ToggleSavedRollsDrawer" />
+                }
+
+                @if (IsGM && isGridDrawerOpen)
+                {
+                    <MudPaper Class="d-flex flex-column"
+                              Elevation="8"
+                              Style="position: absolute; top: 0; right: 0; bottom: 0; width: 320px; max-width: 100%; z-index: 2; overflow-y: auto;">
+                        <div class="d-flex align-center justify-space-between pa-3">
+                            <MudText Typo="Typo.subtitle1">Grid configuration</MudText>
+                            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                           Color="Color.Default"
+                                           OnClick="ToggleGridDrawer" />
+                        </div>
+                        <MudDivider />
+                        <div class="pa-3">
+                            <MudCheckBox T="bool" @bind-Value="_isGridVisible" Label="Show grid" Class="mb-2" />
+                            <MudNumericField T="int" @bind-Value="_gridCellSize" Label="Cell size (map pixels)" Min="@MinimumGridCellSize" Max="@MaximumGridCellSize" Immediate="true" Class="mb-3" />
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3">Each square represents 1 m. Changing its size adjusts the number of rows and columns.</MudText>
+                            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_isSavingGrid || SelectedMap is null)" OnClick="SaveGridCellSizeAsync">Apply</MudButton>
+                        </div>
+                    </MudPaper>
                 }
 
                 @if (IsGM && isMembersDrawerOpen)

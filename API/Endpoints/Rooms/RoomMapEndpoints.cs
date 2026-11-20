@@ -41,6 +41,13 @@ public static class RoomMapEndpoints
             return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
+        group.MapPut("/{mapId:guid}/grid", async (Guid mapId, int gridCellSize,
+            IRoomMapService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.SaveGridCellSizeAsync(mapId, gridCellSize, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
         group.MapDelete("/{mapId:guid}", async (Guid mapId, IRoomMapService service, ClaimsPrincipal user) =>
         {
             var result = await service.DeleteAsync(mapId, user.Identity?.Name ?? string.Empty);

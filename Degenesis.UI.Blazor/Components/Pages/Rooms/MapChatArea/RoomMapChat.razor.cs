@@ -32,6 +32,11 @@ public partial class RoomMapChat : IAsyncDisposable
     private bool isRollsDrawerOpen;
     private bool isMembersDrawerOpen;
     private bool isMapsDrawerOpen;
+    private bool isGridDrawerOpen;
+    private bool _isGridVisible = true;
+    private bool _isSavingGrid;
+    private int _gridCellSize = 100;
+    private int _appliedGridCellSize = 100;
     private RoomMapDto? SelectedMap;
     private const double MinMapZoom = 0.5;
     private const double MaxMapZoom = 3;
@@ -52,8 +57,12 @@ public partial class RoomMapChat : IAsyncDisposable
     private double _contextMenuClientY;
     private readonly Dictionary<Guid, List<RoomMapToken>> _tokensByMap = [];
     private List<RoomMapToken> CurrentMapTokens => SelectedMap is not null && _tokensByMap.TryGetValue(SelectedMap.Id, out var tokens) ? tokens : [];
-    private double MapTokenRadius => SelectedMap is null ? 20 : Math.Max(12, Math.Min(SelectedMap.Width, SelectedMap.Height) * 0.025);
-    private double TokenLabelSize => MapTokenRadius * 0.65;
+    private int MinimumGridCellSize => SelectedMap is null ? 1 : Math.Max(1, (int)Math.Ceiling(Math.Max(SelectedMap.Width, SelectedMap.Height) / 200d));
+    private int MaximumGridCellSize => SelectedMap is null ? 200 : Math.Max(SelectedMap.Width, SelectedMap.Height);
+    private double GridCellSize => Math.Max(_appliedGridCellSize, MinimumGridCellSize);
+    private int GridColumns => SelectedMap is null ? 0 : (int)Math.Ceiling(SelectedMap.Width / GridCellSize);
+    private int GridRows => SelectedMap is null ? 0 : (int)Math.Ceiling(SelectedMap.Height / GridCellSize);
+    private double TokenLabelSize => GridCellSize * 0.65;
     private string MapTransform => FormattableString.Invariant($"translate({_mapOffsetX}px, {_mapOffsetY}px) scale({_mapZoom})");
     private static string SvgNumber(double value) => FormattableString.Invariant($"{value}");
     private string ContextMenuStyle => $"position: fixed; left: {SvgNumber(_contextMenuClientX)}px; top: {SvgNumber(_contextMenuClientY)}px; z-index: 20; min-width: 120px;";
@@ -143,13 +152,42 @@ public partial class RoomMapChat : IAsyncDisposable
         StateHasChanged();
     }
 
-    private void ToggleMapDrawer() => isRollsDrawerOpen = !isRollsDrawerOpen;
+    private void ToggleSavedRollsDrawer() => isRollsDrawerOpen = !isRollsDrawerOpen;
     private void ToggleMembersDrawer() => isMembersDrawerOpen = !isMembersDrawerOpen;
     private void ToggleMapsDrawer() => isMapsDrawerOpen = !isMapsDrawerOpen;
+    private void ToggleGridDrawer() => isGridDrawerOpen = !isGridDrawerOpen;
+
+    private async Task SaveGridCellSizeAsync()
+    {
+        if (SelectedMap is null || _isSavingGrid)
+            return;
+
+        _isSavingGrid = true;
+        try
+        {
+            var response = await Client!.PutAsync($"/room-maps/{SelectedMap.Id}/grid?gridCellSize={_gridCellSize}", null);
+            if (!response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+                Snackbar.Add(result?.Error ?? "Unable to save grid size", Severity.Error);
+                return;
+            }
+
+            _appliedGridCellSize = _gridCellSize;
+            SelectedMap.GridCellSize = _gridCellSize;
+            Snackbar.Add("Grid size applied and saved", Severity.Success);
+        }
+        finally
+        {
+            _isSavingGrid = false;
+        }
+    }
 
     private async Task SelectMap(RoomMapDto map)
     {
         SelectedMap = map;
+        _gridCellSize = map.GridCellSize;
+        _appliedGridCellSize = map.GridCellSize;
         _mapZoom = 1;
         _mapOffsetX = 0;
         _mapOffsetY = 0;
@@ -188,6 +226,8 @@ public partial class RoomMapChat : IAsyncDisposable
             return;
 
         SelectedMap = selectedMap;
+        _gridCellSize = selectedMap.GridCellSize;
+        _appliedGridCellSize = selectedMap.GridCellSize;
         await LoadMapTokensAsync();
     }
 
@@ -222,13 +262,13 @@ public partial class RoomMapChat : IAsyncDisposable
             if (selectedMap is null)
                 return;
 
-            var mapTokenRadius = Math.Max(12, Math.Min(selectedMap.Width, selectedMap.Height) * 0.025);
+            var halfTokenSize = GridCellSize / 2;
             var point = await GetMapPointAsync(args.ClientX, args.ClientY);
             if (!ReferenceEquals(_draggingToken, draggingToken) || !ReferenceEquals(SelectedMap, selectedMap))
                 return;
 
-            draggingToken.X = Math.Clamp(point.X, mapTokenRadius, Math.Max(mapTokenRadius, selectedMap.Width - mapTokenRadius));
-            draggingToken.Y = Math.Clamp(point.Y, mapTokenRadius, Math.Max(mapTokenRadius, selectedMap.Height - mapTokenRadius));
+            draggingToken.X = Math.Clamp(point.X, halfTokenSize, Math.Max(halfTokenSize, selectedMap.Width - halfTokenSize));
+            draggingToken.Y = Math.Clamp(point.Y, halfTokenSize, Math.Max(halfTokenSize, selectedMap.Height - halfTokenSize));
             return;
         }
 
@@ -351,7 +391,7 @@ public partial class RoomMapChat : IAsyncDisposable
         if (pendingToken is null || selectedMap is null)
             return;
 
-        var mapTokenRadius = Math.Max(12, Math.Min(selectedMap.Width, selectedMap.Height) * 0.025);
+        var halfTokenSize = GridCellSize / 2;
         var point = await GetMapPointAsync(args.ClientX, args.ClientY);
         var token = new RoomMapToken
         {
@@ -359,8 +399,8 @@ public partial class RoomMapChat : IAsyncDisposable
             IsNpc = pendingToken.IsNpc,
             Name = pendingToken.Name,
             AvatarName = pendingToken.AvatarName,
-            X = Math.Clamp(point.X, mapTokenRadius, Math.Max(mapTokenRadius, selectedMap.Width - mapTokenRadius)),
-            Y = Math.Clamp(point.Y, mapTokenRadius, Math.Max(mapTokenRadius, selectedMap.Height - mapTokenRadius))
+            X = Math.Clamp(point.X, halfTokenSize, Math.Max(halfTokenSize, selectedMap.Width - halfTokenSize)),
+            Y = Math.Clamp(point.Y, halfTokenSize, Math.Max(halfTokenSize, selectedMap.Height - halfTokenSize))
         };
 
         if (!_tokensByMap.TryGetValue(selectedMap.Id, out var tokens))

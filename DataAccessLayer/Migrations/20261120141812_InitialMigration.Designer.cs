@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations;
 
 [DbContext(typeof(ApplicationDbContext))]
-[Migration("20261120094914_InitialMigration")]
-partial class _20261120094914_InitialMigration
+[Migration("20261120141812_InitialMigration")]
+partial class _20261120141812_InitialMigration
 {
     /// <inheritdoc />
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1287,6 +1287,11 @@ partial class _20261120094914_InitialMigration
                     .IsRequired()
                     .HasMaxLength(100)
                     .HasColumnType("nvarchar(100)");
+
+                b.Property<int>("GridCellSize")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int")
+                    .HasDefaultValue(100);
 
                 b.Property<int>("Height")
                     .HasColumnType("int");

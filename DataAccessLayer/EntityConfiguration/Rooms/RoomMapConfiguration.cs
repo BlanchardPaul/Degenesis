@@ -24,6 +24,10 @@ internal class RoomMapConfiguration : IEntityTypeConfiguration<RoomMap>
             .IsRequired()
             .HasMaxLength(100);
 
+        builder.Property(map => map.GridCellSize)
+            .IsRequired()
+            .HasDefaultValue(100);
+
         builder.HasOne(map => map.Room)
             .WithMany(room => room.Maps)
             .HasForeignKey(map => map.IdRoom)

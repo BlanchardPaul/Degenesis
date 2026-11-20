@@ -69,7 +69,6 @@ public partial class NpcEditPage
         if (result is not null && !result.Canceled)
         {
             _avatarVersion = Guid.NewGuid().ToString("N");
-            StateHasChanged();
         }
     }
 

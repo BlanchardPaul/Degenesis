@@ -17,6 +17,7 @@ public interface IRoomMapService
     Task<Result<RoomMapDto>> UploadAsync(Guid roomId, IFormFile file, string userName);
     Task<Result<List<RoomMapTokenDto>>> GetTokensAsync(Guid mapId, string userName);
     Task<Result<object>> SaveTokensAsync(Guid mapId, List<RoomMapTokenDto> tokens, string userName);
+    Task<Result<object>> SaveGridCellSizeAsync(Guid mapId, int gridCellSize, string userName);
     Task<Result<object>> SelectMapAsync(Guid roomId, Guid mapId, string userName);
     Task<Result<object>> DeleteAsync(Guid mapId, string userName);
 }
@@ -56,7 +57,8 @@ public class RoomMapService : IRoomMapService
                     Name = map.Name,
                     FileName = map.FileName,
                     Width = map.Width,
-                    Height = map.Height
+                    Height = map.Height,
+                    GridCellSize = map.GridCellSize
                 })
                 .ToListAsync();
 
@@ -106,7 +108,8 @@ public class RoomMapService : IRoomMapService
                     : "Map",
                 FileName = fileName,
                 Width = width,
-                Height = height
+                Height = height,
+                GridCellSize = Math.Max(1, (int)Math.Ceiling(Math.Max(width, height) / 10d))
             };
 
             await File.WriteAllBytesAsync(imagePath, imageBytes);
@@ -130,7 +133,8 @@ public class RoomMapService : IRoomMapService
                     Name = map.Name,
                     FileName = map.FileName,
                     Width = map.Width,
-                    Height = map.Height
+                    Height = map.Height,
+                    GridCellSize = map.GridCellSize
                 }
             };
         }
@@ -265,6 +269,32 @@ public class RoomMapService : IRoomMapService
         catch
         {
             return new Result<object> { IsError = true, Error = "An error occurred while saving tokens" };
+        }
+    }
+
+    public async Task<Result<object>> SaveGridCellSizeAsync(Guid mapId, int gridCellSize, string userName)
+    {
+        try
+        {
+            var map = await _context.RoomMaps.FirstOrDefaultAsync(item => item.Id == mapId);
+            if (map is null)
+                return new Result<object> { IsError = true, Error = "Map not found" };
+
+            var accessError = await ValidateGmAccessAsync(map.IdRoom, userName);
+            if (accessError is not null)
+                return new Result<object> { IsError = true, Error = accessError };
+
+            var minimumSize = Math.Max(1, (int)Math.Ceiling(Math.Max(map.Width, map.Height) / 200d));
+            if (gridCellSize < minimumSize || gridCellSize > Math.Max(map.Width, map.Height))
+                return new Result<object> { IsError = true, Error = $"Grid cell size must be between {minimumSize} and {Math.Max(map.Width, map.Height)}" };
+
+            map.GridCellSize = gridCellSize;
+            await _context.SaveChangesAsync();
+            return new Result<object> { Value = null };
+        }
+        catch
+        {
+            return new Result<object> { IsError = true, Error = "An error occurred while saving the grid configuration" };
         }
     }
 

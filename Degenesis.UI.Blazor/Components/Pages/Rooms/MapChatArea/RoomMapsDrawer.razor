@@ -1,6 +1,6 @@
 <MudPaper Class="d-flex flex-column"
           Elevation="8"
-          Style="position: absolute; top: 0; left: 0; right: 0; height: 230px; max-width: 100%; z-index: 2; overflow: hidden;">
+          Style="position: absolute; top: 0; left: 0; right: 0; height: 250px; max-width: 100%; z-index: 2; overflow: hidden;">
     <div class="d-flex align-center justify-space-between pa-3">
         <MudText Typo="Typo.subtitle1">Room maps</MudText>
         <MudIconButton Icon="@Icons.Material.Filled.Close"
@@ -30,8 +30,10 @@
                     <div class="d-flex flex-column" style="width: 150px;">
                         <MudImage Src="@GetMapImageUrl(map)"
                                   Alt="@map.Name"
-                                  Style="width: 150px; height: 140px; object-fit: contain;" />
-                        <MudText Typo="Typo.caption" Class="text-truncate">@map.Name</MudText>
+                                  Style="width: 150px; height: 115px; object-fit: contain;" />
+                        <MudText Typo="Typo.caption"
+                                 title="@map.Name"
+                                 Style="line-height: 1.2; height: 2.4em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">@map.Name</MudText>
                     </div>
                 </MudButton>
             }
