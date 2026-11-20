@@ -9,4 +9,5 @@ public class RoomMapDto
     public int Width { get; set; }
     public int Height { get; set; }
     public int GridCellSize { get; set; }
+    public bool IsGridVisible { get; set; }
 }

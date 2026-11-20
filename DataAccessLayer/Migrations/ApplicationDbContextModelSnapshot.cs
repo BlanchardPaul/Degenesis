@@ -16,7 +16,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261120141812_InitialMigration";
+    public override string LastMigrationId => "20261120153753_InitialMigration";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1300,6 +1300,11 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
 
                 b.Property<Guid>("IdRoom")
                     .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsGridVisible")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bit")
+                    .HasDefaultValue(true);
 
                 b.Property<string>("Name")
                     .IsRequired()

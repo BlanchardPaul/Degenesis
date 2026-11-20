@@ -9,6 +9,7 @@ public class RoomMap
     public int Width { get; set; }
     public int Height { get; set; }
     public int GridCellSize { get; set; } = 100;
+    public bool IsGridVisible { get; set; } = true;
     public Room Room { get; set; } = null!;
     public List<RoomMapToken> Tokens { get; set; } = [];
 }

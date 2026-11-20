@@ -53,7 +53,7 @@ else
                                width="@SelectedMap.Width" height="@SelectedMap.Height"
                                preserveAspectRatio="xMidYMid meet"
                                draggable="false" />
-                        @if (IsGM && _isGridVisible)
+                        @if (_isGridVisible)
                         {
                             <g stroke="#263238" stroke-opacity="0.65" stroke-width="2" pointer-events="none">
                                 @foreach (var column in Enumerable.Range(1, Math.Max(0, GridColumns - 1)))
@@ -184,7 +184,7 @@ else
                             </MudStack>
                             <MudNumericField T="int" @bind-Value="_gridCellSize" Label="Cell size (map pixels)" Immediate="true" Class="mb-3" />
                             <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3">Each square represents 1 m. Changing its size adjusts the number of rows and columns.</MudText>
-                            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_isSavingGrid || SelectedMap is null)" OnClick="SaveGridCellSizeAsync">Save grid size</MudButton>
+                            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_isSavingGrid || SelectedMap is null)" OnClick="SaveGridConfigurationAsync">Save grid configuration</MudButton>
                         </div>
                     </MudPaper>
                 }

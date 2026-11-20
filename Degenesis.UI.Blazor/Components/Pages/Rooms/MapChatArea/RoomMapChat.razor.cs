@@ -156,7 +156,7 @@ public partial class RoomMapChat : IAsyncDisposable
     private void ToggleMapsDrawer() => isMapsDrawerOpen = !isMapsDrawerOpen;
     private void ToggleGridDrawer() => isGridDrawerOpen = !isGridDrawerOpen;
 
-    private async Task SaveGridCellSizeAsync()
+    private async Task SaveGridConfigurationAsync()
     {
         if (SelectedMap is null || _isSavingGrid)
             return;
@@ -170,7 +170,7 @@ public partial class RoomMapChat : IAsyncDisposable
         _isSavingGrid = true;
         try
         {
-            var response = await Client!.PutAsync($"/room-maps/{SelectedMap.Id}/grid?gridCellSize={_gridCellSize}", null);
+            var response = await Client!.PutAsync($"/room-maps/{SelectedMap.Id}/grid?gridCellSize={_gridCellSize}&isGridVisible={_isGridVisible}", null);
             if (!response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<Result<object>>();
@@ -179,7 +179,8 @@ public partial class RoomMapChat : IAsyncDisposable
             }
 
             SelectedMap.GridCellSize = _gridCellSize;
-            Snackbar.Add("Grid size saved", Severity.Success);
+            SelectedMap.IsGridVisible = _isGridVisible;
+            Snackbar.Add("Grid configuration saved", Severity.Success);
         }
         finally
         {
@@ -191,6 +192,7 @@ public partial class RoomMapChat : IAsyncDisposable
     {
         SelectedMap = map;
         _gridCellSize = Math.Clamp(map.GridCellSize, MinimumGridCellSize, MaximumGridCellSize);
+        _isGridVisible = map.IsGridVisible;
         _mapZoom = 1;
         _mapOffsetX = 0;
         _mapOffsetY = 0;
@@ -230,6 +232,7 @@ public partial class RoomMapChat : IAsyncDisposable
 
         SelectedMap = selectedMap;
         _gridCellSize = Math.Clamp(selectedMap.GridCellSize, MinimumGridCellSize, MaximumGridCellSize);
+        _isGridVisible = selectedMap.IsGridVisible;
         await LoadMapTokensAsync();
     }
 
@@ -264,13 +267,13 @@ public partial class RoomMapChat : IAsyncDisposable
             if (selectedMap is null)
                 return;
 
-            var halfTokenSize = GridCellSize / 2;
             var point = await GetMapPointAsync(args.ClientX, args.ClientY);
             if (!ReferenceEquals(_draggingToken, draggingToken) || !ReferenceEquals(SelectedMap, selectedMap))
                 return;
 
-            draggingToken.X = Math.Clamp(point.X, halfTokenSize, Math.Max(halfTokenSize, selectedMap.Width - halfTokenSize));
-            draggingToken.Y = Math.Clamp(point.Y, halfTokenSize, Math.Max(halfTokenSize, selectedMap.Height - halfTokenSize));
+            var tokenPosition = GetTokenPosition(point, selectedMap);
+            draggingToken.X = tokenPosition.X;
+            draggingToken.Y = tokenPosition.Y;
             return;
         }
 
@@ -386,6 +389,27 @@ public partial class RoomMapChat : IAsyncDisposable
 
     private void IgnoreMapDragOver(DragEventArgs args) { }
 
+    private SvgPoint GetTokenPosition(SvgPoint point, RoomMapDto map)
+    {
+        var halfTokenSize = GridCellSize / 2;
+        var minimumX = Math.Min(halfTokenSize, map.Width / 2d);
+        var maximumX = Math.Max(minimumX, map.Width - halfTokenSize);
+        var minimumY = Math.Min(halfTokenSize, map.Height / 2d);
+        var maximumY = Math.Max(minimumY, map.Height - halfTokenSize);
+
+        if (_isGridVisible)
+        {
+            point.X = Math.Round((point.X - halfTokenSize) / GridCellSize, MidpointRounding.AwayFromZero) * GridCellSize + halfTokenSize;
+            point.Y = Math.Round((point.Y - halfTokenSize) / GridCellSize, MidpointRounding.AwayFromZero) * GridCellSize + halfTokenSize;
+        }
+
+        return new SvgPoint
+        {
+            X = Math.Clamp(point.X, minimumX, maximumX),
+            Y = Math.Clamp(point.Y, minimumY, maximumY)
+        };
+    }
+
     private async Task DropToken(DragEventArgs args)
     {
         var pendingToken = _pendingMapToken;
@@ -393,16 +417,16 @@ public partial class RoomMapChat : IAsyncDisposable
         if (pendingToken is null || selectedMap is null)
             return;
 
-        var halfTokenSize = GridCellSize / 2;
         var point = await GetMapPointAsync(args.ClientX, args.ClientY);
+        var tokenPosition = GetTokenPosition(point, selectedMap);
         var token = new RoomMapToken
         {
             MemberId = pendingToken.MemberId,
             IsNpc = pendingToken.IsNpc,
             Name = pendingToken.Name,
             AvatarName = pendingToken.AvatarName,
-            X = Math.Clamp(point.X, halfTokenSize, Math.Max(halfTokenSize, selectedMap.Width - halfTokenSize)),
-            Y = Math.Clamp(point.Y, halfTokenSize, Math.Max(halfTokenSize, selectedMap.Height - halfTokenSize))
+            X = tokenPosition.X,
+            Y = tokenPosition.Y
         };
 
         if (!_tokensByMap.TryGetValue(selectedMap.Id, out var tokens))

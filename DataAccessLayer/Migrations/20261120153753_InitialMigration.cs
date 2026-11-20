@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations;
 
 /// <inheritdoc />
-public partial class _20261120141812_InitialMigration : Migration
+public partial class _20261120153753_InitialMigration : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -637,7 +637,8 @@ public partial class _20261120141812_InitialMigration : Migration
                 FileName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                 Width = table.Column<int>(type: "int", nullable: false),
                 Height = table.Column<int>(type: "int", nullable: false),
-                GridCellSize = table.Column<int>(type: "int", nullable: false, defaultValue: 100)
+                GridCellSize = table.Column<int>(type: "int", nullable: false, defaultValue: 100),
+                IsGridVisible = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
             },
             constraints: table =>
             {

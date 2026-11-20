@@ -17,7 +17,7 @@ public interface IRoomMapService
     Task<Result<RoomMapDto>> UploadAsync(Guid roomId, IFormFile file, string userName);
     Task<Result<List<RoomMapTokenDto>>> GetTokensAsync(Guid mapId, string userName);
     Task<Result<object>> SaveTokensAsync(Guid mapId, List<RoomMapTokenDto> tokens, string userName);
-    Task<Result<object>> SaveGridCellSizeAsync(Guid mapId, int gridCellSize, string userName);
+    Task<Result<object>> SaveGridConfigurationAsync(Guid mapId, int gridCellSize, bool isGridVisible, string userName);
     Task<Result<object>> SelectMapAsync(Guid roomId, Guid mapId, string userName);
     Task<Result<object>> DeleteAsync(Guid mapId, string userName);
 }
@@ -58,7 +58,8 @@ public class RoomMapService : IRoomMapService
                     FileName = map.FileName,
                     Width = map.Width,
                     Height = map.Height,
-                    GridCellSize = map.GridCellSize
+                    GridCellSize = map.GridCellSize,
+                    IsGridVisible = map.IsGridVisible
                 })
                 .ToListAsync();
 
@@ -109,7 +110,8 @@ public class RoomMapService : IRoomMapService
                 FileName = fileName,
                 Width = width,
                 Height = height,
-                GridCellSize = Math.Min(300, Math.Max(1, (int)Math.Ceiling(Math.Max(width, height) / 10d)))
+                GridCellSize = Math.Min(300, Math.Max(1, (int)Math.Ceiling(Math.Max(width, height) / 10d))),
+                IsGridVisible = true
             };
 
             await File.WriteAllBytesAsync(imagePath, imageBytes);
@@ -134,7 +136,8 @@ public class RoomMapService : IRoomMapService
                     FileName = map.FileName,
                     Width = map.Width,
                     Height = map.Height,
-                    GridCellSize = map.GridCellSize
+                    GridCellSize = map.GridCellSize,
+                    IsGridVisible = map.IsGridVisible
                 }
             };
         }
@@ -272,7 +275,7 @@ public class RoomMapService : IRoomMapService
         }
     }
 
-    public async Task<Result<object>> SaveGridCellSizeAsync(Guid mapId, int gridCellSize, string userName)
+    public async Task<Result<object>> SaveGridConfigurationAsync(Guid mapId, int gridCellSize, bool isGridVisible, string userName)
     {
         try
         {
@@ -290,6 +293,7 @@ public class RoomMapService : IRoomMapService
                 return new Result<object> { IsError = true, Error = $"Grid cell size must be between {minimumSize} and {maximumSize}" };
 
             map.GridCellSize = gridCellSize;
+            map.IsGridVisible = isGridVisible;
             await _context.SaveChangesAsync();
             return new Result<object> { Value = null };
         }

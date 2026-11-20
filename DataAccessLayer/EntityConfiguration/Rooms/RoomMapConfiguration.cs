@@ -28,6 +28,10 @@ internal class RoomMapConfiguration : IEntityTypeConfiguration<RoomMap>
             .IsRequired()
             .HasDefaultValue(100);
 
+        builder.Property(map => map.IsGridVisible)
+            .IsRequired()
+            .HasDefaultValue(true);
+
         builder.HasOne(map => map.Room)
             .WithMany(room => room.Maps)
             .HasForeignKey(map => map.IdRoom)

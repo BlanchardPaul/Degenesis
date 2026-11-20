@@ -41,10 +41,10 @@ public static class RoomMapEndpoints
             return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
-        group.MapPut("/{mapId:guid}/grid", async (Guid mapId, int gridCellSize,
+        group.MapPut("/{mapId:guid}/grid", async (Guid mapId, int gridCellSize, bool isGridVisible,
             IRoomMapService service, ClaimsPrincipal user) =>
         {
-            var result = await service.SaveGridCellSizeAsync(mapId, gridCellSize, user.Identity?.Name ?? string.Empty);
+            var result = await service.SaveGridConfigurationAsync(mapId, gridCellSize, isGridVisible, user.Identity?.Name ?? string.Empty);
             return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 

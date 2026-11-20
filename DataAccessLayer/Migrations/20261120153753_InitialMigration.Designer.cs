@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations;
 
 [DbContext(typeof(ApplicationDbContext))]
-[Migration("20261120141812_InitialMigration")]
-partial class _20261120141812_InitialMigration
+[Migration("20261120153753_InitialMigration")]
+partial class _20261120153753_InitialMigration
 {
     /// <inheritdoc />
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1298,6 +1298,11 @@ partial class _20261120141812_InitialMigration
 
                 b.Property<Guid>("IdRoom")
                     .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsGridVisible")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bit")
+                    .HasDefaultValue(true);
 
                 b.Property<string>("Name")
                     .IsRequired()
