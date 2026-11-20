@@ -9,4 +9,5 @@ public class RoomMap
     public int Width { get; set; }
     public int Height { get; set; }
     public Room Room { get; set; } = null!;
+    public List<RoomMapToken> Tokens { get; set; } = [];
 }

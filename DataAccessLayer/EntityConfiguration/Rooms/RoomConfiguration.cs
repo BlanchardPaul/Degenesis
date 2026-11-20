@@ -22,5 +22,7 @@ internal class RoomConfiguration : IEntityTypeConfiguration<Room>
         builder.Property(r => r.Description)
             .IsRequired()
             .HasMaxLength(1000);
+
+        builder.Property(r => r.SelectedMapId);
     }
 }

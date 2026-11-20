@@ -29,7 +29,7 @@ public partial class RoomMapChat : IAsyncDisposable
     private string currentMessage = "";
     private string? userName;
     private static readonly string[] DiceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-    private bool isMapDrawerOpen;
+    private bool isRollsDrawerOpen;
     private bool isMembersDrawerOpen;
     private bool isMapsDrawerOpen;
     private RoomMapDto? SelectedMap;
@@ -42,16 +42,21 @@ public partial class RoomMapChat : IAsyncDisposable
     private double _lastPointerX;
     private double _lastPointerY;
     private bool isMapDragging;
+    private bool _isSavingMapTokens;
     private ElementReference _mapSvg;
     private IJSObjectReference? _mapCanvasModule;
     private RoomMapToken? _pendingMapToken;
     private RoomMapToken? _draggingToken;
+    private RoomMapToken? _contextMenuToken;
+    private double _contextMenuClientX;
+    private double _contextMenuClientY;
     private readonly Dictionary<Guid, List<RoomMapToken>> _tokensByMap = [];
     private List<RoomMapToken> CurrentMapTokens => SelectedMap is not null && _tokensByMap.TryGetValue(SelectedMap.Id, out var tokens) ? tokens : [];
     private double MapTokenRadius => SelectedMap is null ? 20 : Math.Max(12, Math.Min(SelectedMap.Width, SelectedMap.Height) * 0.025);
     private double TokenLabelSize => MapTokenRadius * 0.65;
     private string MapTransform => FormattableString.Invariant($"translate({_mapOffsetX}px, {_mapOffsetY}px) scale({_mapZoom})");
     private static string SvgNumber(double value) => FormattableString.Invariant($"{value}");
+    private string ContextMenuStyle => $"position: fixed; left: {SvgNumber(_contextMenuClientX)}px; top: {SvgNumber(_contextMenuClientY)}px; z-index: 20; min-width: 120px;";
     private string MapImageApiRoot => Client?.BaseAddress is null
         ? string.Empty
         : new Uri(Client.BaseAddress, "..").GetLeftPart(UriPartial.Authority);
@@ -78,6 +83,8 @@ public partial class RoomMapChat : IAsyncDisposable
             Navigation.NavigateTo("/rooms");
             return;
         }
+
+        await LoadSelectedMapAsync();
 
         // Create a connection with the chat hub
         hubConnection = await RoomConnection.GetOrCreateAsync(IdRoom);
@@ -136,11 +143,11 @@ public partial class RoomMapChat : IAsyncDisposable
         StateHasChanged();
     }
 
-    private void ToggleMapDrawer() => isMapDrawerOpen = !isMapDrawerOpen;
+    private void ToggleMapDrawer() => isRollsDrawerOpen = !isRollsDrawerOpen;
     private void ToggleMembersDrawer() => isMembersDrawerOpen = !isMembersDrawerOpen;
     private void ToggleMapsDrawer() => isMapsDrawerOpen = !isMapsDrawerOpen;
 
-    private void SelectMap(RoomMapDto map)
+    private async Task SelectMap(RoomMapDto map)
     {
         SelectedMap = map;
         _mapZoom = 1;
@@ -149,10 +156,45 @@ public partial class RoomMapChat : IAsyncDisposable
         isMapDragging = false;
         _draggingToken = null;
         isMapsDrawerOpen = false;
+
+        if (IsGM)
+        {
+            var response = await Client!.PutAsync($"/room-maps/room/{IdRoom}/select/{map.Id}", null);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadFromJsonAsync<Result<object>>();
+                Snackbar.Add(error?.Error ?? "Unable to save the selected map", Severity.Error);
+            }
+            else
+            {
+                room!.SelectedMapId = map.Id;
+            }
+        }
+
+        await LoadMapTokensAsync();
+    }
+
+    private async Task LoadSelectedMapAsync()
+    {
+        if (room?.SelectedMapId is null)
+            return;
+
+        var result = await Client!.GetFromJsonAsync<Result<List<RoomMapDto>>>($"/room-maps/room/{IdRoom}");
+        if (result is null || result.IsError)
+            return;
+
+        var selectedMap = result.Value?.FirstOrDefault(map => map.Id == room.SelectedMapId);
+        if (selectedMap is null)
+            return;
+
+        SelectedMap = selectedMap;
+        await LoadMapTokensAsync();
     }
 
     private async Task StartMapDrag(PointerEventArgs args)
     {
+        _contextMenuToken = null;
+
         if (args.Button != 0)
             return;
 
@@ -203,6 +245,99 @@ public partial class RoomMapChat : IAsyncDisposable
     {
         isMapDragging = false;
         _draggingToken = null;
+    }
+
+    private async Task LoadMapTokensAsync()
+    {
+        if (SelectedMap is null)
+            return;
+
+        var result = await Client!.GetFromJsonAsync<Result<List<RoomMapTokenDto>>>($"/room-maps/{SelectedMap.Id}/tokens");
+        var tokens = (result?.Value ?? [])
+            .Select(savedToken => new RoomMapToken
+            {
+                MemberId = savedToken.MemberId,
+                IsNpc = savedToken.IsNpc,
+                Name = savedToken.Name,
+                AvatarName = savedToken.AvatarName,
+                X = savedToken.X,
+                Y = savedToken.Y
+            })
+            .ToList();
+
+        if (result is not null && result.IsError)
+            Snackbar.Add(result.Error ?? "Unable to load map tokens", Severity.Error);
+
+        _tokensByMap[SelectedMap.Id] = tokens;
+    }
+
+    private void OpenTokenContextMenu(RoomMapToken token, MouseEventArgs args)
+    {
+        _contextMenuToken = token;
+        _contextMenuClientX = args.ClientX;
+        _contextMenuClientY = args.ClientY;
+    }
+
+    private async Task DeleteContextMenuToken()
+    {
+        if (_contextMenuToken is null || SelectedMap is null)
+            return;
+
+        var tokenToDelete = _contextMenuToken;
+        var remainingTokens = CurrentMapTokens
+            .Where(token => !ReferenceEquals(token, tokenToDelete))
+            .Select(token => new RoomMapTokenDto
+            {
+                MemberId = token.MemberId,
+                IsNpc = token.IsNpc,
+                Name = token.Name,
+                AvatarName = token.AvatarName,
+                X = token.X,
+                Y = token.Y
+            })
+            .ToList();
+
+        var response = await Client!.PutAsJsonAsync($"/room-maps/{SelectedMap.Id}/tokens", remainingTokens);
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unable to delete map token", Severity.Error);
+            return;
+        }
+
+        CurrentMapTokens.Remove(tokenToDelete);
+        _contextMenuToken = null;
+        Snackbar.Add("Map token deleted", Severity.Success);
+    }
+
+    private async Task SaveMapTokens()
+    {
+        if (SelectedMap is null)
+            return;
+
+        _isSavingMapTokens = true;
+        var tokens = CurrentMapTokens.Select(token => new RoomMapTokenDto
+        {
+            MemberId = token.MemberId,
+            IsNpc = token.IsNpc,
+            Name = token.Name,
+            AvatarName = token.AvatarName,
+            X = token.X,
+            Y = token.Y
+        }).ToList();
+
+        var response = await Client!.PutAsJsonAsync($"/room-maps/{SelectedMap.Id}/tokens", tokens);
+        if (!response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+            Snackbar.Add(result?.Error ?? "Unable to save map tokens", Severity.Error);
+        }
+        else
+        {
+            Snackbar.Add("Map tokens saved", Severity.Success);
+        }
+
+        _isSavingMapTokens = false;
     }
 
     private void SetPendingMapToken(RoomMapToken token) => _pendingMapToken = token;
@@ -331,8 +466,6 @@ public partial class RoomMapChat : IAsyncDisposable
         };
         return string.IsNullOrEmpty(color) ? "" : $"color: {color};";
     }
-
-    
 
     public async ValueTask DisposeAsync()
     {

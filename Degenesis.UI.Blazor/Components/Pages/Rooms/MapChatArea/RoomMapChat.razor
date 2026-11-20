@@ -50,6 +50,9 @@ else
                             <g @onpointerdown="args => StartTokenDrag(token, args)"
                                @onpointerdown:stopPropagation="true"
                                @onpointerdown:preventDefault="true"
+                               @oncontextmenu="args => OpenTokenContextMenu(token, args)"
+                               @oncontextmenu:preventDefault="true"
+                               @oncontextmenu:stopPropagation="true"
                                style="cursor: grab;">
                                 <circle cx="@SvgNumber(token.X)" cy="@SvgNumber(token.Y)" r="@SvgNumber(MapTokenRadius)" fill="#263238" stroke="white" stroke-width="3" />
                                 @if (token.AvatarName is not null)
@@ -80,16 +83,35 @@ else
                             </g>
                         }
                     </svg>
+
+                    @if (IsGM && _contextMenuToken is not null)
+                    {
+                        <MudPaper Elevation="8"
+                                  @onclick:stopPropagation="true"
+                                  Style="@ContextMenuStyle">
+                            <MudButton StartIcon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       FullWidth="true"
+                                       OnClick="DeleteContextMenuToken">Delete</MudButton>
+                        </MudPaper>
+                    }
+
                     <MudStack Row Spacing="1"
                               Style="position: absolute; right: 12px; bottom: 12px; z-index: 1; background: rgba(255,255,255,0.8); border-radius: 8px;">
+                        @if (IsGM)
+                        {
+                            <MudIconButton Icon="@Icons.Material.Filled.Save"
+                                           Color="Color.Primary"
+                                           Disabled="@_isSavingMapTokens"
+                                           OnClick="SaveMapTokens" />
+                        }
+
                         <MudIconButton Icon="@Icons.Material.Filled.ZoomOut"
                                        Color="Color.Primary"
-                                       AriaLabel="Zoom out"
                                        Disabled="@(_mapZoom <= MinMapZoom)"
                                        OnClick="ZoomOut" />
                         <MudIconButton Icon="@Icons.Material.Filled.ZoomIn"
                                        Color="Color.Primary"
-                                       AriaLabel="Zoom in"
                                        Disabled="@(_mapZoom >= MaxMapZoom)"
                                        OnClick="ZoomIn" />
                     </MudStack>
@@ -108,7 +130,7 @@ else
                                     OnClose="ToggleMapsDrawer" />
                 }
 
-                @if (isMapDrawerOpen)
+                @if (isRollsDrawerOpen)
                 {
                     <SavedRollsDrawer Character="Character"
                                       HubConnection="hubConnection"

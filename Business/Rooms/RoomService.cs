@@ -53,6 +53,7 @@ public class RoomService(ApplicationDbContext context, IMapper mapper, UserManag
                     Id = room.Id,
                     Name = room.Name,
                     Description = room.Description,
+                    SelectedMapId = room.SelectedMapId,
                     GMName = room.UserRooms.First(ur => ur.IsGM).ApplicationUser.UserName ?? string.Empty,
                     Players = [.. room.UserRooms.Where(ur => !ur.IsGM && ur.InvitationAccepted).Select(ur => ur.ApplicationUser.UserName ?? string.Empty)],
                     Pendings = [.. room.UserRooms.Where(ur => !ur.IsGM && !ur.InvitationAccepted).Select(ur => ur.ApplicationUser.UserName ?? string.Empty)],
@@ -85,6 +86,7 @@ public class RoomService(ApplicationDbContext context, IMapper mapper, UserManag
                 Id = dbRoom.Id,
                 Name = dbRoom.Name,
                 Description = dbRoom.Description,
+                SelectedMapId = dbRoom.SelectedMapId,
                 GMName = dbRoom.UserRooms.First(ur => ur.IsGM).ApplicationUser.UserName ?? string.Empty,
                 Players = [.. dbRoom.UserRooms.Where(ur => !ur.IsGM && ur.InvitationAccepted).Select(ur => ur.ApplicationUser.UserName ?? string.Empty)],
                 Pendings = [.. dbRoom.UserRooms.Where(ur => !ur.IsGM && !ur.InvitationAccepted).Select(ur => ur.ApplicationUser.UserName ?? string.Empty)]

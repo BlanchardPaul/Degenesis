@@ -21,6 +21,26 @@ public static class RoomMapEndpoints
             return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         }).DisableAntiforgery();
 
+        group.MapGet("/{mapId:guid}/tokens", async (Guid mapId, IRoomMapService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.GetTokensAsync(mapId, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
+        group.MapPut("/room/{roomId:guid}/select/{mapId:guid}", async (Guid roomId, Guid mapId,
+            IRoomMapService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.SelectMapAsync(roomId, mapId, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
+        group.MapPut("/{mapId:guid}/tokens", async (Guid mapId, List<Degenesis.Shared.DTOs.Rooms.RoomMapTokenDto> tokens,
+            IRoomMapService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.SaveTokensAsync(mapId, tokens, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
         group.MapDelete("/{mapId:guid}", async (Guid mapId, IRoomMapService service, ClaimsPrincipal user) =>
         {
             var result = await service.DeleteAsync(mapId, user.Identity?.Name ?? string.Empty);

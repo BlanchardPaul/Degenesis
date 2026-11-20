@@ -13,6 +13,7 @@ public class RoomCreateDto
 
 public class RoomDisplayDto : RoomDto
 {
+    public Guid? SelectedMapId { get; set; }
     public string GMName { get; set; } = string.Empty;
     public List<string> Players { get; set; } = [];
     public List<string> Pendings { get; set; } = [];

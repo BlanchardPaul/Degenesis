@@ -16,7 +16,7 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261118092453_InitialMigration";
+    public override string LastMigrationId => "20261120094914_InitialMigration";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1213,6 +1213,9 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(100)
                     .HasColumnType("nvarchar(100)");
 
+                b.Property<Guid?>("SelectedMapId")
+                    .HasColumnType("uniqueidentifier");
+
                 b.HasKey("Id");
 
                 b.ToTable("Rooms");
@@ -1306,6 +1309,35 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("IdRoom");
 
                 b.ToTable("RoomMaps");
+            });
+
+        modelBuilder.Entity("Domain.Rooms.RoomMapToken", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<Guid>("IdRoomMap")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<bool>("IsNpc")
+                    .HasColumnType("bit");
+
+                b.Property<Guid>("MemberId")
+                    .HasColumnType("uniqueidentifier");
+
+                b.Property<double>("X")
+                    .HasColumnType("float");
+
+                b.Property<double>("Y")
+                    .HasColumnType("float");
+
+                b.HasKey("Id");
+
+                b.HasIndex("IdRoomMap", "MemberId", "IsNpc")
+                    .IsUnique();
+
+                b.ToTable("RoomMapTokens");
             });
 
         modelBuilder.Entity("Domain.Rooms.UserRoom", b =>
@@ -2410,6 +2442,17 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Room");
             });
 
+        modelBuilder.Entity("Domain.Rooms.RoomMapToken", b =>
+            {
+                b.HasOne("Domain.Rooms.RoomMap", "RoomMap")
+                    .WithMany("Tokens")
+                    .HasForeignKey("IdRoomMap")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired();
+
+                b.Navigation("RoomMap");
+            });
+
         modelBuilder.Entity("Domain.Rooms.UserRoom", b =>
             {
                 b.HasOne("Domain.Users.ApplicationUser", "ApplicationUser")
@@ -2602,6 +2645,11 @@ partial class ApplicationDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Maps");
 
                 b.Navigation("UserRooms");
+            });
+
+        modelBuilder.Entity("Domain.Rooms.RoomMap", b =>
+            {
+                b.Navigation("Tokens");
             });
 
         modelBuilder.Entity("Domain.Users.ApplicationUser", b =>

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace DataAccessLayer.Migrations;
 
 /// <inheritdoc />
-public partial class _20261118092453_InitialMigration : Migration
+public partial class _20261120094914_InitialMigration : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -197,7 +197,8 @@ public partial class _20261118092453_InitialMigration : Migration
             {
                 Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                 Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false)
+                Description = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: false),
+                SelectedMapId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
             },
             constraints: table =>
             {
@@ -1075,6 +1076,28 @@ public partial class _20261118092453_InitialMigration : Migration
             });
 
         migrationBuilder.CreateTable(
+            name: "RoomMapTokens",
+            columns: table => new
+            {
+                Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                IdRoomMap = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                MemberId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                IsNpc = table.Column<bool>(type: "bit", nullable: false),
+                X = table.Column<double>(type: "float", nullable: false),
+                Y = table.Column<double>(type: "float", nullable: false)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_RoomMapTokens", x => x.Id);
+                table.ForeignKey(
+                    name: "FK_RoomMapTokens_RoomMaps_IdRoomMap",
+                    column: x => x.IdRoomMap,
+                    principalTable: "RoomMaps",
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
+            });
+
+        migrationBuilder.CreateTable(
             name: "RankRankPrerequisite",
             columns: table => new
             {
@@ -1772,6 +1795,12 @@ public partial class _20261118092453_InitialMigration : Migration
             column: "IdRoom");
 
         migrationBuilder.CreateIndex(
+            name: "IX_RoomMapTokens_IdRoomMap_MemberId_IsNpc",
+            table: "RoomMapTokens",
+            columns: new[] { "IdRoomMap", "MemberId", "IsNpc" },
+            unique: true);
+
+        migrationBuilder.CreateIndex(
             name: "IX_Skills_CAttributeId",
             table: "Skills",
             column: "CAttributeId");
@@ -1912,7 +1941,7 @@ public partial class _20261118092453_InitialMigration : Migration
             name: "RoomCultRelationship");
 
         migrationBuilder.DropTable(
-            name: "RoomMaps");
+            name: "RoomMapTokens");
 
         migrationBuilder.DropTable(
             name: "UserRooms");
@@ -1957,6 +1986,9 @@ public partial class _20261118092453_InitialMigration : Migration
             name: "RankPrerequisites");
 
         migrationBuilder.DropTable(
+            name: "RoomMaps");
+
+        migrationBuilder.DropTable(
             name: "VehicleTypes");
 
         migrationBuilder.DropTable(
@@ -1975,9 +2007,6 @@ public partial class _20261118092453_InitialMigration : Migration
             name: "WeaponTypes");
 
         migrationBuilder.DropTable(
-            name: "Rooms");
-
-        migrationBuilder.DropTable(
             name: "Ranks");
 
         migrationBuilder.DropTable(
@@ -1985,6 +2014,9 @@ public partial class _20261118092453_InitialMigration : Migration
 
         migrationBuilder.DropTable(
             name: "Skills");
+
+        migrationBuilder.DropTable(
+            name: "Rooms");
 
         migrationBuilder.DropTable(
             name: "Cults");
