@@ -176,9 +176,15 @@ else
                         <MudDivider />
                         <div class="pa-3">
                             <MudCheckBox T="bool" @bind-Value="_isGridVisible" Label="Show grid" Class="mb-2" />
-                            <MudNumericField T="int" @bind-Value="_gridCellSize" Label="Cell size (map pixels)" Min="@MinimumGridCellSize" Max="@MaximumGridCellSize" Immediate="true" Class="mb-3" />
+                            <MudText Typo="Typo.body2">Cell size: @_gridCellSize px</MudText>
+                            <MudSlider T="int" @bind-Value="_gridCellSize" Min="@MinimumGridCellSize" Max="@MaximumGridCellSize" Step="1" Color="Color.Primary" Disabled="@(SelectedMap is null)" />
+                            <MudStack Row Justify="Justify.SpaceBetween" Class="mb-2">
+                                <MudText Typo="Typo.caption">Min: @MinimumGridCellSize px</MudText>
+                                <MudText Typo="Typo.caption">Max: @MaximumGridCellSize px</MudText>
+                            </MudStack>
+                            <MudNumericField T="int" @bind-Value="_gridCellSize" Label="Cell size (map pixels)" Immediate="true" Class="mb-3" />
                             <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3">Each square represents 1 m. Changing its size adjusts the number of rows and columns.</MudText>
-                            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_isSavingGrid || SelectedMap is null)" OnClick="SaveGridCellSizeAsync">Apply</MudButton>
+                            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_isSavingGrid || SelectedMap is null)" OnClick="SaveGridCellSizeAsync">Save grid size</MudButton>
                         </div>
                     </MudPaper>
                 }

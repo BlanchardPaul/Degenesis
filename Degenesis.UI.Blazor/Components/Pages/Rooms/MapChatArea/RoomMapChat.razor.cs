@@ -36,7 +36,6 @@ public partial class RoomMapChat : IAsyncDisposable
     private bool _isGridVisible = true;
     private bool _isSavingGrid;
     private int _gridCellSize = 100;
-    private int _appliedGridCellSize = 100;
     private RoomMapDto? SelectedMap;
     private const double MinMapZoom = 0.5;
     private const double MaxMapZoom = 3;
@@ -57,9 +56,9 @@ public partial class RoomMapChat : IAsyncDisposable
     private double _contextMenuClientY;
     private readonly Dictionary<Guid, List<RoomMapToken>> _tokensByMap = [];
     private List<RoomMapToken> CurrentMapTokens => SelectedMap is not null && _tokensByMap.TryGetValue(SelectedMap.Id, out var tokens) ? tokens : [];
-    private int MinimumGridCellSize => SelectedMap is null ? 1 : Math.Max(1, (int)Math.Ceiling(Math.Max(SelectedMap.Width, SelectedMap.Height) / 200d));
-    private int MaximumGridCellSize => SelectedMap is null ? 200 : Math.Max(SelectedMap.Width, SelectedMap.Height);
-    private double GridCellSize => Math.Max(_appliedGridCellSize, MinimumGridCellSize);
+    private int MaximumGridCellSize => SelectedMap is null ? 300 : Math.Min(300, Math.Max(SelectedMap.Width, SelectedMap.Height));
+    private int MinimumGridCellSize => SelectedMap is null ? 1 : Math.Min(MaximumGridCellSize, Math.Max(1, (int)Math.Ceiling(Math.Max(SelectedMap.Width, SelectedMap.Height) / 200d)));
+    private double GridCellSize => Math.Clamp(_gridCellSize, MinimumGridCellSize, MaximumGridCellSize);
     private int GridColumns => SelectedMap is null ? 0 : (int)Math.Ceiling(SelectedMap.Width / GridCellSize);
     private int GridRows => SelectedMap is null ? 0 : (int)Math.Ceiling(SelectedMap.Height / GridCellSize);
     private double TokenLabelSize => GridCellSize * 0.65;
@@ -162,6 +161,12 @@ public partial class RoomMapChat : IAsyncDisposable
         if (SelectedMap is null || _isSavingGrid)
             return;
 
+        if (_gridCellSize < MinimumGridCellSize || _gridCellSize > MaximumGridCellSize)
+        {
+            Snackbar.Add($"Grid cell size must be between {MinimumGridCellSize} and {MaximumGridCellSize} pixels", Severity.Warning);
+            return;
+        }
+
         _isSavingGrid = true;
         try
         {
@@ -173,9 +178,8 @@ public partial class RoomMapChat : IAsyncDisposable
                 return;
             }
 
-            _appliedGridCellSize = _gridCellSize;
             SelectedMap.GridCellSize = _gridCellSize;
-            Snackbar.Add("Grid size applied and saved", Severity.Success);
+            Snackbar.Add("Grid size saved", Severity.Success);
         }
         finally
         {
@@ -186,8 +190,7 @@ public partial class RoomMapChat : IAsyncDisposable
     private async Task SelectMap(RoomMapDto map)
     {
         SelectedMap = map;
-        _gridCellSize = map.GridCellSize;
-        _appliedGridCellSize = map.GridCellSize;
+        _gridCellSize = Math.Clamp(map.GridCellSize, MinimumGridCellSize, MaximumGridCellSize);
         _mapZoom = 1;
         _mapOffsetX = 0;
         _mapOffsetY = 0;
@@ -226,8 +229,7 @@ public partial class RoomMapChat : IAsyncDisposable
             return;
 
         SelectedMap = selectedMap;
-        _gridCellSize = selectedMap.GridCellSize;
-        _appliedGridCellSize = selectedMap.GridCellSize;
+        _gridCellSize = Math.Clamp(selectedMap.GridCellSize, MinimumGridCellSize, MaximumGridCellSize);
         await LoadMapTokensAsync();
     }
 

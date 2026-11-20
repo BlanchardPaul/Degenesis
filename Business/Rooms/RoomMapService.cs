@@ -109,7 +109,7 @@ public class RoomMapService : IRoomMapService
                 FileName = fileName,
                 Width = width,
                 Height = height,
-                GridCellSize = Math.Max(1, (int)Math.Ceiling(Math.Max(width, height) / 10d))
+                GridCellSize = Math.Min(300, Math.Max(1, (int)Math.Ceiling(Math.Max(width, height) / 10d)))
             };
 
             await File.WriteAllBytesAsync(imagePath, imageBytes);
@@ -284,9 +284,10 @@ public class RoomMapService : IRoomMapService
             if (accessError is not null)
                 return new Result<object> { IsError = true, Error = accessError };
 
-            var minimumSize = Math.Max(1, (int)Math.Ceiling(Math.Max(map.Width, map.Height) / 200d));
-            if (gridCellSize < minimumSize || gridCellSize > Math.Max(map.Width, map.Height))
-                return new Result<object> { IsError = true, Error = $"Grid cell size must be between {minimumSize} and {Math.Max(map.Width, map.Height)}" };
+            var maximumSize = Math.Min(300, Math.Max(map.Width, map.Height));
+            var minimumSize = Math.Min(maximumSize, Math.Max(1, (int)Math.Ceiling(Math.Max(map.Width, map.Height) / 200d)));
+            if (gridCellSize < minimumSize || gridCellSize > maximumSize)
+                return new Result<object> { IsError = true, Error = $"Grid cell size must be between {minimumSize} and {maximumSize}" };
 
             map.GridCellSize = gridCellSize;
             await _context.SaveChangesAsync();
