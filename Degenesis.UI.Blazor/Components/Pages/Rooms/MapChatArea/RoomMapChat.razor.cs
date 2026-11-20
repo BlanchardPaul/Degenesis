@@ -501,8 +501,13 @@ public partial class RoomMapChat : IAsyncDisposable
         public double Y { get; set; }
     }
 
-    private void ZoomIn() => _mapZoom = Math.Min(_mapZoom + MapZoomStep, MaxMapZoom);
-    private void ZoomOut() => _mapZoom = Math.Max(_mapZoom - MapZoomStep, MinMapZoom);
+    private void ZoomMapWithWheel(WheelEventArgs args)
+    {
+        if (args.DeltaY < 0)
+            _mapZoom = Math.Min(_mapZoom + MapZoomStep, MaxMapZoom);
+        else if (args.DeltaY > 0)
+            _mapZoom = Math.Max(_mapZoom - MapZoomStep, MinMapZoom);
+    }
 
     private string GetSelectedMapImageUrl()
         => $"{MapImageApiRoot}/map-images/{Uri.EscapeDataString(SelectedMap!.FileName)}";

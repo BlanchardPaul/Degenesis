@@ -39,6 +39,8 @@ else
                          @onpointermove="DragMap"
                          @onpointerup="EndMapDrag"
                          @onpointercancel="EndMapDrag"
+                         @onwheel="ZoomMapWithWheel"
+                         @onwheel:preventDefault="true"
                          @ondragover="IgnoreMapDragOver"
                          @ondragover:preventDefault="true"
                          @ondrop="DropToken"
@@ -129,14 +131,6 @@ else
                                            OnClick="SaveMapTokens" />
                         }
 
-                        <MudIconButton Icon="@Icons.Material.Filled.ZoomOut"
-                                       Color="Color.Primary"
-                                       Disabled="@(_mapZoom <= MinMapZoom)"
-                                       OnClick="ZoomOut" />
-                        <MudIconButton Icon="@Icons.Material.Filled.ZoomIn"
-                                       Color="Color.Primary"
-                                       Disabled="@(_mapZoom >= MaxMapZoom)"
-                                       OnClick="ZoomIn" />
                     </MudStack>
                 }
 
