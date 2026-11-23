@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SkiaSharp;
+using System.Text.Json;
 
 namespace Business.Rooms;
 
@@ -16,7 +17,9 @@ public interface IRoomMapService
     Task<Result<List<RoomMapDto>>> GetByRoomAsync(Guid roomId, string userName);
     Task<Result<RoomMapDto>> UploadAsync(Guid roomId, IFormFile file, string userName);
     Task<Result<List<RoomMapTokenDto>>> GetTokensAsync(Guid mapId, string userName);
+    Task<Result<List<RoomMapDrawingDto>>> GetDrawingsAsync(Guid mapId, string userName);
     Task<Result<object>> SaveTokensAsync(Guid mapId, List<RoomMapTokenDto> tokens, string userName);
+    Task<Result<object>> SaveMapStateAsync(Guid mapId, RoomMapStateDto state, string userName);
     Task<Result<object>> SaveGridConfigurationAsync(Guid mapId, int gridCellSize, bool isGridVisible, string userName);
     Task<Result<object>> SelectMapAsync(Guid roomId, Guid mapId, string userName);
     Task<Result<object>> DeleteAsync(Guid mapId, string userName);
@@ -236,6 +239,27 @@ public class RoomMapService : IRoomMapService
         }
     }
 
+    public async Task<Result<List<RoomMapDrawingDto>>> GetDrawingsAsync(Guid mapId, string userName)
+    {
+        try
+        {
+            var map = await _context.RoomMaps.FirstOrDefaultAsync(item => item.Id == mapId);
+            if (map is null)
+                return new Result<List<RoomMapDrawingDto>> { IsError = true, Error = "Map not found" };
+
+            var accessError = await ValidateRoomMemberAsync(map.IdRoom, userName);
+            if (accessError is not null)
+                return new Result<List<RoomMapDrawingDto>> { IsError = true, Error = accessError };
+
+            var drawings = JsonSerializer.Deserialize<List<RoomMapDrawingDto>>(map.DrawingsJson);
+            return new Result<List<RoomMapDrawingDto>> { Value = drawings ?? [] };
+        }
+        catch
+        {
+            return new Result<List<RoomMapDrawingDto>> { IsError = true, Error = "An error occurred while retrieving map drawings" };
+        }
+    }
+
     public async Task<Result<object>> SaveTokensAsync(Guid mapId, List<RoomMapTokenDto> tokens, string userName)
     {
         try
@@ -272,6 +296,58 @@ public class RoomMapService : IRoomMapService
         catch
         {
             return new Result<object> { IsError = true, Error = "An error occurred while saving tokens" };
+        }
+    }
+
+    public async Task<Result<object>> SaveMapStateAsync(Guid mapId, RoomMapStateDto state, string userName)
+    {
+        try
+        {
+            var map = await _context.RoomMaps.FirstOrDefaultAsync(item => item.Id == mapId);
+            if (map is null)
+                return new Result<object> { IsError = true, Error = "Map not found" };
+
+            var accessError = await ValidateGmAccessAsync(map.IdRoom, userName);
+            if (accessError is not null)
+                return new Result<object> { IsError = true, Error = accessError };
+
+            if (state is null || state.Tokens is null || state.Drawings is null ||
+                state.Drawings.Count > 1000 || state.Drawings.Any(drawing => drawing is null) ||
+                state.Drawings.Select(drawing => drawing.Id).Distinct().Count() != state.Drawings.Count ||
+                state.Drawings.Any(drawing => drawing.Id == Guid.Empty ||
+                    drawing.StrokeWidth is < 1 or > 20 ||
+                    string.IsNullOrEmpty(drawing.Color) || drawing.Color[0] != '#' || drawing.Color.Length is not (7 or 9) ||
+                    !drawing.Color.AsSpan(1).ToString().All(Uri.IsHexDigit) ||
+                    drawing.Points is null || drawing.Points.Count is < 1 or > 10000 ||
+                    drawing.Points.Any(point => point is null || !double.IsFinite(point.X) || !double.IsFinite(point.Y) ||
+                                                point.X < 0 || point.X > map.Width || point.Y < 0 || point.Y > map.Height)))
+                return new Result<object> { IsError = true, Error = "Map drawings contain invalid data" };
+
+            var existingTokens = await _context.RoomMapTokens
+                .Where(token => token.IdRoomMap == mapId)
+                .ToListAsync();
+            _context.RoomMapTokens.RemoveRange(existingTokens);
+
+            foreach (var token in state.Tokens)
+            {
+                _context.RoomMapTokens.Add(new RoomMapToken
+                {
+                    Id = Guid.NewGuid(),
+                    IdRoomMap = mapId,
+                    MemberId = token.MemberId,
+                    IsNpc = token.IsNpc,
+                    X = token.X,
+                    Y = token.Y
+                });
+            }
+
+            map.DrawingsJson = JsonSerializer.Serialize(state.Drawings);
+            await _context.SaveChangesAsync();
+            return new Result<object> { Value = null };
+        }
+        catch
+        {
+            return new Result<object> { IsError = true, Error = "An error occurred while saving the map" };
         }
     }
 

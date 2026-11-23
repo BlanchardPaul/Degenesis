@@ -27,6 +27,12 @@ public static class RoomMapEndpoints
             return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
+        group.MapGet("/{mapId:guid}/drawings", async (Guid mapId, IRoomMapService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.GetDrawingsAsync(mapId, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
         group.MapPut("/room/{roomId:guid}/select/{mapId:guid}", async (Guid roomId, Guid mapId,
             IRoomMapService service, ClaimsPrincipal user) =>
         {
@@ -38,6 +44,13 @@ public static class RoomMapEndpoints
             IRoomMapService service, ClaimsPrincipal user) =>
         {
             var result = await service.SaveTokensAsync(mapId, tokens, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
+        group.MapPut("/{mapId:guid}/state", async (Guid mapId, Degenesis.Shared.DTOs.Rooms.RoomMapStateDto state,
+            IRoomMapService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.SaveMapStateAsync(mapId, state, user.Identity?.Name ?? string.Empty);
             return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 

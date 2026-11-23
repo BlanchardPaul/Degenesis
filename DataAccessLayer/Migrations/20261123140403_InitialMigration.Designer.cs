@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations;
 
 [DbContext(typeof(ApplicationDbContext))]
-[Migration("20261120153753_InitialMigration")]
-partial class _20261120153753_InitialMigration
+[Migration("20261123140403_InitialMigration")]
+partial class _20261123140403_InitialMigration
 {
     /// <inheritdoc />
     protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1282,6 +1282,12 @@ partial class _20261120153753_InitialMigration
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("uniqueidentifier");
+
+                b.Property<string>("DrawingsJson")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("nvarchar(max)")
+                    .HasDefaultValue("[]");
 
                 b.Property<string>("FileName")
                     .IsRequired()

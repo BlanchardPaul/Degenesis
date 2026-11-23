@@ -32,6 +32,11 @@ internal class RoomMapConfiguration : IEntityTypeConfiguration<RoomMap>
             .IsRequired()
             .HasDefaultValue(true);
 
+        builder.Property(map => map.DrawingsJson)
+            .IsRequired()
+            .HasColumnType("nvarchar(max)")
+            .HasDefaultValue("[]");
+
         builder.HasOne(map => map.Room)
             .WithMany(room => room.Maps)
             .HasForeignKey(map => map.IdRoom)

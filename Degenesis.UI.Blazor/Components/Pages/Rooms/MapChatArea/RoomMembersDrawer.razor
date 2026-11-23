@@ -21,22 +21,27 @@
                 @foreach (var character in GmCharacters)
                 {
                     <div draggable="true"
-                         @ondragstart="() => StartDraggingCharacter(character)">
-                        <MudNavLink Href="@($"/popped-out/{character.Id}/sheet")" Target="_blank">
-                            <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
-                                <MudAvatar Size="Size.Small">
-                                    @if (character.AvatarName is not null)
-                                    {
-                                        <MudImage Src="@GetCharacterAvatarUrl(character)" Alt="@($"{character.Name} avatar")" />
-                                    }
-                                    else
-                                    {
-                                        <MudText Typo="Typo.caption">@GetInitials(character.Name)</MudText>
-                                    }
-                                </MudAvatar>
-                                <MudText>@character.Name</MudText>
-                            </MudStack>
-                        </MudNavLink>
+                         @ondragstart="() => StartDraggingCharacter(character)"
+                         class="d-flex align-center justify-space-between px-4 py-2">
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudAvatar Size="Size.Small">
+                                @if (character.AvatarName is not null)
+                                {
+                                    <MudImage Src="@GetCharacterAvatarUrl(character)" Alt="@($"{character.Name} avatar")" />
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.caption">@GetInitials(character.Name)</MudText>
+                                }
+                            </MudAvatar>
+                            <MudText>@character.Name</MudText>
+                        </MudStack>
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                       Color="Color.Primary"
+                                       Title="Open character sheet"
+                                       Href="@($"/popped-out/{character.Id}/sheet")"
+                                       Target="_blank"
+                                       @ondragstart:stopPropagation="true" />
                     </div>
                 }
             }
@@ -52,22 +57,27 @@
                 @foreach (var npc in GmNpcs)
                 {
                     <div draggable="true"
-                         @ondragstart="() => StartDraggingNpc(npc)">
-                        <MudNavLink Href="@($"/gm-npc/{npc.Id}")" Target="_blank">
-                            <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
-                                <MudAvatar Size="Size.Small">
-                                    @if (npc.AvatarName is not null)
-                                    {
-                                        <MudImage Src="@GetNpcAvatarUrl(npc)" Alt="@($"{npc.Name} avatar")" />
-                                    }
-                                    else
-                                    {
-                                        <MudText Typo="Typo.caption">@GetInitials(npc.Name)</MudText>
-                                    }
-                                </MudAvatar>
-                                <MudText>@npc.Name</MudText>
-                            </MudStack>
-                        </MudNavLink>
+                         @ondragstart="() => StartDraggingNpc(npc)"
+                         class="d-flex align-center justify-space-between px-4 py-2">
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudAvatar Size="Size.Small">
+                                @if (npc.AvatarName is not null)
+                                {
+                                    <MudImage Src="@GetNpcAvatarUrl(npc)" Alt="@($"{npc.Name} avatar")" />
+                                }
+                                else
+                                {
+                                    <MudText Typo="Typo.caption">@GetInitials(npc.Name)</MudText>
+                                }
+                            </MudAvatar>
+                            <MudText>@npc.Name</MudText>
+                        </MudStack>
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                       Color="Color.Primary"
+                                       Title="Open NPC sheet"
+                                       Href="@($"/gm-npc/{npc.Id}")"
+                                       Target="_blank"
+                                       @ondragstart:stopPropagation="true" />
                     </div>
                 }
             }

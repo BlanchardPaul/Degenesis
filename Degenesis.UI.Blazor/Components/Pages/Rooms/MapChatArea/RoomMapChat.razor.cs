@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using MudBlazor;
+using MudBlazor.Utilities;
 
 namespace Degenesis.UI.Blazor.Components.Pages.Rooms.MapChatArea;
 
@@ -34,6 +35,17 @@ public partial class RoomMapChat : IAsyncDisposable
     private bool isMapsDrawerOpen;
     private bool isGridDrawerOpen;
     private bool _isGridVisible = true;
+    private string _mapInteractionMode = "Interaction";
+    private SvgPoint? _measurementStart;
+    private SvgPoint? _measurementEnd;
+    private MudColor _drawingColor = new("#f44336");
+    private int _drawingStrokeWidth = 4;
+    private RoomMapDrawingDto? _activeDrawing;
+    private bool IsMeasurementMode => _mapInteractionMode == "Measurement";
+    private bool IsDrawingMode => _mapInteractionMode == "Drawing";
+    private int MeasurementDistance => _measurementStart is null || _measurementEnd is null
+        ? 0
+        : (int)Math.Round(Math.Sqrt(Math.Pow(_measurementEnd.X - _measurementStart.X, 2) + Math.Pow(_measurementEnd.Y - _measurementStart.Y, 2)) / GridCellSize, MidpointRounding.AwayFromZero);
     private bool _isSavingGrid;
     private int _gridCellSize = 100;
     private RoomMapDto? SelectedMap;
@@ -52,10 +64,13 @@ public partial class RoomMapChat : IAsyncDisposable
     private RoomMapToken? _pendingMapToken;
     private RoomMapToken? _draggingToken;
     private RoomMapToken? _contextMenuToken;
+    private RoomMapDrawingDto? _contextMenuDrawing;
     private double _contextMenuClientX;
     private double _contextMenuClientY;
     private readonly Dictionary<Guid, List<RoomMapToken>> _tokensByMap = [];
+    private readonly Dictionary<Guid, List<RoomMapDrawingDto>> _drawingsByMap = [];
     private List<RoomMapToken> CurrentMapTokens => SelectedMap is not null && _tokensByMap.TryGetValue(SelectedMap.Id, out var tokens) ? tokens : [];
+    private List<RoomMapDrawingDto> CurrentMapDrawings => SelectedMap is not null && _drawingsByMap.TryGetValue(SelectedMap.Id, out var drawings) ? drawings : [];
     private int MaximumGridCellSize => SelectedMap is null ? 300 : Math.Min(300, Math.Max(SelectedMap.Width, SelectedMap.Height));
     private int MinimumGridCellSize => SelectedMap is null ? 1 : Math.Min(MaximumGridCellSize, Math.Max(1, (int)Math.Ceiling(Math.Max(SelectedMap.Width, SelectedMap.Height) / 200d)));
     private double GridCellSize => Math.Clamp(_gridCellSize, MinimumGridCellSize, MaximumGridCellSize);
@@ -65,6 +80,8 @@ public partial class RoomMapChat : IAsyncDisposable
     private string MapTransform => FormattableString.Invariant($"translate({_mapOffsetX}px, {_mapOffsetY}px) scale({_mapZoom})");
     private static string SvgNumber(double value) => FormattableString.Invariant($"{value}");
     private string ContextMenuStyle => $"position: fixed; left: {SvgNumber(_contextMenuClientX)}px; top: {SvgNumber(_contextMenuClientY)}px; z-index: 20; min-width: 120px;";
+    private static string GetDrawingPoints(IEnumerable<RoomMapPointDto> points)
+        => string.Join(" ", points.Select(point => $"{SvgNumber(point.X)},{SvgNumber(point.Y)}"));
     private string MapImageApiRoot => Client?.BaseAddress is null
         ? string.Empty
         : new Uri(Client.BaseAddress, "..").GetLeftPart(UriPartial.Authority);
@@ -101,6 +118,8 @@ public partial class RoomMapChat : IAsyncDisposable
         hubConnection.Remove("ReceiveMessage");
         hubConnection.Remove("ReceiveHistory");
         hubConnection.Remove("ReceiveRollResult");
+        hubConnection.Remove("ReceiveMapDrawing");
+        hubConnection.Remove("ReceiveMapDrawingDeleted");
 
         // When hub send message to user
         hubConnection.On<string, string>("ReceiveMessage", (sender, message) =>
@@ -130,6 +149,26 @@ public partial class RoomMapChat : IAsyncDisposable
                 SentAtUtc = DateTime.UtcNow,
                 RollResult = result
             });
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<Guid, RoomMapDrawingDto>("ReceiveMapDrawing", (mapId, drawing) =>
+        {
+            if (!_drawingsByMap.TryGetValue(mapId, out var drawings))
+            {
+                drawings = [];
+                _drawingsByMap.Add(mapId, drawings);
+            }
+
+            if (drawings.All(existing => existing.Id != drawing.Id))
+                drawings.Add(drawing);
+            InvokeAsync(StateHasChanged);
+        });
+
+        hubConnection.On<Guid, Guid>("ReceiveMapDrawingDeleted", (mapId, drawingId) =>
+        {
+            if (_drawingsByMap.TryGetValue(mapId, out var drawings))
+                drawings.RemoveAll(drawing => drawing.Id == drawingId);
             InvokeAsync(StateHasChanged);
         });
 
@@ -198,6 +237,11 @@ public partial class RoomMapChat : IAsyncDisposable
         _mapOffsetY = 0;
         isMapDragging = false;
         _draggingToken = null;
+        _measurementStart = null;
+        _measurementEnd = null;
+        _activeDrawing = null;
+        _contextMenuToken = null;
+        _contextMenuDrawing = null;
         isMapsDrawerOpen = false;
 
         if (IsGM)
@@ -215,6 +259,7 @@ public partial class RoomMapChat : IAsyncDisposable
         }
 
         await LoadMapTokensAsync();
+        await LoadMapDrawingsAsync();
     }
 
     private async Task LoadSelectedMapAsync()
@@ -234,14 +279,60 @@ public partial class RoomMapChat : IAsyncDisposable
         _gridCellSize = Math.Clamp(selectedMap.GridCellSize, MinimumGridCellSize, MaximumGridCellSize);
         _isGridVisible = selectedMap.IsGridVisible;
         await LoadMapTokensAsync();
+        await LoadMapDrawingsAsync();
     }
 
     private async Task StartMapDrag(PointerEventArgs args)
     {
         _contextMenuToken = null;
+        _contextMenuDrawing = null;
 
         if (args.Button != 0)
             return;
+
+        if (IsMeasurementMode)
+        {
+            var map = SelectedMap;
+            if (map is null)
+                return;
+
+            var point = await GetMapPointAsync(args.ClientX, args.ClientY);
+            if (!ReferenceEquals(SelectedMap, map))
+                return;
+
+            _measurementStart = point;
+            _measurementEnd = point;
+            await CaptureMapPointerAsync(args.PointerId);
+            return;
+        }
+
+        if (IsDrawingMode)
+        {
+            var map = SelectedMap;
+            if (map is null)
+                return;
+
+            var point = await GetMapPointAsync(args.ClientX, args.ClientY);
+            if (!ReferenceEquals(SelectedMap, map))
+                return;
+
+            if (!_drawingsByMap.TryGetValue(map.Id, out var drawings))
+            {
+                drawings = [];
+                _drawingsByMap.Add(map.Id, drawings);
+            }
+
+            _activeDrawing = new RoomMapDrawingDto
+            {
+                Id = Guid.NewGuid(),
+                Color = _drawingColor.ToString(MudColorOutputFormats.HexA),
+                StrokeWidth = _drawingStrokeWidth
+            };
+            _activeDrawing.Points.Add(GetDrawingPoint(point, map));
+            drawings.Add(_activeDrawing);
+            await CaptureMapPointerAsync(args.PointerId);
+            return;
+        }
 
         isMapDragging = true;
         _lastPointerX = args.ClientX;
@@ -251,7 +342,7 @@ public partial class RoomMapChat : IAsyncDisposable
 
     private async Task StartTokenDrag(RoomMapToken token, PointerEventArgs args)
     {
-        if (args.Button != 0)
+        if (IsMeasurementMode || IsDrawingMode || args.Button != 0)
             return;
 
         _draggingToken = token;
@@ -260,6 +351,31 @@ public partial class RoomMapChat : IAsyncDisposable
 
     private async Task DragMap(PointerEventArgs args)
     {
+        var activeDrawing = _activeDrawing;
+        if (IsDrawingMode && activeDrawing is not null)
+        {
+            var selectedMap = SelectedMap;
+            if (selectedMap is null)
+                return;
+
+            var point = await GetMapPointAsync(args.ClientX, args.ClientY);
+            if (ReferenceEquals(SelectedMap, selectedMap) && ReferenceEquals(_activeDrawing, activeDrawing))
+                activeDrawing.Points.Add(GetDrawingPoint(point, selectedMap));
+            return;
+        }
+
+        if (IsMeasurementMode && _measurementStart is not null)
+        {
+            var selectedMap = SelectedMap;
+            if (selectedMap is null)
+                return;
+
+            var point = await GetMapPointAsync(args.ClientX, args.ClientY);
+            if (ReferenceEquals(SelectedMap, selectedMap) && _measurementStart is not null)
+                _measurementEnd = point;
+            return;
+        }
+
         var draggingToken = _draggingToken;
         if (draggingToken is not null)
         {
@@ -286,18 +402,32 @@ public partial class RoomMapChat : IAsyncDisposable
         _lastPointerY = args.ClientY;
     }
 
-    private void EndMapDrag(PointerEventArgs args)
+    private async Task EndMapDrag(PointerEventArgs args)
     {
         isMapDragging = false;
         _draggingToken = null;
+        _measurementStart = null;
+        _measurementEnd = null;
+
+        var completedDrawing = _activeDrawing;
+        _activeDrawing = null;
+        if (completedDrawing is not null && SelectedMap is not null && hubConnection is not null)
+            await hubConnection.SendAsync("SendMapDrawing", IdRoom, SelectedMap.Id, completedDrawing);
+    }
+
+    private async Task HandleMapPointerLeave(PointerEventArgs args)
+    {
+        if (!IsMeasurementMode && !IsDrawingMode)
+            await EndMapDrag(args);
     }
 
     private async Task LoadMapTokensAsync()
     {
-        if (SelectedMap is null)
+        var selectedMap = SelectedMap;
+        if (selectedMap is null)
             return;
 
-        var result = await Client!.GetFromJsonAsync<Result<List<RoomMapTokenDto>>>($"/room-maps/{SelectedMap.Id}/tokens");
+        var result = await Client!.GetFromJsonAsync<Result<List<RoomMapTokenDto>>>($"/room-maps/{selectedMap.Id}/tokens");
         var tokens = (result?.Value ?? [])
             .Select(savedToken => new RoomMapToken
             {
@@ -313,15 +443,45 @@ public partial class RoomMapChat : IAsyncDisposable
         if (result is not null && result.IsError)
             Snackbar.Add(result.Error ?? "Unable to load map tokens", Severity.Error);
 
-        _tokensByMap[SelectedMap.Id] = tokens;
+        if (ReferenceEquals(SelectedMap, selectedMap))
+            _tokensByMap[selectedMap.Id] = tokens;
+    }
+
+    private async Task LoadMapDrawingsAsync()
+    {
+        var selectedMap = SelectedMap;
+        if (selectedMap is null)
+            return;
+
+        var result = await Client!.GetFromJsonAsync<Result<List<RoomMapDrawingDto>>>($"/room-maps/{selectedMap.Id}/drawings");
+        if (result is null || result.IsError)
+        {
+            Snackbar.Add(result?.Error ?? "Unable to load map drawings", Severity.Error);
+            return;
+        }
+
+        if (ReferenceEquals(SelectedMap, selectedMap))
+            _drawingsByMap[selectedMap.Id] = result.Value ?? [];
     }
 
     private void OpenTokenContextMenu(RoomMapToken token, MouseEventArgs args)
     {
         _contextMenuToken = token;
+        _contextMenuDrawing = null;
         _contextMenuClientX = args.ClientX;
         _contextMenuClientY = args.ClientY;
     }
+
+    private void OpenDrawingContextMenu(RoomMapDrawingDto drawing, MouseEventArgs args)
+    {
+        _contextMenuToken = null;
+        _contextMenuDrawing = drawing;
+        _contextMenuClientX = args.ClientX;
+        _contextMenuClientY = args.ClientY;
+    }
+
+    private Task DeleteContextMenuItem()
+        => _contextMenuToken is not null ? DeleteContextMenuToken() : DeleteContextMenuDrawing();
 
     private async Task DeleteContextMenuToken()
     {
@@ -352,42 +512,103 @@ public partial class RoomMapChat : IAsyncDisposable
 
         CurrentMapTokens.Remove(tokenToDelete);
         _contextMenuToken = null;
+        _contextMenuDrawing = null;
         Snackbar.Add("Map token deleted", Severity.Success);
+    }
+
+    private async Task DeleteContextMenuDrawing()
+    {
+        var drawingToDelete = _contextMenuDrawing;
+        var selectedMap = SelectedMap;
+        if (!IsGM || drawingToDelete is null || selectedMap is null || _isSavingMapTokens)
+            return;
+
+        var mapTokens = CurrentMapTokens;
+        var mapDrawings = CurrentMapDrawings;
+        var remainingDrawings = mapDrawings
+            .Where(drawing => !ReferenceEquals(drawing, drawingToDelete))
+            .ToList();
+        _isSavingMapTokens = true;
+        try
+        {
+            if (!await SaveMapStateAsync(selectedMap, mapTokens, remainingDrawings))
+                return;
+
+            mapDrawings.Remove(drawingToDelete);
+            if (ReferenceEquals(_contextMenuDrawing, drawingToDelete))
+                _contextMenuDrawing = null;
+
+            if (hubConnection?.State == HubConnectionState.Connected)
+                await hubConnection.SendAsync("DeleteMapDrawing", IdRoom, selectedMap.Id, drawingToDelete.Id);
+            else
+                Snackbar.Add("Drawing deleted; other participants may need to reload the map", Severity.Warning);
+
+            Snackbar.Add("Map drawing deleted", Severity.Success);
+        }
+        finally
+        {
+            _isSavingMapTokens = false;
+        }
     }
 
     private async Task SaveMapTokens()
     {
-        if (SelectedMap is null)
+        var selectedMap = SelectedMap;
+        if (selectedMap is null || _isSavingMapTokens)
             return;
 
+        var mapTokens = CurrentMapTokens;
+        var mapDrawings = CurrentMapDrawings;
         _isSavingMapTokens = true;
-        var tokens = CurrentMapTokens.Select(token => new RoomMapTokenDto
+        try
         {
-            MemberId = token.MemberId,
-            IsNpc = token.IsNpc,
-            Name = token.Name,
-            AvatarName = token.AvatarName,
-            X = token.X,
-            Y = token.Y
-        }).ToList();
-
-        var response = await Client!.PutAsJsonAsync($"/room-maps/{SelectedMap.Id}/tokens", tokens);
-        if (!response.IsSuccessStatusCode)
-        {
-            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
-            Snackbar.Add(result?.Error ?? "Unable to save map tokens", Severity.Error);
+            if (await SaveMapStateAsync(selectedMap, mapTokens, mapDrawings))
+                Snackbar.Add("Map saved", Severity.Success);
         }
-        else
+        finally
         {
-            Snackbar.Add("Map tokens saved", Severity.Success);
+            _isSavingMapTokens = false;
         }
+    }
 
-        _isSavingMapTokens = false;
+    private async Task<bool> SaveMapStateAsync(RoomMapDto map, List<RoomMapToken> tokens, List<RoomMapDrawingDto> drawings)
+    {
+        if (!IsGM)
+            return false;
+
+        var state = new RoomMapStateDto
+        {
+            Tokens = tokens.Select(token => new RoomMapTokenDto
+            {
+                MemberId = token.MemberId,
+                IsNpc = token.IsNpc,
+                Name = token.Name,
+                AvatarName = token.AvatarName,
+                X = token.X,
+                Y = token.Y
+            }).ToList(),
+            Drawings = drawings
+        };
+
+        var response = await Client!.PutAsJsonAsync($"/room-maps/{map.Id}/state", state);
+        if (response.IsSuccessStatusCode)
+            return true;
+
+        var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+        Snackbar.Add(result?.Error ?? "Unable to save map", Severity.Error);
+        return false;
     }
 
     private void SetPendingMapToken(RoomMapToken token) => _pendingMapToken = token;
 
     private void IgnoreMapDragOver(DragEventArgs args) { }
+
+    private static RoomMapPointDto GetDrawingPoint(SvgPoint point, RoomMapDto map)
+        => new()
+        {
+            X = Math.Clamp(point.X, 0, map.Width),
+            Y = Math.Clamp(point.Y, 0, map.Height)
+        };
 
     private SvgPoint GetTokenPosition(SvgPoint point, RoomMapDto map)
     {
@@ -545,6 +766,8 @@ public partial class RoomMapChat : IAsyncDisposable
         hubConnection?.Remove("ReceiveMessage");
         hubConnection?.Remove("ReceiveHistory");
         hubConnection?.Remove("ReceiveRollResult");
+        hubConnection?.Remove("ReceiveMapDrawing");
+        hubConnection?.Remove("ReceiveMapDrawingDeleted");
         if (_mapCanvasModule is not null)
             await _mapCanvasModule.DisposeAsync();
         GC.SuppressFinalize(this);

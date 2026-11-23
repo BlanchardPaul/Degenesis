@@ -16,10 +16,6 @@ else
                                    Color="Color.Primary"
                                    OnClick="ToggleMembersDrawer"
                                    Style="position: absolute; top: 40%; left: 8px; z-index: 1;" />
-                    <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft"
-                                    Color="Color.Primary"
-                                    OnClick="ToggleGridDrawer"
-                                    Style="position: absolute; top: 40%; right: 8px; z-index: 1;" />
 
                 }
                 @if (!IsGM)
@@ -29,7 +25,10 @@ else
                                    OnClick="ToggleSavedRollsDrawer"
                                    Style="position: absolute; top: 40%; right: 8px; z-index: 1;" />
                 }
-
+                <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft"
+                               Color="Color.Primary"
+                               OnClick="ToggleGridDrawer"
+                               Style="position: absolute; top: 40%; right: 8px; z-index: 1;" />
                 @if (SelectedMap is not null)
                 {
                     <svg @ref="_mapSvg"
@@ -37,6 +36,7 @@ else
                          preserveAspectRatio="xMidYMid meet"
                          @onpointerdown="StartMapDrag"
                          @onpointermove="DragMap"
+                         @onpointerleave="HandleMapPointerLeave"
                          @onpointerup="EndMapDrag"
                          @onpointercancel="EndMapDrag"
                          @onwheel="ZoomMapWithWheel"
@@ -44,7 +44,7 @@ else
                          @ondragover="IgnoreMapDragOver"
                          @ondragover:preventDefault="true"
                          @ondrop="DropToken"
-                         style="position: absolute; inset: 0; width: 100%; height: 100%; transform: @MapTransform; transform-origin: center; cursor: @(isMapDragging ? "grabbing" : "grab"); touch-action: none;">
+                         style="position: absolute; inset: 0; width: 100%; height: 100%; transform: @MapTransform; transform-origin: center; cursor: @(IsMeasurementMode || IsDrawingMode ? "crosshair" : isMapDragging || _draggingToken is not null ? "grabbing" : "default"); touch-action: none; user-select: none; -webkit-user-select: none;">
                         <defs>
                             <clipPath id="mapTokenAvatarClip" clipPathUnits="objectBoundingBox">
                                 <circle cx="0.5" cy="0.5" r="0.5" />
@@ -73,12 +73,11 @@ else
                         @foreach (var token in CurrentMapTokens)
                         {
                             <g @onpointerdown="args => StartTokenDrag(token, args)"
-                               @onpointerdown:stopPropagation="true"
-                               @onpointerdown:preventDefault="true"
+                               @onpointerdown:stopPropagation="@(!IsMeasurementMode && !IsDrawingMode)"
                                @oncontextmenu="args => OpenTokenContextMenu(token, args)"
                                @oncontextmenu:preventDefault="true"
                                @oncontextmenu:stopPropagation="true"
-                               style="cursor: grab;">
+                               style="cursor: @(IsMeasurementMode || IsDrawingMode ? "crosshair" : _draggingToken == token ? "grabbing" : "grab");">
                                 <circle cx="@SvgNumber(token.X)" cy="@SvgNumber(token.Y)" r="@SvgNumber(GridCellSize / 2)" fill="#263238" />
                                 @if (token.AvatarName is not null)
                                 {
@@ -106,10 +105,49 @@ else
                                     </div>
                                 </foreignObject>
                             </g>
-                        }
-                    </svg>
+                            }
+                            @if (CurrentMapDrawings.Count > 0)
+                            {
+                                <g>
+                                    @foreach (var drawing in CurrentMapDrawings)
+                                    {
+                                        <polyline points="@GetDrawingPoints(drawing.Points)"
+                                                  fill="none"
+                                                  stroke="@drawing.Color"
+                                                  stroke-width="@SvgNumber(drawing.StrokeWidth)"
+                                                  stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  pointer-events="none" />
+                                        <polyline points="@GetDrawingPoints(drawing.Points)"
+                                                  fill="none"
+                                                  stroke="transparent"
+                                                  stroke-width="@SvgNumber(Math.Max(12, drawing.StrokeWidth))"
+                                                  stroke-linecap="round"
+                                                  stroke-linejoin="round"
+                                                  pointer-events="stroke"
+                                                  @oncontextmenu="args => OpenDrawingContextMenu(drawing, args)"
+                                                  @oncontextmenu:preventDefault="true"
+                                                  @oncontextmenu:stopPropagation="true" />
+                                    }
+                                </g>
+                            }
+                            @if (_measurementStart is not null && _measurementEnd is not null)
+                            {
+                                var distance = MeasurementDistance;
+                                var midX = (_measurementStart.X + _measurementEnd.X) / 2;
+                                var midY = (_measurementStart.Y + _measurementEnd.Y) / 2;
+                                <g pointer-events="none">
+                                    <line x1="@SvgNumber(_measurementStart.X)" y1="@SvgNumber(_measurementStart.Y)"
+                                          x2="@SvgNumber(_measurementEnd.X)" y2="@SvgNumber(_measurementEnd.Y)"
+                                      stroke="#fa0707" stroke-width="6" />
+                                    <text x="@SvgNumber(midX)" y="@SvgNumber(midY - 8)" text-anchor="middle"
+                                      fill="white" stroke="##fa0707" stroke-width="4" paint-order="stroke"
+                                          font-size="@SvgNumber(GridCellSize * 0.6)">@distance</text>
+                                </g>
+                            }
+                        </svg>
 
-                    @if (IsGM && _contextMenuToken is not null)
+                        @if (IsGM && (_contextMenuToken is not null || _contextMenuDrawing is not null))
                     {
                         <MudPaper Elevation="8"
                                   @onclick:stopPropagation="true"
@@ -117,7 +155,7 @@ else
                             <MudButton StartIcon="@Icons.Material.Filled.Delete"
                                        Color="Color.Error"
                                        FullWidth="true"
-                                       OnClick="DeleteContextMenuToken">Delete</MudButton>
+                                       OnClick="DeleteContextMenuItem">Delete</MudButton>
                         </MudPaper>
                     }
 
@@ -156,29 +194,44 @@ else
                                       OnClose="ToggleSavedRollsDrawer" />
                 }
 
-                @if (IsGM && isGridDrawerOpen)
+                @if (isGridDrawerOpen)
                 {
                     <MudPaper Class="d-flex flex-column"
                               Elevation="8"
                               Style="position: absolute; top: 0; right: 0; bottom: 0; width: 320px; max-width: 100%; z-index: 2; overflow-y: auto;">
                         <div class="d-flex align-center justify-space-between pa-3">
-                            <MudText Typo="Typo.subtitle1">Grid configuration</MudText>
+                            <MudText Typo="Typo.subtitle1">@(IsGM ? "Grid configuration" : "Map tools")</MudText>
                             <MudIconButton Icon="@Icons.Material.Filled.Close"
                                            Color="Color.Default"
                                            OnClick="ToggleGridDrawer" />
                         </div>
                         <MudDivider />
                         <div class="pa-3">
-                            <MudCheckBox T="bool" @bind-Value="_isGridVisible" Label="Show grid" Class="mb-2" />
-                            <MudText Typo="Typo.body2">Cell size: @_gridCellSize px</MudText>
-                            <MudSlider T="int" @bind-Value="_gridCellSize" Min="@MinimumGridCellSize" Max="@MaximumGridCellSize" Step="1" Color="Color.Primary" Disabled="@(SelectedMap is null)" />
-                            <MudStack Row Justify="Justify.SpaceBetween" Class="mb-2">
-                                <MudText Typo="Typo.caption">Min: @MinimumGridCellSize px</MudText>
-                                <MudText Typo="Typo.caption">Max: @MaximumGridCellSize px</MudText>
-                            </MudStack>
-                            <MudNumericField T="int" @bind-Value="_gridCellSize" Label="Cell size (map pixels)" Immediate="true" Class="mb-3" />
-                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3">Each square represents 1 m. Changing its size adjusts the number of rows and columns.</MudText>
-                            <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_isSavingGrid || SelectedMap is null)" OnClick="SaveGridConfigurationAsync">Save grid configuration</MudButton>
+                            <MudText Typo="Typo.subtitle2" Class="mb-1">Mode</MudText>
+                            <MudRadioGroup T="string" @bind-Value="_mapInteractionMode" Class="mb-3">
+                                <MudRadio T="string" Value="@("Interaction")">Interaction</MudRadio>
+                                <MudRadio T="string" Value="@("Measurement")">Measurement</MudRadio>
+                                <MudRadio T="string" Value="@("Drawing")">Drawing</MudRadio>
+                            </MudRadioGroup>
+                            @if (IsDrawingMode)
+                            {
+                                <MudColorPicker @bind-Value="_drawingColor" ShowSliders="true" Class="mb-3" />
+                                <MudText Typo="Typo.body2">Stroke width: @_drawingStrokeWidth px</MudText>
+                                <MudSlider T="int" @bind-Value="_drawingStrokeWidth" Min="1" Max="20" Step="1" Color="Color.Primary" Class="mb-3" />
+                            }
+                            @if (IsGM)
+                            {
+                                <MudCheckBox T="bool" @bind-Value="_isGridVisible" Label="Show grid" Class="mb-2" />
+                                <MudText Typo="Typo.body2">Cell size: @_gridCellSize px</MudText>
+                                <MudSlider T="int" @bind-Value="_gridCellSize" Min="@MinimumGridCellSize" Max="@MaximumGridCellSize" Step="1" Color="Color.Primary" Disabled="@(SelectedMap is null)" />
+                                <MudStack Row Justify="Justify.SpaceBetween" Class="mb-2">
+                                    <MudText Typo="Typo.caption">Min: @MinimumGridCellSize px</MudText>
+                                    <MudText Typo="Typo.caption">Max: @MaximumGridCellSize px</MudText>
+                                </MudStack>
+                                <MudNumericField T="int" @bind-Value="_gridCellSize" Label="Cell size (map pixels)" Immediate="true" Class="mb-3" />
+                                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3">Each square represents 1 m. Changing its size adjusts the number of rows and columns.</MudText>
+                                <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_isSavingGrid || SelectedMap is null)" OnClick="SaveGridConfigurationAsync">Save grid configuration</MudButton>
+                            }
                         </div>
                     </MudPaper>
                 }
