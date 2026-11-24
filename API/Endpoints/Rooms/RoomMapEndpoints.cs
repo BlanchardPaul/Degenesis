@@ -33,6 +33,20 @@ public static class RoomMapEndpoints
             return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
         });
 
+        group.MapPost("/{mapId:guid}/drawings", async (Guid mapId, Degenesis.Shared.DTOs.Rooms.RoomMapDrawingDto drawing,
+            IRoomMapService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.SaveDrawingAsync(mapId, drawing, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
+        group.MapDelete("/{mapId:guid}/drawings/{drawingId:guid}", async (Guid mapId, Guid drawingId,
+            IRoomMapService service, ClaimsPrincipal user) =>
+        {
+            var result = await service.DeleteDrawingAsync(mapId, drawingId, user.Identity?.Name ?? string.Empty);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        });
+
         group.MapPut("/room/{roomId:guid}/select/{mapId:guid}", async (Guid roomId, Guid mapId,
             IRoomMapService service, ClaimsPrincipal user) =>
         {

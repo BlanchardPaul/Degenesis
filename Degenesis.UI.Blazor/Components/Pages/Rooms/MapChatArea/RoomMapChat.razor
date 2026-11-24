@@ -16,14 +16,13 @@ else
                                    Color="Color.Primary"
                                    OnClick="ToggleMembersDrawer"
                                    Style="position: absolute; top: 40%; left: 8px; z-index: 1;" />
-
                 }
-                @if (!IsGM)
+                else
                 {
-                    <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft"
+                    <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowRight"
                                    Color="Color.Primary"
                                    OnClick="ToggleSavedRollsDrawer"
-                                   Style="position: absolute; top: 40%; right: 8px; z-index: 1;" />
+                                   Style="position: absolute; top: 40%; left: 8px; z-index: 1;" />
                 }
                 <MudIconButton Icon="@Icons.Material.Filled.KeyboardDoubleArrowLeft"
                                Color="Color.Primary"
@@ -36,7 +35,6 @@ else
                          preserveAspectRatio="xMidYMid meet"
                          @onpointerdown="StartMapDrag"
                          @onpointermove="DragMap"
-                         @onpointerleave="HandleMapPointerLeave"
                          @onpointerup="EndMapDrag"
                          @onpointercancel="EndMapDrag"
                          @onwheel="ZoomMapWithWheel"
@@ -147,7 +145,7 @@ else
                             }
                         </svg>
 
-                        @if (IsGM && (_contextMenuToken is not null || _contextMenuDrawing is not null))
+                    @if (IsGM && (_contextMenuToken is not null || _contextMenuDrawing is not null))
                     {
                         <MudPaper Elevation="8"
                                   @onclick:stopPropagation="true"
@@ -159,17 +157,7 @@ else
                         </MudPaper>
                     }
 
-                    <MudStack Row Spacing="1"
-                              Style="position: absolute; right: 12px; bottom: 12px; z-index: 1; background: rgba(255,255,255,0.8); border-radius: 8px;">
-                        @if (IsGM)
-                        {
-                            <MudIconButton Icon="@Icons.Material.Filled.Save"
-                                           Color="Color.Primary"
-                                           Disabled="@_isSavingMapTokens"
-                                           OnClick="SaveMapTokens" />
-                        }
 
-                    </MudStack>
                 }
 
                 <MudIconButton Icon="@(isMapsDrawerOpen ? Icons.Material.Filled.KeyboardArrowUp : Icons.Material.Filled.Map)"
@@ -183,15 +171,6 @@ else
                                     SelectedMap="SelectedMap"
                                     OnSelect="SelectMap"
                                     OnClose="ToggleMapsDrawer" />
-                }
-
-                @if (isRollsDrawerOpen)
-                {
-                    <SavedRollsDrawer Character="Character"
-                                      HubConnection="hubConnection"
-                                      IdRoom="IdRoom"
-                                      UserName="@userName"
-                                      OnClose="ToggleSavedRollsDrawer" />
                 }
 
                 @if (isGridDrawerOpen)
@@ -230,7 +209,7 @@ else
                                 </MudStack>
                                 <MudNumericField T="int" @bind-Value="_gridCellSize" Label="Cell size (map pixels)" Immediate="true" Class="mb-3" />
                                 <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-3">Each square represents 1 m. Changing its size adjusts the number of rows and columns.</MudText>
-                                <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_isSavingGrid || SelectedMap is null)" OnClick="SaveGridConfigurationAsync">Save grid configuration</MudButton>
+                                <MudButton Color="Color.Primary" Variant="Variant.Filled" Disabled="@(_isSavingGrid || SelectedMap is null)" OnClick="SaveGridConfigurationAsync">Valider</MudButton>
                             }
                         </div>
                     </MudPaper>
@@ -242,6 +221,14 @@ else
                                        GmNpcs="GmNpcs"
                                        OnTokenDragStart="SetPendingMapToken"
                                        OnClose="ToggleMembersDrawer" />
+                }
+                @if (!IsGM && isRollsDrawerOpen)
+                {
+                    <SavedRollsDrawer Character="Character"
+                                      HubConnection="hubConnection"
+                                      IdRoom="IdRoom"
+                                      UserName="@userName"
+                                      OnClose="ToggleSavedRollsDrawer" />
                 }
             </MudItem>
 

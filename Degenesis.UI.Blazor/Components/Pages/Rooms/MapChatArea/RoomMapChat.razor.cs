@@ -59,6 +59,8 @@ public partial class RoomMapChat : IAsyncDisposable
     private double _lastPointerY;
     private bool isMapDragging;
     private bool _isSavingMapTokens;
+    private double _draggingTokenStartX;
+    private double _draggingTokenStartY;
     private ElementReference _mapSvg;
     private IJSObjectReference? _mapCanvasModule;
     private RoomMapToken? _pendingMapToken;
@@ -118,8 +120,9 @@ public partial class RoomMapChat : IAsyncDisposable
         hubConnection.Remove("ReceiveMessage");
         hubConnection.Remove("ReceiveHistory");
         hubConnection.Remove("ReceiveRollResult");
-        hubConnection.Remove("ReceiveMapDrawing");
-        hubConnection.Remove("ReceiveMapDrawingDeleted");
+        hubConnection.Remove("ReceiveRoomMapSelected");
+        hubConnection.Remove("ReceiveGridConfigurationUpdated");
+        hubConnection.Remove("ReceiveMapStateUpdated");
 
         // When hub send message to user
         hubConnection.On<string, string>("ReceiveMessage", (sender, message) =>
@@ -152,25 +155,46 @@ public partial class RoomMapChat : IAsyncDisposable
             InvokeAsync(StateHasChanged);
         });
 
-        hubConnection.On<Guid, RoomMapDrawingDto>("ReceiveMapDrawing", (mapId, drawing) =>
-        {
-            if (!_drawingsByMap.TryGetValue(mapId, out var drawings))
-            {
-                drawings = [];
-                _drawingsByMap.Add(mapId, drawings);
-            }
+        hubConnection.On<Guid>("ReceiveRoomMapSelected", mapId => InvokeAsync(() => LoadAndSelectMapAsync(mapId)));
 
-            if (drawings.All(existing => existing.Id != drawing.Id))
-                drawings.Add(drawing);
-            InvokeAsync(StateHasChanged);
-        });
+        hubConnection.On<Guid, int, bool>("ReceiveGridConfigurationUpdated", (mapId, gridCellSize, isGridVisible) =>
+            InvokeAsync(() =>
+            {
+                if (SelectedMap?.Id == mapId)
+                {
+                    SelectedMap.GridCellSize = gridCellSize;
+                    SelectedMap.IsGridVisible = isGridVisible;
+                    _gridCellSize = gridCellSize;
+                    _isGridVisible = isGridVisible;
+                }
+
+                StateHasChanged();
+            }));
+
+        hubConnection.On<Guid, RoomMapStateDto>("ReceiveMapStateUpdated", (mapId, state) =>
+            InvokeAsync(() => ApplyMapState(mapId, state)));
+
+        hubConnection.On<Guid, RoomMapDrawingDto>("ReceiveMapDrawingAdded", (mapId, drawing) =>
+            InvokeAsync(() =>
+            {
+                if (!_drawingsByMap.TryGetValue(mapId, out var drawings))
+                {
+                    drawings = [];
+                    _drawingsByMap.Add(mapId, drawings);
+                }
+
+                if (drawings.All(existing => existing.Id != drawing.Id))
+                    drawings.Add(drawing);
+                StateHasChanged();
+            }));
 
         hubConnection.On<Guid, Guid>("ReceiveMapDrawingDeleted", (mapId, drawingId) =>
-        {
-            if (_drawingsByMap.TryGetValue(mapId, out var drawings))
-                drawings.RemoveAll(drawing => drawing.Id == drawingId);
-            InvokeAsync(StateHasChanged);
-        });
+            InvokeAsync(() =>
+            {
+                if (_drawingsByMap.TryGetValue(mapId, out var drawings))
+                    drawings.RemoveAll(drawing => drawing.Id == drawingId);
+                StateHasChanged();
+            }));
 
         await hubConnection.SendAsync("GetHistory", IdRoom.ToString());
     }
@@ -227,8 +251,26 @@ public partial class RoomMapChat : IAsyncDisposable
         }
     }
 
-    private async Task SelectMap(RoomMapDto map)
+    private Task SelectMap(RoomMapDto map)
+        => SelectMapAsync(map, persistSelection: true);
+
+    private async Task SelectMapAsync(RoomMapDto map, bool persistSelection)
     {
+        if (IsGM && persistSelection)
+        {
+            var response = await Client!.PutAsync($"/room-maps/room/{IdRoom}/select/{map.Id}", null);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadFromJsonAsync<Result<object>>();
+                Snackbar.Add(error?.Error ?? "Unable to save the selected map", Severity.Error);
+                return;
+            }
+
+            room!.SelectedMapId = map.Id;
+            if (SelectedMap?.Id == map.Id)
+                return;
+        }
+
         SelectedMap = map;
         _gridCellSize = Math.Clamp(map.GridCellSize, MinimumGridCellSize, MaximumGridCellSize);
         _isGridVisible = map.IsGridVisible;
@@ -244,22 +286,32 @@ public partial class RoomMapChat : IAsyncDisposable
         _contextMenuDrawing = null;
         isMapsDrawerOpen = false;
 
-        if (IsGM)
-        {
-            var response = await Client!.PutAsync($"/room-maps/room/{IdRoom}/select/{map.Id}", null);
-            if (!response.IsSuccessStatusCode)
-            {
-                var error = await response.Content.ReadFromJsonAsync<Result<object>>();
-                Snackbar.Add(error?.Error ?? "Unable to save the selected map", Severity.Error);
-            }
-            else
-            {
-                room!.SelectedMapId = map.Id;
-            }
-        }
-
         await LoadMapTokensAsync();
         await LoadMapDrawingsAsync();
+    }
+
+    private async Task LoadAndSelectMapAsync(Guid mapId)
+    {
+        if (SelectedMap?.Id == mapId)
+            return;
+
+        var result = await Client!.GetFromJsonAsync<Result<List<RoomMapDto>>>($"/room-maps/room/{IdRoom}");
+        if (result is null || result.IsError)
+        {
+            Snackbar.Add(result?.Error ?? "Unable to load selected map", Severity.Error);
+            return;
+        }
+
+        var map = result.Value?.FirstOrDefault(candidate => candidate.Id == mapId);
+        if (map is null)
+        {
+            Snackbar.Add("Selected map was not found", Severity.Error);
+            return;
+        }
+
+        if (room is not null)
+            room.SelectedMapId = mapId;
+        await SelectMapAsync(map, persistSelection: false);
     }
 
     private async Task LoadSelectedMapAsync()
@@ -287,7 +339,7 @@ public partial class RoomMapChat : IAsyncDisposable
         _contextMenuToken = null;
         _contextMenuDrawing = null;
 
-        if (args.Button != 0)
+        if (_isSavingMapTokens || args.Button != 0)
             return;
 
         if (IsMeasurementMode)
@@ -342,10 +394,12 @@ public partial class RoomMapChat : IAsyncDisposable
 
     private async Task StartTokenDrag(RoomMapToken token, PointerEventArgs args)
     {
-        if (IsMeasurementMode || IsDrawingMode || args.Button != 0)
+        if (_isSavingMapTokens || IsMeasurementMode || IsDrawingMode || args.Button != 0)
             return;
 
         _draggingToken = token;
+        _draggingTokenStartX = token.X;
+        _draggingTokenStartY = token.Y;
         await CaptureMapPointerAsync(args.PointerId);
     }
 
@@ -404,21 +458,51 @@ public partial class RoomMapChat : IAsyncDisposable
 
     private async Task EndMapDrag(PointerEventArgs args)
     {
+        var selectedMap = SelectedMap;
+        var completedDrawing = _activeDrawing;
+        var movedToken = _draggingToken;
+        var tokenMoved = movedToken is not null &&
+                         (movedToken.X != _draggingTokenStartX || movedToken.Y != _draggingTokenStartY);
+
         isMapDragging = false;
         _draggingToken = null;
         _measurementStart = null;
         _measurementEnd = null;
-
-        var completedDrawing = _activeDrawing;
         _activeDrawing = null;
-        if (completedDrawing is not null && SelectedMap is not null && hubConnection is not null)
-            await hubConnection.SendAsync("SendMapDrawing", IdRoom, SelectedMap.Id, completedDrawing);
-    }
 
-    private async Task HandleMapPointerLeave(PointerEventArgs args)
-    {
-        if (!IsMeasurementMode && !IsDrawingMode)
-            await EndMapDrag(args);
+        if (selectedMap is null || _isSavingMapTokens)
+            return;
+
+        if (completedDrawing is not null)
+        {
+            _isSavingMapTokens = true;
+            try
+            {
+                var saved = await SaveMapDrawingAsync(selectedMap, completedDrawing);
+                if (!saved && _drawingsByMap.TryGetValue(selectedMap.Id, out var drawings))
+                    drawings.RemoveAll(drawing => drawing.Id == completedDrawing.Id);
+            }
+            finally
+            {
+                _isSavingMapTokens = false;
+            }
+        }
+        else if (tokenMoved && movedToken is not null)
+        {
+            _isSavingMapTokens = true;
+            try
+            {
+                if (!await SaveMapTokensAsync(selectedMap, CurrentMapTokens))
+                {
+                    movedToken.X = _draggingTokenStartX;
+                    movedToken.Y = _draggingTokenStartY;
+                }
+            }
+            finally
+            {
+                _isSavingMapTokens = false;
+            }
+        }
     }
 
     private async Task LoadMapTokensAsync()
@@ -445,6 +529,23 @@ public partial class RoomMapChat : IAsyncDisposable
 
         if (ReferenceEquals(SelectedMap, selectedMap))
             _tokensByMap[selectedMap.Id] = tokens;
+    }
+
+    private void ApplyMapState(Guid mapId, RoomMapStateDto state)
+    {
+        _tokensByMap[mapId] = (state.Tokens ?? [])
+            .Select(token => new RoomMapToken
+            {
+                MemberId = token.MemberId,
+                IsNpc = token.IsNpc,
+                Name = token.Name,
+                AvatarName = token.AvatarName,
+                X = token.X,
+                Y = token.Y
+            })
+            .ToList();
+        _drawingsByMap[mapId] = state.Drawings ?? [];
+        StateHasChanged();
     }
 
     private async Task LoadMapDrawingsAsync()
@@ -488,32 +589,27 @@ public partial class RoomMapChat : IAsyncDisposable
         if (_contextMenuToken is null || SelectedMap is null)
             return;
 
+        var selectedMap = SelectedMap;
         var tokenToDelete = _contextMenuToken;
         var remainingTokens = CurrentMapTokens
             .Where(token => !ReferenceEquals(token, tokenToDelete))
-            .Select(token => new RoomMapTokenDto
-            {
-                MemberId = token.MemberId,
-                IsNpc = token.IsNpc,
-                Name = token.Name,
-                AvatarName = token.AvatarName,
-                X = token.X,
-                Y = token.Y
-            })
             .ToList();
 
-        var response = await Client!.PutAsJsonAsync($"/room-maps/{SelectedMap.Id}/tokens", remainingTokens);
-        if (!response.IsSuccessStatusCode)
+        _isSavingMapTokens = true;
+        try
         {
-            var result = await response.Content.ReadFromJsonAsync<Result<object>>();
-            Snackbar.Add(result?.Error ?? "Unable to delete map token", Severity.Error);
-            return;
-        }
+            if (!await SaveMapTokensAsync(selectedMap, remainingTokens))
+                return;
 
-        CurrentMapTokens.Remove(tokenToDelete);
-        _contextMenuToken = null;
-        _contextMenuDrawing = null;
-        Snackbar.Add("Map token deleted", Severity.Success);
+            CurrentMapTokens.Remove(tokenToDelete);
+            _contextMenuToken = null;
+            _contextMenuDrawing = null;
+            Snackbar.Add("Map token deleted", Severity.Success);
+        }
+        finally
+        {
+            _isSavingMapTokens = false;
+        }
     }
 
     private async Task DeleteContextMenuDrawing()
@@ -523,26 +619,19 @@ public partial class RoomMapChat : IAsyncDisposable
         if (!IsGM || drawingToDelete is null || selectedMap is null || _isSavingMapTokens)
             return;
 
-        var mapTokens = CurrentMapTokens;
-        var mapDrawings = CurrentMapDrawings;
-        var remainingDrawings = mapDrawings
-            .Where(drawing => !ReferenceEquals(drawing, drawingToDelete))
-            .ToList();
         _isSavingMapTokens = true;
         try
         {
-            if (!await SaveMapStateAsync(selectedMap, mapTokens, remainingDrawings))
+            var response = await Client!.DeleteAsync($"/room-maps/{selectedMap.Id}/drawings/{drawingToDelete.Id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+                Snackbar.Add(result?.Error ?? "Unable to delete map drawing", Severity.Error);
                 return;
+            }
 
-            mapDrawings.Remove(drawingToDelete);
-            if (ReferenceEquals(_contextMenuDrawing, drawingToDelete))
-                _contextMenuDrawing = null;
-
-            if (hubConnection?.State == HubConnectionState.Connected)
-                await hubConnection.SendAsync("DeleteMapDrawing", IdRoom, selectedMap.Id, drawingToDelete.Id);
-            else
-                Snackbar.Add("Drawing deleted; other participants may need to reload the map", Severity.Warning);
-
+            CurrentMapDrawings.RemoveAll(drawing => drawing.Id == drawingToDelete.Id);
+            _contextMenuDrawing = null;
             Snackbar.Add("Map drawing deleted", Severity.Success);
         }
         finally
@@ -551,51 +640,35 @@ public partial class RoomMapChat : IAsyncDisposable
         }
     }
 
-    private async Task SaveMapTokens()
+    private async Task<bool> SaveMapDrawingAsync(RoomMapDto map, RoomMapDrawingDto drawing)
     {
-        var selectedMap = SelectedMap;
-        if (selectedMap is null || _isSavingMapTokens)
-            return;
-
-        var mapTokens = CurrentMapTokens;
-        var mapDrawings = CurrentMapDrawings;
-        _isSavingMapTokens = true;
-        try
-        {
-            if (await SaveMapStateAsync(selectedMap, mapTokens, mapDrawings))
-                Snackbar.Add("Map saved", Severity.Success);
-        }
-        finally
-        {
-            _isSavingMapTokens = false;
-        }
-    }
-
-    private async Task<bool> SaveMapStateAsync(RoomMapDto map, List<RoomMapToken> tokens, List<RoomMapDrawingDto> drawings)
-    {
-        if (!IsGM)
-            return false;
-
-        var state = new RoomMapStateDto
-        {
-            Tokens = tokens.Select(token => new RoomMapTokenDto
-            {
-                MemberId = token.MemberId,
-                IsNpc = token.IsNpc,
-                Name = token.Name,
-                AvatarName = token.AvatarName,
-                X = token.X,
-                Y = token.Y
-            }).ToList(),
-            Drawings = drawings
-        };
-
-        var response = await Client!.PutAsJsonAsync($"/room-maps/{map.Id}/state", state);
+        var response = await Client!.PostAsJsonAsync($"/room-maps/{map.Id}/drawings", drawing);
         if (response.IsSuccessStatusCode)
             return true;
 
         var result = await response.Content.ReadFromJsonAsync<Result<object>>();
-        Snackbar.Add(result?.Error ?? "Unable to save map", Severity.Error);
+        Snackbar.Add(result?.Error ?? "Unable to save map drawing", Severity.Error);
+        return false;
+    }
+
+    private async Task<bool> SaveMapTokensAsync(RoomMapDto map, List<RoomMapToken> tokens)
+    {
+        var tokenDtos = tokens.Select(token => new RoomMapTokenDto
+        {
+            MemberId = token.MemberId,
+            IsNpc = token.IsNpc,
+            Name = token.Name,
+            AvatarName = token.AvatarName,
+            X = token.X,
+            Y = token.Y
+        }).ToList();
+
+        var response = await Client!.PutAsJsonAsync($"/room-maps/{map.Id}/tokens", tokenDtos);
+        if (response.IsSuccessStatusCode)
+            return true;
+
+        var result = await response.Content.ReadFromJsonAsync<Result<object>>();
+        Snackbar.Add(result?.Error ?? "Unable to save map tokens", Severity.Error);
         return false;
     }
 
@@ -635,7 +708,7 @@ public partial class RoomMapChat : IAsyncDisposable
     {
         var pendingToken = _pendingMapToken;
         var selectedMap = SelectedMap;
-        if (pendingToken is null || selectedMap is null)
+        if (!IsGM || _isSavingMapTokens || pendingToken is null || selectedMap is null)
             return;
 
         var point = await GetMapPointAsync(args.ClientX, args.ClientY);
@@ -657,12 +730,34 @@ public partial class RoomMapChat : IAsyncDisposable
         }
 
         var existingToken = tokens.FirstOrDefault(item => item.Key == token.Key);
+        var previousX = existingToken?.X;
+        var previousY = existingToken?.Y;
         if (existingToken is null)
             tokens.Add(token);
         else
         {
             existingToken.X = token.X;
             existingToken.Y = token.Y;
+        }
+
+        _isSavingMapTokens = true;
+        try
+        {
+            if (!await SaveMapTokensAsync(selectedMap, tokens))
+            {
+                if (existingToken is null)
+                    tokens.Remove(token);
+                else
+                {
+                    existingToken.X = previousX!.Value;
+                    existingToken.Y = previousY!.Value;
+                }
+                return;
+            }
+        }
+        finally
+        {
+            _isSavingMapTokens = false;
         }
 
         if (ReferenceEquals(_pendingMapToken, pendingToken))
@@ -766,7 +861,10 @@ public partial class RoomMapChat : IAsyncDisposable
         hubConnection?.Remove("ReceiveMessage");
         hubConnection?.Remove("ReceiveHistory");
         hubConnection?.Remove("ReceiveRollResult");
-        hubConnection?.Remove("ReceiveMapDrawing");
+        hubConnection?.Remove("ReceiveRoomMapSelected");
+        hubConnection?.Remove("ReceiveGridConfigurationUpdated");
+        hubConnection?.Remove("ReceiveMapStateUpdated");
+        hubConnection?.Remove("ReceiveMapDrawingAdded");
         hubConnection?.Remove("ReceiveMapDrawingDeleted");
         if (_mapCanvasModule is not null)
             await _mapCanvasModule.DisposeAsync();

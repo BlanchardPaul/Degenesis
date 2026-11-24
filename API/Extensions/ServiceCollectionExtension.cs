@@ -58,6 +58,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRoomService, RoomService>();
         services.AddScoped<IRoomMapService, RoomMapService>();
         services.AddScoped<IRoomBroadcastService, RoomBroadcastService>();
+        services.AddScoped<IRoomMapBroadcastService, RoomMapBroadcastService>();
         services.AddScoped<IRoomCultRelationshipService, RoomCultRelationshipService>();
         services.AddScoped<IRoomChatMessageService, RoomChatMessageService>();
         services.AddScoped<ISkillService, SkillService>();
