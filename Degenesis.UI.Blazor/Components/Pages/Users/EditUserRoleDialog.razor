@@ -1,0 +1,13 @@
+<MudDialog>
+    <DialogContent>
+        <MudSelect T="string" Label="Role" @bind-Value="_selectedRole">
+            <MudSelectItem Value="@("Admin")">Admin</MudSelectItem>
+            <MudSelectItem Value="@("GameMaster")">GameMaster</MudSelectItem>
+            <MudSelectItem Value="@("Player")">Player</MudSelectItem>
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">Cancel</MudButton>
+        <MudButton OnClick="Save" Color="Color.Primary" Variant="Variant.Filled" Disabled="@string.IsNullOrWhiteSpace(_selectedRole)">Save</MudButton>
+    </DialogActions>
+</MudDialog>

@@ -114,4 +114,24 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    public static async Task SeedRolesAsync(this IServiceProvider serviceProvider)
+    {
+        using var scope = serviceProvider.CreateScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+        string[] roles = [Role.Admin, Role.GameMaster, Role.Player];
+
+        foreach (var roleName in roles)
+        {
+            if (await roleManager.RoleExistsAsync(roleName))
+                continue;
+
+            var result = await roleManager.CreateAsync(new Role { Name = roleName });
+            if (!result.Succeeded)
+            {
+                var errors = string.Join("; ", result.Errors.Select(error => error.Description));
+                throw new InvalidOperationException($"Unable to create the '{roleName}' role: {errors}");
+            }
+        }
+    }
 }

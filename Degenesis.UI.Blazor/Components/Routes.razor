@@ -5,12 +5,27 @@
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
-                <NotAuthorized>
-                    <p>You are not authorized to view this page.</p>
-                    <MudButton OnClick="RedirectToLogin" Color="Color.Primary">Login</MudButton>
-                </NotAuthorized>
-            </AuthorizeRouteView>
+            @if (GetRequiredRoles() is { } requiredRoles)
+            {
+                <AuthorizeView Roles="@requiredRoles">
+                    <Authorized>
+                        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+                    </Authorized>
+                    <NotAuthorized>
+                        <p>You are not authorized to view this page.</p>
+                        <MudButton OnClick="RedirectToLogin" Color="Color.Primary">Login</MudButton>
+                    </NotAuthorized>
+                </AuthorizeView>
+            }
+            else
+            {
+                <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+                    <NotAuthorized>
+                        <p>You are not authorized to view this page.</p>
+                        <MudButton OnClick="RedirectToLogin" Color="Color.Primary">Login</MudButton>
+                    </NotAuthorized>
+                </AuthorizeRouteView>
+            }
         </Found>
         <NotFound>
             <LayoutView Layout="@typeof(Layout.MainLayout)">
@@ -21,6 +36,23 @@
 </CascadingAuthenticationState>
 
 @code {
+    private string? GetRequiredRoles()
+    {
+        var route = NavigationManager.ToBaseRelativePath(NavigationManager.Uri)
+            .Split('?', '#')[0]
+            .Trim('/');
+
+        if (route.Equals("users-management", StringComparison.OrdinalIgnoreCase)
+            || route.StartsWith("users-management/", StringComparison.OrdinalIgnoreCase))
+            return "Admin";
+
+        if (route.Equals("dashboard", StringComparison.OrdinalIgnoreCase)
+            || route.StartsWith("dashboard/", StringComparison.OrdinalIgnoreCase))
+            return "Admin,GameMaster";
+
+        return null;
+    }
+
     private void RedirectToLogin()
     {
         NavigationManager.NavigateTo("/login");

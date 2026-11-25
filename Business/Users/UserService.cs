@@ -3,6 +3,7 @@ using Degenesis.Shared.DTOs;
 using Degenesis.Shared.DTOs.Users;
 using Domain.Users;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,6 +16,9 @@ public interface IUserService
     Task<Result<object>> RegisterAsync(UserCreateDto userCreateDto);
     Task<Result<string>> LoginAsync(UserLoginDto userLoginDto);
     Task<Result<AccountDisplayDto>> GetAccountAsync(string userName);
+    Task<Result<List<UserDtoForAdmin>>> GetUsersForAdminAsync();
+    Task<Result<object>> UpdateRoleForAdminAsync(string userName, string roleName);
+    Task<Result<object>> DeleteUserForAdminAsync(string userName);
     Task<Result<object>> UpdateUserNameAsync(UpdateUserNameDto dto);
     Task<Result<object>> UpdateEmailAsync(UpdateEmailDto dto);
     Task<Result<object>> UpdatePasswordAsync(UpdatePasswordDto dto);
@@ -41,7 +45,14 @@ public class UserService(UserManager<ApplicationUser> userManager, IMapper mappe
                 return new Result<object> { IsError = true, Error = "This email address is already taken" };
 
             var user = _mapper.Map<ApplicationUser>(userCreateDto);
-            var result = await _userManager.CreateAsync(user, userCreateDto.Password);
+            var createResult = await _userManager.CreateAsync(user, userCreateDto.Password);
+            if (!createResult.Succeeded)
+                return new Result<object> { IsError = true, Error = string.Join("; ", createResult.Errors.Select(error => error.Description)) };
+
+            var roleResult = await _userManager.AddToRoleAsync(user, Role.Player);
+            if (!roleResult.Succeeded)
+                return new Result<object> { IsError = true, Error = string.Join("; ", roleResult.Errors.Select(error => error.Description)) };
+
             return new Result<object> { Value = null };
         }
         catch(Exception)
@@ -66,14 +77,13 @@ public class UserService(UserManager<ApplicationUser> userManager, IMapper mappe
             if (keyConfig is null)
                 return new Result<string> { IsError = true, Error = "JWT key is not configured" };
             var key = Encoding.UTF8.GetBytes(keyConfig);
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var claims = new List<Claim> { new(ClaimTypes.Name, user.UserName!) };
+            claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(
-                [
-                    new Claim(ClaimTypes.Name, user.UserName!),
-                new Claim(ClaimTypes.Role, "User")
-                ]),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -105,6 +115,73 @@ public class UserService(UserManager<ApplicationUser> userManager, IMapper mappe
         {
             return new Result<AccountDisplayDto> { IsError = true, Error = "A server error occurred" };
         }
+    }
+
+    public async Task<Result<List<UserDtoForAdmin>>> GetUsersForAdminAsync()
+    {
+        try
+        {
+            var users = await _userManager.Users.ToListAsync();
+            var userDtos = new List<UserDtoForAdmin>(users.Count);
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userDtos.Add(new UserDtoForAdmin
+                {
+                    UserName = user.UserName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
+                    Role = string.Join(", ", roles)
+                });
+            }
+
+            return new Result<List<UserDtoForAdmin>> { Value = userDtos };
+        }
+        catch (Exception)
+        {
+            return new Result<List<UserDtoForAdmin>> { IsError = true, Error = "A server error occurred" };
+        }
+    }
+
+    public async Task<Result<object>> UpdateRoleForAdminAsync(string userName, string roleName)
+    {
+        if (roleName is not (Role.Admin or Role.GameMaster or Role.Player))
+            return new Result<object> { IsError = true, Error = "Invalid role" };
+
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user is null)
+            return new Result<object> { IsError = true, Error = "User not found" };
+
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        if (!currentRoles.Contains(roleName))
+        {
+            var addResult = await _userManager.AddToRoleAsync(user, roleName);
+            if (!addResult.Succeeded)
+                return new Result<object> { IsError = true, Error = string.Join("; ", addResult.Errors.Select(error => error.Description)) };
+        }
+
+        var rolesToRemove = currentRoles.Where(role => role != roleName).ToArray();
+        if (rolesToRemove.Length > 0)
+        {
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+            if (!removeResult.Succeeded)
+                return new Result<object> { IsError = true, Error = string.Join("; ", removeResult.Errors.Select(error => error.Description)) };
+        }
+
+        return new Result<object> { Value = null };
+    }
+
+    public async Task<Result<object>> DeleteUserForAdminAsync(string userName)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user is null)
+            return new Result<object> { IsError = true, Error = "User not found" };
+
+        var result = await _userManager.DeleteAsync(user);
+        if (!result.Succeeded)
+            return new Result<object> { IsError = true, Error = string.Join("; ", result.Errors.Select(error => error.Description)) };
+
+        return new Result<object> { Value = null };
     }
 
     public async Task<Result<object>> UpdateUserNameAsync(UpdateUserNameDto dto)

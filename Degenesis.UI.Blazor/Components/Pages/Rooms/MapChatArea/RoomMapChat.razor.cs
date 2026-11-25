@@ -309,8 +309,7 @@ public partial class RoomMapChat : IAsyncDisposable
             return;
         }
 
-        if (room is not null)
-            room.SelectedMapId = mapId;
+        room?.SelectedMapId = mapId;
         await SelectMapAsync(map, persistSelection: false);
     }
 
@@ -533,7 +532,7 @@ public partial class RoomMapChat : IAsyncDisposable
 
     private void ApplyMapState(Guid mapId, RoomMapStateDto state)
     {
-        _tokensByMap[mapId] = (state.Tokens ?? [])
+        _tokensByMap[mapId] = [.. (state.Tokens ?? [])
             .Select(token => new RoomMapToken
             {
                 MemberId = token.MemberId,
@@ -542,8 +541,7 @@ public partial class RoomMapChat : IAsyncDisposable
                 AvatarName = token.AvatarName,
                 X = token.X,
                 Y = token.Y
-            })
-            .ToList();
+            })];
         _drawingsByMap[mapId] = state.Drawings ?? [];
         StateHasChanged();
     }
@@ -674,7 +672,7 @@ public partial class RoomMapChat : IAsyncDisposable
 
     private void SetPendingMapToken(RoomMapToken token) => _pendingMapToken = token;
 
-    private void IgnoreMapDragOver(DragEventArgs args) { }
+    private static void IgnoreMapDragOver(DragEventArgs args) { }
 
     private static RoomMapPointDto GetDrawingPoint(SvgPoint point, RoomMapDto map)
         => new()

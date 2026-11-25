@@ -14,12 +14,21 @@
     <MudAppBar Elevation="1">
         <MudButton OnClick="NavigateToHome" Size="Size.Large">Degenesis</MudButton>
         <MudSpacer />
-        <MudButton OnClick="NavigateToRooms" Color="Color.Primary">Rooms</MudButton>
-        <MudButton OnClick="NavigateToDashboard" Color="Color.Primary">Dashboard</MudButton>
         @if (_isReady)
         {
             @if (_isAuthenticated)
             {
+                <MudButton OnClick="NavigateToRooms" Color="Color.Primary">Rooms</MudButton>
+                <AuthorizeView Roles="Admin,GameMaster">
+                    <Authorized>
+                        <MudButton OnClick="NavigateToDashboard" Color="Color.Primary">Dashboard</MudButton>
+                    </Authorized>
+                </AuthorizeView>
+                <AuthorizeView Roles="Admin">
+                    <Authorized>
+                        <MudButton OnClick="NavigateToUsersManagement" Color="Color.Primary">Users Management</MudButton>
+                    </Authorized>
+                </AuthorizeView>
                 <MudButton OnClick="NavigateToLogout" Color="Color.Secondary">Logout</MudButton>
                 <MudIconButton Icon="@Icons.Material.Outlined.Person" Color="Color.Primary" OnClick="NavigateToAccount" />
             }
@@ -36,9 +45,13 @@
 
     @if (_isDashboard)
     {
-        <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
-            <NavMenu />
-        </MudDrawer>
+        <AuthorizeView Roles="Admin,GameMaster">
+            <Authorized>
+                <MudDrawer @bind-Open="_drawerOpen" Elevation="2" ClipMode="DrawerClipMode.Always">
+                    <NavMenu />
+                </MudDrawer>
+            </Authorized>
+        </AuthorizeView>
     }
 
     <MudMainContent Class="mt-16 pa-4">
@@ -154,6 +167,7 @@
     private void NavigateToAccount() => NavigationManager.NavigateTo("/account");
     private void NavigateToRooms() => NavigationManager.NavigateTo("/rooms");
     private void NavigateToDashboard() => NavigationManager.NavigateTo("/dashboard");
+    private void NavigateToUsersManagement() => NavigationManager.NavigateTo("/users-management");
     private void NavigateToLogin() => NavigationManager.NavigateTo("/login");
     private void NavigateToLogout() => NavigationManager.NavigateTo("/logout");
     private void NavigateToHome() => NavigationManager.NavigateTo("/");

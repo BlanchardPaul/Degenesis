@@ -1,5 +1,7 @@
 ﻿using Business.Users;
 using Degenesis.Shared.DTOs.Users;
+using Domain.Users;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Endpoints.Users;
 
@@ -8,6 +10,27 @@ public static class UserEndpoints
     public static void MapUserEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/users").WithTags("Users");
+
+        group.MapGet("/management", async (IUserService service) =>
+        {
+            var result = await service.GetUsersForAdminAsync();
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        })
+        .RequireAuthorization(policy => policy.RequireRole(Role.Admin));
+
+        group.MapPut("/management/{userName}/role", async (string userName, [FromBody] string role, IUserService service) =>
+        {
+            var result = await service.UpdateRoleForAdminAsync(userName, role);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        })
+        .RequireAuthorization(policy => policy.RequireRole(Role.Admin));
+
+        group.MapDelete("/management/{userName}", async (string userName, IUserService service) =>
+        {
+            var result = await service.DeleteUserForAdminAsync(userName);
+            return result.IsError ? Results.BadRequest(result) : Results.Ok(result);
+        })
+        .RequireAuthorization(policy => policy.RequireRole(Role.Admin));
 
         group.MapGet("/{userName}",
             async (string userName, IUserService service) =>

@@ -8,6 +8,8 @@ builder.Services.AddBusinessServices();
 
 var app = builder.Build();
 
+await app.Services.SeedRolesAsync();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

@@ -53,7 +53,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
             }
 
             var claims = ParseClaimsFromJwt(token);
-            var identity = new ClaimsIdentity(claims, "jwt");
+            var identity = new ClaimsIdentity(claims, "jwt", ClaimTypes.Name, ClaimTypes.Role);
             var user = new ClaimsPrincipal(identity);
 
             return new AuthenticationState(user);
@@ -88,6 +88,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         var handler = new JwtSecurityTokenHandler();
         var token = handler.ReadJwtToken(jwt);
-        return token.Claims;
+        return token.Claims.Select(claim =>
+            claim.Type == "role" ? new Claim(ClaimTypes.Role, claim.Value) : claim);
     }
 }
